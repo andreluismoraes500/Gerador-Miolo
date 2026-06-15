@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0mm !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  header,
+  .print\:hidden,
+  button,
+  input,
+  select,
+  label {
+    display: none !important;
+  }
+
+  .page-break {
+    page-break-before: always !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-before: page !important;
+    break-inside: avoid !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .page-break:first-child {
+    page-break-before: avoid !important;
+  }
+
+  .printable-page {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: 210mm !important;
+    max-height: 297mm !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    margin: 0 auto !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding-top: 15mm !important;
+    padding-bottom: 12mm !important;
+    overflow: visible !important;
+  }
+
+  /* Margens espelhadas perfeitas para Wire-O */
+  .page-break:nth-child(odd) .printable-page {
+    padding-left: 22mm !important;
+    padding-right: 12mm !important;
+  }
+
+  .page-break:nth-child(even) .printable-page {
+    padding-left: 12mm !important;
+    padding-right: 22mm !important;
+  }
+
+  /* Caso seja impresso o modo Unitário (sem loop de páginas) */
+  .agenda-preview-container:not(.is-printing) .printable-page {
+    padding-left: 22mm !important;
+    padding-right: 12mm !important;
+  }
+
+  table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+  }
+
+  tbody tr {
+    height: 7.75mm !important; /* Fixa uma altura excelente para escrita */
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Força cores finas e paletas pastéis em qualquer motor de impressão */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-scheme: exact !important;
+  }
+
+  /* Garante cores fiéis dos SVGs na impressão caso suporte cores */
+  svg {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* UI Preview Screen */
+.agenda-preview-container {
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.agenda-preview-container.is-printing {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
