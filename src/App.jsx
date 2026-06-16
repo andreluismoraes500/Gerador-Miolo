@@ -26,6 +26,7 @@ function AppContent() {
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
   const [colorTheme, setColorTheme] = useState("classico");
+  const [footerType, setFooterType] = useState("default"); // 👈 ESTADO DO RODAPÉ
 
   const { logo, setLogo } = useAgendaConfig();
 
@@ -60,8 +61,6 @@ function AppContent() {
     const reader = new FileReader();
     reader.onloadend = () => {
       setLogo(reader.result);
-      // Força a atualização do componente AgendaPreview resetando a key?
-      // Não necessário se o prop logo mudar, mas podemos forçar um re-render do preview com key.
     };
     reader.readAsDataURL(file);
   };
@@ -145,6 +144,7 @@ function AppContent() {
           </div>
 
           <div className="flex flex-wrap items-center gap-4 border-t border-gray-100 pt-3">
+            {/* Temas */}
             <div className="flex items-center gap-2">
               <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
                 Layout Visual:
@@ -166,6 +166,34 @@ function AppContent() {
               </div>
             </div>
 
+            {/* 👇 SELETOR DE RODAPÉ */}
+            <div className="flex items-center gap-2">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
+                Rodapé:
+              </label>
+              <button
+                onClick={() => setFooterType("default")}
+                className={`px-3 py-1 text-xs rounded-full border transition ${
+                  footerType === "default"
+                    ? "bg-black text-white border-black"
+                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Padrão
+              </button>
+              <button
+                onClick={() => setFooterType("biblical")}
+                className={`px-3 py-1 text-xs rounded-full border transition ${
+                  footerType === "biblical"
+                    ? "bg-black text-white border-black"
+                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                Bíblico
+              </button>
+            </div>
+
+            {/* Logo */}
             <div className="flex items-center gap-2">
               <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                 Logo:
@@ -195,7 +223,7 @@ function AppContent() {
 
       <main className="flex-1 p-6 flex justify-center items-start overflow-y-auto print:p-0 print:overflow-visible">
         <AgendaPreview
-          key={`${template}-${selectedDate}-${colorTheme}-${logo}`} // Força re-render quando logo mudar
+          key={`${template}-${selectedDate}-${colorTheme}-${logo}-${footerType}`}
           template={template}
           customName={footerName}
           paid={paid}
@@ -203,6 +231,7 @@ function AppContent() {
           printing={printing}
           colorTheme={colorTheme}
           logo={logo}
+          footerType={footerType}
         />
       </main>
 

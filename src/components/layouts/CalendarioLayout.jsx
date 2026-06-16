@@ -44,6 +44,7 @@ export default function CalendarioLayout({
   footerName,
   colorTheme = "classico",
   logo,
+  footerType = "default",
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
@@ -222,7 +223,7 @@ export default function CalendarioLayout({
           </div>
         </div>
       </div>
-      <Footer name={footerName} />
+      <Footer name={footerName} type={footerType} />
     </div>
   );
 }

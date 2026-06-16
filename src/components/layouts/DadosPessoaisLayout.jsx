@@ -11,6 +11,7 @@ export default function DadosPessoaisLayout({
   footerName,
   colorTheme = "classico",
   logo,
+  footerType = "default",
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
@@ -123,7 +124,7 @@ export default function DadosPessoaisLayout({
           </div>
         </div>
       </div>
-      <Footer name={footerName} />
+      <Footer name={footerName} type={footerType} />
     </div>
   );
 }

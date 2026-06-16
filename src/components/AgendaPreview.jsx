@@ -8,6 +8,7 @@ export default function AgendaPreview({
   printing,
   colorTheme = "classico",
   logo,
+  footerType = "default",
 }) {
   const currentTemplate = TEMPLATES[template];
   if (!currentTemplate) {
@@ -27,6 +28,7 @@ export default function AgendaPreview({
         printing,
         colorTheme,
         logo,
+        footerType,
       )}
     </div>
   );

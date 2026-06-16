@@ -16,6 +16,7 @@ export default function DiaCompleto({
   footerName,
   colorTheme = "classico",
   logo,
+  footerType = "default",
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
@@ -168,7 +169,7 @@ export default function DiaCompleto({
           </table>
         </div>
       </div>
-      <Footer name={footerName} />
+      <Footer name={footerName} type={footerType} />
     </div>
   );
 }
