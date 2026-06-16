@@ -10,8 +10,6 @@ export default function SemanalLayout({
   logo,
   footerType = "default",
 }) {
-  console.log("🟡 SemanalLayout: footerType recebido =", footerType);
-
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const todosOsDias = [
     "Segunda-feira",

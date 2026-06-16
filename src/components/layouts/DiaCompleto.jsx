@@ -18,8 +18,6 @@ export default function DiaCompleto({
   logo,
   footerType = "default",
 }) {
-  console.log("🟡 DiaCompleto: footerType recebido =", footerType);
-
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
   const horarios = gerarHorarios();

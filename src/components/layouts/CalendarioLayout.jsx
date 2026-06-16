@@ -46,8 +46,6 @@ export default function CalendarioLayout({
   logo,
   footerType = "default",
 }) {
-  console.log("🟡 CalendarioLayout: footerType recebido =", footerType);
-
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
   const obtenerLegendaCompleta = () => {

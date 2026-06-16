@@ -13,8 +13,6 @@ export default function DadosPessoaisLayout({
   logo,
   footerType = "default",
 }) {
-  console.log("🟡 DadosPessoaisLayout: footerType recebido =", footerType);
-
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
   return (

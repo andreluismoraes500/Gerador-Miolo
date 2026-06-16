@@ -18,13 +18,13 @@ export default function Footer({
         <p
           className={`text-[8px] uppercase tracking-widest font-sans mt-1 ${tema.accent || "text-gray-400"}`}
         >
-          {displayName}
+          Desenho de Miolo por: {displayName}
         </p>
       </div>
     );
   }
 
-  // Rodapé padrão – também pode usar cores do tema, se desejar
+  // Rodapé padrão
   return (
     <div className="w-full mt-4 pt-2 border-t border-gray-300 flex justify-between items-center text-[9px] tracking-widest uppercase font-mono print:mt-2">
       <p className="text-gray-400">
