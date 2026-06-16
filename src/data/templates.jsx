@@ -212,44 +212,39 @@ export const TEMPLATES = {
     },
   },
   calendarios: {
-    nome: "Calendários 2026/2027",
+    nome: "Calendários",
     layout: (
       footerName,
       selectedDate,
       printing = false,
       colorTheme = "slate",
     ) => {
-      const [anoVigente] = selectedDate.split("-").map(Number); // Pega o ano selecionado (2026)
-      const anoSeguinte = anoVigente + 1;
+      const anoBase = parseInt(selectedDate.split("-")[0], 10);
+      const anos = [anoBase, anoBase + 1, anoBase + 2];
 
       if (!printing) {
-        // Na tela de preview, exibe o ano corrente para conferência rápida
+        // Preview: mostra apenas o primeiro ano (anoBase)
         return (
           <CalendarioLayout
-            ano={anoVigente}
+            ano={anoBase}
             footerName={footerName}
             colorTheme={colorTheme}
           />
         );
       }
 
-      // Na impressão, gera automaticamente a folha do Ano Vigente E do Ano Seguinte (Duas páginas)
+      // Impressão: gera uma página para cada ano do array
       return (
         <div className="print-container">
-          <div className="page-break">
-            <CalendarioLayout
-              ano={anoVigente}
-              footerName={footerName}
-              colorTheme={colorTheme}
-            />
-          </div>
-          <div className="page-break">
-            <CalendarioLayout
-              ano={anoSeguinte}
-              footerName={footerName}
-              colorTheme={colorTheme}
-            />
-          </div>
+          {anos.map((ano) => (
+            <div key={ano} className="page-break">
+              <CalendarioLayout
+                ano={ano}
+                footerName={footerName}
+                colorTheme={colorTheme}
+              />
+            </div>
+          ))}
         </div>
       );
     },

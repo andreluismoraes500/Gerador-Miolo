@@ -12,7 +12,6 @@ export const FERIADOS = [
 
 const COMEMORATIVAS_FIXAS = [
   { mes: 3, dia: 8, nome: "Dia Internacional da Mulher" },
-  { mes: 4, dia: 23, nome: "Dia de São Jorge" }, // Mantive conforme seu primeiro código
   { mes: 6, dia: 12, nome: "Dia dos Namorados" },
   { mes: 10, dia: 12, nome: "Dia das Crianças" },
   { mes: 10, dia: 15, nome: "Dia do Professor" },

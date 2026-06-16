@@ -39,13 +39,14 @@ export default function App() {
     }, 250);
   };
 
+  // Função handleDateChange ajustada
   const handleDateChange = (value) => {
     if (template === "mensalCompleto") {
       const [year, month] = value.split("-");
       setSelectedDate(
         formatLocalDate(parseInt(year, 10), parseInt(month, 10) - 1, 1),
       );
-    } else if (template === "anualCompleto") {
+    } else if (template === "anualCompleto" || template === "calendarios") {
       const year = parseInt(value, 10);
       if (!isNaN(year)) setSelectedDate(formatLocalDate(year, 0, 1));
     } else {
@@ -102,7 +103,7 @@ export default function App() {
               <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                 Data Base:
               </label>
-              {template === "anualCompleto" ? (
+              {template === "anualCompleto" || template === "calendarios" ? (
                 <input
                   type="number"
                   min="2020"
