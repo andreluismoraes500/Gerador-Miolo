@@ -5,6 +5,7 @@ import floral from "./floral";
 import comercial from "./comercial";
 import moderno from "./moderno";
 import rustico from "./rustico";
+import tecnologico from "./tecnologico";
 
 // Objeto com todos os temas disponíveis
 export const TEMAS = {
@@ -13,6 +14,7 @@ export const TEMAS = {
   comercial,
   moderno,
   rustico,
+  tecnologico,
   // Adicione novos temas aqui conforme criar
 };
 
