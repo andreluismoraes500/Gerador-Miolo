@@ -1,4 +1,3 @@
-// src/components/AgendaPreview.jsx
 import { TEMPLATES } from "../data/templates";
 
 export default function AgendaPreview({
@@ -8,6 +7,7 @@ export default function AgendaPreview({
   selectedDate,
   printing,
   colorTheme = "classico",
+  logo,
 }) {
   const currentTemplate = TEMPLATES[template];
   if (!currentTemplate) {
@@ -21,7 +21,13 @@ export default function AgendaPreview({
     <div
       className={`agenda-preview-container ${printing ? "is-printing" : ""}`}
     >
-      {currentTemplate.layout(customName, selectedDate, printing, colorTheme)}
+      {currentTemplate.layout(
+        customName,
+        selectedDate,
+        printing,
+        colorTheme,
+        logo,
+      )}
     </div>
   );
 }

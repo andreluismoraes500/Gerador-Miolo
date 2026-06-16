@@ -1,10 +1,13 @@
-// src/App.jsx
 import { useState } from "react";
-import { MdPrint, MdTune } from "react-icons/md";
+import { MdPrint, MdTune, MdUpload } from "react-icons/md";
 import TemplateSelector from "./components/TemplateSelector";
 import AgendaPreview from "./components/AgendaPreview";
 import PaymentPanel from "./components/PaymentPanel";
-import { TEMAS } from "./themes"; // importa o objeto de temas
+import { TEMAS } from "./themes";
+import {
+  AgendaConfigProvider,
+  useAgendaConfig,
+} from "./context/AgendaConfigContext";
 import "./styles/print.css";
 
 function formatLocalDate(year, month, day) {
@@ -12,7 +15,7 @@ function formatLocalDate(year, month, day) {
   return `${year}-${pad(month + 1)}-${pad(day)}`;
 }
 
-export default function App() {
+function AppContent() {
   const hoje = new Date();
   const [template, setTemplate] = useState("diario");
   const [paid, setPaid] = useState(false);
@@ -23,6 +26,8 @@ export default function App() {
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
   const [colorTheme, setColorTheme] = useState("classico");
+
+  const { logo, setLogo } = useAgendaConfig();
 
   const handlePrint = () => {
     setPrinting(true);
@@ -49,7 +54,18 @@ export default function App() {
   const [currentYear, currentMonth] = selectedDate.split("-").map(Number);
   const footerName = paid ? customName : "Lucas Cassiano de Moraes";
 
-  // Gera a lista de temas dinamicamente a partir do objeto TEMAS
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLogo(reader.result);
+      // Força a atualização do componente AgendaPreview resetando a key?
+      // Não necessário se o prop logo mudar, mas podemos forçar um re-render do preview com key.
+    };
+    reader.readAsDataURL(file);
+  };
+
   const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
     id,
     nome,
@@ -128,24 +144,50 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 border-t border-gray-100 pt-3">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
-              Layout Visual:
-            </label>
-            <div className="flex items-center gap-2 flex-wrap">
-              {opcoesDeTemas.map(({ id, nome }) => (
+          <div className="flex flex-wrap items-center gap-4 border-t border-gray-100 pt-3">
+            <div className="flex items-center gap-2">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
+                Layout Visual:
+              </label>
+              <div className="flex items-center gap-2 flex-wrap">
+                {opcoesDeTemas.map(({ id, nome }) => (
+                  <button
+                    key={id}
+                    onClick={() => setColorTheme(id)}
+                    className={`px-3 py-1 text-xs rounded-full border transition ${
+                      colorTheme === id
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {nome}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                Logo:
+              </label>
+              <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1 rounded border border-gray-300 flex items-center gap-1 transition">
+                <MdUpload className="w-3.5 h-3.5" />
+                {logo ? "Alterar" : "Enviar"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  className="hidden"
+                />
+              </label>
+              {logo && (
                 <button
-                  key={id}
-                  onClick={() => setColorTheme(id)}
-                  className={`px-3 py-1 text-xs rounded-full border transition ${
-                    colorTheme === id
-                      ? "bg-black text-white border-black"
-                      : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-                  }`}
+                  onClick={() => setLogo(null)}
+                  className="text-red-500 hover:text-red-700 text-xs underline"
                 >
-                  {nome}
+                  Remover
                 </button>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -153,12 +195,14 @@ export default function App() {
 
       <main className="flex-1 p-6 flex justify-center items-start overflow-y-auto print:p-0 print:overflow-visible">
         <AgendaPreview
+          key={`${template}-${selectedDate}-${colorTheme}-${logo}`} // Força re-render quando logo mudar
           template={template}
           customName={footerName}
           paid={paid}
           selectedDate={selectedDate}
           printing={printing}
           colorTheme={colorTheme}
+          logo={logo}
         />
       </main>
 
@@ -169,5 +213,13 @@ export default function App() {
         onNameChange={setCustomName}
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AgendaConfigProvider>
+      <AppContent />
+    </AgendaConfigProvider>
   );
 }

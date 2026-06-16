@@ -14,6 +14,7 @@ export const TEMPLATES = {
       selectedDate,
       printing = false,
       colorTheme = "slate",
+      logo,
     ) => {
       const [y, m, d] = selectedDate.split("-").map(Number);
       const data = new Date(y, m - 1, d);
@@ -24,6 +25,7 @@ export const TEMPLATES = {
             data={data}
             footerName={footerName}
             colorTheme={colorTheme}
+            logo={logo}
           />
         );
       }
@@ -35,6 +37,7 @@ export const TEMPLATES = {
               data={data}
               footerName={footerName}
               colorTheme={colorTheme}
+              logo={logo}
             />
           </div>
         </div>
@@ -48,6 +51,7 @@ export const TEMPLATES = {
       selectedDate,
       printing = false,
       colorTheme = "slate",
+      logo,
     ) => {
       const [y, m] = selectedDate.split("-").map(Number);
       const data = new Date(y, m - 1, 1);
@@ -85,6 +89,7 @@ export const TEMPLATES = {
                 data={dia}
                 footerName={footerName}
                 colorTheme={colorTheme}
+                logo={logo}
               />
             </div>
           ))}
@@ -99,6 +104,7 @@ export const TEMPLATES = {
       selectedDate,
       printing = false,
       colorTheme = "slate",
+      logo,
     ) => {
       const [y] = selectedDate.split("-").map(Number);
       const dias = gerarDiasDoAno(y);
@@ -129,6 +135,7 @@ export const TEMPLATES = {
                 data={dia}
                 footerName={footerName}
                 colorTheme={colorTheme}
+                logo={logo}
               />
             </div>
           ))}
@@ -143,17 +150,25 @@ export const TEMPLATES = {
       selectedDate,
       printing = false,
       colorTheme = "slate",
+      logo,
     ) => {
       if (!printing) {
         return (
-          <SemanalLayout footerName={footerName} colorTheme={colorTheme} />
+          <SemanalLayout
+            footerName={footerName}
+            colorTheme={colorTheme}
+            logo={logo}
+          />
         );
       }
-
       return (
         <div className="print-container">
           <div className="page-break">
-            <SemanalLayout footerName={footerName} colorTheme={colorTheme} />
+            <SemanalLayout
+              footerName={footerName}
+              colorTheme={colorTheme}
+              logo={logo}
+            />
           </div>
         </div>
       );
@@ -166,17 +181,25 @@ export const TEMPLATES = {
       selectedDate,
       printing = false,
       colorTheme = "slate",
+      logo,
     ) => {
       if (!printing) {
         return (
-          <TarefasLayout footerName={footerName} colorTheme={colorTheme} />
+          <TarefasLayout
+            footerName={footerName}
+            colorTheme={colorTheme}
+            logo={logo}
+          />
         );
       }
-
       return (
         <div className="print-container">
           <div className="page-break">
-            <TarefasLayout footerName={footerName} colorTheme={colorTheme} />
+            <TarefasLayout
+              footerName={footerName}
+              colorTheme={colorTheme}
+              logo={logo}
+            />
           </div>
         </div>
       );
@@ -189,22 +212,24 @@ export const TEMPLATES = {
       selectedDate,
       printing = false,
       colorTheme = "slate",
+      logo,
     ) => {
       if (!printing) {
         return (
           <DadosPessoaisLayout
             footerName={footerName}
             colorTheme={colorTheme}
+            logo={logo}
           />
         );
       }
       return (
         <div className="print-container">
-          {/* Como é a primeira página, ela assume o index 1 (ímpar) no contador CSS do print.css */}
           <div className="page-break">
             <DadosPessoaisLayout
               footerName={footerName}
               colorTheme={colorTheme}
+              logo={logo}
             />
           </div>
         </div>
@@ -218,22 +243,22 @@ export const TEMPLATES = {
       selectedDate,
       printing = false,
       colorTheme = "slate",
+      logo,
     ) => {
       const anoBase = parseInt(selectedDate.split("-")[0], 10);
       const anos = [anoBase, anoBase + 1, anoBase + 2];
 
       if (!printing) {
-        // Preview: mostra apenas o primeiro ano (anoBase)
         return (
           <CalendarioLayout
             ano={anoBase}
             footerName={footerName}
             colorTheme={colorTheme}
+            logo={logo}
           />
         );
       }
 
-      // Impressão: gera uma página para cada ano do array
       return (
         <div className="print-container">
           {anos.map((ano) => (
@@ -242,6 +267,7 @@ export const TEMPLATES = {
                 ano={ano}
                 footerName={footerName}
                 colorTheme={colorTheme}
+                logo={logo}
               />
             </div>
           ))}

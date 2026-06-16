@@ -1,7 +1,7 @@
-// src/components/layouts/CalendarioLayout.jsx
 import Footer from "../Footer";
 import { FERIADOS, getFeriado, getComemorativa } from "../../utils/agendaUtils";
 import { TEMAS } from "../../themes";
+import Logo from "../Logo";
 
 const NOMES_MESES = [
   "Janeiro",
@@ -43,6 +43,7 @@ export default function CalendarioLayout({
   ano,
   footerName,
   colorTheme = "classico",
+  logo,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
@@ -79,19 +80,21 @@ export default function CalendarioLayout({
   return (
     <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
       <div className="flex flex-col flex-1 min-h-0">
-        {/* Cabeçalho */}
         <div
           className={`border-b-2 ${tema.headerBorder} pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-3`}
         >
-          <div className="space-y-0.5">
-            <h2
-              className={`text-[15px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
-            >
-              Calendário Geral
-            </h2>
-            <p className="text-[10px] uppercase tracking-wider text-gray-400 font-sans font-bold">
-              Início no Domingo • Feriados & Datas Comemorativas
-            </p>
+          <div className="flex items-center gap-3">
+            <Logo src={logo} />
+            <div className="space-y-0.5">
+              <h2
+                className={`text-[15px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
+              >
+                Calendário Geral
+              </h2>
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 font-sans font-bold">
+                Início no Domingo • Feriados & Datas Comemorativas
+              </p>
+            </div>
           </div>
           <div className="text-right">
             <span
@@ -102,7 +105,7 @@ export default function CalendarioLayout({
           </div>
         </div>
 
-        {/* Grid dos Meses */}
+        {/* Grid dos Meses - mesmo código anterior */}
         <div className="flex-1 grid grid-cols-3 gap-x-4 gap-y-3 items-stretch min-h-0">
           {NOMES_MESES.map((nomeMes, indexMes) => {
             const semanas = obterDiasDoMes(ano, indexMes);
@@ -116,24 +119,16 @@ export default function CalendarioLayout({
                 >
                   {nomeMes}
                 </h3>
-
                 <div className="grid grid-cols-7 text-center text-[8px] font-bold text-gray-400 mb-1">
                   {DIAS_SEMANA.map((d, i) => (
                     <span
                       key={i}
-                      className={`h-3.5 flex items-center justify-center ${
-                        i === 0
-                          ? "text-red-400 font-extrabold"
-                          : i === 6
-                            ? "text-blue-500 font-extrabold"
-                            : ""
-                      }`}
+                      className={`h-3.5 flex items-center justify-center ${i === 0 ? "text-red-400 font-extrabold" : i === 6 ? "text-blue-500 font-extrabold" : ""}`}
                     >
                       {d}
                     </span>
                   ))}
                 </div>
-
                 <div className="flex-1 flex flex-col justify-between space-y-0.5">
                   {semanas.map((semana, indexSemana) => (
                     <div
@@ -210,11 +205,7 @@ export default function CalendarioLayout({
                   className="flex items-center gap-1.5 text-gray-700 border-b border-gray-100/30 py-0.5 min-w-0"
                 >
                   <span
-                    className={`font-mono font-bold shrink-0 px-1 rounded-sm ${
-                      isFeriado
-                        ? "text-red-600 bg-red-50"
-                        : "text-amber-700 bg-amber-50/60"
-                    }`}
+                    className={`font-mono font-bold shrink-0 px-1 rounded-sm ${isFeriado ? "text-red-600 bg-red-50" : "text-amber-700 bg-amber-50/60"}`}
                   >
                     {String(evento.dia).padStart(2, "0")}/
                     {String(evento.mes).padStart(2, "0")}

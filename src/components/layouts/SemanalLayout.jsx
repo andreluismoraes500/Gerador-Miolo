@@ -1,10 +1,14 @@
-// src/components/layouts/SemanalLayout.jsx
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { MdOutlineLightbulb } from "react-icons/md";
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
+import Logo from "../Logo";
 
-export default function SemanalLayout({ footerName, colorTheme = "classico" }) {
+export default function SemanalLayout({
+  footerName,
+  colorTheme = "classico",
+  logo,
+}) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const todosOsDias = [
     "Segunda-feira",
@@ -19,40 +23,37 @@ export default function SemanalLayout({ footerName, colorTheme = "classico" }) {
   return (
     <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
       <div className="flex flex-col flex-1 min-h-0">
-        {/* Cabeçalho */}
         <div
           className={`border-b-2 ${tema.headerBorder} pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-3`}
         >
           <div className="flex items-center gap-3.5">
-            <FaRegCalendarAlt className={`w-5 h-5 ${tema.text} mb-1`} />
-            <div className="space-y-0.5">
-              <h2
-                className={`text-[15px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
-              >
-                Planejamento Semanal
-              </h2>
-              <p className="text-[10px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
-                Foco & Visão de Todo o Período
-              </p>
+            <Logo src={logo} />
+            <div className="flex items-center gap-3.5">
+              <FaRegCalendarAlt className={`w-5 h-5 ${tema.text} mb-1`} />
+              <div className="space-y-0.5">
+                <h2
+                  className={`text-[15px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
+                >
+                  Planejamento Semanal
+                </h2>
+                <p className="text-[10px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
+                  Foco & Visão de Todo o Período
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Grade de dias */}
         <div className="flex-1 grid grid-cols-3 gap-x-4 gap-y-3 min-h-0">
           {todosOsDias.map((dia) => {
             const isDomingo = dia === "Domingo";
             return (
               <div
                 key={dia}
-                className={`border border-solid ${tema.border} rounded-sm p-2.5 flex flex-col justify-between min-h-[46mm] ${
-                  isDomingo ? tema.bgLight : ""
-                }`}
+                className={`border border-solid ${tema.border} rounded-sm p-2.5 flex flex-col justify-between min-h-[46mm] ${isDomingo ? tema.bgLight : ""}`}
               >
                 <span
-                  className={`text-[11px] font-bold uppercase tracking-wider ${tema.headingFont} border-b pb-1 border-gray-100 ${
-                    isDomingo ? tema.text : "text-gray-900"
-                  }`}
+                  className={`text-[11px] font-bold uppercase tracking-wider ${tema.headingFont} border-b pb-1 border-gray-100 ${isDomingo ? tema.text : "text-gray-900"}`}
                 >
                   {dia}
                 </span>
@@ -68,7 +69,6 @@ export default function SemanalLayout({ footerName, colorTheme = "classico" }) {
             );
           })}
 
-          {/* Bloco de Lembretes */}
           <div
             className={`border border-dashed ${tema.border} rounded-sm p-2.5 flex flex-col justify-between min-h-[46mm] ${tema.bgLight}`}
           >
@@ -83,7 +83,6 @@ export default function SemanalLayout({ footerName, colorTheme = "classico" }) {
           </div>
         </div>
 
-        {/* Prioridades */}
         <div
           className={`mt-4 border border-solid ${tema.border} rounded-sm p-3 shrink-0 ${tema.bgLight} h-[38mm] print:h-[36mm] flex flex-col justify-between`}
         >

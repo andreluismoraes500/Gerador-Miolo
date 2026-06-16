@@ -1,4 +1,3 @@
-// src/components/layouts/DadosPessoaisLayout.jsx
 import {
   MdPersonOutline,
   MdOutlineBusinessCenter,
@@ -6,18 +5,25 @@ import {
 } from "react-icons/md";
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
+import Logo from "../Logo";
 
 export default function DadosPessoaisLayout({
   footerName,
   colorTheme = "classico",
+  logo,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
   return (
     <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
       <div className="flex flex-col flex-1 min-h-0 justify-center max-w-xl mx-auto w-full px-4 space-y-10">
-        {/* Título */}
+        {/* Logo e Título */}
         <div className="text-center space-y-2">
+          {logo && (
+            <div className="flex justify-center mb-2">
+              <Logo src={logo} className="h-12" />
+            </div>
+          )}
           <h2
             className={`text-2xl font-light tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
           >

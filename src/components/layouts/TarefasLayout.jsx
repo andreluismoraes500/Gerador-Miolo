@@ -1,4 +1,3 @@
-// src/components/layouts/TarefasLayout.jsx
 import {
   MdOutlineCheckCircleOutline,
   MdOutlineStarBorder,
@@ -6,36 +5,41 @@ import {
 } from "react-icons/md";
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
+import Logo from "../Logo";
 
-export default function TarefasLayout({ footerName, colorTheme = "classico" }) {
+export default function TarefasLayout({
+  footerName,
+  colorTheme = "classico",
+  logo,
+}) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const diasSemana = ["S", "T", "Q", "Q", "S", "S", "D"];
 
   return (
     <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
       <div className="flex flex-col flex-1 min-h-0">
-        {/* Cabeçalho */}
         <div
           className={`border-b-2 ${tema.headerBorder} pb-3 flex items-end justify-between mb-5 w-full shrink-0 print:mb-4`}
         >
           <div className="flex items-center gap-3.5">
-            <MdFactCheck className={`w-5 h-5 ${tema.text} mb-1`} />
-            <div className="space-y-0.5">
-              <h2
-                className={`text-[15px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
-              >
-                Lista de Tarefas
-              </h2>
-              <p className="text-[10px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
-                Gerenciamento de Ações e Fluxo de Trabalho
-              </p>
+            <Logo src={logo} />
+            <div className="flex items-center gap-3.5">
+              <MdFactCheck className={`w-5 h-5 ${tema.text} mb-1`} />
+              <div className="space-y-0.5">
+                <h2
+                  className={`text-[15px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
+                >
+                  Lista de Tarefas
+                </h2>
+                <p className="text-[10px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
+                  Gerenciamento de Ações e Fluxo de Trabalho
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Corpo */}
         <div className="flex-1 grid grid-cols-5 gap-x-5 min-h-0">
-          {/* Coluna esquerda: Checklist */}
           <div className="col-span-3 flex flex-col justify-between h-full">
             <div
               className={`border border-solid ${tema.border} rounded-sm p-4 flex flex-col h-full justify-between`}
@@ -61,7 +65,6 @@ export default function TarefasLayout({ footerName, colorTheme = "classico" }) {
             </div>
           </div>
 
-          {/* Coluna direita: Prioridades e Notas */}
           <div className="col-span-2 flex flex-col gap-4 h-full">
             <div
               className={`border border-solid ${tema.border} rounded-sm p-3.5 ${tema.bgLight} shrink-0`}
@@ -104,7 +107,6 @@ export default function TarefasLayout({ footerName, colorTheme = "classico" }) {
           </div>
         </div>
 
-        {/* Rastreador de hábitos */}
         <div
           className={`mt-4 border border-solid ${tema.border} rounded-sm p-3.5 shrink-0 ${tema.bgLight} h-[34mm] flex flex-col justify-between`}
         >

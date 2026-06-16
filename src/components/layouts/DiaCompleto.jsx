@@ -1,4 +1,3 @@
-// src/components/layouts/DiaCompleto.jsx
 import { FaPix, FaCalendarDays } from "react-icons/fa6";
 import { GiMoneyStack } from "react-icons/gi";
 import { CiCreditCard2 } from "react-icons/ci";
@@ -10,11 +9,13 @@ import {
 } from "../../utils/agendaUtils";
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
+import Logo from "../Logo";
 
 export default function DiaCompleto({
   data,
   footerName,
   colorTheme = "classico",
+  logo,
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
@@ -29,19 +30,22 @@ export default function DiaCompleto({
           className={`border-b-2 ${tema.headerBorder} pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-2`}
         >
           <div className="flex items-center gap-3.5">
-            <FaCalendarDays className={`w-5 h-5 ${tema.text} mb-1`} />
-            <div className="space-y-0.5">
-              <h2
-                className={`text-[14px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
-              >
-                {data.toLocaleDateString("pt-BR", { weekday: "long" })}
-              </h2>
-              <p className="text-[11px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
-                {data.toLocaleDateString("pt-BR", {
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
+            <Logo src={logo} />
+            <div className="flex items-center gap-3.5">
+              <FaCalendarDays className={`w-5 h-5 ${tema.text} mb-1`} />
+              <div className="space-y-0.5">
+                <h2
+                  className={`text-[14px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
+                >
+                  {data.toLocaleDateString("pt-BR", { weekday: "long" })}
+                </h2>
+                <p className="text-[11px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
+                  {data.toLocaleDateString("pt-BR", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
             </div>
           </div>
 
