@@ -24,8 +24,7 @@ export default function PaymentPanel({
       <div className="text-center mt-6 p-4 bg-emerald-50 rounded-lg border border-emerald-200 flex items-center justify-center gap-2 print:hidden">
         <MdOutlineCheckCircle className="w-4 h-4 text-emerald-600" />
         <p className="text-emerald-800 text-xs font-medium">
-          Assinatura Ativa: Licença de marca registrada para{" "}
-          <strong>"{customName}"</strong> ativada.
+          Nome alterado para: <strong>"{customName}"</strong>.
         </p>
       </div>
     );
@@ -35,8 +34,7 @@ export default function PaymentPanel({
     <div className="mt-8 w-full max-w-2xl mx-auto bg-white p-5 rounded-xl border border-gray-200 print:hidden">
       <p className="text-xs text-gray-600 mb-3 leading-relaxed">
         Nos ajude a melhorar a cada dia mais com geradores de agendas
-        automatizados com apenas{" "}
-        <span className="text-emerald-600 font-bold">R$ 1,00</span>.
+        automatizados
       </p>
 
       {!showPayment ? (
@@ -45,7 +43,7 @@ export default function PaymentPanel({
           className="bg-black hover:bg-gray-900 text-white font-medium text-xs py-2 px-4 rounded-md transition flex items-center gap-2"
         >
           <MdQrCodeScanner className="w-3.5 h-3.5" />
-          Customizar
+          Customizar Nome
         </button>
       ) : (
         <div className="mt-4 border border-gray-100 p-4 rounded-lg bg-gray-50 space-y-3">
