@@ -1,61 +1,26 @@
+// src/components/layouts/DadosPessoaisLayout.jsx
 import {
   MdPersonOutline,
   MdOutlineBusinessCenter,
   MdOutlineEmergencyShare,
 } from "react-icons/md";
 import Footer from "../Footer";
-
-const PALETAS = {
-  slate: {
-    border: "border-slate-300",
-    text: "text-slate-600",
-    headerBorder: "border-slate-900",
-    bgLight: "bg-slate-50/50",
-  },
-  zinc: {
-    border: "border-zinc-300",
-    text: "text-zinc-600",
-    headerBorder: "border-zinc-900",
-    bgLight: "bg-zinc-50/50",
-  },
-  blue: {
-    border: "border-blue-200",
-    text: "text-blue-600",
-    headerBorder: "border-blue-700",
-    bgLight: "bg-blue-50/30",
-  },
-  emerald: {
-    border: "border-emerald-200",
-    text: "text-emerald-600",
-    headerBorder: "border-emerald-700",
-    bgLight: "bg-emerald-50/30",
-  },
-  amber: {
-    border: "border-amber-200",
-    text: "text-amber-600",
-    headerBorder: "border-amber-700",
-    bgLight: "bg-amber-50/30",
-  },
-  rose: {
-    border: "border-rose-200",
-    text: "text-rose-600",
-    headerBorder: "border-rose-700",
-    bgLight: "bg-rose-50/30",
-  },
-};
+import { TEMAS } from "../../themes";
 
 export default function DadosPessoaisLayout({
   footerName,
-  colorTheme = "slate",
+  colorTheme = "classico",
 }) {
-  const tema = PALETAS[colorTheme] || PALETAS.slate;
+  const tema = TEMAS[colorTheme] || TEMAS.classico;
 
   return (
     <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
       <div className="flex flex-col flex-1 min-h-0 justify-center max-w-xl mx-auto w-full px-4 space-y-10">
-        {/* Bloco de Título de Abertura */}
+        {/* Título */}
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-light tracking-widest text-gray-900 uppercase font-serif italic">
+          <h2
+            className={`text-2xl font-light tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
+          >
             Esta agenda pertence a:
           </h2>
           <div
@@ -74,7 +39,9 @@ export default function DadosPessoaisLayout({
           <div className="space-y-4">
             {["Nome:", "Telefone:", "E-mail:", "Endereço:"].map((campo) => (
               <div key={campo} className="flex items-end gap-3 w-full">
-                <span className="text-xs font-serif italic font-medium text-gray-600 shrink-0 min-w-16">
+                <span
+                  className={`text-xs font-medium text-gray-600 shrink-0 min-w-16 ${tema.bodyFont}`}
+                >
                   {campo}
                 </span>
                 <div className="border-b border-solid border-gray-200 w-full h-5"></div>
@@ -99,7 +66,9 @@ export default function DadosPessoaisLayout({
               "Redes Sociais:",
             ].map((campo) => (
               <div key={campo} className="flex items-end gap-3 w-full">
-                <span className="text-xs font-serif italic font-medium text-gray-600 shrink-0 min-w-32">
+                <span
+                  className={`text-xs font-medium text-gray-600 shrink-0 min-w-32 ${tema.bodyFont}`}
+                >
                   {campo}
                 </span>
                 <div className="border-b border-solid border-gray-200 w-full h-5"></div>
@@ -108,7 +77,7 @@ export default function DadosPessoaisLayout({
           </div>
         </div>
 
-        {/* Seção 3: Em Caso de Emergência */}
+        {/* Seção 3: Emergência */}
         <div
           className={`border border-solid ${tema.border} rounded-sm p-4 ${tema.bgLight} space-y-4`}
         >
@@ -120,20 +89,26 @@ export default function DadosPessoaisLayout({
           </div>
           <div className="grid grid-cols-1 gap-4">
             <div className="flex items-end gap-3 w-full">
-              <span className="text-xs font-serif italic font-medium text-gray-600 shrink-0">
+              <span
+                className={`text-xs font-medium text-gray-600 shrink-0 ${tema.bodyFont}`}
+              >
                 Avisar a:
               </span>
               <div className="border-b border-solid border-gray-300 w-full h-5"></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-end gap-3 w-full">
-                <span className="text-xs font-serif italic font-medium text-gray-600 shrink-0">
+                <span
+                  className={`text-xs font-medium text-gray-600 shrink-0 ${tema.bodyFont}`}
+                >
                   Telefone:
                 </span>
                 <div className="border-b border-solid border-gray-300 w-full h-5"></div>
               </div>
               <div className="flex items-end gap-3 w-full">
-                <span className="text-xs font-serif italic font-medium text-gray-600 shrink-0">
+                <span
+                  className={`text-xs font-medium text-gray-600 shrink-0 ${tema.bodyFont}`}
+                >
                   Grupo Sanguíneo:
                 </span>
                 <div className="border-b border-solid border-gray-300 w-full h-5"></div>
@@ -142,8 +117,6 @@ export default function DadosPessoaisLayout({
           </div>
         </div>
       </div>
-
-      {/* Rodapé Padrão */}
       <Footer name={footerName} />
     </div>
   );

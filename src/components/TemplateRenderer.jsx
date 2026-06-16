@@ -1,3 +1,4 @@
+// src/components/TemplateRenderer.jsx
 import { TEMPLATES } from "../data/templates.jsx";
 
 export default function TemplateRenderer({
@@ -6,7 +7,7 @@ export default function TemplateRenderer({
   paid,
   selectedDate,
   printing,
-  colorTheme = "slate", // Importante receber o tema aqui também
+  colorTheme = "classico",
 }) {
   const template = TEMPLATES[templateKey];
   if (!template)

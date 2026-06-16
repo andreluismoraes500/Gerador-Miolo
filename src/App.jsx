@@ -1,8 +1,10 @@
+// src/App.jsx
 import { useState } from "react";
 import { MdPrint, MdTune } from "react-icons/md";
 import TemplateSelector from "./components/TemplateSelector";
 import AgendaPreview from "./components/AgendaPreview";
 import PaymentPanel from "./components/PaymentPanel";
+import { TEMAS } from "./themes"; // importa o objeto de temas
 import "./styles/print.css";
 
 function formatLocalDate(year, month, day) {
@@ -20,16 +22,7 @@ export default function App() {
   );
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
-  const [colorTheme, setColorTheme] = useState("slate");
-
-  const opcoesDeCores = [
-    { id: "slate", nome: "Grafite Clássico", classeBg: "bg-slate-500" },
-    { id: "zinc", nome: "Cinza Moderno", classeBg: "bg-zinc-500" },
-    { id: "blue", nome: "Azul Soft", classeBg: "bg-blue-500" },
-    { id: "emerald", nome: "Verde Esmeralda", classeBg: "bg-emerald-500" },
-    { id: "amber", nome: "Âmbar Dourado", classeBg: "bg-amber-500" },
-    { id: "rose", nome: "Rosa Minimalista", classeBg: "bg-rose-500" },
-  ];
+  const [colorTheme, setColorTheme] = useState("classico");
 
   const handlePrint = () => {
     setPrinting(true);
@@ -39,7 +32,6 @@ export default function App() {
     }, 250);
   };
 
-  // Função handleDateChange ajustada
   const handleDateChange = (value) => {
     if (template === "mensalCompleto") {
       const [year, month] = value.split("-");
@@ -57,6 +49,12 @@ export default function App() {
   const [currentYear, currentMonth] = selectedDate.split("-").map(Number);
   const footerName = paid ? customName : "Lucas Cassiano de Moraes";
 
+  // Gera a lista de temas dinamicamente a partir do objeto TEMAS
+  const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
+    id,
+    nome,
+  }));
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
       <header className="bg-white border-b border-gray-200 py-3 px-6 flex items-center justify-between print:hidden">
@@ -65,7 +63,7 @@ export default function App() {
             Miolos de Agenda
           </h1>
           <span className="text-[9px] bg-gray-100 px-1.5 py-0.5 font-mono text-gray-500 rounded">
-            v1.0
+            v2.0
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -132,20 +130,21 @@ export default function App() {
 
           <div className="flex items-center gap-3 border-t border-gray-100 pt-3">
             <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
-              Cor do Miolo:
+              Layout Visual:
             </label>
-            <div className="flex items-center gap-2">
-              {opcoesDeCores.map((cor) => (
+            <div className="flex items-center gap-2 flex-wrap">
+              {opcoesDeTemas.map(({ id, nome }) => (
                 <button
-                  key={cor.id}
-                  onClick={() => setColorTheme(cor.id)}
-                  title={cor.nome}
-                  className={`w-5 h-5 rounded-full ${cor.classeBg} transition-all border ${
-                    colorTheme === cor.id
-                      ? "ring-2 ring-black ring-offset-2 scale-110"
-                      : "opacity-60 hover:opacity-100"
+                  key={id}
+                  onClick={() => setColorTheme(id)}
+                  className={`px-3 py-1 text-xs rounded-full border transition ${
+                    colorTheme === id
+                      ? "bg-black text-white border-black"
+                      : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
                   }`}
-                />
+                >
+                  {nome}
+                </button>
               ))}
             </div>
           </div>

@@ -1,3 +1,4 @@
+// src/components/layouts/DiaCompleto.jsx
 import { FaPix, FaCalendarDays } from "react-icons/fa6";
 import { GiMoneyStack } from "react-icons/gi";
 import { CiCreditCard2 } from "react-icons/ci";
@@ -8,49 +9,17 @@ import {
   gerarHorarios,
 } from "../../utils/agendaUtils";
 import Footer from "../Footer";
-
-const PALETAS = {
-  slate: {
-    border: "border-slate-300",
-    text: "text-slate-600",
-    headerBorder: "border-slate-900",
-  },
-  zinc: {
-    border: "border-zinc-300",
-    text: "text-zinc-600",
-    headerBorder: "border-zinc-900",
-  },
-  blue: {
-    border: "border-blue-200",
-    text: "text-blue-600",
-    headerBorder: "border-blue-700",
-  },
-  emerald: {
-    border: "border-emerald-200",
-    text: "text-emerald-600",
-    headerBorder: "border-emerald-700",
-  },
-  amber: {
-    border: "border-amber-200",
-    text: "text-amber-600",
-    headerBorder: "border-amber-700",
-  },
-  rose: {
-    border: "border-rose-200",
-    text: "text-rose-600",
-    headerBorder: "border-rose-700",
-  },
-};
+import { TEMAS } from "../../themes";
 
 export default function DiaCompleto({
   data,
   footerName,
-  colorTheme = "slate",
+  colorTheme = "classico",
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
   const horarios = gerarHorarios();
-  const tema = PALETAS[colorTheme] || PALETAS.slate;
+  const tema = TEMAS[colorTheme] || TEMAS.classico;
 
   return (
     <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
@@ -62,7 +31,9 @@ export default function DiaCompleto({
           <div className="flex items-center gap-3.5">
             <FaCalendarDays className={`w-5 h-5 ${tema.text} mb-1`} />
             <div className="space-y-0.5">
-              <h2 className="text-[14px] font-semibold tracking-widest text-gray-900 uppercase font-serif italic">
+              <h2
+                className={`text-[14px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
+              >
                 {data.toLocaleDateString("pt-BR", { weekday: "long" })}
               </h2>
               <p className="text-[11px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
@@ -83,7 +54,9 @@ export default function DiaCompleto({
                 </span>
               )}
               {comemorativa && !feriado && (
-                <span className="italic font-medium flex items-center justify-end gap-1 text-gray-500">
+                <span
+                  className={`italic font-medium flex items-center justify-end gap-1 text-gray-500 ${tema.bodyFont}`}
+                >
                   <MdPushPin className="w-2.5 h-2.5 text-gray-400" />{" "}
                   {comemorativa}
                 </span>
@@ -95,7 +68,7 @@ export default function DiaCompleto({
           </div>
         </div>
 
-        {/* Tabela de Agendamento */}
+        {/* Tabela */}
         <div className="flex-1 overflow-auto min-h-0">
           <table className="w-full table-fixed text-[11.5px] border-collapse">
             <thead>
@@ -191,7 +164,6 @@ export default function DiaCompleto({
           </table>
         </div>
       </div>
-
       <Footer name={footerName} />
     </div>
   );
