@@ -18,6 +18,8 @@ export default function DiaCompleto({
   logo,
   footerType = "default",
 }) {
+  console.log("🟡 DiaCompleto: footerType recebido =", footerType);
+
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
   const horarios = gerarHorarios();
@@ -169,7 +171,7 @@ export default function DiaCompleto({
           </table>
         </div>
       </div>
-      <Footer name={footerName} type={footerType} />
+      <Footer name={footerName} type={footerType} colorTheme={colorTheme} />
     </div>
   );
 }

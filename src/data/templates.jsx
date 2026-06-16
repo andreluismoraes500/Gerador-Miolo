@@ -15,6 +15,7 @@ export const TEMPLATES = {
       printing = false,
       colorTheme = "slate",
       logo,
+      footerType = "default",
     ) => {
       const [y, m, d] = selectedDate.split("-").map(Number);
       const data = new Date(y, m - 1, d);
@@ -26,6 +27,7 @@ export const TEMPLATES = {
             footerName={footerName}
             colorTheme={colorTheme}
             logo={logo}
+            footerType={footerType}
           />
         );
       }
@@ -38,6 +40,7 @@ export const TEMPLATES = {
               footerName={footerName}
               colorTheme={colorTheme}
               logo={logo}
+              footerType={footerType}
             />
           </div>
         </div>
@@ -52,6 +55,7 @@ export const TEMPLATES = {
       printing = false,
       colorTheme = "slate",
       logo,
+      footerType = "default",
     ) => {
       const [y, m] = selectedDate.split("-").map(Number);
       const data = new Date(y, m - 1, 1);
@@ -90,6 +94,7 @@ export const TEMPLATES = {
                 footerName={footerName}
                 colorTheme={colorTheme}
                 logo={logo}
+                footerType={footerType}
               />
             </div>
           ))}
@@ -105,6 +110,7 @@ export const TEMPLATES = {
       printing = false,
       colorTheme = "slate",
       logo,
+      footerType = "default",
     ) => {
       const [y] = selectedDate.split("-").map(Number);
       const dias = gerarDiasDoAno(y);
@@ -136,6 +142,7 @@ export const TEMPLATES = {
                 footerName={footerName}
                 colorTheme={colorTheme}
                 logo={logo}
+                footerType={footerType}
               />
             </div>
           ))}
@@ -151,6 +158,7 @@ export const TEMPLATES = {
       printing = false,
       colorTheme = "slate",
       logo,
+      footerType = "default",
     ) => {
       if (!printing) {
         return (
@@ -158,6 +166,7 @@ export const TEMPLATES = {
             footerName={footerName}
             colorTheme={colorTheme}
             logo={logo}
+            footerType={footerType}
           />
         );
       }
@@ -168,6 +177,7 @@ export const TEMPLATES = {
               footerName={footerName}
               colorTheme={colorTheme}
               logo={logo}
+              footerType={footerType}
             />
           </div>
         </div>
@@ -182,6 +192,7 @@ export const TEMPLATES = {
       printing = false,
       colorTheme = "slate",
       logo,
+      footerType = "default",
     ) => {
       if (!printing) {
         return (
@@ -189,6 +200,7 @@ export const TEMPLATES = {
             footerName={footerName}
             colorTheme={colorTheme}
             logo={logo}
+            footerType={footerType}
           />
         );
       }
@@ -199,6 +211,7 @@ export const TEMPLATES = {
               footerName={footerName}
               colorTheme={colorTheme}
               logo={logo}
+              footerType={footerType}
             />
           </div>
         </div>
@@ -213,6 +226,7 @@ export const TEMPLATES = {
       printing = false,
       colorTheme = "slate",
       logo,
+      footerType = "default",
     ) => {
       if (!printing) {
         return (
@@ -220,6 +234,7 @@ export const TEMPLATES = {
             footerName={footerName}
             colorTheme={colorTheme}
             logo={logo}
+            footerType={footerType}
           />
         );
       }
@@ -230,6 +245,7 @@ export const TEMPLATES = {
               footerName={footerName}
               colorTheme={colorTheme}
               logo={logo}
+              footerType={footerType}
             />
           </div>
         </div>
@@ -244,6 +260,7 @@ export const TEMPLATES = {
       printing = false,
       colorTheme = "slate",
       logo,
+      footerType = "default",
     ) => {
       const anoBase = parseInt(selectedDate.split("-")[0], 10);
       const anos = [anoBase, anoBase + 1, anoBase + 2];
@@ -255,6 +272,7 @@ export const TEMPLATES = {
             footerName={footerName}
             colorTheme={colorTheme}
             logo={logo}
+            footerType={footerType}
           />
         );
       }
@@ -268,6 +286,7 @@ export const TEMPLATES = {
                 footerName={footerName}
                 colorTheme={colorTheme}
                 logo={logo}
+                footerType={footerType}
               />
             </div>
           ))}

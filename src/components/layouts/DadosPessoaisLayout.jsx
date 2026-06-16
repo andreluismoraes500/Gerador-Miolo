@@ -13,6 +13,8 @@ export default function DadosPessoaisLayout({
   logo,
   footerType = "default",
 }) {
+  console.log("🟡 DadosPessoaisLayout: footerType recebido =", footerType);
+
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
   return (
@@ -124,7 +126,7 @@ export default function DadosPessoaisLayout({
           </div>
         </div>
       </div>
-      <Footer name={footerName} type={footerType} />
+      <Footer name={footerName} type={footerType} colorTheme={colorTheme} />
     </div>
   );
 }

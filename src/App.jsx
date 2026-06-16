@@ -26,9 +26,12 @@ function AppContent() {
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
   const [colorTheme, setColorTheme] = useState("classico");
-  const [footerType, setFooterType] = useState("default"); // 👈 ESTADO DO RODAPÉ
+  const [footerType, setFooterType] = useState("default");
 
   const { logo, setLogo } = useAgendaConfig();
+
+  // Log para monitorar mudanças no footerType
+  console.log("🔵 App: footerType =", footerType);
 
   const handlePrint = () => {
     setPrinting(true);
@@ -166,13 +169,16 @@ function AppContent() {
               </div>
             </div>
 
-            {/* 👇 SELETOR DE RODAPÉ */}
+            {/* Rodapé */}
             <div className="flex items-center gap-2">
               <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
                 Rodapé:
               </label>
               <button
-                onClick={() => setFooterType("default")}
+                onClick={() => {
+                  console.log("🔄 Clicou em Padrão");
+                  setFooterType("default");
+                }}
                 className={`px-3 py-1 text-xs rounded-full border transition ${
                   footerType === "default"
                     ? "bg-black text-white border-black"
@@ -182,7 +188,10 @@ function AppContent() {
                 Padrão
               </button>
               <button
-                onClick={() => setFooterType("biblical")}
+                onClick={() => {
+                  console.log("🔄 Clicou em Bíblico");
+                  setFooterType("biblical");
+                }}
                 className={`px-3 py-1 text-xs rounded-full border transition ${
                   footerType === "biblical"
                     ? "bg-black text-white border-black"

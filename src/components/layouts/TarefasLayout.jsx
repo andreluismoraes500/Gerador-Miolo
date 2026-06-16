@@ -13,6 +13,8 @@ export default function TarefasLayout({
   logo,
   footerType = "default",
 }) {
+  console.log("🟡 TarefasLayout: footerType recebido =", footerType);
+
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const diasSemana = ["S", "T", "Q", "Q", "S", "S", "D"];
 
@@ -139,7 +141,7 @@ export default function TarefasLayout({
           </div>
         </div>
       </div>
-      <Footer name={footerName} type={footerType} />
+      <Footer name={footerName} type={footerType} colorTheme={colorTheme} />
     </div>
   );
 }

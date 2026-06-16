@@ -46,6 +46,8 @@ export default function CalendarioLayout({
   logo,
   footerType = "default",
 }) {
+  console.log("🟡 CalendarioLayout: footerType recebido =", footerType);
+
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
   const obtenerLegendaCompleta = () => {
@@ -106,7 +108,7 @@ export default function CalendarioLayout({
           </div>
         </div>
 
-        {/* Grid dos Meses - mesmo código anterior */}
+        {/* Grid dos Meses */}
         <div className="flex-1 grid grid-cols-3 gap-x-4 gap-y-3 items-stretch min-h-0">
           {NOMES_MESES.map((nomeMes, indexMes) => {
             const semanas = obterDiasDoMes(ano, indexMes);
@@ -223,7 +225,7 @@ export default function CalendarioLayout({
           </div>
         </div>
       </div>
-      <Footer name={footerName} type={footerType} />
+      <Footer name={footerName} type={footerType} colorTheme={colorTheme} />
     </div>
   );
 }

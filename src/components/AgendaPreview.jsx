@@ -10,6 +10,8 @@ export default function AgendaPreview({
   logo,
   footerType = "default",
 }) {
+  console.log("🟢 AgendaPreview: footerType recebido =", footerType);
+
   const currentTemplate = TEMPLATES[template];
   if (!currentTemplate) {
     return (
@@ -18,6 +20,8 @@ export default function AgendaPreview({
       </div>
     );
   }
+
+  // Passa explicitamente todos os parâmetros, incluindo footerType
   return (
     <div
       className={`agenda-preview-container ${printing ? "is-printing" : ""}`}
