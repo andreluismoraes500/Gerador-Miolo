@@ -10,11 +10,13 @@ import {
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
+import { BUSINESS_PROFILES } from "../../config/businessProfiles";
 
 export default function DiaCompleto({
   data,
   footerName,
   colorTheme = "classico",
+  businessType = "manicure",
   logo,
   footerType = "default",
 }) {
@@ -22,6 +24,7 @@ export default function DiaCompleto({
   const comemorativa = getComemorativa(data);
   const horarios = gerarHorarios();
   const tema = TEMAS[colorTheme] || TEMAS.classico;
+  const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.manicure;
 
   return (
     <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
@@ -35,11 +38,17 @@ export default function DiaCompleto({
             <div className="flex items-center gap-3.5">
               <FaCalendarDays className={`w-5 h-5 ${tema.text} mb-1`} />
               <div className="space-y-0.5">
-                <h2
-                  className={`text-[14px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
-                >
-                  {data.toLocaleDateString("pt-BR", { weekday: "long" })}
-                </h2>
+                <div>
+                  <span className={`text-xs ${tema.accent}`}>
+                    {perfil.icon} {perfil.nome}
+                  </span>
+
+                  <h2>
+                    {data.toLocaleDateString("pt-BR", {
+                      weekday: "long",
+                    })}
+                  </h2>
+                </div>
                 <p className="text-[11px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
                   {data.toLocaleDateString("pt-BR", {
                     month: "long",
@@ -88,12 +97,12 @@ export default function DiaCompleto({
                 <th
                   className={`w-[34%] pb-2 text-black border-r ${tema.border} px-2`}
                 >
-                  Cliente / Compromisso
+                  {perfil.campos.cliente}
                 </th>
                 <th
                   className={`w-[30%] pb-2 text-black border-r ${tema.border} px-2`}
                 >
-                  Serviço / Procedimento
+                  {perfil.campos.servico}
                 </th>
                 <th
                   className={`w-[8%] pb-2 text-center border-r ${tema.border} font-normal`}
@@ -169,7 +178,12 @@ export default function DiaCompleto({
           </table>
         </div>
       </div>
-      <Footer name={footerName} type={footerType} colorTheme={colorTheme} />
+      <Footer
+        name={footerName}
+        type={footerType}
+        colorTheme={colorTheme}
+        businessType={businessType}
+      />
     </div>
   );
 }

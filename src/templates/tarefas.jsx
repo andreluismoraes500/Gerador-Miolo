@@ -9,6 +9,7 @@ export default {
     colorTheme,
     logo,
     footerType,
+    businessType,
   ) => {
     const conteudo = (
       <TarefasLayout

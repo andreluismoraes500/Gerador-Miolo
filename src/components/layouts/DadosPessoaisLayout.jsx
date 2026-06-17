@@ -12,6 +12,7 @@ export default function DadosPessoaisLayout({
   colorTheme = "classico",
   logo,
   footerType = "default",
+  businessType = "manicure",
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
@@ -124,7 +125,12 @@ export default function DadosPessoaisLayout({
           </div>
         </div>
       </div>
-      <Footer name={footerName} type={footerType} colorTheme={colorTheme} />
+      <Footer
+        name={footerName}
+        type={footerType}
+        colorTheme={colorTheme}
+        businessType={businessType}
+      />
     </div>
   );
 }

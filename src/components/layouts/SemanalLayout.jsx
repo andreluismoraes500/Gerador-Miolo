@@ -9,6 +9,7 @@ export default function SemanalLayout({
   colorTheme = "classico",
   logo,
   footerType = "default",
+  businessType = "manicure",
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const todosOsDias = [
@@ -105,7 +106,12 @@ export default function SemanalLayout({
           </div>
         </div>
       </div>
-      <Footer name={footerName} type={footerType} colorTheme={colorTheme} />
+      <Footer
+        name={footerName}
+        type={footerType}
+        colorTheme={colorTheme}
+        businessType={businessType}
+      />
     </div>
   );
 }

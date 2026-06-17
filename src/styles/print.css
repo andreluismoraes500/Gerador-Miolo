@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
+
 @import "tailwindcss";
 
 @media print {
@@ -123,4 +125,13 @@
   box-shadow: none !important;
   border-radius: 0 !important;
   border: none !important;
+}
+
+
+.font-law {
+  font-family: "Cormorant Garamond", serif;
+}
+
+.font-health {
+  font-family: "Inter", sans-serif;
 }

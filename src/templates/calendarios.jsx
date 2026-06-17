@@ -9,6 +9,7 @@ export default {
     colorTheme,
     logo,
     footerType,
+    businessType,
   ) => {
     const anoBase = parseInt(selectedDate.split("-")[0], 10);
     const anos = [anoBase, anoBase + 1, anoBase + 2];
