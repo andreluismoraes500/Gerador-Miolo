@@ -1,4 +1,4 @@
-import { TEMPLATES } from "../data/templates";
+import { TEMPLATES } from "../templates";
 
 export default function AgendaPreview({
   template,

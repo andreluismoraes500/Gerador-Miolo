@@ -1,4 +1,4 @@
-import { TEMPLATES } from "../data/templates.jsx";
+import { TEMPLATES } from "../templates";
 
 export default function TemplateSelector({
   selected,
