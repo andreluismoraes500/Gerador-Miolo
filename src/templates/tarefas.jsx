@@ -17,6 +17,7 @@ export default {
         colorTheme={colorTheme}
         logo={logo}
         footerType={footerType}
+        businessType={businessType}
       />
     );
 

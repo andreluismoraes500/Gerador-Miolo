@@ -11,6 +11,7 @@ export default {
     colorTheme,
     logo,
     footerType,
+    businessType,
   ) => {
     const [y] = selectedDate.split("-").map(Number);
     const dias = gerarDiasDoAno(y);

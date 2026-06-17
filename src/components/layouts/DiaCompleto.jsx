@@ -16,7 +16,7 @@ export default function DiaCompleto({
   data,
   footerName,
   colorTheme = "classico",
-  businessType = "manicure",
+  businessType = "default",
   logo,
   footerType = "default",
 }) {
@@ -24,7 +24,7 @@ export default function DiaCompleto({
   const comemorativa = getComemorativa(data);
   const horarios = gerarHorarios();
   const tema = TEMAS[colorTheme] || TEMAS.classico;
-  const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.manicure;
+  const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.default;
 
   return (
     <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
@@ -39,9 +39,11 @@ export default function DiaCompleto({
               <FaCalendarDays className={`w-5 h-5 ${tema.text} mb-1`} />
               <div className="space-y-0.5">
                 <div>
-                  <span className={`text-xs ${tema.accent}`}>
-                    {perfil.icon} {perfil.nome}
-                  </span>
+                  {perfil.nome && (
+                    <span className={`text-xs ${tema.accent}`}>
+                      {perfil.icon} {perfil.nome}
+                    </span>
+                  )}
 
                   <h2>
                     {data.toLocaleDateString("pt-BR", {

@@ -9,6 +9,7 @@ export default {
     colorTheme,
     logo,
     footerType,
+    businessType,
   ) => {
     const [y, m, d] = selectedDate.split("-").map(Number);
     const data = new Date(y, m - 1, d);

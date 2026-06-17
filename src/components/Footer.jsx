@@ -6,11 +6,10 @@ export default function Footer({
   name,
   type = "default",
   colorTheme = "classico",
-  businessType = "manicure",
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
-  const perfil = BUSINESS_PROFILES[businessType] || BUSINESS_PROFILES.manicure;
+  const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.default;
 
   const displayName =
     name && name.trim() !== "" ? name : "Lucas Cassiano de Moraes";

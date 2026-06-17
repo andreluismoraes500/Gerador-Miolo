@@ -1,4 +1,17 @@
 export const BUSINESS_PROFILES = {
+  default: {
+    nome: "",
+    theme: "classico",
+    icon: "",
+    slogan: "Gerador de Agendas Profissional",
+
+    campos: {
+      cliente: "Cliente",
+      servico: "Compromisso",
+      extra: "",
+    },
+  },
+
   advogado: {
     nome: "Advogado",
     theme: "advogado",
