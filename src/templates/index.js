@@ -5,6 +5,7 @@ import semanal from "./semanal";
 import tarefas from "./tarefas";
 import dadosPessoais from "./dadosPessoais";
 import calendarios from "./calendarios";
+import plannerMensal from "./plannerMensal";
 
 export const TEMPLATES = {
   diario,
@@ -14,4 +15,5 @@ export const TEMPLATES = {
   tarefas,
   dadosPessoais,
   calendarios,
+  plannerMensal,
 };
