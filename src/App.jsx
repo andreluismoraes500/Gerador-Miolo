@@ -173,7 +173,7 @@ function AppContent() {
             Miolos de Agenda
           </h1>
           <span className="text-[9px] bg-gray-100 px-1.5 py-0.5 font-mono text-gray-500 rounded">
-            v2.0
+            v1.0
           </span>
         </div>
         <div className="flex items-center gap-2">
