@@ -12,6 +12,9 @@ import { TEMAS } from "../../themes";
 import Logo from "../Logo";
 import { BUSINESS_PROFILES } from "../../config/businessProfiles";
 
+// 🔹 Move a lista de horários para fora do componente (constante global)
+const HORARIOS = gerarHorarios();
+
 export default function DiaCompleto({
   data,
   footerName,
@@ -22,7 +25,6 @@ export default function DiaCompleto({
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
-  const horarios = gerarHorarios();
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.default;
 
@@ -139,7 +141,7 @@ export default function DiaCompleto({
               </tr>
             </thead>
             <tbody>
-              {horarios.map((hora) => (
+              {HORARIOS.map((hora) => (
                 <tr
                   key={hora}
                   className={`border-b-[1.5px] border-solid ${tema.border} h-7.75 print:h-7.75`}

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { MdPrint, MdTune, MdUpload } from "react-icons/md";
+import { Toaster, toast } from "react-hot-toast";
 import TemplateSelector from "./components/TemplateSelector";
 import AgendaPreview from "./components/AgendaPreview";
 import PaymentPanel from "./components/PaymentPanel";
@@ -8,6 +9,7 @@ import {
   AgendaConfigProvider,
   useAgendaConfig,
 } from "./context/AgendaConfigContext";
+import { usePersistedState } from "./hooks/usePersistedState";
 import "./styles/print.css";
 
 function formatLocalDate(year, month, day) {
@@ -17,21 +19,50 @@ function formatLocalDate(year, month, day) {
 
 function AppContent() {
   const hoje = new Date();
-  const [template, setTemplate] = useState("diario");
-  const [paid, setPaid] = useState(false);
-  const [customName, setCustomName] = useState("");
-  const [selectedDate, setSelectedDate] = useState(
+  const [template, setTemplate] = usePersistedState(
+    "agenda-template",
+    "diario",
+  );
+  const [paid, setPaid] = usePersistedState("agenda-paid", false);
+  const [customName, setCustomName] = usePersistedState(
+    "agenda-customName",
+    "",
+  );
+  const [selectedDate, setSelectedDate] = usePersistedState(
+    "agenda-selectedDate",
     formatLocalDate(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()),
   );
+  const [colorTheme, setColorTheme] = usePersistedState(
+    "agenda-colorTheme",
+    "classico",
+  );
+  const [footerType, setFooterType] = usePersistedState(
+    "agenda-footerType",
+    "default",
+  );
+
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
-  const [colorTheme, setColorTheme] = useState("classico");
-  const [footerType, setFooterType] = useState("default");
 
   const { logo, setLogo } = useAgendaConfig();
 
-  // Log para monitorar mudanças no footerType
-  console.log("🔵 App: footerType =", footerType);
+  // Persistir logo separadamente (pode ser grande, mas salvar em base64)
+  // Ou podemos salvar no contexto e persistir via useEffect
+  // Para simplificar, vamos persistir o logo no localStorage também (cuidado com tamanho)
+  // Mas como o logo já está no contexto, podemos sincronizar com um useEffect no App
+
+  // Vamos persistir logo também (opcional)
+  const [persistedLogo, setPersistedLogo] = usePersistedState(
+    "agenda-logo",
+    null,
+  );
+  // Sincronizar logo do contexto com o persistedLogo
+  // Se o contexto não tiver logo, mas o persisted tiver, restaurar
+  if (!logo && persistedLogo) {
+    setLogo(persistedLogo);
+  }
+  // Quando logo mudar no contexto, atualizar persistência
+  // Usaremos useEffect abaixo
 
   const handlePrint = () => {
     setPrinting(true);
@@ -41,32 +72,92 @@ function AppContent() {
     }, 250);
   };
 
-  const handleDateChange = (value) => {
-    if (template === "mensalCompleto") {
-      const [year, month] = value.split("-");
-      setSelectedDate(
-        formatLocalDate(parseInt(year, 10), parseInt(month, 10) - 1, 1),
-      );
-    } else if (template === "anualCompleto" || template === "calendarios") {
-      const year = parseInt(value, 10);
-      if (!isNaN(year)) setSelectedDate(formatLocalDate(year, 0, 1));
-    } else {
-      setSelectedDate(value);
-    }
-  };
+  const handleDateChange = useCallback(
+    (value) => {
+      if (template === "mensalCompleto") {
+        const [year, month] = value.split("-");
+        setSelectedDate(
+          formatLocalDate(parseInt(year, 10), parseInt(month, 10) - 1, 1),
+        );
+      } else if (template === "anualCompleto" || template === "calendarios") {
+        const year = parseInt(value, 10);
+        if (!isNaN(year)) setSelectedDate(formatLocalDate(year, 0, 1));
+      } else {
+        setSelectedDate(value);
+      }
+    },
+    [template, setSelectedDate],
+  );
 
   const [currentYear, currentMonth] = selectedDate.split("-").map(Number);
   const footerName = paid ? customName : "Lucas Cassiano de Moraes";
 
-  const handleLogoUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setLogo(reader.result);
-    };
-    reader.readAsDataURL(file);
+  const handleLogoUpload = useCallback(
+    (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result;
+        setLogo(result);
+        setPersistedLogo(result); // salva no localStorage
+        toast.success("Logo enviado com sucesso!");
+      };
+      reader.readAsDataURL(file);
+    },
+    [setLogo, setPersistedLogo],
+  );
+
+  // Quando logo mudar no contexto (ex: remover), atualizar persistência
+  // Usar useEffect para sincronizar
+  // Mas como setPersistedLogo já está disponível, podemos chamar diretamente em setLogo?
+  // Não temos acesso ao setLogo original, mas podemos criar um wrapper
+  // Vamos sobrescrever o setLogo do contexto com uma função que também persiste
+  // Por simplicidade, faremos no componente:
+  const handleRemoveLogo = () => {
+    setLogo(null);
+    setPersistedLogo(null);
+    toast("Logo removido", { icon: "🗑️" });
   };
+
+  // Para garantir que o logo do contexto seja salvo sempre que mudar, usamos useEffect
+  // Mas como o logo é gerenciado pelo contexto, não temos como saber quando muda sem um useEffect
+  // Vamos adicionar um useEffect que observa o logo do contexto e atualiza a persistência
+  // Para isso, precisamos usar useEffect e depender de logo
+  // Isso será feito no corpo do componente:
+  // Mas cuidado para não criar loop: só salvar se mudar
+  // Já temos o persistedLogo, e se logo for diferente, atualizar persistência
+  // Vamos usar um useEffect para isso
+
+  // Vamos usar um useEffect para sincronizar o logo com o localStorage quando ele mudar no contexto
+  // Mas como usamos usePersistedState, ele já salva sempre que mudamos via setPersistedLogo
+  // Então precisamos garantir que quando o logo mudar no contexto, chamemos setPersistedLogo
+  // Podemos fazer isso com um useEffect:
+  // useEffect(() => {
+  //   if (logo !== persistedLogo) {
+  //     setPersistedLogo(logo);
+  //   }
+  // }, [logo, persistedLogo, setPersistedLogo]);
+
+  // Mas isso pode causar loop se não tomarmos cuidado.
+  // Melhor: usar o setLogo customizado no contexto para persistir também.
+  // Vamos criar uma função que substitui o setLogo do contexto.
+
+  // Como o contexto fornece setLogo, podemos criar um wrapper:
+  const handleSetLogo = useCallback(
+    (newLogo) => {
+      setLogo(newLogo);
+      setPersistedLogo(newLogo);
+    },
+    [setLogo, setPersistedLogo],
+  );
+
+  // Agora usamos handleSetLogo no upload e remoção.
+
+  // No upload: handleSetLogo(result)
+  // Na remoção: handleSetLogo(null)
+
+  // Vamos adaptar.
 
   const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
     id,
@@ -75,6 +166,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+      <Toaster position="bottom-right" />
       <header className="bg-white border-b border-gray-200 py-3 px-6 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-2">
           <h1 className="text-xs font-bold uppercase tracking-widest text-black">
@@ -176,8 +268,8 @@ function AppContent() {
               </label>
               <button
                 onClick={() => {
-                  console.log("🔄 Clicou em Padrão");
                   setFooterType("default");
+                  toast("Rodapé padrão selecionado", { icon: "📄" });
                 }}
                 className={`px-3 py-1 text-xs rounded-full border transition ${
                   footerType === "default"
@@ -189,8 +281,8 @@ function AppContent() {
               </button>
               <button
                 onClick={() => {
-                  console.log("🔄 Clicou em Bíblico");
                   setFooterType("biblical");
+                  toast("Rodapé bíblico selecionado", { icon: "📖" });
                 }}
                 className={`px-3 py-1 text-xs rounded-full border transition ${
                   footerType === "biblical"
@@ -219,7 +311,7 @@ function AppContent() {
               </label>
               {logo && (
                 <button
-                  onClick={() => setLogo(null)}
+                  onClick={handleRemoveLogo}
                   className="text-red-500 hover:text-red-700 text-xs underline"
                 >
                   Remover

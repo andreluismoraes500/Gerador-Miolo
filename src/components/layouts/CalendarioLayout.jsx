@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import Footer from "../Footer";
 import { FERIADOS, getFeriado, getComemorativa } from "../../utils/agendaUtils";
 import { TEMAS } from "../../themes";
@@ -49,7 +50,8 @@ export default function CalendarioLayout({
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
-  const obtenerLegendaCompleta = () => {
+  // 🔹 Memoiza a legenda completa para não recalcular a cada render
+  const legendaCompleta = useMemo(() => {
     const eventos = [];
     for (let m = 0; m < 12; m++) {
       const ultimoDia = new Date(ano, m + 1, 0).getDate();
@@ -75,9 +77,7 @@ export default function CalendarioLayout({
       }
     }
     return eventos.sort((a, b) => a.mes - b.mes || a.dia - b.dia);
-  };
-
-  const legendaCompleta = obtenerLegendaCompleta();
+  }, [ano]);
 
   return (
     <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">

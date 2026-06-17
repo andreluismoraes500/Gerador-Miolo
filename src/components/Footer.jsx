@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { TEMAS } from "../themes";
 import { BUSINESS_PROFILES } from "../config/businessProfiles";
 import { getVersiculoAleatorio } from "../utils/versiculos";
@@ -8,15 +9,15 @@ export default function Footer({
   colorTheme = "classico",
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
-
   const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.default;
 
   const displayName =
     name && name.trim() !== "" ? name : "Lucas Cassiano de Moraes";
 
-  if (type === "biblical") {
-    const versiculo = getVersiculoAleatorio();
+  // 🔹 Memoiza o versículo para que não seja gerado novamente em cada render
+  const versiculo = useMemo(() => getVersiculoAleatorio(), []);
 
+  if (type === "biblical") {
     return (
       <div className="w-full mt-4 pt-2 border-t border-gray-300 flex flex-col items-center text-[9px] tracking-wide font-serif italic print:mt-2">
         <p className={`text-center max-w-[80%] ${tema.text}`}>{versiculo}</p>

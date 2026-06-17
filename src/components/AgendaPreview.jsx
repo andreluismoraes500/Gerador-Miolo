@@ -1,6 +1,7 @@
+import React from "react";
 import { TEMPLATES } from "../templates";
 
-export default function AgendaPreview({
+const AgendaPreview = React.memo(function AgendaPreview({
   template,
   customName,
   paid,
@@ -21,7 +22,6 @@ export default function AgendaPreview({
     );
   }
 
-  // Passa explicitamente todos os parâmetros, incluindo footerType
   return (
     <div
       className={`agenda-preview-container ${printing ? "is-printing" : ""}`}
@@ -36,4 +36,6 @@ export default function AgendaPreview({
       )}
     </div>
   );
-}
+});
+
+export default AgendaPreview;
