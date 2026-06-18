@@ -13,10 +13,14 @@ export default function GratidaoLayout({
   watermarkSrc,
   watermarkOpacity,
 }) {
-  const styleColor = customColors.primary || "#4a5568";
+  const primaryColor = customColors.primary || "#4a5568";
+  const bgColor = customColors.background || "#ffffff";
 
   return (
-    <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none relative">
+    <div
+      className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none relative"
+      style={{ backgroundColor: bgColor, fontFamily }}
+    >
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -24,8 +28,8 @@ export default function GratidaoLayout({
         <div className="flex items-center gap-3 mb-4">
           <Logo src={logo} />
           <h2
-            className={`text-xl font-light tracking-widest uppercase`}
-            style={{ fontFamily, color: styleColor }}
+            className="text-xl font-light tracking-widest uppercase"
+            style={{ fontFamily, color: primaryColor }}
           >
             Diário de Gratidão
           </h2>

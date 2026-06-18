@@ -18,7 +18,8 @@ export default function Footer({
 
   const versiculo = useMemo(() => getVersiculoAleatorio(), []);
 
-  const styleColor = customColors.primary || temaBase.text;
+  const styleColor = customColors.primary || temaBase.text || "#000000";
+  const secondaryColor = customColors.secondary || temaBase.border || "#cbd5e1";
 
   if (type === "biblical") {
     return (

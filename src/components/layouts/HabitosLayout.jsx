@@ -14,8 +14,14 @@ export default function HabitosLayout({
   watermarkSrc,
   watermarkOpacity,
 }) {
+  const primaryColor = customColors.primary || "#4a5568";
+  const bgColor = customColors.background || "#ffffff";
+
   return (
-    <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none relative">
+    <div
+      className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none relative"
+      style={{ backgroundColor: bgColor, fontFamily }}
+    >
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -23,8 +29,8 @@ export default function HabitosLayout({
         <div className="flex items-center gap-3 mb-4">
           <Logo src={logo} />
           <h2
-            className={`text-xl font-light tracking-widest uppercase`}
-            style={{ fontFamily, color: customColors.primary || "#4a5568" }}
+            className="text-xl font-light tracking-widest uppercase"
+            style={{ fontFamily, color: primaryColor }}
           >
             Rastreador de Hábitos
           </h2>

@@ -6,6 +6,7 @@ import {
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
+import Watermark from "../Watermark";
 
 export default function DadosPessoaisLayout({
   footerName,
@@ -13,13 +14,25 @@ export default function DadosPessoaisLayout({
   logo,
   footerType = "default",
   businessType = "manicure",
+  customColors = {},
+  fontFamily = "sans-serif",
+  watermarkSrc,
+  watermarkOpacity,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
+  const bgColor = customColors.background || "#ffffff";
+  const primaryColor = customColors.primary || tema.text || "#000000";
+  const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
 
   return (
-    <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
+    <div
+      className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
+      style={{ backgroundColor: bgColor, fontFamily }}
+    >
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
       <div className="flex flex-col flex-1 min-h-0 justify-center max-w-xl mx-auto w-full px-4 space-y-10">
-        {/* Logo e Título */}
         <div className="text-center space-y-2">
           {logo && (
             <div className="flex justify-center mb-2">
@@ -28,18 +41,22 @@ export default function DadosPessoaisLayout({
           )}
           <h2
             className={`text-2xl font-light tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
+            style={{ color: primaryColor }}
           >
             Esta agenda pertence a:
           </h2>
           <div
             className={`w-16 h-0.5 mx-auto ${tema.headerBorder.replace("border-", "bg-")}`}
+            style={{ backgroundColor: primaryColor }}
           ></div>
         </div>
 
-        {/* Seção 1: Dados Pessoais */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b pb-1 border-gray-100">
-            <MdPersonOutline className={`w-4 h-4 ${tema.text}`} />
+            <MdPersonOutline
+              className={`w-4 h-4`}
+              style={{ color: primaryColor }}
+            />
             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Dados Pessoais
             </span>
@@ -58,10 +75,12 @@ export default function DadosPessoaisLayout({
           </div>
         </div>
 
-        {/* Seção 2: Dados Comerciais */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b pb-1 border-gray-100">
-            <MdOutlineBusinessCenter className={`w-4 h-4 ${tema.text}`} />
+            <MdOutlineBusinessCenter
+              className={`w-4 h-4`}
+              style={{ color: primaryColor }}
+            />
             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Comercial / Profissional
             </span>
@@ -85,9 +104,9 @@ export default function DadosPessoaisLayout({
           </div>
         </div>
 
-        {/* Seção 3: Emergência */}
         <div
           className={`border border-solid ${tema.border} rounded-sm p-4 ${tema.bgLight} space-y-4`}
+          style={{ borderColor: secondaryColor }}
         >
           <div className="flex items-center gap-2 border-b pb-1 border-gray-200">
             <MdOutlineEmergencyShare className="w-4 h-4 text-red-500" />
@@ -129,7 +148,8 @@ export default function DadosPessoaisLayout({
         name={footerName}
         type={footerType}
         colorTheme={colorTheme}
-        businessType={businessType}
+        customColors={customColors}
+        fontFamily={fontFamily}
       />
     </div>
   );

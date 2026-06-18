@@ -32,37 +32,42 @@ export default function DiaCompleto({
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.default;
 
-  const primary = customColors.primary || tema.text;
-  const secondary = customColors.secondary || tema.border;
-  const background = customColors.background || tema.bgLight || "white";
+  const bgColor = customColors.background || "#ffffff";
+  const primaryColor = customColors.primary || tema.text || "#000000";
+  const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
 
   return (
-    <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none relative">
+    <div
+      className="printable-page font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
+      style={{ backgroundColor: bgColor, fontFamily }}
+    >
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
-      <div className="flex flex-col flex-1 min-h-0" style={{ fontFamily }}>
+      <div className="flex flex-col flex-1 min-h-0">
         {/* Cabeçalho */}
         <div
-          className={`border-b-2 pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-2`}
-          style={{ borderColor: primary }}
+          className={`border-b-2 ${tema.headerBorder} pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-2`}
+          style={{ borderBottomColor: primaryColor }}
         >
           <div className="flex items-center gap-3.5">
             <Logo src={logo} />
             <div className="flex items-center gap-3.5">
               <FaCalendarDays
                 className={`w-5 h-5 mb-1`}
-                style={{ color: primary }}
+                style={{ color: primaryColor }}
               />
               <div className="space-y-0.5">
                 <div>
                   {perfil.nome && (
-                    <span className={`text-xs`} style={{ color: primary }}>
+                    <span className={`text-xs`} style={{ color: primaryColor }}>
                       {perfil.icon} {perfil.nome}
                     </span>
                   )}
-                  <h2 style={{ color: primary }}>
-                    {data.toLocaleDateString("pt-BR", { weekday: "long" })}
+                  <h2 style={{ color: primaryColor }}>
+                    {data.toLocaleDateString("pt-BR", {
+                      weekday: "long",
+                    })}
                   </h2>
                 </div>
                 <p className="text-[11px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
@@ -103,35 +108,35 @@ export default function DiaCompleto({
           <table className="w-full table-fixed text-[11.5px] border-collapse">
             <thead>
               <tr
-                className={`border-b-2 text-gray-500 text-[8.5px] uppercase tracking-widest text-left font-bold`}
-                style={{ borderBottomColor: primary }}
+                className={`border-b-2 ${tema.headerBorder} text-gray-500 text-[8.5px] uppercase tracking-widest text-left font-bold`}
+                style={{ borderBottomColor: primaryColor }}
               >
                 <th
-                  className={`w-[12%] pb-2 text-black border-r pr-1`}
-                  style={{ borderColor: secondary }}
+                  className={`w-[12%] pb-2 text-black border-r ${tema.border} pr-1`}
+                  style={{ borderRightColor: secondaryColor }}
                 >
                   Hora
                 </th>
                 <th
-                  className={`w-[34%] pb-2 text-black border-r px-2`}
-                  style={{ borderColor: secondary }}
+                  className={`w-[34%] pb-2 text-black border-r ${tema.border} px-2`}
+                  style={{ borderRightColor: secondaryColor }}
                 >
                   {perfil.campos.cliente}
                 </th>
                 <th
-                  className={`w-[30%] pb-2 text-black border-r px-2`}
-                  style={{ borderColor: secondary }}
+                  className={`w-[30%] pb-2 text-black border-r ${tema.border} px-2`}
+                  style={{ borderRightColor: secondaryColor }}
                 >
                   {perfil.campos.servico}
                 </th>
                 <th
-                  className={`w-[8%] pb-2 text-center border-r font-normal`}
-                  style={{ borderColor: secondary }}
+                  className={`w-[8%] pb-2 text-center border-r ${tema.border} font-normal`}
+                  style={{ borderRightColor: secondaryColor }}
                 >
                   <div className="flex flex-col items-center justify-center">
                     <GiMoneyStack
                       className={`w-4 h-4 mb-0.5`}
-                      style={{ color: primary }}
+                      style={{ color: primaryColor }}
                     />
                     <span className="text-[7px] text-gray-500 font-bold tracking-tight">
                       DINHEIRO
@@ -139,13 +144,13 @@ export default function DiaCompleto({
                   </div>
                 </th>
                 <th
-                  className={`w-[8%] pb-2 text-center border-r font-normal`}
-                  style={{ borderColor: secondary }}
+                  className={`w-[8%] pb-2 text-center border-r ${tema.border} font-normal`}
+                  style={{ borderRightColor: secondaryColor }}
                 >
                   <div className="flex flex-col items-center justify-center">
                     <CiCreditCard2
                       className={`w-4 h-4 font-bold mb-0.5`}
-                      style={{ color: primary }}
+                      style={{ color: primaryColor }}
                     />
                     <span className="text-[7px] text-gray-500 font-bold tracking-tight">
                       CARTÃO
@@ -156,7 +161,7 @@ export default function DiaCompleto({
                   <div className="flex flex-col items-center justify-center">
                     <FaPix
                       className={`w-3.5 h-3.5 mb-0.5`}
-                      style={{ color: primary }}
+                      style={{ color: primaryColor }}
                     />
                     <span className="text-[7px] text-gray-500 font-bold tracking-tight">
                       PIX
@@ -169,45 +174,45 @@ export default function DiaCompleto({
               {HORARIOS.map((hora) => (
                 <tr
                   key={hora}
-                  className={`border-b-[1.5px] border-solid h-7.75 print:h-7.75`}
-                  style={{ borderColor: secondary }}
+                  className={`border-b-[1.5px] border-solid ${tema.border} h-7.75 print:h-7.75`}
+                  style={{ borderBottomColor: secondaryColor }}
                 >
                   <td
-                    className={`font-mono text-black font-bold text-[12px] align-middle border-r pr-1`}
-                    style={{ borderColor: secondary }}
+                    className={`font-mono text-black font-bold text-[12px] align-middle border-r ${tema.border} pr-1`}
+                    style={{ borderRightColor: secondaryColor }}
                   >
                     {hora}
                   </td>
                   <td
-                    className={`border-r align-middle px-2`}
-                    style={{ borderColor: secondary }}
+                    className={`border-r ${tema.border} align-middle px-2`}
+                    style={{ borderRightColor: secondaryColor }}
                   ></td>
                   <td
-                    className={`border-r align-middle px-2`}
-                    style={{ borderColor: secondary }}
+                    className={`border-r ${tema.border} align-middle px-2`}
+                    style={{ borderRightColor: secondaryColor }}
                   ></td>
                   <td
-                    className={`text-center align-middle border-r`}
-                    style={{ borderColor: secondary }}
+                    className={`text-center align-middle border-r ${tema.border}`}
+                    style={{ borderRightColor: secondaryColor }}
                   >
                     <div
-                      className={`w-3.5 h-3.5 border rounded-sm mx-auto bg-transparent`}
-                      style={{ borderColor: secondary }}
+                      className={`w-3.5 h-3.5 border ${tema.border} rounded-sm mx-auto bg-transparent`}
+                      style={{ borderColor: secondaryColor }}
                     ></div>
                   </td>
                   <td
-                    className={`text-center align-middle border-r`}
-                    style={{ borderColor: secondary }}
+                    className={`text-center align-middle border-r ${tema.border}`}
+                    style={{ borderRightColor: secondaryColor }}
                   >
                     <div
-                      className={`w-3.5 h-3.5 border rounded-sm mx-auto bg-transparent`}
-                      style={{ borderColor: secondary }}
+                      className={`w-3.5 h-3.5 border ${tema.border} rounded-sm mx-auto bg-transparent`}
+                      style={{ borderColor: secondaryColor }}
                     ></div>
                   </td>
                   <td className="text-center align-middle">
                     <div
-                      className={`w-3.5 h-3.5 border rounded-sm mx-auto bg-transparent`}
-                      style={{ borderColor: secondary }}
+                      className={`w-3.5 h-3.5 border ${tema.border} rounded-sm mx-auto bg-transparent`}
+                      style={{ borderColor: secondaryColor }}
                     ></div>
                   </td>
                 </tr>

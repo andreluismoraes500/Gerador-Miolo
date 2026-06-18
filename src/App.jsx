@@ -94,7 +94,6 @@ function AppContent() {
 
   const handleDateChange = useCallback(
     (value) => {
-      // Templates que usam mês (completo)
       const monthBasedTemplates = ["mensalCompleto", "plannerMensal"];
       if (monthBasedTemplates.includes(template)) {
         const [year, month] = value.split("-");
@@ -105,7 +104,7 @@ function AppContent() {
         const year = parseInt(value, 10);
         if (!isNaN(year)) setSelectedDate(formatLocalDate(year, 0, 1));
       } else {
-        setSelectedDate(value); // date
+        setSelectedDate(value);
       }
     },
     [template, setSelectedDate],
@@ -155,6 +154,22 @@ function AppContent() {
     toast("Marca d'água removida", { icon: "🗑️" });
   };
 
+  // Função para aplicar as cores de um tema
+  const applyThemeColors = (themeId) => {
+    const theme = TEMAS[themeId];
+    if (theme && theme.colors) {
+      setPrimaryColor(theme.colors.primary);
+      setSecondaryColor(theme.colors.secondary);
+      setBgColor(theme.colors.background);
+    } else {
+      // Fallback para temas antigos sem colors
+      setPrimaryColor("#1e293b");
+      setSecondaryColor("#94a3b8");
+      setBgColor("#f8fafc");
+    }
+    setColorTheme(themeId);
+  };
+
   const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
     id,
     nome,
@@ -197,7 +212,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col font-sans text-gray-900">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex flex-col font-sans text-gray-900">
       <Toaster position="bottom-right" />
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/80 py-3 px-6 flex items-center justify-between print:hidden shadow-sm">
         <div className="flex items-center gap-3">
@@ -283,7 +298,7 @@ function AppContent() {
                   {opcoesDeTemas.map(({ id, nome }) => (
                     <button
                       key={id}
-                      onClick={() => setColorTheme(id)}
+                      onClick={() => applyThemeColors(id)}
                       className={`px-3 py-1 text-[11px] rounded-full border transition-all ${
                         colorTheme === id
                           ? "bg-gray-900 text-white border-gray-900 shadow-sm"

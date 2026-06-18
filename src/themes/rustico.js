@@ -1,4 +1,3 @@
-// src/themes/rustico.js
 export default {
   nome: "Rústico",
   border: "border-amber-300",
@@ -11,4 +10,9 @@ export default {
   cardBg: "bg-white",
   accent: "text-amber-800",
   button: "bg-amber-700 hover:bg-amber-600 text-white",
+  colors: {
+    primary: "#b45309",
+    secondary: "#fcd34d",
+    background: "#fffbeb",
+  },
 };

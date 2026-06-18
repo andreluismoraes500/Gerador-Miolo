@@ -6,29 +6,49 @@ import {
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
+import Watermark from "../Watermark";
 
 export default function TarefasLayout({
   footerName,
   colorTheme = "classico",
   logo,
   footerType = "default",
+  customColors = {},
+  fontFamily = "sans-serif",
+  watermarkSrc,
+  watermarkOpacity,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
+  const bgColor = customColors.background || "#ffffff";
+  const primaryColor = customColors.primary || tema.text || "#000000";
+  const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
+
   const diasSemana = ["S", "T", "Q", "Q", "S", "S", "D"];
 
   return (
-    <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
+    <div
+      className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
+      style={{ backgroundColor: bgColor, fontFamily }}
+    >
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
       <div className="flex flex-col flex-1 min-h-0">
         <div
           className={`border-b-2 ${tema.headerBorder} pb-3 flex items-end justify-between mb-5 w-full shrink-0 print:mb-4`}
+          style={{ borderBottomColor: primaryColor }}
         >
           <div className="flex items-center gap-3.5">
             <Logo src={logo} />
             <div className="flex items-center gap-3.5">
-              <MdFactCheck className={`w-5 h-5 ${tema.text} mb-1`} />
+              <MdFactCheck
+                className={`w-5 h-5 mb-1`}
+                style={{ color: primaryColor }}
+              />
               <div className="space-y-0.5">
                 <h2
                   className={`text-[15px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
+                  style={{ color: primaryColor }}
                 >
                   Lista de Tarefas
                 </h2>
@@ -44,10 +64,12 @@ export default function TarefasLayout({
           <div className="col-span-3 flex flex-col justify-between h-full">
             <div
               className={`border border-solid ${tema.border} rounded-sm p-4 flex flex-col h-full justify-between`}
+              style={{ borderColor: secondaryColor }}
             >
               <div className="flex items-center gap-1.5 border-b pb-1.5 border-gray-100 mb-2">
                 <MdOutlineCheckCircleOutline
-                  className={`w-4 h-4 ${tema.text}`}
+                  className={`w-4 h-4`}
+                  style={{ color: primaryColor }}
                 />
                 <span className="text-[11px] font-bold uppercase tracking-wider text-gray-800 font-sans">
                   Ações para Executar
@@ -58,6 +80,7 @@ export default function TarefasLayout({
                   <div key={i} className="flex items-center gap-3 w-full">
                     <div
                       className={`w-3.5 h-3.5 border border-solid ${tema.border} rounded-full shrink-0 bg-transparent`}
+                      style={{ borderColor: secondaryColor }}
                     ></div>
                     <div className="border-b border-dotted border-gray-300 w-full h-5 mb-0.5"></div>
                   </div>
@@ -69,6 +92,7 @@ export default function TarefasLayout({
           <div className="col-span-2 flex flex-col gap-4 h-full">
             <div
               className={`border border-solid ${tema.border} rounded-sm p-3.5 ${tema.bgLight} shrink-0`}
+              style={{ borderColor: secondaryColor }}
             >
               <div className="flex items-center gap-1.5 border-b pb-1.5 border-gray-200 mb-3">
                 <MdOutlineStarBorder className="w-4 h-4 text-amber-500" />
@@ -92,6 +116,7 @@ export default function TarefasLayout({
 
             <div
               className={`border border-solid ${tema.border} rounded-sm p-4 flex flex-col flex-1 justify-between`}
+              style={{ borderColor: secondaryColor }}
             >
               <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 font-sans border-b pb-1 border-gray-100">
                 Insights & Anotações
@@ -110,6 +135,7 @@ export default function TarefasLayout({
 
         <div
           className={`mt-4 border border-solid ${tema.border} rounded-sm p-3.5 shrink-0 ${tema.bgLight} h-[34mm] flex flex-col justify-between`}
+          style={{ borderColor: secondaryColor }}
         >
           <span className="text-[10px] font-bold uppercase tracking-widest text-gray-800 font-sans border-b pb-1 border-gray-200">
             Monitoramento de Rotinas Diárias (Foco Semanal)
@@ -139,7 +165,13 @@ export default function TarefasLayout({
           </div>
         </div>
       </div>
-      <Footer name={footerName} type={footerType} colorTheme={colorTheme} />
+      <Footer
+        name={footerName}
+        type={footerType}
+        colorTheme={colorTheme}
+        customColors={customColors}
+        fontFamily={fontFamily}
+      />
     </div>
   );
 }

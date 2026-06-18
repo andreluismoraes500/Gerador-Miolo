@@ -3,6 +3,7 @@ import Footer from "../Footer";
 import { FERIADOS, getFeriado, getComemorativa } from "../../utils/agendaUtils";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
+import Watermark from "../Watermark";
 
 const NOMES_MESES = [
   "Janeiro",
@@ -47,10 +48,16 @@ export default function CalendarioLayout({
   logo,
   footerType = "default",
   businessType = "manicure",
+  customColors = {},
+  fontFamily = "sans-serif",
+  watermarkSrc,
+  watermarkOpacity,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
+  const bgColor = customColors.background || "#ffffff";
+  const primaryColor = customColors.primary || tema.text || "#000000";
+  const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
 
-  // 🔹 Memoiza a legenda completa para não recalcular a cada render
   const legendaCompleta = useMemo(() => {
     const eventos = [];
     for (let m = 0; m < 12; m++) {
@@ -80,16 +87,24 @@ export default function CalendarioLayout({
   }, [ano]);
 
   return (
-    <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
+    <div
+      className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
+      style={{ backgroundColor: bgColor, fontFamily }}
+    >
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
       <div className="flex flex-col flex-1 min-h-0">
         <div
           className={`border-b-2 ${tema.headerBorder} pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-3`}
+          style={{ borderBottomColor: primaryColor }}
         >
           <div className="flex items-center gap-3">
             <Logo src={logo} />
             <div className="space-y-0.5">
               <h2
                 className={`text-[15px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
+                style={{ color: primaryColor }}
               >
                 Calendário Geral
               </h2>
@@ -100,14 +115,14 @@ export default function CalendarioLayout({
           </div>
           <div className="text-right">
             <span
-              className={`text-4xl font-extralight tracking-widest ${tema.headingFont} ${tema.text}`}
+              className={`text-4xl font-extralight tracking-widest ${tema.headingFont}`}
+              style={{ color: primaryColor }}
             >
               {ano}
             </span>
           </div>
         </div>
 
-        {/* Grid dos Meses */}
         <div className="flex-1 grid grid-cols-3 gap-x-4 gap-y-3 items-stretch min-h-0">
           {NOMES_MESES.map((nomeMes, indexMes) => {
             const semanas = obterDiasDoMes(ano, indexMes);
@@ -115,9 +130,14 @@ export default function CalendarioLayout({
               <div
                 key={nomeMes}
                 className={`border border-solid ${tema.border} rounded-sm p-2 flex flex-col justify-between ${tema.cardBg}`}
+                style={{ borderColor: secondaryColor }}
               >
                 <h3
-                  className={`text-[11px] font-bold uppercase tracking-widest text-center pb-0.5 mb-1 border-b border-gray-100 ${tema.headingFont} ${tema.text}`}
+                  className={`text-[11px] font-bold uppercase tracking-widest text-center pb-0.5 mb-1 border-b border-gray-100 ${tema.headingFont}`}
+                  style={{
+                    color: primaryColor,
+                    borderBottomColor: secondaryColor,
+                  }}
                 >
                   {nomeMes}
                 </h3>
@@ -181,9 +201,9 @@ export default function CalendarioLayout({
           })}
         </div>
 
-        {/* Legenda */}
         <div
           className={`mt-4 border border-solid ${tema.border} rounded-sm p-2.5 shrink-0 h-[38mm] print:h-[36mm] flex flex-col justify-between ${tema.bgLight}`}
+          style={{ borderColor: secondaryColor }}
         >
           <div className="text-[9px] font-bold uppercase tracking-wider text-gray-400 border-b pb-1 border-gray-200 mb-1.5 flex items-center justify-between">
             <span>Guia de Datas e Eventos do Ano (Ordem Cronológica)</span>
@@ -228,7 +248,8 @@ export default function CalendarioLayout({
         name={footerName}
         type={footerType}
         colorTheme={colorTheme}
-        businessType={businessType}
+        customColors={customColors}
+        fontFamily={fontFamily}
       />
     </div>
   );

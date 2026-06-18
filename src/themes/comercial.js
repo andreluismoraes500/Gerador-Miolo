@@ -10,4 +10,9 @@ export default {
   cardBg: "bg-white",
   accent: "text-blue-700",
   button: "bg-blue-700 hover:bg-blue-600 text-white",
+  colors: {
+    primary: "#2563eb",
+    secondary: "#bfdbfe",
+    background: "#eff6ff",
+  },
 };

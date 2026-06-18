@@ -48,25 +48,25 @@
     page-break-before: avoid !important;
   }
 
-  .printable-page {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    max-width: 210mm !important;
-    max-height: 297mm !important;
-    box-sizing: border-box !important;
-    background: #ffffff !important;
-    margin: 0 auto !important;
-    border: 0 !important;
-    outline: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    padding-top: 15mm !important;
-    padding-bottom: 12mm !important;
-    overflow: visible !important;
-  }
+.printable-page {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  width: 210mm !important;
+  height: 297mm !important;
+  max-width: 210mm !important;
+  max-height: 297mm !important;
+  box-sizing: border-box !important;
+  /* background: #ffffff !important;  --> removido */
+  margin: 0 auto !important;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding-top: 15mm !important;
+  padding-bottom: 12mm !important;
+  overflow: visible !important;
+}
 
   /* Margens espelhadas perfeitas para Wire-O */
   .page-break:nth-child(odd) .printable-page {
@@ -127,7 +127,6 @@
   border: none !important;
 }
 
-
 .font-law {
   font-family: "Cormorant Garamond", serif;
 }
@@ -135,8 +134,6 @@
 .font-health {
   font-family: "Inter", sans-serif;
 }
-
-
 
 /* Animações e transições */
 .agenda-preview-container {

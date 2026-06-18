@@ -3,6 +3,7 @@ import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
 import { getFeriado, getComemorativa } from "../../utils/agendaUtils";
+import Watermark from "../Watermark";
 
 const NOMES_MESES = [
   "Janeiro",
@@ -26,20 +27,23 @@ export default function PlannerMensalLayout({
   colorTheme = "classico",
   logo,
   footerType = "default",
+  customColors = {},
+  fontFamily = "sans-serif",
+  watermarkSrc,
+  watermarkOpacity,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const nomeMes = NOMES_MESES[mes];
+  const bgColor = customColors.background || "#ffffff";
+  const primaryColor = customColors.primary || tema.text || "#000000";
+  const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
 
-  // Dias do mês
   const diasDoMes = useMemo(() => {
     const primeiroDia = new Date(ano, mes, 1).getDay();
     const totalDias = new Date(ano, mes + 1, 0).getDate();
     const dias = [];
     let diaAtual = 1;
-
-    // Preenche os dias
     for (let i = 0; i < 42; i++) {
-      // 6 semanas
       if (i < primeiroDia || diaAtual > totalDias) {
         dias.push(null);
       } else {
@@ -50,17 +54,24 @@ export default function PlannerMensalLayout({
   }, [ano, mes]);
 
   return (
-    <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
+    <div
+      className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
+      style={{ backgroundColor: bgColor, fontFamily }}
+    >
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
       <div className="flex flex-col flex-1 min-h-0">
-        {/* Cabeçalho */}
         <div
           className={`border-b-2 ${tema.headerBorder} pb-4 flex items-end justify-between mb-6`}
+          style={{ borderBottomColor: primaryColor }}
         >
           <div className="flex items-center gap-4">
             <Logo src={logo} />
             <div>
               <h2
                 className={`text-2xl font-light tracking-widest uppercase ${tema.headingFont}`}
+                style={{ color: primaryColor }}
               >
                 PLANNER MENSAL
               </h2>
@@ -72,34 +83,30 @@ export default function PlannerMensalLayout({
           <div className="text-right">
             <div
               className={`text-6xl font-light tracking-tighter ${tema.text}`}
+              style={{ color: primaryColor }}
             >
               {String(mes + 1).padStart(2, "0")}
             </div>
           </div>
         </div>
 
-        {/* Calendário + Espaço para Anotações */}
         <div className="flex-1 grid grid-cols-7 gap-px bg-gray-200 p-px mb-8">
-          {/* Dias da semana */}
           {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia, idx) => (
             <div
               key={idx}
-              className={`bg-white py-2 text-center text-xs font-bold uppercase tracking-widest border-b-2 ${idx === 0 || idx === 6 ? "text-red-500" : tema.text}`}
+              className={`bg-white py-2 text-center text-xs font-bold uppercase tracking-widest border-b-2 ${idx === 0 || idx === 6 ? "text-red-500" : ""}`}
+              style={{ borderBottomColor: primaryColor }}
             >
               {dia}
             </div>
           ))}
-
-          {/* Dias do mês */}
           {diasDoMes.map((dia, idx) => {
             if (!dia) {
               return <div key={idx} className="bg-white h-20" />;
             }
-
             const data = new Date(ano, mes, dia);
             const feriado = getFeriado(data);
             const comemorativa = getComemorativa(data);
-
             return (
               <div
                 key={idx}
@@ -123,14 +130,14 @@ export default function PlannerMensalLayout({
           })}
         </div>
 
-        {/* Seção de Metas e Notas */}
         <div className="grid grid-cols-2 gap-6">
-          {/* Metas do Mês */}
           <div
             className={`border border-solid ${tema.border} rounded p-4 ${tema.bgLight}`}
+            style={{ borderColor: secondaryColor }}
           >
             <h3
               className={`font-bold uppercase tracking-widest text-sm mb-4 flex items-center gap-2 ${tema.text}`}
+              style={{ color: primaryColor }}
             >
               🎯 METAS DO MÊS
             </h3>
@@ -138,18 +145,19 @@ export default function PlannerMensalLayout({
               <div key={i} className="flex items-center gap-3 mb-3">
                 <div
                   className={`w-5 h-5 border-2 ${tema.border} rounded-full shrink-0`}
+                  style={{ borderColor: secondaryColor }}
                 />
                 <div className="flex-1 h-6 border-b border-dotted border-gray-400" />
               </div>
             ))}
           </div>
-
-          {/* Notas & Reflexões */}
           <div
             className={`border border-solid ${tema.border} rounded p-4 ${tema.bgLight}`}
+            style={{ borderColor: secondaryColor }}
           >
             <h3
               className={`font-bold uppercase tracking-widest text-sm mb-4 flex items-center gap-2 ${tema.text}`}
+              style={{ color: primaryColor }}
             >
               📝 NOTAS & REFLEXÕES
             </h3>
@@ -162,8 +170,13 @@ export default function PlannerMensalLayout({
           </div>
         </div>
       </div>
-
-      <Footer name={footerName} type={footerType} colorTheme={colorTheme} />
+      <Footer
+        name={footerName}
+        type={footerType}
+        colorTheme={colorTheme}
+        customColors={customColors}
+        fontFamily={fontFamily}
+      />
     </div>
   );
 }
