@@ -135,3 +135,23 @@
 .font-health {
   font-family: "Inter", sans-serif;
 }
+
+
+
+/* Animações e transições */
+.agenda-preview-container {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.agenda-preview-container:hover {
+  transform: scale(1.01);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+.template-btn {
+  transition: all 0.2s ease;
+}
+
+.template-btn:hover {
+  transform: translateY(-2px);
+}

@@ -11,8 +11,8 @@ import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
 import { BUSINESS_PROFILES } from "../../config/businessProfiles";
+import Watermark from "../Watermark";
 
-// 🔹 Move a lista de horários para fora do componente (constante global)
 const HORARIOS = gerarHorarios();
 
 export default function DiaCompleto({
@@ -22,35 +22,47 @@ export default function DiaCompleto({
   businessType = "default",
   logo,
   footerType = "default",
+  customColors = {},
+  fontFamily = "sans-serif",
+  watermarkSrc,
+  watermarkOpacity,
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.default;
 
+  const primary = customColors.primary || tema.text;
+  const secondary = customColors.secondary || tema.border;
+  const background = customColors.background || tema.bgLight || "white";
+
   return (
-    <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none">
-      <div className="flex flex-col flex-1 min-h-0">
+    <div className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none relative">
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
+      <div className="flex flex-col flex-1 min-h-0" style={{ fontFamily }}>
         {/* Cabeçalho */}
         <div
-          className={`border-b-2 ${tema.headerBorder} pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-2`}
+          className={`border-b-2 pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-2`}
+          style={{ borderColor: primary }}
         >
           <div className="flex items-center gap-3.5">
             <Logo src={logo} />
             <div className="flex items-center gap-3.5">
-              <FaCalendarDays className={`w-5 h-5 ${tema.text} mb-1`} />
+              <FaCalendarDays
+                className={`w-5 h-5 mb-1`}
+                style={{ color: primary }}
+              />
               <div className="space-y-0.5">
                 <div>
                   {perfil.nome && (
-                    <span className={`text-xs ${tema.accent}`}>
+                    <span className={`text-xs`} style={{ color: primary }}>
                       {perfil.icon} {perfil.nome}
                     </span>
                   )}
-
-                  <h2>
-                    {data.toLocaleDateString("pt-BR", {
-                      weekday: "long",
-                    })}
+                  <h2 style={{ color: primary }}>
+                    {data.toLocaleDateString("pt-BR", { weekday: "long" })}
                   </h2>
                 </div>
                 <p className="text-[11px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
@@ -91,39 +103,49 @@ export default function DiaCompleto({
           <table className="w-full table-fixed text-[11.5px] border-collapse">
             <thead>
               <tr
-                className={`border-b-2 ${tema.headerBorder} text-gray-500 text-[8.5px] uppercase tracking-widest text-left font-bold`}
+                className={`border-b-2 text-gray-500 text-[8.5px] uppercase tracking-widest text-left font-bold`}
+                style={{ borderBottomColor: primary }}
               >
                 <th
-                  className={`w-[12%] pb-2 text-black border-r ${tema.border} pr-1`}
+                  className={`w-[12%] pb-2 text-black border-r pr-1`}
+                  style={{ borderColor: secondary }}
                 >
                   Hora
                 </th>
                 <th
-                  className={`w-[34%] pb-2 text-black border-r ${tema.border} px-2`}
+                  className={`w-[34%] pb-2 text-black border-r px-2`}
+                  style={{ borderColor: secondary }}
                 >
                   {perfil.campos.cliente}
                 </th>
                 <th
-                  className={`w-[30%] pb-2 text-black border-r ${tema.border} px-2`}
+                  className={`w-[30%] pb-2 text-black border-r px-2`}
+                  style={{ borderColor: secondary }}
                 >
                   {perfil.campos.servico}
                 </th>
                 <th
-                  className={`w-[8%] pb-2 text-center border-r ${tema.border} font-normal`}
+                  className={`w-[8%] pb-2 text-center border-r font-normal`}
+                  style={{ borderColor: secondary }}
                 >
                   <div className="flex flex-col items-center justify-center">
-                    <GiMoneyStack className={`w-4 h-4 ${tema.text} mb-0.5`} />
+                    <GiMoneyStack
+                      className={`w-4 h-4 mb-0.5`}
+                      style={{ color: primary }}
+                    />
                     <span className="text-[7px] text-gray-500 font-bold tracking-tight">
                       DINHEIRO
                     </span>
                   </div>
                 </th>
                 <th
-                  className={`w-[8%] pb-2 text-center border-r ${tema.border} font-normal`}
+                  className={`w-[8%] pb-2 text-center border-r font-normal`}
+                  style={{ borderColor: secondary }}
                 >
                   <div className="flex flex-col items-center justify-center">
                     <CiCreditCard2
-                      className={`w-4 h-4 ${tema.text} font-bold mb-0.5`}
+                      className={`w-4 h-4 font-bold mb-0.5`}
+                      style={{ color: primary }}
                     />
                     <span className="text-[7px] text-gray-500 font-bold tracking-tight">
                       CARTÃO
@@ -132,7 +154,10 @@ export default function DiaCompleto({
                 </th>
                 <th className="w-[8%] pb-2 text-center font-normal">
                   <div className="flex flex-col items-center justify-center">
-                    <FaPix className={`w-3.5 h-3.5 ${tema.text} mb-0.5`} />
+                    <FaPix
+                      className={`w-3.5 h-3.5 mb-0.5`}
+                      style={{ color: primary }}
+                    />
                     <span className="text-[7px] text-gray-500 font-bold tracking-tight">
                       PIX
                     </span>
@@ -144,36 +169,45 @@ export default function DiaCompleto({
               {HORARIOS.map((hora) => (
                 <tr
                   key={hora}
-                  className={`border-b-[1.5px] border-solid ${tema.border} h-7.75 print:h-7.75`}
+                  className={`border-b-[1.5px] border-solid h-7.75 print:h-7.75`}
+                  style={{ borderColor: secondary }}
                 >
                   <td
-                    className={`font-mono text-black font-bold text-[12px] align-middle border-r ${tema.border} pr-1`}
+                    className={`font-mono text-black font-bold text-[12px] align-middle border-r pr-1`}
+                    style={{ borderColor: secondary }}
                   >
                     {hora}
                   </td>
                   <td
-                    className={`border-r ${tema.border} align-middle px-2`}
+                    className={`border-r align-middle px-2`}
+                    style={{ borderColor: secondary }}
                   ></td>
                   <td
-                    className={`border-r ${tema.border} align-middle px-2`}
+                    className={`border-r align-middle px-2`}
+                    style={{ borderColor: secondary }}
                   ></td>
                   <td
-                    className={`text-center align-middle border-r ${tema.border}`}
+                    className={`text-center align-middle border-r`}
+                    style={{ borderColor: secondary }}
                   >
                     <div
-                      className={`w-3.5 h-3.5 border ${tema.border} rounded-sm mx-auto bg-transparent`}
+                      className={`w-3.5 h-3.5 border rounded-sm mx-auto bg-transparent`}
+                      style={{ borderColor: secondary }}
                     ></div>
                   </td>
                   <td
-                    className={`text-center align-middle border-r ${tema.border}`}
+                    className={`text-center align-middle border-r`}
+                    style={{ borderColor: secondary }}
                   >
                     <div
-                      className={`w-3.5 h-3.5 border ${tema.border} rounded-sm mx-auto bg-transparent`}
+                      className={`w-3.5 h-3.5 border rounded-sm mx-auto bg-transparent`}
+                      style={{ borderColor: secondary }}
                     ></div>
                   </td>
                   <td className="text-center align-middle">
                     <div
-                      className={`w-3.5 h-3.5 border ${tema.border} rounded-sm mx-auto bg-transparent`}
+                      className={`w-3.5 h-3.5 border rounded-sm mx-auto bg-transparent`}
+                      style={{ borderColor: secondary }}
                     ></div>
                   </td>
                 </tr>
@@ -186,7 +220,8 @@ export default function DiaCompleto({
         name={footerName}
         type={footerType}
         colorTheme={colorTheme}
-        businessType={businessType}
+        customColors={customColors}
+        fontFamily={fontFamily}
       />
     </div>
   );

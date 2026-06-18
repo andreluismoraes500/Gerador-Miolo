@@ -1,9 +1,9 @@
-import TarefasLayout from "../components/layouts/TarefasLayout";
+import RefeicoesLayout from "../components/layouts/RefeicoesLayout";
 
 export default {
-  nome: "Lista de Tarefas",
+  nome: "Agenda de Refeições",
   layout: (props) => {
-    const conteudo = <TarefasLayout {...props} />;
+    const conteudo = <RefeicoesLayout {...props} />;
     if (!props.printing) return conteudo;
     return (
       <div className="print-container">

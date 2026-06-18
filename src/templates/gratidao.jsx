@@ -1,9 +1,9 @@
-import TarefasLayout from "../components/layouts/TarefasLayout";
+import GratidaoLayout from "../components/layouts/GratidaoLayout";
 
 export default {
-  nome: "Lista de Tarefas",
+  nome: "Diário de Gratidão",
   layout: (props) => {
-    const conteudo = <TarefasLayout {...props} />;
+    const conteudo = <GratidaoLayout {...props} />;
     if (!props.printing) return conteudo;
     return (
       <div className="print-container">

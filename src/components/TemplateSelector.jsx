@@ -13,7 +13,7 @@ export default function TemplateSelector({
         <button
           key={key}
           onClick={() => onSelect(key)}
-          className={`font-semibold tracking-wide transition-all ${
+          className={`template-btn font-semibold tracking-wide transition-all ${
             compact ? "px-3 py-1 text-[11px] rounded" : "px-4 py-2 rounded-lg"
           } ${
             selected === key

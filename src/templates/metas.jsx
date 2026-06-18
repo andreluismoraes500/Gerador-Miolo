@@ -1,9 +1,9 @@
-import TarefasLayout from "../components/layouts/TarefasLayout";
+import MetasLayout from "../components/layouts/MetasLayout";
 
 export default {
-  nome: "Lista de Tarefas",
+  nome: "Mapa de Metas",
   layout: (props) => {
-    const conteudo = <TarefasLayout {...props} />;
+    const conteudo = <MetasLayout {...props} />;
     if (!props.printing) return conteudo;
     return (
       <div className="print-container">

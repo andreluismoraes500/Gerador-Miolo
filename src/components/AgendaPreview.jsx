@@ -10,9 +10,11 @@ const AgendaPreview = React.memo(function AgendaPreview({
   colorTheme = "classico",
   logo,
   footerType = "default",
+  customColors,
+  fontFamily,
+  watermarkSrc,
+  watermarkOpacity,
 }) {
-  console.log("🟢 AgendaPreview: footerType recebido =", footerType);
-
   const currentTemplate = TEMPLATES[template];
   if (!currentTemplate) {
     return (
@@ -22,18 +24,25 @@ const AgendaPreview = React.memo(function AgendaPreview({
     );
   }
 
+  const layoutProps = {
+    footerName: customName,
+    selectedDate,
+    printing,
+    colorTheme,
+    logo,
+    footerType,
+    customColors,
+    fontFamily,
+    watermarkSrc,
+    watermarkOpacity,
+    businessType: "manicure",
+  };
+
   return (
     <div
       className={`agenda-preview-container ${printing ? "is-printing" : ""}`}
     >
-      {currentTemplate.layout(
-        customName,
-        selectedDate,
-        printing,
-        colorTheme,
-        logo,
-        footerType,
-      )}
+      {currentTemplate.layout(layoutProps)}
     </div>
   );
 });

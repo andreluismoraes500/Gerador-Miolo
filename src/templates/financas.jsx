@@ -1,9 +1,9 @@
-import TarefasLayout from "../components/layouts/TarefasLayout";
+import FinancasLayout from "../components/layouts/FinancasLayout";
 
 export default {
-  nome: "Lista de Tarefas",
+  nome: "Planejamento Financeiro",
   layout: (props) => {
-    const conteudo = <TarefasLayout {...props} />;
+    const conteudo = <FinancasLayout {...props} />;
     if (!props.printing) return conteudo;
     return (
       <div className="print-container">

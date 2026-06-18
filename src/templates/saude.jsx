@@ -1,9 +1,9 @@
-import TarefasLayout from "../components/layouts/TarefasLayout";
+import SaudeLayout from "../components/layouts/SaudeLayout";
 
 export default {
-  nome: "Lista de Tarefas",
+  nome: "Registro de Saúde",
   layout: (props) => {
-    const conteudo = <TarefasLayout {...props} />;
+    const conteudo = <SaudeLayout {...props} />;
     if (!props.printing) return conteudo;
     return (
       <div className="print-container">

@@ -1,21 +1,32 @@
 import DiaCompleto from "../components/layouts/DiaCompleto";
 import { MdCalendarToday } from "react-icons/md";
-import { gerarDiasDoMes } from "../utils/agendaUtils";
+import {
+  gerarDiasDoMes,
+  getFeriado,
+  getComemorativa,
+} from "../utils/agendaUtils";
 
 export default {
   nome: "Mensal (completo)",
-  layout: (
-    footerName,
-    selectedDate,
-    printing,
-    colorTheme,
-    logo,
-    footerType,
-    businessType,
-  ) => {
+  layout: (props) => {
+    const { selectedDate, printing, ...rest } = props;
     const [y, m] = selectedDate.split("-").map(Number);
     const data = new Date(y, m - 1, 1);
     const dias = gerarDiasDoMes(y, m - 1);
+
+    let totalDias = dias.length;
+    let feriados = 0;
+    let comemorativas = 0;
+    let uteis = 0;
+    dias.forEach((d) => {
+      const feriado = getFeriado(d);
+      const comem = getComemorativa(d);
+      if (feriado) feriados++;
+      if (comem) comemorativas++;
+      const diaSemana = d.getDay();
+      if (diaSemana !== 0 && diaSemana !== 6) uteis++;
+    });
+    const stats = { totalDias, feriados, comemorativas, uteis };
 
     if (!printing) {
       return (
@@ -33,8 +44,18 @@ export default {
             </p>
             <p className="text-xs text-gray-400 mt-2">
               Contém {dias.length} páginas formatadas para impressão consecutiva
-              (Tema: <span className="uppercase font-bold">{colorTheme}</span>).
+              (Tema:{" "}
+              <span className="uppercase font-bold">{props.colorTheme}</span>).
             </p>
+            <div className="mt-4 text-left max-w-sm mx-auto text-xs text-gray-500 border-t border-gray-200 pt-3">
+              <p>📊 Resumo do mês:</p>
+              <ul className="list-disc list-inside">
+                <li>Total de dias: {stats.totalDias}</li>
+                <li>Dias úteis (seg-sex): {stats.uteis}</li>
+                <li>Feriados: {stats.feriados}</li>
+                <li>Datas comemorativas: {stats.comemorativas}</li>
+              </ul>
+            </div>
           </div>
         </div>
       );
@@ -44,15 +65,21 @@ export default {
       <div className="print-container">
         {dias.map((dia, i) => (
           <div key={i} className="page-break">
-            <DiaCompleto
-              data={dia}
-              footerName={footerName}
-              colorTheme={colorTheme}
-              logo={logo}
-              footerType={footerType}
-            />
+            <DiaCompleto data={dia} {...rest} />
           </div>
         ))}
+        <div className="page-break">
+          <div className="printable-page bg-white p-8 flex flex-col justify-center items-center">
+            <h3 className="text-xl font-light mb-4">📊 Resumo do Mês</h3>
+            <div className="text-sm space-y-1">
+              <p>Total de dias: {stats.totalDias}</p>
+              <p>Dias úteis: {stats.uteis}</p>
+              <p>Feriados: {stats.feriados}</p>
+              <p>Datas comemorativas: {stats.comemorativas}</p>
+            </div>
+            <p className="mt-4 text-xs text-gray-400">Gerado automaticamente</p>
+          </div>
+        </div>
       </div>
     );
   },

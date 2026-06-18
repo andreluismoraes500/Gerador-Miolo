@@ -1,9 +1,9 @@
-import TarefasLayout from "../components/layouts/TarefasLayout";
+import HabitosLayout from "../components/layouts/HabitosLayout";
 
 export default {
-  nome: "Lista de Tarefas",
+  nome: "Rastreador de Hábitos",
   layout: (props) => {
-    const conteudo = <TarefasLayout {...props} />;
+    const conteudo = <HabitosLayout {...props} />;
     if (!props.printing) return conteudo;
     return (
       <div className="print-container">
