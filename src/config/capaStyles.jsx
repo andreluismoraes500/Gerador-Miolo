@@ -4,7 +4,7 @@ export const CAPA_ESTILOS = {
     nome: "Clássico",
     container: "text-center flex flex-col items-center justify-center h-full",
     nomeClasse: "font-serif text-5xl tracking-widest uppercase",
-    subClasse: "text-sm uppercase tracking-[0.3em] text-gray-500 font-sans",
+    subClasse: "text-sm uppercase tracking-[0.3em] font-sans",
     linhaClasse: "w-24 h-px bg-gray-300 mx-auto my-6",
     extra: null,
   },
@@ -13,7 +13,7 @@ export const CAPA_ESTILOS = {
     nome: "Moderno",
     container: "flex items-center justify-center h-full",
     nomeClasse: "font-sans text-7xl font-light tracking-[0.2em] uppercase",
-    subClasse: "text-base font-light tracking-[0.4em] text-gray-400",
+    subClasse: "text-base font-light tracking-[0.4em]",
     linhaClasse: "hidden",
     extra: null,
   },
@@ -22,7 +22,7 @@ export const CAPA_ESTILOS = {
     nome: "Caligrafia",
     container: "text-center flex flex-col items-center justify-center h-full",
     nomeClasse: "font-cursive text-6xl italic",
-    subClasse: "text-sm font-serif tracking-widest text-gray-500",
+    subClasse: "text-sm font-serif tracking-widest",
     linhaClasse: "w-32 h-0.5 bg-amber-300 mx-auto my-6",
     extra: null,
   },
@@ -31,7 +31,7 @@ export const CAPA_ESTILOS = {
     nome: "Minimalista",
     container: "flex items-start justify-start h-full pl-16 flex-col",
     nomeClasse: "font-sans text-5xl font-light tracking-[0.1em]",
-    subClasse: "text-xs uppercase tracking-[0.4em] text-gray-400 mt-4",
+    subClasse: "text-xs uppercase tracking-[0.4em] mt-4",
     linhaClasse: "hidden",
     extra: null,
   },
@@ -41,7 +41,7 @@ export const CAPA_ESTILOS = {
     container:
       "text-center flex flex-col items-center justify-center h-full border-4 border-double border-amber-700 p-12",
     nomeClasse: "font-serif text-5xl tracking-widest italic",
-    subClasse: "text-sm uppercase tracking-[0.3em] text-amber-800",
+    subClasse: "text-sm uppercase tracking-[0.3em]",
     linhaClasse: "w-32 h-0.5 bg-amber-700 mx-auto my-6",
     extra: () => (
       <div className="absolute inset-0 pointer-events-none border-4 border-amber-700/30 rounded-sm" />
@@ -53,7 +53,7 @@ export const CAPA_ESTILOS = {
     container:
       "text-center flex flex-col items-center justify-center h-full bg-gradient-to-b from-gray-50 to-white",
     nomeClasse: "font-serif text-6xl tracking-[0.3em] uppercase italic",
-    subClasse: "text-sm uppercase tracking-[0.5em] text-gray-400 font-light",
+    subClasse: "text-sm uppercase tracking-[0.5em] font-light",
     linhaClasse:
       "w-32 h-0.5 bg-gradient-to-r from-transparent via-gray-400 to-transparent mx-auto my-6",
     extra: () => (
@@ -65,7 +65,7 @@ export const CAPA_ESTILOS = {
     nome: "Clean",
     container: "text-center flex flex-col items-center justify-center h-full",
     nomeClasse: "font-sans text-5xl font-light tracking-[0.3em] uppercase",
-    subClasse: "text-sm font-light italic text-gray-500 mt-6 tracking-wider",
+    subClasse: "text-sm font-light italic mt-6 tracking-wider",
     linhaClasse:
       "w-24 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent mx-auto my-6",
     extra: null,
@@ -76,8 +76,8 @@ export const CAPA_ESTILOS = {
     container:
       "relative flex flex-col items-center justify-center h-full text-center overflow-visible",
     nomeClasse:
-      "relative z-10 font-cursive text-5xl md:text-6xl text-white drop-shadow-sm",
-    subClasse: "relative z-10 text-sm tracking-[0.3em] uppercase text-gray-300",
+      "relative z-10 font-cursive text-5xl md:text-6xl drop-shadow-sm",
+    subClasse: "relative z-10 text-sm tracking-[0.3em] uppercase",
     linhaClasse: "hidden",
     extra: null,
   },

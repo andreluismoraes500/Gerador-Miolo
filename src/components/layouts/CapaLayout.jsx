@@ -22,6 +22,8 @@ export default function CapaLayout({
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const bgColor = customColors.background || "#ffffff";
   const primaryColor = customColors.primary || tema.text || "#000000";
+  // Obtém a cor secundária customizada ou define um fallback seguro
+  const secondaryColor = customColors.secondary || tema.secondary || "#374151";
 
   // Extrai o ano da string YYYY-MM-DD (sem usar new Date)
   const ano = selectedDate
@@ -68,8 +70,8 @@ export default function CapaLayout({
                   leading-none
                 "
                 style={{
-                  color: primaryColor,
-                  fontSize: "clamp(10rem, 40vh, 14rem)", // Mantém o tamanho proporcional perfeito baseado na altura da folha
+                  color: primaryColor, // Símbolo japonês no fundo usa a cor primária
+                  fontSize: "clamp(10rem, 40vh, 14rem)",
                   lineHeight: "1",
                   display: "flex",
                   alignItems: "center",
@@ -79,13 +81,21 @@ export default function CapaLayout({
                 {japaneseLetter}
               </span>
 
-              <p className="absolute -top-4 left-0 right-0 mx-auto text-sm tracking-[0.3em] uppercase text-gray-300 z-10">
+              <p
+                className="absolute -top-4 left-0 right-0 mx-auto text-sm tracking-[0.3em] uppercase z-10"
+                style={{ color: secondaryColor }} // Texto "AGENDA" usa a cor secundária
+              >
                 AGENDA {ano}
               </p>
             </>
           )}
 
-          <h1 className={estilo.nomeClasse}>{capaNome || "Seu Nome Aqui"}</h1>
+          <h1
+            className={estilo.nomeClasse}
+            style={{ color: secondaryColor }} // Título do Nome usa a cor secundária
+          >
+            {capaNome || "Seu Nome Aqui"}
+          </h1>
 
           {estilo.linhaClasse && (
             <div
@@ -95,11 +105,18 @@ export default function CapaLayout({
           )}
 
           {capaEstilo !== "destaque" && (
-            <p className={estilo.subClasse}>{ano}</p>
+            <p className={estilo.subClasse} style={{ color: secondaryColor }}>
+              {ano}
+            </p>
           )}
 
           {capaFrase && (
-            <p className={`${estilo.subClasse} mt-24`}>{capaFrase}</p>
+            <p
+              className={`${estilo.subClasse} mt-24`}
+              style={{ color: secondaryColor }}
+            >
+              {capaFrase}
+            </p>
           )}
         </div>
       </div>
