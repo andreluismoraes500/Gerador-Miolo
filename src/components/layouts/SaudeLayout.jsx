@@ -3,20 +3,25 @@ import Logo from "../Logo";
 import Watermark from "../Watermark";
 import EditableField from "../EditableField";
 
-const FIELD_CLASS =
-  "border-b border-dotted border-gray-300 w-full h-6 text-sm outline-none focus:border-gray-500 transition";
-
-function Field({ label, fieldKey, placeholder, type = "text" }) {
+function HealthCard({ icon, title, fieldKey, placeholder, primaryColor }) {
   return (
-    <div className="space-y-1">
-      <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-        {label}
-      </label>
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-3 mb-4">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-lg"
+          style={{
+            backgroundColor: `${primaryColor}15`,
+          }}
+        >
+          {icon}
+        </div>
+
+        <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+      </div>
 
       <EditableField
         fieldKey={fieldKey}
-        type={type}
-        className={FIELD_CLASS}
+        className="w-full border-b border-dashed border-gray-300 pb-2 text-sm outline-none transition focus:border-gray-500"
         placeholder={placeholder}
       />
     </div>
@@ -33,56 +38,137 @@ export default function SaudeLayout({
   watermarkSrc,
   watermarkOpacity,
 }) {
-  const primaryColor = customColors.primary || "#4a5568";
-  const bgColor = customColors.background || "#ffffff";
+  const primaryColor = customColors.primary || "#14B8A6";
+  const bgColor = customColors.background || "#F8FAFC";
+  const cardColor = customColors.card || "#FFFFFF";
+
+  const today = new Date().toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <div
-      className="relative flex flex-col min-h-full bg-white text-gray-900 print:shadow-none print:border-0 select-none"
-      style={{ backgroundColor: bgColor, fontFamily }}
+      className="printable-page relative flex flex-col overflow-hidden"
+      style={{
+        backgroundColor: bgColor,
+        fontFamily,
+      }}
     >
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
 
-      {/* HEADER */}
-      <header className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-        <Logo src={logo} />
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute -top-24 -right-24 h-56 w-56 rounded-full opacity-10 blur-3xl"
+          style={{ backgroundColor: primaryColor }}
+        />
 
-        <div className="flex flex-col">
-          <h2
-            className="text-lg font-medium tracking-widest uppercase"
-            style={{ color: primaryColor }}
+        <div
+          className="absolute -bottom-24 -left-24 h-48 w-48 rounded-full opacity-10 blur-3xl"
+          style={{ backgroundColor: primaryColor }}
+        />
+      </div>
+
+      <div className="relative flex flex-1 flex-col p-8 gap-6">
+        <div className="flex items-center justify-between border-b border-gray-200 pb-5">
+          <div className="flex items-center gap-4">
+            <Logo src={logo} />
+
+            <div>
+              <h1
+                className="text-2xl font-light uppercase tracking-[0.2em]"
+                style={{ color: primaryColor }}
+              >
+                Registro de Saúde
+              </h1>
+
+              <p className="mt-1 text-sm text-gray-500"></p>
+            </div>
+          </div>
+
+          <div
+            className="rounded-full px-4 py-2 text-xs font-medium"
+            style={{
+              backgroundColor: `${primaryColor}15`,
+              color: primaryColor,
+            }}
           >
-            Registro de Saúde
-          </h2>
-          <span className="text-[11px] text-gray-400">
-            Acompanhamento diário
-          </span>
-        </div>
-      </header>
-
-      {/* CONTENT */}
-      <main className="flex-1 px-6 py-5 space-y-6">
-        {/* GRID PRINCIPAL */}
-        <div className="grid grid-cols-2 gap-5">
-          <Field label="Peso" fieldKey="saude-peso" placeholder="kg" />
-          <Field label="Pressão" fieldKey="saude-pressao" placeholder="" />
-          <Field label="Sono (horas)" fieldKey="saude-sono" placeholder="" />
-          <Field label="Exercício" fieldKey="saude-exercicio" placeholder="" />
+            ❤️ Cuide de você
+          </div>
         </div>
 
-        {/* BLOCO DESTACADO */}
-        <div className="p-4 border border-gray-100 rounded-md bg-gray-50/40">
-          <Field
-            label="Humor"
-            fieldKey="saude-humor"
-            placeholder="Como você se sentiu hoje?"
-          />
-        </div>
-      </main>
+        <main className="flex flex-1 flex-col gap-5">
+          <div className="grid grid-cols-2 gap-4">
+            <HealthCard
+              icon="⚖️"
+              title="Peso"
+              fieldKey="saude-peso"
+              placeholder=""
+              primaryColor={primaryColor}
+            />
 
-      {/* FOOTER */}
+            <HealthCard
+              icon="🩺"
+              title="Pressão"
+              fieldKey="saude-pressao"
+              placeholder=""
+              primaryColor={primaryColor}
+            />
+
+            <HealthCard
+              icon="😴"
+              title="Sono"
+              fieldKey="saude-sono"
+              placeholder=""
+              primaryColor={primaryColor}
+            />
+
+            <HealthCard
+              icon="🏃"
+              title="Exercício"
+              fieldKey="saude-exercicio"
+              placeholder=""
+              primaryColor={primaryColor}
+            />
+          </div>
+
+          <section
+            className="flex flex-col flex-1 rounded-2xl border border-gray-100 p-5 shadow-sm"
+            style={{ backgroundColor: cardColor }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-lg"
+                style={{
+                  backgroundColor: `${primaryColor}15`,
+                }}
+              >
+                😊
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700">
+                  Humor e Bem-estar
+                </h3>
+
+                <p className="text-xs text-gray-400">
+                  Como você se sentiu hoje?
+                </p>
+              </div>
+            </div>
+
+            <EditableField
+              fieldKey="saude-humor"
+              className="flex-1 w-full rounded-xl border border-dashed border-gray-300 p-4 text-sm outline-none focus:border-gray-500"
+              placeholder=""
+            />
+          </section>
+        </main>
+      </div>
+
       <Footer
         name={footerName}
         type={footerType}
