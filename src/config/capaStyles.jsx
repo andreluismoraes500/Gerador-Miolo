@@ -1,0 +1,76 @@
+// src/config/capaStyles.jsx
+
+export const CAPA_ESTILOS = {
+  classico: {
+    id: "classico",
+    nome: "Clássico",
+    container: "text-center flex flex-col items-center justify-center h-full",
+    nomeClasse: "font-serif text-5xl tracking-widest uppercase",
+    subClasse: "text-sm uppercase tracking-[0.3em] text-gray-500 font-sans",
+    linhaClasse: "w-24 h-px bg-gray-300 mx-auto my-6",
+    extra: null,
+  },
+  moderno: {
+    id: "moderno",
+    nome: "Moderno",
+    container: "flex items-center justify-center h-full",
+    nomeClasse: "font-sans text-7xl font-light tracking-[0.2em] uppercase",
+    subClasse: "text-base font-light tracking-[0.4em] text-gray-400",
+    linhaClasse: "hidden",
+    extra: null,
+  },
+  caligrafia: {
+    id: "caligrafia",
+    nome: "Caligrafia",
+    container: "text-center flex flex-col items-center justify-center h-full",
+    nomeClasse: "font-cursive text-6xl italic",
+    subClasse: "text-sm font-serif tracking-widest text-gray-500",
+    linhaClasse: "w-32 h-0.5 bg-amber-300 mx-auto my-6",
+    extra: null,
+  },
+  minimalista: {
+    id: "minimalista",
+    nome: "Minimalista",
+    container: "flex items-start justify-start h-full pl-16 flex-col",
+    nomeClasse: "font-sans text-5xl font-light tracking-[0.1em]",
+    subClasse: "text-xs uppercase tracking-[0.4em] text-gray-400 mt-4",
+    linhaClasse: "hidden",
+    extra: null,
+  },
+  vintage: {
+    id: "vintage",
+    nome: "Vintage",
+    container:
+      "text-center flex flex-col items-center justify-center h-full border-4 border-double border-amber-700 p-12",
+    nomeClasse: "font-serif text-5xl tracking-widest italic",
+    subClasse: "text-sm uppercase tracking-[0.3em] text-amber-800",
+    linhaClasse: "w-32 h-0.5 bg-amber-700 mx-auto my-6",
+    extra: () => (
+      <div className="absolute inset-0 pointer-events-none border-4 border-amber-700/30 rounded-sm" />
+    ),
+  },
+  elegante: {
+    id: "elegante",
+    nome: "Elegante",
+    container:
+      "text-center flex flex-col items-center justify-center h-full bg-gradient-to-b from-gray-50 to-white",
+    nomeClasse: "font-serif text-6xl tracking-[0.3em] uppercase italic",
+    subClasse: "text-sm uppercase tracking-[0.5em] text-gray-400 font-light",
+    linhaClasse:
+      "w-32 h-0.5 bg-gradient-to-r from-transparent via-gray-400 to-transparent mx-auto my-6",
+    extra: () => (
+      <div className="absolute inset-0 border border-gray-200/50 rounded-sm pointer-events-none" />
+    ),
+  },
+};
+
+export function getCapaEstiloOptions() {
+  return Object.values(CAPA_ESTILOS).map((estilo) => ({
+    value: estilo.id,
+    label: estilo.nome,
+  }));
+}
+
+export function getCapaEstiloById(id) {
+  return CAPA_ESTILOS[id] || CAPA_ESTILOS.classico;
+}

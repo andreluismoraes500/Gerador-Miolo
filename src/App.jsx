@@ -1,3 +1,5 @@
+// src/App.jsx
+
 import { MdPrint, MdTune } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import AgendaPreview from "./components/AgendaPreview";
@@ -118,7 +120,7 @@ function AppContent() {
 
       <main className="flex-1 p-6 flex justify-center items-start overflow-y-auto print:p-0 print:overflow-visible">
         <AgendaPreview
-          key={`${template}-${selectedDate}-${colorTheme}-${logo}-${footerType}-${primaryColor}-${secondaryColor}-${bgColor}-${fontFamily}-${watermarkSrc}-${watermarkOpacity}`}
+          key={`${template}-${selectedDate}-${colorTheme}-${logo}-${footerType}-${primaryColor}-${secondaryColor}-${bgColor}-${fontFamily}-${watermarkSrc}-${watermarkOpacity}-${capaNome}-${capaEstilo}`}
           template={template}
           customName={footerName}
           paid={paid}

@@ -1,3 +1,5 @@
+// src/hooks/useAgendaSettings.js
+
 import { useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { TEMAS } from "../themes";
@@ -12,34 +14,15 @@ function formatLocalDate(year, month, day) {
 export function useAgendaSettings() {
   const hoje = new Date();
 
-  // --- Estado persistido ---
   const [template, setTemplate] = usePersistedState(
     "agenda-template",
     "diario",
   );
   const [paid, setPaid] = usePersistedState("agenda-paid", false);
-
-  // === customName agora NÃO persiste mais ===
   const [customName, setCustomName] = useState(() => {
-    // Só pega do localStorage na primeira carga (opcional)
     const saved = localStorage.getItem("agenda-customName");
     return saved ? JSON.parse(saved) : "";
   });
-
-  const clearFooterName = () => {
-    setCustomName("");
-    setPaid(false);
-    localStorage.removeItem("agenda-customName");
-    toast.success("Nome do rodapé limpo! Você pode colocar outro agora.", {
-      icon: "🧹",
-    });
-  };
-
-  // Salva manualmente só quando quiser (ou remove completamente)
-  const saveCustomName = (name) => {
-    setCustomName(name);
-    // localStorage.setItem("agenda-customName", JSON.stringify(name)); // comentado = sem persistência
-  };
 
   const [selectedDate, setSelectedDate] = usePersistedState(
     "agenda-selectedDate",
@@ -75,11 +58,16 @@ export function useAgendaSettings() {
     0.03,
   );
 
-  // --- Estado local ---
+  // Capa
+  const [capaNome, setCapaNome] = usePersistedState("agenda-capaNome", "");
+  const [capaEstilo, setCapaEstilo] = usePersistedState(
+    "agenda-capaEstilo",
+    "classico",
+  );
+
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
 
-  // --- Logo (Context + persistência) ---
   const { logo, setLogo } = useAgendaConfig();
   const [persistedLogo, setPersistedLogo] = usePersistedState(
     "agenda-logo",
@@ -89,7 +77,13 @@ export function useAgendaSettings() {
     setLogo(persistedLogo);
   }
 
-  // --- Handlers ---
+  const clearFooterName = () => {
+    setCustomName("");
+    setPaid(false);
+    localStorage.removeItem("agenda-customName");
+    toast.success("Nome do rodapé limpo!", { icon: "🧹" });
+  };
+
   const handlePrint = () => {
     setPrinting(true);
     setTimeout(() => {
@@ -107,7 +101,7 @@ export function useAgendaSettings() {
         const result = reader.result;
         setLogo(result);
         setPersistedLogo(result);
-        toast.success("Logo enviado com sucesso!");
+        toast.success("Logo enviado!");
       };
       reader.readAsDataURL(file);
     },
@@ -141,7 +135,7 @@ export function useAgendaSettings() {
 
   const applyThemeColors = (themeId) => {
     const theme = TEMAS[themeId];
-    if (theme && theme.colors) {
+    if (theme?.colors) {
       setPrimaryColor(theme.colors.primary);
       setSecondaryColor(theme.colors.secondary);
       setBgColor(theme.colors.background);
@@ -158,7 +152,6 @@ export function useAgendaSettings() {
     toast(`${label} selecionado`, { icon });
   };
 
-  // --- Valores derivados ---
   const footerName = paid ? customName : "Lucas Cassiano de Moraes";
   const customColors = {
     primary: primaryColor,
@@ -166,14 +159,7 @@ export function useAgendaSettings() {
     background: bgColor,
   };
 
-  const [capaNome, setCapaNome] = usePersistedState("agenda-capaNome", "");
-  const [capaEstilo, setCapaEstilo] = usePersistedState(
-    "agenda-capaEstilo",
-    "classico",
-  );
-
   return {
-    // Estado
     template,
     setTemplate,
     paid,
@@ -199,7 +185,6 @@ export function useAgendaSettings() {
     showConfig,
     setShowConfig,
     logo,
-    // Handlers
     handlePrint,
     handleLogoUpload,
     handleRemoveLogo,
@@ -207,14 +192,10 @@ export function useAgendaSettings() {
     handleRemoveWatermark,
     applyThemeColors,
     handleFooterTypeChange,
-    // Valores derivados
     footerName,
     customColors,
-
-    setCustomName: saveCustomName,
     clearFooterName,
-    footerName: paid ? customName : "Lucas Cassiano de Moraes",
-
+    // Novos
     capaNome,
     setCapaNome,
     capaEstilo,

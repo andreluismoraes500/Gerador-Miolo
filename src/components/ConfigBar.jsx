@@ -4,6 +4,7 @@ import { MdUpload, MdColorLens, MdFontDownload, MdImage } from "react-icons/md";
 import { TEMAS } from "../themes";
 import TemplateSelector from "./TemplateSelector";
 import { useDateInput } from "../hooks/useDateInput";
+import { getCapaEstiloOptions } from "../config/capaStyles.jsx"; // <-- import corrigido
 
 const FONT_OPTIONS = [
   { value: "sans-serif", label: "Sans-serif (padrão)" },
@@ -46,7 +47,6 @@ export default function ConfigBar({
   setWatermarkOpacity,
   handleWatermarkUpload,
   handleRemoveWatermark,
-  // Novas props para capa
   capaNome,
   setCapaNome,
   capaEstilo,
@@ -66,7 +66,7 @@ export default function ConfigBar({
   return (
     <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200/80 px-6 py-5 print:hidden shadow-sm">
       <div className="max-w-7xl mx-auto flex flex-col gap-5">
-        {/* Linha 1: Modelo e Data - inalterado */}
+        {/* Linha 1: Modelo e Data */}
         <div className="flex flex-wrap items-center gap-6">
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
@@ -94,9 +94,9 @@ export default function ConfigBar({
           </div>
         </div>
 
-        {/* Linha 2: Temas, Cores, Fonte, Rodapé, Logo, Marca d'água - adicionar capa */}
+        {/* Linha 2: Temas, Cores, Fonte, Rodapé, Logo, Marca d'água, Capa */}
         <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-gray-100/80">
-          {/* Temas - inalterado */}
+          {/* Temas */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
               Layout:
@@ -118,7 +118,7 @@ export default function ConfigBar({
             </div>
           </div>
 
-          {/* Cores - inalterado */}
+          {/* Cores */}
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
               <MdColorLens className="w-3.5 h-3.5" />
@@ -149,7 +149,7 @@ export default function ConfigBar({
             </div>
           </div>
 
-          {/* Fonte - atualizado */}
+          {/* Fonte */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
               <MdFontDownload className="w-3.5 h-3.5" />
@@ -173,7 +173,7 @@ export default function ConfigBar({
             </select>
           </div>
 
-          {/* Rodapé - inalterado */}
+          {/* Rodapé */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
               Rodapé:
@@ -204,7 +204,7 @@ export default function ConfigBar({
             </button>
           </div>
 
-          {/* Logo - inalterado */}
+          {/* Logo */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
               <MdImage className="w-3.5 h-3.5" />
@@ -230,7 +230,7 @@ export default function ConfigBar({
             )}
           </div>
 
-          {/* Marca d'água - inalterado */}
+          {/* Marca d'água */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
               <MdImage className="w-3.5 h-3.5" />
@@ -272,7 +272,7 @@ export default function ConfigBar({
             )}
           </div>
 
-          {/* NOVO: Controles da Capa */}
+          {/* Capa */}
           <div className="flex items-center gap-3 border-l border-gray-200 pl-4">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
               Capa:
@@ -289,11 +289,11 @@ export default function ConfigBar({
               onChange={(e) => setCapaEstilo(e.target.value)}
               className="border border-gray-300 rounded-lg px-2 py-1 text-xs bg-white focus:ring-2 focus:ring-gray-300 focus:outline-none"
             >
-              <option value="classico">Clássico</option>
-              <option value="moderno">Moderno</option>
-              <option value="caligrafia">Caligrafia</option>
-              <option value="minimalista">Minimalista</option>
-              <option value="vintage">Vintage</option>
+              {getCapaEstiloOptions().map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>
