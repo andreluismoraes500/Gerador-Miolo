@@ -61,7 +61,7 @@ export default function GratidaoLayout({
                 Diário de Gratidão
               </h1>
 
-              <p className="text-sm text-gray-500 capitalize mt-1">{today}</p>
+              <p className="text-sm text-gray-500 capitalize mt-1">{}</p>
             </div>
           </div>
 
@@ -76,17 +76,17 @@ export default function GratidaoLayout({
           </div>
         </header>
 
-        <main className="flex flex-col gap-5 flex-1">
+        <main className="flex flex-col gap-5 flex-1 min-h-0">
           <section
             className="rounded-2xl p-5 shadow-sm border border-gray-100"
             style={{ backgroundColor: cardColor }}
           >
             <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">
-              🌷 3 coisas boas de hoje
+              🌷 Coisas boas de hoje
             </h3>
 
             <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="flex items-center gap-3">
                   <span
                     className="flex items-center justify-center w-7 h-7 rounded-full text-sm font-medium"
@@ -101,7 +101,7 @@ export default function GratidaoLayout({
                   <EditableField
                     fieldKey={`gratidao-${i}`}
                     className="flex-1 border-b border-dashed border-gray-300 h-8 text-sm"
-                    placeholder="Escreva algo especial..."
+                    placeholder=""
                   />
                 </div>
               ))}
@@ -109,7 +109,7 @@ export default function GratidaoLayout({
           </section>
 
           <section
-            className="rounded-2xl p-5 shadow-sm border border-gray-100"
+            className="flex flex-col flex-[1.5] rounded-2xl p-5 shadow-sm border border-gray-100"
             style={{ backgroundColor: cardColor }}
           >
             <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">
@@ -118,13 +118,13 @@ export default function GratidaoLayout({
 
             <EditableField
               fieldKey="gratidao-reflexao"
-              className="border border-dashed border-gray-300 rounded-lg p-3 min-h-24 text-sm w-full"
-              placeholder="Como você se sentiu hoje?"
+              className="flex-1 border border-dashed border-gray-300 rounded-lg p-4 text-sm w-full"
+              placeholder=""
             />
           </section>
 
           <section
-            className="rounded-2xl p-5 shadow-sm border border-gray-100"
+            className="flex flex-col flex-1 rounded-2xl p-5 shadow-sm border border-gray-100"
             style={{ backgroundColor: cardColor }}
           >
             <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">
@@ -133,8 +133,8 @@ export default function GratidaoLayout({
 
             <EditableField
               fieldKey="gratidao-meta"
-              className="border border-dashed border-gray-300 rounded-lg p-3 min-h-16 text-sm w-full"
-              placeholder="Qual será seu próximo passo?"
+              className="flex-1 border border-dashed border-gray-300 rounded-lg p-4 text-sm w-full"
+              placeholder=""
             />
           </section>
         </main>
