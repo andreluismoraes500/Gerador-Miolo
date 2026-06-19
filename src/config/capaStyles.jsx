@@ -62,6 +62,16 @@ export const CAPA_ESTILOS = {
       <div className="absolute inset-0 border border-gray-200/50 rounded-sm pointer-events-none" />
     ),
   },
+  clean: {
+    id: "clean",
+    nome: "Clean",
+    container: "text-center flex flex-col items-center justify-center h-full",
+    nomeClasse: "font-sans text-5xl font-light tracking-[0.3em] uppercase",
+    subClasse: "text-sm font-light italic text-gray-500 mt-6 tracking-wider",
+    linhaClasse:
+      "w-24 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent mx-auto my-6",
+    extra: null,
+  },
 };
 
 export function getCapaEstiloOptions() {

@@ -52,6 +52,8 @@ function AppContent() {
     setCapaNome,
     capaEstilo,
     setCapaEstilo,
+    capaFrase,
+    setCapaFrase, // <-- extraia setCapaFrase
   } = settings;
 
   return (
@@ -115,12 +117,14 @@ function AppContent() {
           setCapaNome={setCapaNome}
           capaEstilo={capaEstilo}
           setCapaEstilo={setCapaEstilo}
+          capaFrase={capaFrase} // <-- ADICIONADO
+          setCapaFrase={setCapaFrase} // <-- ADICIONADO
         />
       )}
 
       <main className="flex-1 p-6 flex justify-center items-start overflow-y-auto print:p-0 print:overflow-visible">
         <AgendaPreview
-          key={`${template}-${selectedDate}-${colorTheme}-${logo}-${footerType}-${primaryColor}-${secondaryColor}-${bgColor}-${fontFamily}-${watermarkSrc}-${watermarkOpacity}-${capaNome}-${capaEstilo}`}
+          key={`${template}-${selectedDate}-${colorTheme}-${logo}-${footerType}-${primaryColor}-${secondaryColor}-${bgColor}-${fontFamily}-${watermarkSrc}-${watermarkOpacity}-${capaNome}-${capaEstilo}-${capaFrase}`}
           template={template}
           customName={footerName}
           paid={paid}
@@ -135,6 +139,7 @@ function AppContent() {
           watermarkOpacity={watermarkOpacity}
           capaNome={capaNome}
           capaEstilo={capaEstilo}
+          capaFrase={capaFrase}
         />
       </main>
 

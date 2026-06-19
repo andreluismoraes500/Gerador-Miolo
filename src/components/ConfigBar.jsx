@@ -51,6 +51,8 @@ export default function ConfigBar({
   setCapaNome,
   capaEstilo,
   setCapaEstilo,
+  capaFrase,
+  setCapaFrase,
 }) {
   const { inputType, inputValue, handleDateChange } = useDateInput(
     template,
@@ -283,6 +285,13 @@ export default function ConfigBar({
               onChange={(e) => setCapaNome(e.target.value)}
               placeholder="Nome da capa"
               className="border border-gray-300 rounded-lg px-2 py-1 text-xs w-28 bg-white focus:ring-2 focus:ring-gray-300 focus:outline-none"
+            />
+            <input
+              type="text"
+              value={capaFrase}
+              onChange={(e) => setCapaFrase(e.target.value)}
+              placeholder="Frase da capa"
+              className="border border-gray-300 rounded-lg px-2 py-1 text-xs w-28 bg-white"
             />
             <select
               value={capaEstilo}

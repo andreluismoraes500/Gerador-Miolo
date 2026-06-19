@@ -17,7 +17,8 @@ export default function CapaLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
-  selectedDate, // recebe a data selecionada
+  selectedDate,
+  capaFrase,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const bgColor = customColors.background || "#ffffff";
@@ -56,6 +57,9 @@ export default function CapaLayout({
             />
           )}
           <p className={estilo.subClasse}>{ano}</p>
+          {capaFrase && (
+            <p className={`${estilo.subClasse} mt-2`}>{capaFrase}</p>
+          )}
         </div>
       </div>
 

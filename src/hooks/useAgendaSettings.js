@@ -159,6 +159,8 @@ export function useAgendaSettings() {
     background: bgColor,
   };
 
+  const [capaFrase, setCapaFrase] = usePersistedState("agenda-capaFrase", "");
+
   return {
     template,
     setTemplate,
@@ -200,5 +202,7 @@ export function useAgendaSettings() {
     setCapaNome,
     capaEstilo,
     setCapaEstilo,
+    capaFrase,
+    setCapaFrase,
   };
 }

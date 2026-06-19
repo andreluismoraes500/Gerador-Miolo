@@ -16,6 +16,8 @@ const AgendaPreview = React.memo(function AgendaPreview({
   watermarkOpacity,
   capaNome,
   capaEstilo,
+  capaFrase,
+  setCapaFrase,
 }) {
   const currentTemplate = TEMPLATES[template];
   if (!currentTemplate) {
@@ -40,6 +42,8 @@ const AgendaPreview = React.memo(function AgendaPreview({
     businessType: "manicure",
     capaNome,
     capaEstilo,
+    capaFrase,
+    setCapaFrase,
   };
 
   return (
