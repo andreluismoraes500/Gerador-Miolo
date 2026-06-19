@@ -1,4 +1,3 @@
-import Footer from "../Footer";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
 import { TEMAS } from "../../themes";
@@ -120,14 +119,6 @@ export default function CapaLayout({
           )}
         </div>
       </div>
-
-      <Footer
-        name={footerName}
-        type={footerType}
-        colorTheme={colorTheme}
-        customColors={customColors}
-        fontFamily={fontFamily}
-      />
     </div>
   );
 }
