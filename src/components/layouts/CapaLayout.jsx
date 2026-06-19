@@ -1,5 +1,3 @@
-// src/components/layouts/CapaLayout.jsx
-
 import Footer from "../Footer";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
@@ -30,11 +28,7 @@ export default function CapaLayout({
     ? parseInt(selectedDate.split("-")[0], 10)
     : new Date().getFullYear();
 
-  // (Opcional) log para depuração
-  // console.log("CapaLayout - selectedDate:", selectedDate, "ano:", ano);
-
   const estilo = getCapaEstiloById(capaEstilo);
-
   const japaneseLetter = getJapaneseInitial(capaNome);
 
   return (
@@ -46,7 +40,7 @@ export default function CapaLayout({
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
 
-      <div className="flex-1 flex items-center justify-center p-12 relative">
+      <div className="flex-1 flex items-center justify-center p-12 relative overflow-visible">
         {estilo.extra && estilo.extra()}
         <div className={estilo.container}>
           {logo && <Logo src={logo} className="h-16 mb-8 z-10" />}
@@ -55,28 +49,37 @@ export default function CapaLayout({
             <>
               <span
                 className="
-    absolute
-    inset-0
-    flex
-    items-center
-    justify-center
-    font-japanese
-    font-bold
-    opacity-15
-    select-none
-    pointer-events-none
-    z-0
-  "
+                  absolute
+                  top-1/2
+                  left-1/2
+                  -translate-x-1/2
+                  -translate-y-1/2
+                  flex
+                  items-center
+                  justify-center
+                  font-japanese
+                  font-bold
+                  opacity-15
+                  select-none
+                  pointer-events-none
+                  z-0
+                  whitespace-nowrap
+                  overflow-visible
+                  leading-none
+                "
                 style={{
                   color: primaryColor,
-                  fontSize: "clamp(10rem, 30vw, 16rem)",
-                  lineHeight: 1,
+                  fontSize: "clamp(10rem, 40vh, 14rem)", // Mantém o tamanho proporcional perfeito baseado na altura da folha
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {japaneseLetter}
               </span>
 
-              <p className="absolute top-12 text-sm tracking-[0.3em] uppercase text-gray-300">
+              <p className="absolute -top-4 left-0 right-0 mx-auto text-sm tracking-[0.3em] uppercase text-gray-300 z-10">
                 AGENDA {ano}
               </p>
             </>
