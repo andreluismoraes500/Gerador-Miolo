@@ -106,11 +106,9 @@ export default function CalendarioLayout({
                 className={`text-[15px] font-semibold tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
                 style={{ color: primaryColor }}
               >
-                Calendário Geral
+                Calendário
               </h2>
-              <p className="text-[10px] uppercase tracking-wider text-gray-400 font-sans font-bold">
-                Início no Domingo • Feriados & Datas Comemorativas
-              </p>
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 font-sans font-bold"></p>
             </div>
           </div>
           <div className="text-right">
@@ -206,7 +204,7 @@ export default function CalendarioLayout({
           style={{ borderColor: secondaryColor }}
         >
           <div className="text-[9px] font-bold uppercase tracking-wider text-gray-400 border-b pb-1 border-gray-200 mb-1.5 flex items-center justify-between">
-            <span>Guia de Datas e Eventos do Ano (Ordem Cronológica)</span>
+            <span>Feriados e datas comemorativas</span>
             <div className="flex items-center gap-3 font-sans normal-case text-[8px] text-gray-500 font-normal">
               <div className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-red-100 border border-red-300"></span>{" "}
