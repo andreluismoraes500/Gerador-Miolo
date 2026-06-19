@@ -3,6 +3,26 @@ import Logo from "../Logo";
 import Watermark from "../Watermark";
 import EditableField from "../EditableField";
 
+const FIELD_CLASS =
+  "border-b border-dotted border-gray-300 w-full h-6 text-sm outline-none focus:border-gray-500 transition";
+
+function Field({ label, fieldKey, placeholder, type = "text" }) {
+  return (
+    <div className="space-y-1">
+      <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+        {label}
+      </label>
+
+      <EditableField
+        fieldKey={fieldKey}
+        type={type}
+        className={FIELD_CLASS}
+        placeholder={placeholder}
+      />
+    </div>
+  );
+}
+
 export default function SaudeLayout({
   footerName,
   colorTheme = "classico",
@@ -18,77 +38,51 @@ export default function SaudeLayout({
 
   return (
     <div
-      className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none relative"
+      className="relative flex flex-col min-h-full bg-white text-gray-900 print:shadow-none print:border-0 select-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
-      <div className="flex flex-col flex-1 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Logo src={logo} />
+
+      {/* HEADER */}
+      <header className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
+        <Logo src={logo} />
+
+        <div className="flex flex-col">
           <h2
-            className="text-xl font-light tracking-widest uppercase"
-            style={{ fontFamily, color: primaryColor }}
+            className="text-lg font-medium tracking-widest uppercase"
+            style={{ color: primaryColor }}
           >
             Registro de Saúde
           </h2>
+          <span className="text-[11px] text-gray-400">
+            Acompanhamento diário
+          </span>
         </div>
-        <div className="flex-1 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                Peso
-              </label>
-              <EditableField
-                fieldKey="saude-peso"
-                className="border-b border-dotted border-gray-300 w-full h-5 text-sm"
-                placeholder="kg"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                Pressão
-              </label>
-              <EditableField
-                fieldKey="saude-pressao"
-                className="border-b border-dotted border-gray-300 w-full h-5 text-sm"
-                placeholder="mmHg"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-gray-400">
-              Humor
-            </label>
-            <EditableField
-              fieldKey="saude-humor"
-              className="border-b border-dotted border-gray-300 w-full h-5 text-sm"
-              placeholder="..."
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-gray-400">
-              Sono (horas)
-            </label>
-            <EditableField
-              fieldKey="saude-sono"
-              className="border-b border-dotted border-gray-300 w-full h-5 text-sm"
-              placeholder="horas"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-gray-400">
-              Exercício
-            </label>
-            <EditableField
-              fieldKey="saude-exercicio"
-              className="border-b border-dotted border-gray-300 w-full h-5 text-sm"
-              placeholder="..."
-            />
-          </div>
+      </header>
+
+      {/* CONTENT */}
+      <main className="flex-1 px-6 py-5 space-y-6">
+        {/* GRID PRINCIPAL */}
+        <div className="grid grid-cols-2 gap-5">
+          <Field label="Peso" fieldKey="saude-peso" placeholder="kg" />
+          <Field label="Pressão" fieldKey="saude-pressao" placeholder="" />
+          <Field label="Sono (horas)" fieldKey="saude-sono" placeholder="" />
+          <Field label="Exercício" fieldKey="saude-exercicio" placeholder="" />
         </div>
-      </div>
+
+        {/* BLOCO DESTACADO */}
+        <div className="p-4 border border-gray-100 rounded-md bg-gray-50/40">
+          <Field
+            label="Humor"
+            fieldKey="saude-humor"
+            placeholder="Como você se sentiu hoje?"
+          />
+        </div>
+      </main>
+
+      {/* FOOTER */}
       <Footer
         name={footerName}
         type={footerType}
