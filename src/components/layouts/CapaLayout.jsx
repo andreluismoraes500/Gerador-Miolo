@@ -5,6 +5,7 @@ import Logo from "../Logo";
 import Watermark from "../Watermark";
 import { TEMAS } from "../../themes";
 import { getCapaEstiloById } from "../../config/capaStyles.jsx";
+import { getJapaneseInitial } from "../../utils/japaneseInitials";
 
 export default function CapaLayout({
   capaNome = "",
@@ -34,6 +35,8 @@ export default function CapaLayout({
 
   const estilo = getCapaEstiloById(capaEstilo);
 
+  const japaneseLetter = getJapaneseInitial(capaNome);
+
   return (
     <div
       className="printable-page bg-white text-gray-900 flex flex-col justify-between relative overflow-hidden"
@@ -46,19 +49,54 @@ export default function CapaLayout({
       <div className="flex-1 flex items-center justify-center p-12 relative">
         {estilo.extra && estilo.extra()}
         <div className={estilo.container}>
-          {logo && <Logo src={logo} className="h-16 mb-8" />}
-          <h1 className={estilo.nomeClasse} style={{ color: primaryColor }}>
-            {capaNome || "Minha Agenda"}
-          </h1>
+          {logo && <Logo src={logo} className="h-16 mb-8 z-10" />}
+
+          {capaEstilo === "destaque" && (
+            <>
+              <span
+                className="
+    absolute
+    inset-0
+    flex
+    items-center
+    justify-center
+    font-japanese
+    font-bold
+    opacity-15
+    select-none
+    pointer-events-none
+    z-0
+  "
+                style={{
+                  color: primaryColor,
+                  fontSize: "clamp(10rem, 30vw, 16rem)",
+                  lineHeight: 1,
+                }}
+              >
+                {japaneseLetter}
+              </span>
+
+              <p className="absolute top-12 text-sm tracking-[0.3em] uppercase text-gray-300">
+                AGENDA {ano}
+              </p>
+            </>
+          )}
+
+          <h1 className={estilo.nomeClasse}>{capaNome || "Seu Nome Aqui"}</h1>
+
           {estilo.linhaClasse && (
             <div
               className={estilo.linhaClasse}
               style={{ backgroundColor: primaryColor }}
             />
           )}
-          <p className={estilo.subClasse}>{ano}</p>
+
+          {capaEstilo !== "destaque" && (
+            <p className={estilo.subClasse}>{ano}</p>
+          )}
+
           {capaFrase && (
-            <p className={`${estilo.subClasse} mt-2`}>{capaFrase}</p>
+            <p className={`${estilo.subClasse} mt-24`}>{capaFrase}</p>
           )}
         </div>
       </div>

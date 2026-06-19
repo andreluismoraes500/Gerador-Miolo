@@ -72,6 +72,16 @@ export const CAPA_ESTILOS = {
       "w-24 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent mx-auto my-6",
     extra: null,
   },
+  destaque: {
+    id: "destaque",
+    nome: "Destaque Japonês",
+    container:
+      "relative flex flex-col items-center justify-center h-full text-center overflow-hidden",
+    nomeClasse: "relative z-10 font-cursive text-5xl md:text-6xl text-white",
+    subClasse: "relative z-10 text-sm tracking-[0.3em] uppercase text-gray-300",
+    linhaClasse: "hidden",
+    extra: null,
+  },
 };
 
 export function getCapaEstiloOptions() {
