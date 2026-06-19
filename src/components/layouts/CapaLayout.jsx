@@ -1,14 +1,13 @@
 // src/components/layouts/CapaLayout.jsx
 
 import Footer from "../Footer";
-import Logo from "../Logo";
 import Watermark from "../Watermark";
 import { TEMAS } from "../../themes";
 
 export default function CapaLayout({
   capaNome = "",
   capaEstilo = "classico",
-  footerName,
+
   colorTheme = "classico",
   logo,
   footerType = "default",
@@ -77,7 +76,14 @@ export default function CapaLayout({
       <div className="flex-1 flex items-center justify-center p-12 relative">
         {estiloAtual.extra}
         <div className={estiloAtual.container}>
-          {logo && <Logo src={logo} className="h-16 mb-8" />}
+          {/* Exibir logo diretamente com img para controle de tamanho */}
+          {logo && (
+            <img
+              src={logo}
+              alt="Logo"
+              className="h-16 w-auto object-contain mb-8"
+            />
+          )}
           <h1 className={estiloAtual.nome} style={{ color: primaryColor }}>
             {capaNome || "Minha Agenda"}
           </h1>
@@ -90,14 +96,6 @@ export default function CapaLayout({
           <p className={estiloAtual.sub}>{new Date().getFullYear()}</p>
         </div>
       </div>
-
-      <Footer
-        name={footerName}
-        type={footerType}
-        colorTheme={colorTheme}
-        customColors={customColors}
-        fontFamily={fontFamily}
-      />
     </div>
   );
 }
