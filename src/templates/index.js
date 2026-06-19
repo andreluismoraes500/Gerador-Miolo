@@ -13,6 +13,7 @@ import conteudo from "./conteudo.jsx";
 import refeicoes from "./refeicoes.jsx";
 import metas from "./metas.jsx";
 import saude from "./saude.jsx";
+import pet from "./pet.jsx";
 
 export const TEMPLATES = {
   diario,
@@ -30,4 +31,5 @@ export const TEMPLATES = {
   refeicoes,
   metas,
   saude,
+  pet,
 };
