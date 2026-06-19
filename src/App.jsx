@@ -43,6 +43,7 @@ function AppContent() {
     handleRemoveLogo,
     handleWatermarkUpload,
     handleRemoveWatermark,
+    clearFooterName,
     footerName,
     customColors,
   } = settings;
@@ -130,6 +131,7 @@ function AppContent() {
         customName={customName}
         onPayment={setPaid}
         onNameChange={setCustomName}
+        onClearName={clearFooterName}
       />
     </div>
   );

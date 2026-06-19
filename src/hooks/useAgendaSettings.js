@@ -13,21 +13,67 @@ export function useAgendaSettings() {
   const hoje = new Date();
 
   // --- Estado persistido ---
-  const [template, setTemplate] = usePersistedState("agenda-template", "diario");
+  const [template, setTemplate] = usePersistedState(
+    "agenda-template",
+    "diario",
+  );
   const [paid, setPaid] = usePersistedState("agenda-paid", false);
-  const [customName, setCustomName] = usePersistedState("agenda-customName", "");
+
+  // === customName agora NÃO persiste mais ===
+  const [customName, setCustomName] = useState(() => {
+    // Só pega do localStorage na primeira carga (opcional)
+    const saved = localStorage.getItem("agenda-customName");
+    return saved ? JSON.parse(saved) : "";
+  });
+
+  const clearFooterName = () => {
+    setCustomName("");
+    setPaid(false);
+    localStorage.removeItem("agenda-customName");
+    toast.success("Nome do rodapé limpo! Você pode colocar outro agora.", {
+      icon: "🧹",
+    });
+  };
+
+  // Salva manualmente só quando quiser (ou remove completamente)
+  const saveCustomName = (name) => {
+    setCustomName(name);
+    // localStorage.setItem("agenda-customName", JSON.stringify(name)); // comentado = sem persistência
+  };
+
   const [selectedDate, setSelectedDate] = usePersistedState(
     "agenda-selectedDate",
-    formatLocalDate(hoje.getFullYear(), hoje.getMonth(), hoje.getDate())
+    formatLocalDate(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()),
   );
-  const [colorTheme, setColorTheme] = usePersistedState("agenda-colorTheme", "classico");
-  const [footerType, setFooterType] = usePersistedState("agenda-footerType", "default");
-  const [primaryColor, setPrimaryColor] = usePersistedState("agenda-primaryColor", "#1e293b");
-  const [secondaryColor, setSecondaryColor] = usePersistedState("agenda-secondaryColor", "#94a3b8");
+  const [colorTheme, setColorTheme] = usePersistedState(
+    "agenda-colorTheme",
+    "classico",
+  );
+  const [footerType, setFooterType] = usePersistedState(
+    "agenda-footerType",
+    "default",
+  );
+  const [primaryColor, setPrimaryColor] = usePersistedState(
+    "agenda-primaryColor",
+    "#1e293b",
+  );
+  const [secondaryColor, setSecondaryColor] = usePersistedState(
+    "agenda-secondaryColor",
+    "#94a3b8",
+  );
   const [bgColor, setBgColor] = usePersistedState("agenda-bgColor", "#f8fafc");
-  const [fontFamily, setFontFamily] = usePersistedState("agenda-fontFamily", "sans-serif");
-  const [watermarkSrc, setWatermarkSrc] = usePersistedState("agenda-watermarkSrc", null);
-  const [watermarkOpacity, setWatermarkOpacity] = usePersistedState("agenda-watermarkOpacity", 0.03);
+  const [fontFamily, setFontFamily] = usePersistedState(
+    "agenda-fontFamily",
+    "sans-serif",
+  );
+  const [watermarkSrc, setWatermarkSrc] = usePersistedState(
+    "agenda-watermarkSrc",
+    null,
+  );
+  const [watermarkOpacity, setWatermarkOpacity] = usePersistedState(
+    "agenda-watermarkOpacity",
+    0.03,
+  );
 
   // --- Estado local ---
   const [printing, setPrinting] = useState(false);
@@ -35,7 +81,10 @@ export function useAgendaSettings() {
 
   // --- Logo (Context + persistência) ---
   const { logo, setLogo } = useAgendaConfig();
-  const [persistedLogo, setPersistedLogo] = usePersistedState("agenda-logo", null);
+  const [persistedLogo, setPersistedLogo] = usePersistedState(
+    "agenda-logo",
+    null,
+  );
   if (!logo && persistedLogo) {
     setLogo(persistedLogo);
   }
@@ -62,7 +111,7 @@ export function useAgendaSettings() {
       };
       reader.readAsDataURL(file);
     },
-    [setLogo, setPersistedLogo]
+    [setLogo, setPersistedLogo],
   );
 
   const handleRemoveLogo = () => {
@@ -82,7 +131,7 @@ export function useAgendaSettings() {
       };
       reader.readAsDataURL(file);
     },
-    [setWatermarkSrc]
+    [setWatermarkSrc],
   );
 
   const handleRemoveWatermark = () => {
@@ -119,20 +168,30 @@ export function useAgendaSettings() {
 
   return {
     // Estado
-    template, setTemplate,
-    paid, setPaid,
-    customName, setCustomName,
-    selectedDate, setSelectedDate,
+    template,
+    setTemplate,
+    paid,
+    setPaid,
+    customName,
+    setCustomName,
+    selectedDate,
+    setSelectedDate,
     colorTheme,
     footerType,
-    primaryColor, setPrimaryColor,
-    secondaryColor, setSecondaryColor,
-    bgColor, setBgColor,
-    fontFamily, setFontFamily,
+    primaryColor,
+    setPrimaryColor,
+    secondaryColor,
+    setSecondaryColor,
+    bgColor,
+    setBgColor,
+    fontFamily,
+    setFontFamily,
     watermarkSrc,
-    watermarkOpacity, setWatermarkOpacity,
+    watermarkOpacity,
+    setWatermarkOpacity,
     printing,
-    showConfig, setShowConfig,
+    showConfig,
+    setShowConfig,
     logo,
     // Handlers
     handlePrint,
@@ -145,5 +204,9 @@ export function useAgendaSettings() {
     // Valores derivados
     footerName,
     customColors,
+
+    setCustomName: saveCustomName,
+    clearFooterName,
+    footerName: paid ? customName : "Lucas Cassiano de Moraes",
   };
 }
