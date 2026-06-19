@@ -14,6 +14,8 @@ const AgendaPreview = React.memo(function AgendaPreview({
   fontFamily,
   watermarkSrc,
   watermarkOpacity,
+  capaNome,
+  capaEstilo,
 }) {
   const currentTemplate = TEMPLATES[template];
   if (!currentTemplate) {
@@ -36,6 +38,8 @@ const AgendaPreview = React.memo(function AgendaPreview({
     watermarkSrc,
     watermarkOpacity,
     businessType: "manicure",
+    capaNome,
+    capaEstilo,
   };
 
   return (

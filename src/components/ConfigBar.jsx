@@ -1,54 +1,82 @@
-import {
-  MdUpload,
-  MdColorLens,
-  MdFontDownload,
-  MdImage,
-} from "react-icons/md";
+// src/components/ConfigBar.jsx
+
+import { MdUpload, MdColorLens, MdFontDownload, MdImage } from "react-icons/md";
 import { TEMAS } from "../themes";
 import TemplateSelector from "./TemplateSelector";
 import { useDateInput } from "../hooks/useDateInput";
 
 const FONT_OPTIONS = [
-  { value: "sans-serif", label: "Sans-serif" },
+  { value: "sans-serif", label: "Sans-serif (padrão)" },
   { value: "serif", label: "Serif" },
   { value: "monospace", label: "Monospace" },
   { value: "cursive", label: "Cursive" },
   { value: "Inter", label: "Inter" },
   { value: "Cormorant Garamond", label: "Cormorant" },
+  { value: "Playfair Display", label: "Playfair Display" },
+  { value: "Montserrat", label: "Montserrat" },
+  { value: "Dancing Script", label: "Dancing Script" },
+  { value: "Oswald", label: "Oswald" },
+  { value: "Lora", label: "Lora" },
+  { value: "Raleway", label: "Raleway" },
+  { value: "Nunito", label: "Nunito" },
 ];
 
 export default function ConfigBar({
-  template, setTemplate,
-  selectedDate, setSelectedDate,
-  colorTheme, applyThemeColors,
-  primaryColor, setPrimaryColor,
-  secondaryColor, setSecondaryColor,
-  bgColor, setBgColor,
-  fontFamily, setFontFamily,
-  footerType, handleFooterTypeChange,
-  logo, handleLogoUpload, handleRemoveLogo,
-  watermarkSrc, watermarkOpacity, setWatermarkOpacity,
-  handleWatermarkUpload, handleRemoveWatermark,
+  template,
+  setTemplate,
+  selectedDate,
+  setSelectedDate,
+  colorTheme,
+  applyThemeColors,
+  primaryColor,
+  setPrimaryColor,
+  secondaryColor,
+  setSecondaryColor,
+  bgColor,
+  setBgColor,
+  fontFamily,
+  setFontFamily,
+  footerType,
+  handleFooterTypeChange,
+  logo,
+  handleLogoUpload,
+  handleRemoveLogo,
+  watermarkSrc,
+  watermarkOpacity,
+  setWatermarkOpacity,
+  handleWatermarkUpload,
+  handleRemoveWatermark,
+  // Novas props para capa
+  capaNome,
+  setCapaNome,
+  capaEstilo,
+  setCapaEstilo,
 }) {
   const { inputType, inputValue, handleDateChange } = useDateInput(
     template,
     selectedDate,
-    setSelectedDate
+    setSelectedDate,
   );
 
-  const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({ id, nome }));
+  const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
+    id,
+    nome,
+  }));
 
   return (
     <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200/80 px-6 py-5 print:hidden shadow-sm">
       <div className="max-w-7xl mx-auto flex flex-col gap-5">
-
-        {/* Linha 1: Modelo e Data */}
+        {/* Linha 1: Modelo e Data - inalterado */}
         <div className="flex flex-wrap items-center gap-6">
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
               Modelo:
             </span>
-            <TemplateSelector selected={template} onSelect={setTemplate} compact />
+            <TemplateSelector
+              selected={template}
+              onSelect={setTemplate}
+              compact
+            />
           </div>
 
           <div className="flex items-center gap-3">
@@ -66,10 +94,9 @@ export default function ConfigBar({
           </div>
         </div>
 
-        {/* Linha 2: Temas, Cores, Fonte, Rodapé, Logo, Marca d'água */}
+        {/* Linha 2: Temas, Cores, Fonte, Rodapé, Logo, Marca d'água - adicionar capa */}
         <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-gray-100/80">
-
-          {/* Temas */}
+          {/* Temas - inalterado */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
               Layout:
@@ -91,26 +118,38 @@ export default function ConfigBar({
             </div>
           </div>
 
-          {/* Cores */}
+          {/* Cores - inalterado */}
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
               <MdColorLens className="w-3.5 h-3.5" />
               Cores:
             </span>
             <div className="flex items-center gap-2">
-              <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)}
+              <input
+                type="color"
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
                 className="w-7 h-7 p-0 border-2 border-gray-200 rounded-full cursor-pointer hover:border-gray-400 transition"
-                title="Cor primária" />
-              <input type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)}
+                title="Cor primária"
+              />
+              <input
+                type="color"
+                value={secondaryColor}
+                onChange={(e) => setSecondaryColor(e.target.value)}
                 className="w-7 h-7 p-0 border-2 border-gray-200 rounded-full cursor-pointer hover:border-gray-400 transition"
-                title="Cor secundária" />
-              <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)}
+                title="Cor secundária"
+              />
+              <input
+                type="color"
+                value={bgColor}
+                onChange={(e) => setBgColor(e.target.value)}
                 className="w-7 h-7 p-0 border-2 border-gray-200 rounded-full cursor-pointer hover:border-gray-400 transition"
-                title="Cor de fundo" />
+                title="Cor de fundo"
+              />
             </div>
           </div>
 
-          {/* Fonte */}
+          {/* Fonte - atualizado */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
               <MdFontDownload className="w-3.5 h-3.5" />
@@ -120,20 +159,29 @@ export default function ConfigBar({
               value={fontFamily}
               onChange={(e) => setFontFamily(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-1 text-xs bg-white focus:ring-2 focus:ring-gray-300 focus:outline-none transition"
+              style={{ fontFamily: fontFamily }}
             >
               {FONT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option
+                  key={opt.value}
+                  value={opt.value}
+                  style={{ fontFamily: opt.value }}
+                >
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
 
-          {/* Rodapé */}
+          {/* Rodapé - inalterado */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
               Rodapé:
             </span>
             <button
-              onClick={() => handleFooterTypeChange("default", "Rodapé padrão", "📄")}
+              onClick={() =>
+                handleFooterTypeChange("default", "Rodapé padrão", "📄")
+              }
               className={`px-3 py-1 text-[11px] rounded-full border transition-all ${
                 footerType === "default"
                   ? "bg-gray-900 text-white border-gray-900"
@@ -143,7 +191,9 @@ export default function ConfigBar({
               Padrão
             </button>
             <button
-              onClick={() => handleFooterTypeChange("biblical", "Rodapé bíblico", "📖")}
+              onClick={() =>
+                handleFooterTypeChange("biblical", "Rodapé bíblico", "📖")
+              }
               className={`px-3 py-1 text-[11px] rounded-full border transition-all ${
                 footerType === "biblical"
                   ? "bg-gray-900 text-white border-gray-900"
@@ -154,7 +204,7 @@ export default function ConfigBar({
             </button>
           </div>
 
-          {/* Logo */}
+          {/* Logo - inalterado */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
               <MdImage className="w-3.5 h-3.5" />
@@ -163,16 +213,24 @@ export default function ConfigBar({
             <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-lg border border-gray-200 flex items-center gap-1.5 transition hover:border-gray-400">
               <MdUpload className="w-3.5 h-3.5" />
               {logo ? "Alterar" : "Enviar"}
-              <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
             </label>
             {logo && (
-              <button onClick={handleRemoveLogo} className="text-red-400 hover:text-red-600 text-xs underline transition">
+              <button
+                onClick={handleRemoveLogo}
+                className="text-red-400 hover:text-red-600 text-xs underline transition"
+              >
                 Remover
               </button>
             )}
           </div>
 
-          {/* Marca d'água */}
+          {/* Marca d'água - inalterado */}
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
               <MdImage className="w-3.5 h-3.5" />
@@ -181,19 +239,32 @@ export default function ConfigBar({
             <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-lg border border-gray-200 flex items-center gap-1.5 transition hover:border-gray-400">
               <MdUpload className="w-3.5 h-3.5" />
               {watermarkSrc ? "Alterar" : "Enviar"}
-              <input type="file" accept="image/*" onChange={handleWatermarkUpload} className="hidden" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleWatermarkUpload}
+                className="hidden"
+              />
             </label>
             {watermarkSrc && (
               <>
-                <button onClick={handleRemoveWatermark} className="text-red-400 hover:text-red-600 text-xs underline transition">
+                <button
+                  onClick={handleRemoveWatermark}
+                  className="text-red-400 hover:text-red-600 text-xs underline transition"
+                >
                   Remover
                 </button>
                 <div className="flex items-center gap-1">
                   <span className="text-[8px] text-gray-400">Opacidade:</span>
                   <input
-                    type="range" min="0.01" max="0.1" step="0.01"
+                    type="range"
+                    min="0.01"
+                    max="0.1"
+                    step="0.01"
                     value={watermarkOpacity}
-                    onChange={(e) => setWatermarkOpacity(parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      setWatermarkOpacity(parseFloat(e.target.value))
+                    }
                     className="w-16 h-1 accent-gray-600"
                   />
                 </div>
@@ -201,6 +272,30 @@ export default function ConfigBar({
             )}
           </div>
 
+          {/* NOVO: Controles da Capa */}
+          <div className="flex items-center gap-3 border-l border-gray-200 pl-4">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              Capa:
+            </span>
+            <input
+              type="text"
+              value={capaNome}
+              onChange={(e) => setCapaNome(e.target.value)}
+              placeholder="Nome da capa"
+              className="border border-gray-300 rounded-lg px-2 py-1 text-xs w-28 bg-white focus:ring-2 focus:ring-gray-300 focus:outline-none"
+            />
+            <select
+              value={capaEstilo}
+              onChange={(e) => setCapaEstilo(e.target.value)}
+              className="border border-gray-300 rounded-lg px-2 py-1 text-xs bg-white focus:ring-2 focus:ring-gray-300 focus:outline-none"
+            >
+              <option value="classico">Clássico</option>
+              <option value="moderno">Moderno</option>
+              <option value="caligrafia">Caligrafia</option>
+              <option value="minimalista">Minimalista</option>
+              <option value="vintage">Vintage</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>

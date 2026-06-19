@@ -166,6 +166,12 @@ export function useAgendaSettings() {
     background: bgColor,
   };
 
+  const [capaNome, setCapaNome] = usePersistedState("agenda-capaNome", "");
+  const [capaEstilo, setCapaEstilo] = usePersistedState(
+    "agenda-capaEstilo",
+    "classico",
+  );
+
   return {
     // Estado
     template,
@@ -208,5 +214,10 @@ export function useAgendaSettings() {
     setCustomName: saveCustomName,
     clearFooterName,
     footerName: paid ? customName : "Lucas Cassiano de Moraes",
+
+    capaNome,
+    setCapaNome,
+    capaEstilo,
+    setCapaEstilo,
   };
 }

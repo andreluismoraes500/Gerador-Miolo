@@ -14,6 +14,7 @@ import refeicoes from "./refeicoes.jsx";
 import metas from "./metas.jsx";
 import saude from "./saude.jsx";
 import pet from "./pet.jsx";
+import capa from "./capa.jsx";
 
 export const TEMPLATES = {
   diario,
@@ -32,4 +33,5 @@ export const TEMPLATES = {
   metas,
   saude,
   pet,
+  capa,
 };

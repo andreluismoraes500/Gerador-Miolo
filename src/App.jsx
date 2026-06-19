@@ -46,6 +46,10 @@ function AppContent() {
     clearFooterName,
     footerName,
     customColors,
+    capaNome,
+    setCapaNome,
+    capaEstilo,
+    setCapaEstilo,
   } = settings;
 
   return (
@@ -105,6 +109,10 @@ function AppContent() {
           setWatermarkOpacity={setWatermarkOpacity}
           handleWatermarkUpload={handleWatermarkUpload}
           handleRemoveWatermark={handleRemoveWatermark}
+          capaNome={capaNome}
+          setCapaNome={setCapaNome}
+          capaEstilo={capaEstilo}
+          setCapaEstilo={setCapaEstilo}
         />
       )}
 
@@ -123,6 +131,8 @@ function AppContent() {
           fontFamily={fontFamily}
           watermarkSrc={watermarkSrc}
           watermarkOpacity={watermarkOpacity}
+          capaNome={capaNome}
+          capaEstilo={capaEstilo}
         />
       </main>
 
