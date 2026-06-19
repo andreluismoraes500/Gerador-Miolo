@@ -11,23 +11,40 @@ import "./styles/print.css";
 function AppContent() {
   const settings = useAgendaSettings();
   const {
-    template, setTemplate,
-    paid, setPaid,
-    customName, setCustomName,
-    selectedDate, setSelectedDate,
-    colorTheme, applyThemeColors,
-    footerType, handleFooterTypeChange,
-    primaryColor, setPrimaryColor,
-    secondaryColor, setSecondaryColor,
-    bgColor, setBgColor,
-    fontFamily, setFontFamily,
-    watermarkSrc, watermarkOpacity, setWatermarkOpacity,
-    printing, showConfig, setShowConfig,
+    template,
+    setTemplate,
+    paid,
+    setPaid,
+    customName,
+    setCustomName,
+    selectedDate,
+    setSelectedDate,
+    colorTheme,
+    applyThemeColors,
+    footerType,
+    handleFooterTypeChange,
+    primaryColor,
+    setPrimaryColor,
+    secondaryColor,
+    setSecondaryColor,
+    bgColor,
+    setBgColor,
+    fontFamily,
+    setFontFamily,
+    watermarkSrc,
+    watermarkOpacity,
+    setWatermarkOpacity,
+    printing,
+    showConfig,
+    setShowConfig,
     logo,
     handlePrint,
-    handleLogoUpload, handleRemoveLogo,
-    handleWatermarkUpload, handleRemoveWatermark,
-    footerName, customColors,
+    handleLogoUpload,
+    handleRemoveLogo,
+    handleWatermarkUpload,
+    handleRemoveWatermark,
+    footerName,
+    customColors,
   } = settings;
 
   return (
@@ -40,7 +57,7 @@ function AppContent() {
             Miolos de Agenda
           </h1>
           <span className="text-[9px] bg-gray-100 px-2 py-0.5 font-mono text-gray-500 rounded-full">
-            v2.0
+            vBeta
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -63,17 +80,30 @@ function AppContent() {
 
       {showConfig && (
         <ConfigBar
-          template={template} setTemplate={setTemplate}
-          selectedDate={selectedDate} setSelectedDate={setSelectedDate}
-          colorTheme={colorTheme} applyThemeColors={applyThemeColors}
-          primaryColor={primaryColor} setPrimaryColor={setPrimaryColor}
-          secondaryColor={secondaryColor} setSecondaryColor={setSecondaryColor}
-          bgColor={bgColor} setBgColor={setBgColor}
-          fontFamily={fontFamily} setFontFamily={setFontFamily}
-          footerType={footerType} handleFooterTypeChange={handleFooterTypeChange}
-          logo={logo} handleLogoUpload={handleLogoUpload} handleRemoveLogo={handleRemoveLogo}
-          watermarkSrc={watermarkSrc} watermarkOpacity={watermarkOpacity} setWatermarkOpacity={setWatermarkOpacity}
-          handleWatermarkUpload={handleWatermarkUpload} handleRemoveWatermark={handleRemoveWatermark}
+          template={template}
+          setTemplate={setTemplate}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          colorTheme={colorTheme}
+          applyThemeColors={applyThemeColors}
+          primaryColor={primaryColor}
+          setPrimaryColor={setPrimaryColor}
+          secondaryColor={secondaryColor}
+          setSecondaryColor={setSecondaryColor}
+          bgColor={bgColor}
+          setBgColor={setBgColor}
+          fontFamily={fontFamily}
+          setFontFamily={setFontFamily}
+          footerType={footerType}
+          handleFooterTypeChange={handleFooterTypeChange}
+          logo={logo}
+          handleLogoUpload={handleLogoUpload}
+          handleRemoveLogo={handleRemoveLogo}
+          watermarkSrc={watermarkSrc}
+          watermarkOpacity={watermarkOpacity}
+          setWatermarkOpacity={setWatermarkOpacity}
+          handleWatermarkUpload={handleWatermarkUpload}
+          handleRemoveWatermark={handleRemoveWatermark}
         />
       )}
 
