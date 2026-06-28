@@ -1,4 +1,7 @@
 // src/components/ConfigBar.jsx
+//
+// Barra de configuração. Aparência é lida diretamente do AgendaConfigContext,
+// reduzindo o número de props recebidos de ~25 para 8.
 
 import { MdUpload, MdColorLens, MdFontDownload, MdImage } from "react-icons/md";
 import { TEMAS } from "../themes";
@@ -6,6 +9,8 @@ import TemplateSelector from "./TemplateSelector";
 import { useDateInput } from "../hooks/useDateInput";
 import { getCapaEstiloOptions } from "../config/capaStyles.jsx";
 import BusinessProfileSelector from "./BusinessProfileSelector";
+import { useAgendaConfig } from "../context/AgendaConfigContext";
+import { toast } from "react-hot-toast";
 
 const FONT_OPTIONS = [
   { value: "sans-serif", label: "Sans-serif (padrão)" },
@@ -24,65 +29,55 @@ const FONT_OPTIONS = [
 ];
 
 export default function ConfigBar({
-  template,
-  setTemplate,
-  selectedDate,
-  setSelectedDate,
-  colorTheme,
+  // template / data
+  template, setTemplate,
+  selectedDate, setSelectedDate,
+  // handlers vindos de useAgendaSettings
   applyThemeColors,
-  primaryColor,
-  setPrimaryColor,
-  secondaryColor,
-  setSecondaryColor,
-  bgColor,
-  setBgColor,
-  fontFamily,
-  setFontFamily,
-  footerType,
-  handleFooterTypeChange,
-  logo,
-  handleLogoUpload,
-  handleRemoveLogo,
-  watermarkSrc,
-  watermarkOpacity,
-  setWatermarkOpacity,
-  handleWatermarkUpload,
-  handleRemoveWatermark,
-  capaNome,
-  setCapaNome,
-  capaEstilo,
-  setCapaEstilo,
-  capaFrase,
-  setCapaFrase,
-  // Novos props do Business Profile
-  businessProfileId,
-  setBusinessProfile,
+  handleLogoUpload, handleRemoveLogo,
+  handleWatermarkUpload, handleRemoveWatermark,
+  // perfil de negócio
+  businessProfileId, setBusinessProfile,
 }) {
+  // Aparência lida diretamente do contexto
+  const {
+    colorTheme,
+    primaryColor, setPrimaryColor,
+    secondaryColor, setSecondaryColor,
+    bgColor, setBgColor,
+    fontFamily, setFontFamily,
+    logo,
+    footerType, setFooterType,
+    watermarkSrc,
+    watermarkOpacity, setWatermarkOpacity,
+    capaNome, setCapaNome,
+    capaEstilo, setCapaEstilo,
+    capaFrase, setCapaFrase,
+  } = useAgendaConfig();
+
   const { inputType, inputValue, handleDateChange } = useDateInput(
     template,
     selectedDate,
     setSelectedDate,
   );
 
-  const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
-    id,
-    nome,
-  }));
+  const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({ id, nome }));
+
+  const onFooterTypeChange = (type, label, icon) => {
+    setFooterType(type);
+    toast(`${label} selecionado`, { icon });
+  };
 
   return (
     <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200/80 px-6 py-5 print:hidden shadow-sm">
       <div className="max-w-7xl mx-auto flex flex-col gap-5">
-        {/* Linha 1: Modelo e Data */}
+        {/* Linha 1: Modelo, Data e Perfil */}
         <div className="flex flex-wrap items-center gap-6">
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
               Modelo:
             </span>
-            <TemplateSelector
-              selected={template}
-              onSelect={setTemplate}
-              compact
-            />
+            <TemplateSelector selected={template} onSelect={setTemplate} compact />
           </div>
 
           <div className="flex items-center gap-3">
@@ -99,7 +94,6 @@ export default function ConfigBar({
             />
           </div>
 
-          {/* Seletor de Perfil de Negócio */}
           <div className="flex items-center gap-2 border-l border-gray-200 pl-4">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
               Perfil:
@@ -143,27 +137,20 @@ export default function ConfigBar({
               Cores:
             </span>
             <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
-                className="w-7 h-7 p-0 border-2 border-gray-200 rounded-full cursor-pointer hover:border-gray-400 transition"
-                title="Cor primária"
-              />
-              <input
-                type="color"
-                value={secondaryColor}
-                onChange={(e) => setSecondaryColor(e.target.value)}
-                className="w-7 h-7 p-0 border-2 border-gray-200 rounded-full cursor-pointer hover:border-gray-400 transition"
-                title="Cor secundária"
-              />
-              <input
-                type="color"
-                value={bgColor}
-                onChange={(e) => setBgColor(e.target.value)}
-                className="w-7 h-7 p-0 border-2 border-gray-200 rounded-full cursor-pointer hover:border-gray-400 transition"
-                title="Cor de fundo"
-              />
+              {[
+                { value: primaryColor, onChange: setPrimaryColor, title: "Cor primária" },
+                { value: secondaryColor, onChange: setSecondaryColor, title: "Cor secundária" },
+                { value: bgColor, onChange: setBgColor, title: "Cor de fundo" },
+              ].map(({ value, onChange, title }) => (
+                <input
+                  key={title}
+                  type="color"
+                  value={value}
+                  onChange={(e) => onChange(e.target.value)}
+                  className="w-7 h-7 p-0 border-2 border-gray-200 rounded-full cursor-pointer hover:border-gray-400 transition"
+                  title={title}
+                />
+              ))}
             </div>
           </div>
 
@@ -177,14 +164,10 @@ export default function ConfigBar({
               value={fontFamily}
               onChange={(e) => setFontFamily(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-1 text-xs bg-white focus:ring-2 focus:ring-gray-300 focus:outline-none transition"
-              style={{ fontFamily: fontFamily }}
+              style={{ fontFamily }}
             >
               {FONT_OPTIONS.map((opt) => (
-                <option
-                  key={opt.value}
-                  value={opt.value}
-                  style={{ fontFamily: opt.value }}
-                >
+                <option key={opt.value} value={opt.value} style={{ fontFamily: opt.value }}>
                   {opt.label}
                 </option>
               ))}
@@ -196,30 +179,22 @@ export default function ConfigBar({
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
               Rodapé:
             </span>
-            <button
-              onClick={() =>
-                handleFooterTypeChange("default", "Rodapé padrão", "📄")
-              }
-              className={`px-3 py-1 text-[11px] rounded-full border transition-all ${
-                footerType === "default"
-                  ? "bg-gray-900 text-white border-gray-900"
-                  : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-              }`}
-            >
-              Padrão
-            </button>
-            <button
-              onClick={() =>
-                handleFooterTypeChange("biblical", "Rodapé bíblico", "📖")
-              }
-              className={`px-3 py-1 text-[11px] rounded-full border transition-all ${
-                footerType === "biblical"
-                  ? "bg-gray-900 text-white border-gray-900"
-                  : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-              }`}
-            >
-              Bíblico
-            </button>
+            {[
+              { type: "default", label: "Rodapé padrão", icon: "📄", display: "Padrão" },
+              { type: "biblical", label: "Rodapé bíblico", icon: "📖", display: "Bíblico" },
+            ].map(({ type, label, icon, display }) => (
+              <button
+                key={type}
+                onClick={() => onFooterTypeChange(type, label, icon)}
+                className={`px-3 py-1 text-[11px] rounded-full border transition-all ${
+                  footerType === type
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                {display}
+              </button>
+            ))}
           </div>
 
           {/* Logo */}
@@ -231,12 +206,7 @@ export default function ConfigBar({
             <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-lg border border-gray-200 flex items-center gap-1.5 transition hover:border-gray-400">
               <MdUpload className="w-3.5 h-3.5" />
               {logo ? "Alterar" : "Enviar"}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                className="hidden"
-              />
+              <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
             </label>
             {logo && (
               <button
@@ -257,12 +227,7 @@ export default function ConfigBar({
             <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-lg border border-gray-200 flex items-center gap-1.5 transition hover:border-gray-400">
               <MdUpload className="w-3.5 h-3.5" />
               {watermarkSrc ? "Alterar" : "Enviar"}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleWatermarkUpload}
-                className="hidden"
-              />
+              <input type="file" accept="image/*" onChange={handleWatermarkUpload} className="hidden" />
             </label>
             {watermarkSrc && (
               <>
@@ -280,9 +245,7 @@ export default function ConfigBar({
                     max="0.1"
                     step="0.01"
                     value={watermarkOpacity}
-                    onChange={(e) =>
-                      setWatermarkOpacity(parseFloat(e.target.value))
-                    }
+                    onChange={(e) => setWatermarkOpacity(parseFloat(e.target.value))}
                     className="w-16 h-1 accent-gray-600"
                   />
                 </div>

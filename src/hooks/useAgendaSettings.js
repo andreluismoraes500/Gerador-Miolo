@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 import { TEMAS } from "../themes";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 import { usePersistedState } from "./usePersistedState";
+import { useBusinessProfile } from "./useBusinessProfile";
 
 function formatLocalDate(year, month, day) {
   const pad = (n) => String(n).padStart(2, "0");
@@ -64,6 +65,7 @@ export function useAgendaSettings() {
     "agenda-capaEstilo",
     "classico",
   );
+  const [capaFrase, setCapaFrase] = usePersistedState("agenda-capaFrase", "");
 
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
@@ -76,6 +78,43 @@ export function useAgendaSettings() {
   if (!logo && persistedLogo) {
     setLogo(persistedLogo);
   }
+
+  // Business Profile
+  const {
+    profile: businessProfile,
+    profileId: businessProfileId,
+    setProfileId: setBusinessProfile,
+    applyProfileColors,
+    getThemeId,
+    getPlaceholders,
+  } = useBusinessProfile();
+
+  // Quando o perfil muda, aplicar as cores
+  const handleSetBusinessProfile = useCallback(
+    (newProfileId) => {
+      const success = setBusinessProfile(newProfileId);
+      if (success) {
+        // Aplicar cores do perfil
+        applyProfileColors(setPrimaryColor, setSecondaryColor, setBgColor);
+        // Atualizar o tema
+        const themeId = getThemeId();
+        setColorTheme(themeId);
+        toast.success(
+          `Perfil alterado para ${businessProfile?.nome || newProfileId}`,
+        );
+      }
+    },
+    [
+      setBusinessProfile,
+      applyProfileColors,
+      setPrimaryColor,
+      setSecondaryColor,
+      setBgColor,
+      getThemeId,
+      setColorTheme,
+      businessProfile,
+    ],
+  );
 
   const clearFooterName = () => {
     setCustomName("");
@@ -159,8 +198,6 @@ export function useAgendaSettings() {
     background: bgColor,
   };
 
-  const [capaFrase, setCapaFrase] = usePersistedState("agenda-capaFrase", "");
-
   return {
     template,
     setTemplate,
@@ -197,12 +234,16 @@ export function useAgendaSettings() {
     footerName,
     customColors,
     clearFooterName,
-    // Novos
+    // Capa
     capaNome,
     setCapaNome,
     capaEstilo,
     setCapaEstilo,
     capaFrase,
     setCapaFrase,
+    // Business Profile
+    businessProfile,
+    businessProfileId,
+    setBusinessProfile: handleSetBusinessProfile,
   };
 }
