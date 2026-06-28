@@ -5,60 +5,32 @@ import { Toaster } from "react-hot-toast";
 import AgendaPreview from "./components/AgendaPreview";
 import PaymentPanel from "./components/PaymentPanel";
 import ConfigBar from "./components/ConfigBar";
-import { AgendaConfigProvider } from "./context/AgendaConfigContext";
+import { AgendaConfigProvider, useAgendaConfig } from "./context/AgendaConfigContext";
 import { AgendaDataProvider } from "./context/AgendaDataContext";
 import { BusinessProfileProvider } from "./context/BusinessProfileContext";
 import { useAgendaSettings } from "./hooks/useAgendaSettings";
 import "./styles/print.css";
 
 function AppContent() {
+  // Configurações de aparência vivem no contexto
+  const config = useAgendaConfig();
+
+  // Configurações de sessão/template/perfil vivem no hook
   const settings = useAgendaSettings();
+
   const {
-    template,
-    setTemplate,
-    paid,
-    setPaid,
-    customName,
-    setCustomName,
-    selectedDate,
-    setSelectedDate,
-    colorTheme,
-    applyThemeColors,
-    footerType,
-    handleFooterTypeChange,
-    primaryColor,
-    setPrimaryColor,
-    secondaryColor,
-    setSecondaryColor,
-    bgColor,
-    setBgColor,
-    fontFamily,
-    setFontFamily,
-    watermarkSrc,
-    watermarkOpacity,
-    setWatermarkOpacity,
+    template, setTemplate,
+    selectedDate, setSelectedDate,
+    paid, setPaid,
+    customName, setCustomName,
+    footerName, clearFooterName,
     printing,
-    showConfig,
-    setShowConfig,
-    logo,
+    showConfig, setShowConfig,
     handlePrint,
-    handleLogoUpload,
-    handleRemoveLogo,
-    handleWatermarkUpload,
-    handleRemoveWatermark,
-    clearFooterName,
-    footerName,
-    customColors,
-    capaNome,
-    setCapaNome,
-    capaEstilo,
-    setCapaEstilo,
-    capaFrase,
-    setCapaFrase,
-    // Novos props do Business Profile
-    businessProfileId,
-    setBusinessProfile,
-    businessProfile,
+    handleLogoUpload, handleRemoveLogo,
+    handleWatermarkUpload, handleRemoveWatermark,
+    applyThemeColors,
+    businessProfile, businessProfileId, setBusinessProfile,
   } = settings;
 
   return (
@@ -98,33 +70,11 @@ function AppContent() {
           setTemplate={setTemplate}
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
-          colorTheme={colorTheme}
           applyThemeColors={applyThemeColors}
-          primaryColor={primaryColor}
-          setPrimaryColor={setPrimaryColor}
-          secondaryColor={secondaryColor}
-          setSecondaryColor={setSecondaryColor}
-          bgColor={bgColor}
-          setBgColor={setBgColor}
-          fontFamily={fontFamily}
-          setFontFamily={setFontFamily}
-          footerType={footerType}
-          handleFooterTypeChange={handleFooterTypeChange}
-          logo={logo}
           handleLogoUpload={handleLogoUpload}
           handleRemoveLogo={handleRemoveLogo}
-          watermarkSrc={watermarkSrc}
-          watermarkOpacity={watermarkOpacity}
-          setWatermarkOpacity={setWatermarkOpacity}
           handleWatermarkUpload={handleWatermarkUpload}
           handleRemoveWatermark={handleRemoveWatermark}
-          capaNome={capaNome}
-          setCapaNome={setCapaNome}
-          capaEstilo={capaEstilo}
-          setCapaEstilo={setCapaEstilo}
-          capaFrase={capaFrase}
-          setCapaFrase={setCapaFrase}
-          // Novos props
           businessProfileId={businessProfileId}
           setBusinessProfile={setBusinessProfile}
         />
@@ -132,22 +82,11 @@ function AppContent() {
 
       <main className="flex-1 p-6 flex justify-center items-start overflow-y-auto print:p-0 print:overflow-visible">
         <AgendaPreview
-          key={`${template}-${selectedDate}-${colorTheme}-${logo}-${footerType}-${primaryColor}-${secondaryColor}-${bgColor}-${fontFamily}-${watermarkSrc}-${watermarkOpacity}-${capaNome}-${capaEstilo}-${capaFrase}-${businessProfileId}`}
           template={template}
           customName={footerName}
           paid={paid}
           selectedDate={selectedDate}
           printing={printing}
-          colorTheme={colorTheme}
-          logo={logo}
-          footerType={footerType}
-          customColors={customColors}
-          fontFamily={fontFamily}
-          watermarkSrc={watermarkSrc}
-          watermarkOpacity={watermarkOpacity}
-          capaNome={capaNome}
-          capaEstilo={capaEstilo}
-          capaFrase={capaFrase}
           businessProfile={businessProfile}
           businessProfileId={businessProfileId}
         />

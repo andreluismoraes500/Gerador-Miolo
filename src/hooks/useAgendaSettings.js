@@ -1,4 +1,11 @@
 // src/hooks/useAgendaSettings.js
+//
+// Hook responsável pelas configurações da agenda que ainda não vivem em contexto:
+// template, data, perfil de negócio, nome personalizado/pagamento e ações de UI
+// (upload de logo/watermark, impressão, etc.).
+//
+// Estado de aparência (cores, tema, fonte, capa, rodapé, logo, marca d'água) foi
+// movido para AgendaConfigContext — consumido via useAgendaConfig().
 
 import { useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
@@ -12,124 +19,79 @@ function formatLocalDate(year, month, day) {
   return `${year}-${pad(month + 1)}-${pad(day)}`;
 }
 
+const hoje = new Date();
+const DATA_INICIAL = formatLocalDate(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+
 export function useAgendaSettings() {
-  const hoje = new Date();
-
-  const [template, setTemplate] = usePersistedState(
-    "agenda-template",
-    "diario",
-  );
+  // --- estado local da sessão ---
+  const [template, setTemplate] = usePersistedState("agenda-template", "diario");
+  const [selectedDate, setSelectedDate] = usePersistedState("agenda-selectedDate", DATA_INICIAL);
   const [paid, setPaid] = usePersistedState("agenda-paid", false);
-  const [customName, setCustomName] = useState(() => {
-    const saved = localStorage.getItem("agenda-customName");
-    return saved ? JSON.parse(saved) : "";
-  });
-
-  const [selectedDate, setSelectedDate] = usePersistedState(
-    "agenda-selectedDate",
-    formatLocalDate(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()),
-  );
-  const [colorTheme, setColorTheme] = usePersistedState(
-    "agenda-colorTheme",
-    "classico",
-  );
-  const [footerType, setFooterType] = usePersistedState(
-    "agenda-footerType",
-    "default",
-  );
-  const [primaryColor, setPrimaryColor] = usePersistedState(
-    "agenda-primaryColor",
-    "#1e293b",
-  );
-  const [secondaryColor, setSecondaryColor] = usePersistedState(
-    "agenda-secondaryColor",
-    "#94a3b8",
-  );
-  const [bgColor, setBgColor] = usePersistedState("agenda-bgColor", "#f8fafc");
-  const [fontFamily, setFontFamily] = usePersistedState(
-    "agenda-fontFamily",
-    "sans-serif",
-  );
-  const [watermarkSrc, setWatermarkSrc] = usePersistedState(
-    "agenda-watermarkSrc",
-    null,
-  );
-  const [watermarkOpacity, setWatermarkOpacity] = usePersistedState(
-    "agenda-watermarkOpacity",
-    0.03,
-  );
-
-  // Capa
-  const [capaNome, setCapaNome] = usePersistedState("agenda-capaNome", "");
-  const [capaEstilo, setCapaEstilo] = usePersistedState(
-    "agenda-capaEstilo",
-    "classico",
-  );
-  const [capaFrase, setCapaFrase] = usePersistedState("agenda-capaFrase", "");
-
+  const [customName, setCustomName] = usePersistedState("agenda-customName", "");
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
 
-  const { logo, setLogo } = useAgendaConfig();
-  const [persistedLogo, setPersistedLogo] = usePersistedState(
-    "agenda-logo",
-    null,
-  );
-  if (!logo && persistedLogo) {
-    setLogo(persistedLogo);
-  }
+  // --- aparência (contexto) ---
+  const {
+    logo, setLogo, removeLogo,
+    colorTheme, setColorTheme,
+    setPrimaryColor, setSecondaryColor, setBgColor,
+    setWatermarkSrc,
+  } = useAgendaConfig();
 
-  // Business Profile
+  // --- perfil de negócio ---
   const {
     profile: businessProfile,
     profileId: businessProfileId,
-    setProfileId: setBusinessProfile,
+    setProfileId: _setBusinessProfileId,
     applyProfileColors,
     getThemeId,
-    getPlaceholders,
   } = useBusinessProfile();
 
-  // Quando o perfil muda, aplicar as cores
+  // ── handlers ────────────────────────────────────────────────
+
   const handleSetBusinessProfile = useCallback(
     (newProfileId) => {
-      const success = setBusinessProfile(newProfileId);
+      const success = _setBusinessProfileId(newProfileId);
       if (success) {
-        // Aplicar cores do perfil
         applyProfileColors(setPrimaryColor, setSecondaryColor, setBgColor);
-        // Atualizar o tema
-        const themeId = getThemeId();
-        setColorTheme(themeId);
-        toast.success(
-          `Perfil alterado para ${businessProfile?.nome || newProfileId}`,
-        );
+        setColorTheme(getThemeId());
+        toast.success(`Perfil alterado`);
       }
     },
-    [
-      setBusinessProfile,
-      applyProfileColors,
-      setPrimaryColor,
-      setSecondaryColor,
-      setBgColor,
-      getThemeId,
-      setColorTheme,
-      businessProfile,
-    ],
+    [_setBusinessProfileId, applyProfileColors, setPrimaryColor, setSecondaryColor, setBgColor, setColorTheme, getThemeId],
   );
 
-  const clearFooterName = () => {
+  const applyThemeColors = useCallback(
+    (themeId) => {
+      const theme = TEMAS[themeId];
+      if (theme?.colors) {
+        setPrimaryColor(theme.colors.primary);
+        setSecondaryColor(theme.colors.secondary);
+        setBgColor(theme.colors.background);
+      } else {
+        setPrimaryColor("#1e293b");
+        setSecondaryColor("#94a3b8");
+        setBgColor("#f8fafc");
+      }
+      setColorTheme(themeId);
+    },
+    [setPrimaryColor, setSecondaryColor, setBgColor, setColorTheme],
+  );
+
+  const clearFooterName = useCallback(() => {
     setCustomName("");
     setPaid(false);
-    localStorage.removeItem("agenda-customName");
     toast.success("Nome do rodapé limpo!", { icon: "🧹" });
-  };
+  }, [setCustomName, setPaid]);
 
-  const handlePrint = () => {
+  const handlePrint = useCallback(() => {
     setPrinting(true);
     setTimeout(() => {
       window.print();
       setPrinting(false);
     }, 250);
-  };
+  }, []);
 
   const handleLogoUpload = useCallback(
     (e) => {
@@ -137,21 +99,18 @@ export function useAgendaSettings() {
       if (!file) return;
       const reader = new FileReader();
       reader.onloadend = () => {
-        const result = reader.result;
-        setLogo(result);
-        setPersistedLogo(result);
+        setLogo(reader.result);
         toast.success("Logo enviado!");
       };
       reader.readAsDataURL(file);
     },
-    [setLogo, setPersistedLogo],
+    [setLogo],
   );
 
-  const handleRemoveLogo = () => {
-    setLogo(null);
-    setPersistedLogo(null);
+  const handleRemoveLogo = useCallback(() => {
+    removeLogo();
     toast("Logo removido", { icon: "🗑️" });
-  };
+  }, [removeLogo]);
 
   const handleWatermarkUpload = useCallback(
     (e) => {
@@ -167,81 +126,35 @@ export function useAgendaSettings() {
     [setWatermarkSrc],
   );
 
-  const handleRemoveWatermark = () => {
+  const handleRemoveWatermark = useCallback(() => {
+    // removeWatermark vem do contexto — chamado via useAgendaConfig direto
     setWatermarkSrc(null);
     toast("Marca d'água removida", { icon: "🗑️" });
-  };
+  }, [setWatermarkSrc]);
 
-  const applyThemeColors = (themeId) => {
-    const theme = TEMAS[themeId];
-    if (theme?.colors) {
-      setPrimaryColor(theme.colors.primary);
-      setSecondaryColor(theme.colors.secondary);
-      setBgColor(theme.colors.background);
-    } else {
-      setPrimaryColor("#1e293b");
-      setSecondaryColor("#94a3b8");
-      setBgColor("#f8fafc");
-    }
-    setColorTheme(themeId);
-  };
 
-  const handleFooterTypeChange = (type, label, icon) => {
-    setFooterType(type);
-    toast(`${label} selecionado`, { icon });
-  };
-
+  // ── derivados ────────────────────────────────────────────────
   const footerName = paid ? customName : "Lucas Cassiano de Moraes";
-  const customColors = {
-    primary: primaryColor,
-    secondary: secondaryColor,
-    background: bgColor,
-  };
 
   return {
-    template,
-    setTemplate,
-    paid,
-    setPaid,
-    customName,
-    setCustomName,
-    selectedDate,
-    setSelectedDate,
-    colorTheme,
-    footerType,
-    primaryColor,
-    setPrimaryColor,
-    secondaryColor,
-    setSecondaryColor,
-    bgColor,
-    setBgColor,
-    fontFamily,
-    setFontFamily,
-    watermarkSrc,
-    watermarkOpacity,
-    setWatermarkOpacity,
-    printing,
-    showConfig,
-    setShowConfig,
-    logo,
-    handlePrint,
-    handleLogoUpload,
-    handleRemoveLogo,
-    handleWatermarkUpload,
-    handleRemoveWatermark,
-    applyThemeColors,
-    handleFooterTypeChange,
+    // template / data
+    template, setTemplate,
+    selectedDate, setSelectedDate,
+    // pagamento / nome
+    paid, setPaid,
+    customName, setCustomName,
     footerName,
-    customColors,
     clearFooterName,
-    // Capa
-    capaNome,
-    setCapaNome,
-    capaEstilo,
-    setCapaEstilo,
-    capaFrase,
-    setCapaFrase,
-    // Business Profile
+    // ui
+    printing,
+    showConfig, setShowConfig,
+    // handlers de arquivo
+    handlePrint,
+    handleLogoUpload, handleRemoveLogo,
+    handleWatermarkUpload, handleRemoveWatermark,
+    // tema
+    applyThemeColors,
+    // perfil de negócio
     businessProfile,
     businessProfileId,
     setBusinessProfile: handleSetBusinessProfile,

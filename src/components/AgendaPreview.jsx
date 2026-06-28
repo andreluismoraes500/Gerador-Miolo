@@ -1,7 +1,11 @@
 // src/components/AgendaPreview.jsx
+//
+// Componente de visualização pura: recebe apenas dados de conteúdo e delega
+// aparência (cores, logo, fonte, etc.) ao contexto AgendaConfig.
 
 import React from "react";
 import { TEMPLATES } from "../templates";
+import { useAgendaConfig } from "../context/AgendaConfigContext";
 
 const AgendaPreview = React.memo(function AgendaPreview({
   template,
@@ -9,21 +13,23 @@ const AgendaPreview = React.memo(function AgendaPreview({
   paid,
   selectedDate,
   printing,
-  colorTheme = "classico",
-  logo,
-  footerType = "default",
-  customColors,
-  fontFamily,
-  watermarkSrc,
-  watermarkOpacity,
-  capaNome,
-  capaEstilo,
-  capaFrase,
-  setCapaFrase,
-  // Novos props
   businessProfile,
   businessProfileId,
 }) {
+  const {
+    colorTheme,
+    logo,
+    footerType,
+    customColors,
+    fontFamily,
+    watermarkSrc,
+    watermarkOpacity,
+    capaNome,
+    capaEstilo,
+    capaFrase,
+    setCapaFrase,
+  } = useAgendaConfig();
+
   const currentTemplate = TEMPLATES[template];
   if (!currentTemplate) {
     return (
@@ -45,7 +51,7 @@ const AgendaPreview = React.memo(function AgendaPreview({
     watermarkSrc,
     watermarkOpacity,
     businessType: businessProfileId || "default",
-    businessProfile: businessProfile,
+    businessProfile,
     capaNome,
     capaEstilo,
     capaFrase,
@@ -53,9 +59,7 @@ const AgendaPreview = React.memo(function AgendaPreview({
   };
 
   return (
-    <div
-      className={`agenda-preview-container ${printing ? "is-printing" : ""}`}
-    >
+    <div className={`agenda-preview-container ${printing ? "is-printing" : ""}`}>
       {currentTemplate.layout(layoutProps)}
     </div>
   );
