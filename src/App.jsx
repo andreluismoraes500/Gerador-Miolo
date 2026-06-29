@@ -1,6 +1,7 @@
 // src/App.jsx
 
-import { MdPrint, MdTune } from "react-icons/md";
+import { useCallback } from "react";
+import { MdPrint, MdTune, MdPictureAsPdf } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import AgendaPreview from "./components/AgendaPreview";
 import PaymentPanel from "./components/PaymentPanel";
@@ -9,22 +10,24 @@ import { AgendaConfigProvider, useAgendaConfig } from "./context/AgendaConfigCon
 import { AgendaDataProvider } from "./context/AgendaDataContext";
 import { BusinessProfileProvider } from "./context/BusinessProfileContext";
 import { useAgendaSettings } from "./hooks/useAgendaSettings";
+import { usePdfExport } from "./hooks/usePdfExport";
+import { gerarDiasDoMes, gerarDiasDoAno } from "./utils/agendaUtils";
 import "./styles/print.css";
 
 function AppContent() {
-  // Configurações de aparência vivem no contexto
-  const config = useAgendaConfig();
+  const {
+    logo, primaryColor, secondaryColor, bgColor,
+    fontFamily, footerType, customColors,
+  } = useAgendaConfig();
 
-  // Configurações de sessão/template/perfil vivem no hook
   const settings = useAgendaSettings();
-
   const {
     template, setTemplate,
     selectedDate, setSelectedDate,
     paid, setPaid,
     customName, setCustomName,
     footerName, clearFooterName,
-    printing,
+    printing, setPrinting,
     showConfig, setShowConfig,
     handlePrint,
     handleLogoUpload, handleRemoveLogo,
@@ -32,6 +35,38 @@ function AppContent() {
     applyThemeColors,
     businessProfile, businessProfileId, setBusinessProfile,
   } = settings;
+
+  // Monta o contexto de exportação para o gerador nativo de PDF
+  const getExportContext = useCallback(() => {
+    const [y, m] = (selectedDate || "").split("-").map(Number);
+
+    let dias = [];
+    if (template === "mensalCompleto" && y && m) {
+      dias = gerarDiasDoMes(y, m - 1);
+    } else if (template === "anualCompleto" && y) {
+      dias = gerarDiasDoAno(y);
+    }
+
+    return {
+      template,
+      dias,
+      primaryColor,
+      secondaryColor,
+      bgColor,
+      footerName,
+      perfilNome:    businessProfile?.nome   ?? "",
+      clienteLabel:  businessProfile?.campos?.cliente  ?? "Cliente",
+      servicoLabel:  businessProfile?.campos?.servico  ?? "Serviço",
+    };
+  }, [template, selectedDate, primaryColor, secondaryColor, bgColor,
+      footerName, businessProfile]);
+
+  const { exportToPdf, exporting } = usePdfExport(setPrinting, getExportContext);
+
+  const getPdfFilename = () => {
+    const date = selectedDate || new Date().toISOString().slice(0, 10);
+    return `agenda-${template}-${date}.pdf`;
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex flex-col font-sans text-gray-900">
@@ -54,12 +89,23 @@ function AppContent() {
           >
             <MdTune className="w-5 h-5" />
           </button>
+
+          <button
+            onClick={() => exportToPdf(getPdfFilename())}
+            disabled={exporting}
+            className="bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 disabled:cursor-not-allowed text-white text-xs font-semibold py-2 px-4 rounded-lg flex items-center gap-2 transition-all shadow-md hover:shadow-lg"
+            title="Exportar PDF"
+          >
+            <MdPictureAsPdf className="w-4 h-4" />
+            {exporting ? "Gerando..." : "Exportar PDF"}
+          </button>
+
           <button
             onClick={handlePrint}
             className="bg-gray-900 hover:bg-gray-800 text-white text-xs font-semibold py-2 px-5 rounded-lg flex items-center gap-2 transition-all shadow-md hover:shadow-lg"
           >
             <MdPrint className="w-4 h-4" />
-            Gerar Impressão / PDF
+            Imprimir
           </button>
         </div>
       </header>
