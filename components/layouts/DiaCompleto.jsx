@@ -215,7 +215,7 @@ export default function DiaCompleto({
                     <EditableField
                       fieldKey={`${data.toISOString().split("T")[0]}-${hora}-cliente`}
                       className="w-full border-b border-dotted border-gray-300 text-sm"
-                      placeholder={`${clienteLabel}...`}
+                      placeholder={``}
                     />
                   </td>
                   <td
@@ -225,7 +225,7 @@ export default function DiaCompleto({
                     <EditableField
                       fieldKey={`${data.toISOString().split("T")[0]}-${hora}-servico`}
                       className="w-full border-b border-dotted border-gray-300 text-sm"
-                      placeholder={`${servicoLabel}...`}
+                      placeholder={``}
                     />
                   </td>
                   <td

@@ -1,10 +1,4 @@
-// src/templates/index.js
-//
-// Registro central de todos os templates disponíveis.
-// Para adicionar um novo template: importe-o e adicione à constante TEMPLATES.
-
 import diario from "./diario.jsx";
-import diarioLivre from "./diarioLivre.jsx"; // ← NOVO
 import mensalCompleto from "./mensalCompleto.jsx";
 import anualCompleto from "./anualCompleto.jsx";
 import semanal from "./semanal.jsx";
@@ -24,7 +18,6 @@ import capa from "./capa.jsx";
 
 export const TEMPLATES = {
   diario,
-  diarioLivre, // ← NOVO — aparece logo após "Diário" no seletor
   mensalCompleto,
   anualCompleto,
   semanal,

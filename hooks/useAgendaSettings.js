@@ -146,7 +146,7 @@ export function useAgendaSettings() {
     footerName,
     clearFooterName,
     // ui
-    printing,
+    printing, setPrinting,
     showConfig, setShowConfig,
     // handlers de arquivo
     handlePrint,
