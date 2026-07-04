@@ -41,16 +41,16 @@ export default function PaymentPanel({
 
   if (paid && customName.trim() !== "") {
     return (
-      <div className="text-center mt-6 p-4 bg-emerald-50 rounded-lg border border-emerald-200 flex items-center justify-between print:hidden">
+      <div className="mx-auto mb-6 mt-2 w-full max-w-2xl text-center p-4 bg-[#EFF5EF] rounded-lg border border-[#BFDBC5] flex items-center justify-between print:hidden shadow-sm">
         <div className="flex items-center gap-2">
-          <MdOutlineCheckCircle className="w-4 h-4 text-emerald-600" />
-          <p className="text-emerald-800 text-xs font-medium">
+          <MdOutlineCheckCircle className="w-4 h-4 text-[#2F6B45]" />
+          <p className="text-[#25502F] text-xs font-medium">
             Rodapé: <strong>"{customName}"</strong>
           </p>
         </div>
         <button
           onClick={handleClear}
-          className="text-red-500 hover:text-red-600 text-xs flex items-center gap-1 hover:bg-red-50 px-2 py-1 rounded transition"
+          className="text-[#8B2E3F] hover:text-[#6E2432] text-xs flex items-center gap-1 hover:bg-[#8B2E3F]/10 px-2 py-1 rounded transition"
         >
           <MdDelete className="w-4 h-4" />
           Limpar
@@ -60,10 +60,15 @@ export default function PaymentPanel({
   }
 
   return (
-    <div className="mt-8 w-full max-w-2xl mx-auto bg-white p-5 rounded-xl border border-gray-200 print:hidden">
-      <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-        Personalize o nome que aparece no rodapé da agenda
-      </p>
+    <div className="mb-8 mt-2 w-full max-w-2xl mx-auto bg-[#FBF8F1] p-5 rounded-xl border border-[#D8CBA8] shadow-[2px_2px_0_0_#D8CBA8] print:hidden">
+      <div className="flex items-start gap-3 mb-1">
+        <div className="shrink-0 w-8 h-8 rounded-full bg-[#8B2E3F] flex items-center justify-center shadow-sm">
+          <MdQrCodeScanner className="w-4 h-4 text-[#FBF8F1]" />
+        </div>
+        <p className="text-xs text-[#6B6458] leading-relaxed pt-1.5">
+          Personalize o nome que aparece no rodapé da agenda
+        </p>
+      </div>
 
       {!showPayment ? (
         <button
@@ -71,15 +76,14 @@ export default function PaymentPanel({
             setTempName(customName);
             setShowPayment(true);
           }}
-          className="bg-black hover:bg-gray-900 text-white font-medium text-xs py-2 px-4 rounded-md transition flex items-center gap-2"
+          className="mt-3 ml-11 bg-[#24344D] hover:bg-[#1B2740] text-[#F6F1E7] font-medium text-xs py-2 px-4 rounded-md transition flex items-center gap-2"
         >
-          <MdQrCodeScanner className="w-3.5 h-3.5" />
           Customizar Nome do Rodapé
         </button>
       ) : (
-        <div className="mt-4 border border-gray-100 p-4 rounded-lg bg-gray-50 space-y-3">
+        <div className="mt-4 border border-[#D8CBA8] p-4 rounded-lg bg-[#F1EADB] space-y-3">
           <div>
-            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">
+            <label className="block text-[10px] font-bold text-[#8B6A1F] uppercase tracking-wider mb-1">
               Nome / Marca no Rodapé:
             </label>
             <input
@@ -87,14 +91,14 @@ export default function PaymentPanel({
               value={tempName}
               onChange={(e) => setTempName(e.target.value)}
               placeholder="Ex: Studio Bella, Ana Silva Mendes, Gráfica Express"
-              className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-gray-500"
+              className="w-full border border-[#D8CBA8] rounded px-3 py-2.5 text-sm bg-[#FBF8F1] focus:outline-none focus:ring-2 focus:ring-[#B8933D]/40 focus:border-[#B8933D]"
             />
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={handleFakePayment}
-              className="flex-1 bg-emerald-600 text-white font-medium text-xs py-2.5 rounded-md hover:bg-emerald-700 transition"
+              className="flex-1 bg-[#2F6B45] text-white font-medium text-xs py-2.5 rounded-md hover:bg-[#275A3B] transition"
             >
               Aplicar Nome
             </button>
@@ -103,7 +107,7 @@ export default function PaymentPanel({
                 setShowPayment(false);
                 setTempName(customName);
               }}
-              className="px-5 bg-gray-200 text-gray-700 font-medium text-xs py-2.5 rounded-md hover:bg-gray-300 transition"
+              className="px-5 bg-[#E5DBC2] text-[#6B6458] font-medium text-xs py-2.5 rounded-md hover:bg-[#DACDA9] transition"
             >
               Cancelar
             </button>

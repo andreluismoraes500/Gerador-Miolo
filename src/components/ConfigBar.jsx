@@ -68,36 +68,40 @@ export default function ConfigBar({
     toast(`${label} selecionado`, { icon });
   };
 
+  const Label = ({ icon: Icon, children }) => (
+    <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] flex items-center gap-1 whitespace-nowrap">
+      {Icon && <Icon className="w-3.5 h-3.5" />}
+      {children}
+    </span>
+  );
+
+  const inputCls =
+    "border border-[#D8CBA8] rounded-lg px-3 py-1.5 text-xs bg-[#FBF8F1] font-medium focus:ring-2 focus:ring-[#B8933D]/40 focus:border-[#B8933D] focus:outline-none transition";
+
   return (
-    <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200/80 px-6 py-5 print:hidden shadow-sm">
+    <div className="bg-[#F1EADB]/95 backdrop-blur-sm border-b border-[#D8CBA8] px-6 py-5 print:hidden">
       <div className="max-w-7xl mx-auto flex flex-col gap-5">
         {/* Linha 1: Modelo, Data e Perfil */}
-        <div className="flex flex-wrap items-center gap-6">
+        <div className="flex flex-wrap items-end gap-6">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-              Modelo:
-            </span>
+            <Label>Modelo:</Label>
             <TemplateSelector selected={template} onSelect={setTemplate} compact />
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-              Data Base:
-            </span>
+            <Label>Data Base:</Label>
             <input
               type={inputType}
               min={inputType === "number" ? 2020 : undefined}
               max={inputType === "number" ? 2035 : undefined}
               value={inputValue}
               onChange={(e) => handleDateChange(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-1.5 text-xs bg-white font-medium focus:ring-2 focus:ring-gray-300 focus:outline-none transition w-28"
+              className={`${inputCls} w-28`}
             />
           </div>
 
-          <div className="flex items-center gap-2 border-l border-gray-200 pl-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
-              Perfil:
-            </span>
+          <div className="flex items-center gap-2 border-l border-[#D8CBA8] pl-4">
+            <Label>Perfil:</Label>
             <BusinessProfileSelector
               selected={businessProfileId || "default"}
               onSelect={setBusinessProfile}
@@ -107,21 +111,19 @@ export default function ConfigBar({
         </div>
 
         {/* Linha 2: Temas, Cores, Fonte, Rodapé, Logo, Marca d'água, Capa */}
-        <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-gray-100/80">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-4 pt-4 border-t border-[#D8CBA8]/70">
           {/* Temas */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
-              Layout:
-            </span>
+            <Label>Layout:</Label>
             <div className="flex items-center gap-1.5 flex-wrap">
               {opcoesDeTemas.map(({ id, nome }) => (
                 <button
                   key={id}
                   onClick={() => applyThemeColors(id)}
-                  className={`px-3 py-1 text-[11px] rounded-full border transition-all ${
+                  className={`px-3 py-1 text-[11px] font-medium rounded-full border transition-all ${
                     colorTheme === id
-                      ? "bg-gray-900 text-white border-gray-900 shadow-sm"
-                      : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                      ? "bg-[#24344D] text-[#F6F1E7] border-[#24344D] shadow-sm"
+                      : "bg-[#FBF8F1] text-[#6B6458] border-[#D8CBA8] hover:border-[#B8933D] hover:text-[#24344D]"
                   }`}
                 >
                   {nome}
@@ -132,10 +134,7 @@ export default function ConfigBar({
 
           {/* Cores */}
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-              <MdColorLens className="w-3.5 h-3.5" />
-              Cores:
-            </span>
+            <Label icon={MdColorLens}>Cores:</Label>
             <div className="flex items-center gap-2">
               {[
                 { value: primaryColor, onChange: setPrimaryColor, title: "Cor primária" },
@@ -147,7 +146,7 @@ export default function ConfigBar({
                   type="color"
                   value={value}
                   onChange={(e) => onChange(e.target.value)}
-                  className="w-7 h-7 p-0 border-2 border-gray-200 rounded-full cursor-pointer hover:border-gray-400 transition"
+                  className="w-7 h-7 p-0 border-2 border-[#D8CBA8] rounded-full cursor-pointer hover:border-[#B8933D] transition shadow-sm"
                   title={title}
                 />
               ))}
@@ -156,14 +155,11 @@ export default function ConfigBar({
 
           {/* Fonte */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-              <MdFontDownload className="w-3.5 h-3.5" />
-              Fonte:
-            </span>
+            <Label icon={MdFontDownload}>Fonte:</Label>
             <select
               value={fontFamily}
               onChange={(e) => setFontFamily(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-1 text-xs bg-white focus:ring-2 focus:ring-gray-300 focus:outline-none transition"
+              className={inputCls}
               style={{ fontFamily }}
             >
               {FONT_OPTIONS.map((opt) => (
@@ -176,9 +172,7 @@ export default function ConfigBar({
 
           {/* Rodapé */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
-              Rodapé:
-            </span>
+            <Label>Rodapé:</Label>
             {[
               { type: "default", label: "Rodapé padrão", icon: "📄", display: "Padrão" },
               { type: "biblical", label: "Rodapé bíblico", icon: "📖", display: "Bíblico" },
@@ -186,10 +180,10 @@ export default function ConfigBar({
               <button
                 key={type}
                 onClick={() => onFooterTypeChange(type, label, icon)}
-                className={`px-3 py-1 text-[11px] rounded-full border transition-all ${
+                className={`px-3 py-1 text-[11px] font-medium rounded-full border transition-all ${
                   footerType === type
-                    ? "bg-gray-900 text-white border-gray-900"
-                    : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#24344D] text-[#F6F1E7] border-[#24344D] shadow-sm"
+                    : "bg-[#FBF8F1] text-[#6B6458] border-[#D8CBA8] hover:border-[#B8933D] hover:text-[#24344D]"
                 }`}
               >
                 {display}
@@ -199,11 +193,8 @@ export default function ConfigBar({
 
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-              <MdImage className="w-3.5 h-3.5" />
-              Logo:
-            </span>
-            <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-lg border border-gray-200 flex items-center gap-1.5 transition hover:border-gray-400">
+            <Label icon={MdImage}>Logo:</Label>
+            <label className="cursor-pointer bg-[#FBF8F1] hover:bg-[#EFE4C8] text-[#24344D] text-xs px-3 py-1.5 rounded-lg border border-[#D8CBA8] flex items-center gap-1.5 transition hover:border-[#B8933D]">
               <MdUpload className="w-3.5 h-3.5" />
               {logo ? "Alterar" : "Enviar"}
               <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
@@ -211,7 +202,7 @@ export default function ConfigBar({
             {logo && (
               <button
                 onClick={handleRemoveLogo}
-                className="text-red-400 hover:text-red-600 text-xs underline transition"
+                className="text-[#8B2E3F] hover:text-[#6E2432] text-xs underline transition"
               >
                 Remover
               </button>
@@ -220,11 +211,8 @@ export default function ConfigBar({
 
           {/* Marca d'água */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-              <MdImage className="w-3.5 h-3.5" />
-              Marca:
-            </span>
-            <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-lg border border-gray-200 flex items-center gap-1.5 transition hover:border-gray-400">
+            <Label icon={MdImage}>Marca:</Label>
+            <label className="cursor-pointer bg-[#FBF8F1] hover:bg-[#EFE4C8] text-[#24344D] text-xs px-3 py-1.5 rounded-lg border border-[#D8CBA8] flex items-center gap-1.5 transition hover:border-[#B8933D]">
               <MdUpload className="w-3.5 h-3.5" />
               {watermarkSrc ? "Alterar" : "Enviar"}
               <input type="file" accept="image/*" onChange={handleWatermarkUpload} className="hidden" />
@@ -233,12 +221,12 @@ export default function ConfigBar({
               <>
                 <button
                   onClick={handleRemoveWatermark}
-                  className="text-red-400 hover:text-red-600 text-xs underline transition"
+                  className="text-[#8B2E3F] hover:text-[#6E2432] text-xs underline transition"
                 >
                   Remover
                 </button>
                 <div className="flex items-center gap-1">
-                  <span className="text-[8px] text-gray-400">Opacidade:</span>
+                  <span className="text-[8px] text-[#8B6A1F] uppercase tracking-wide">Opacidade:</span>
                   <input
                     type="range"
                     min="0.01"
@@ -246,7 +234,7 @@ export default function ConfigBar({
                     step="0.01"
                     value={watermarkOpacity}
                     onChange={(e) => setWatermarkOpacity(parseFloat(e.target.value))}
-                    className="w-16 h-1 accent-gray-600"
+                    className="w-16 h-1 accent-[#B8933D]"
                   />
                 </div>
               </>
@@ -254,28 +242,26 @@ export default function ConfigBar({
           </div>
 
           {/* Capa */}
-          <div className="flex items-center gap-3 border-l border-gray-200 pl-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-              Capa:
-            </span>
+          <div className="flex items-center gap-3 border-l border-[#D8CBA8] pl-4">
+            <Label>Capa:</Label>
             <input
               type="text"
               value={capaNome}
               onChange={(e) => setCapaNome(e.target.value)}
               placeholder="Nome da capa"
-              className="border border-gray-300 rounded-lg px-2 py-1 text-xs w-28 bg-white focus:ring-2 focus:ring-gray-300 focus:outline-none"
+              className={`${inputCls} w-28`}
             />
             <input
               type="text"
               value={capaFrase}
               onChange={(e) => setCapaFrase(e.target.value)}
               placeholder="Frase da capa"
-              className="border border-gray-300 rounded-lg px-2 py-1 text-xs w-28 bg-white"
+              className={`${inputCls} w-28`}
             />
             <select
               value={capaEstilo}
               onChange={(e) => setCapaEstilo(e.target.value)}
-              className="border border-gray-300 rounded-lg px-2 py-1 text-xs bg-white focus:ring-2 focus:ring-gray-300 focus:outline-none"
+              className={inputCls}
             >
               {getCapaEstiloOptions().map((opt) => (
                 <option key={opt.value} value={opt.value}>
