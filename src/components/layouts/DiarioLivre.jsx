@@ -98,7 +98,7 @@ export default function DiarioLivre({
         </div>
 
         {/* ── Tabela de horários ────────────────────────────────── */}
-        <div className="flex-1 overflow-auto min-h-0">
+        <div className="flex-1 overflow-hidden min-h-0">
           <table className="w-full table-fixed text-[11.5px] border-collapse">
             <thead>
               <tr

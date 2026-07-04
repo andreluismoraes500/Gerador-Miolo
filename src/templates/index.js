@@ -6,7 +6,9 @@
 import diario from "./diario.jsx";
 import diarioLivre from "./diarioLivre.jsx"; // ← NOVO
 import mensalCompleto from "./mensalCompleto.jsx";
+import mensalLivre from "./mensalLivre.jsx"; // ← NOVO — mensal sem pix
 import anualCompleto from "./anualCompleto.jsx";
+import anualLivre from "./anualLivre.jsx"; // ← NOVO — anual sem pix
 import semanal from "./semanal.jsx";
 import tarefas from "./tarefas.jsx";
 import dadosPessoais from "./dadosPessoais.jsx";
@@ -26,7 +28,9 @@ export const TEMPLATES = {
   diario,
   diarioLivre, // ← NOVO — aparece logo após "Diário" no seletor
   mensalCompleto,
+  mensalLivre, // ← NOVO — aparece logo após "Mensal (completo)" no seletor
   anualCompleto,
+  anualLivre, // ← NOVO — aparece logo após "Anual (completo)" no seletor
   semanal,
   tarefas,
   dadosPessoais,
