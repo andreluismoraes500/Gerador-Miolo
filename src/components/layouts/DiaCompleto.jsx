@@ -199,7 +199,7 @@ export default function DiaCompleto({
               {HORARIOS.map((hora) => (
                 <tr
                   key={hora}
-                  className={`border-b-2 ${tema.border} h-7.75 print:h-7.75`}
+                  className={`border-b-[1.5px] border-solid ${tema.border} h-7.75 print:h-7.75`}
                   style={{ borderBottomColor: secondaryColor }}
                 >
                   <td
@@ -214,7 +214,7 @@ export default function DiaCompleto({
                   >
                     <EditableField
                       fieldKey={`${data.toISOString().split("T")[0]}-${hora}-cliente`}
-                      className="w-full border-gray-300 text-sm"
+                      className="w-full border-b border-dotted border-gray-300 text-sm"
                       placeholder={``}
                     />
                   </td>
@@ -224,7 +224,7 @@ export default function DiaCompleto({
                   >
                     <EditableField
                       fieldKey={`${data.toISOString().split("T")[0]}-${hora}-servico`}
-                      className="w-full border-gray-300 text-sm"
+                      className="w-full border-b border-dotted border-gray-300 text-sm"
                       placeholder={``}
                     />
                   </td>
