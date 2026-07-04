@@ -17,7 +17,7 @@ export default function EditableField({
     <div
       contentEditable
       suppressContentEditableWarning
-      className={`outline-none border-b border-dotted border-gray-300 min-h-[1.2em] ${className}`}
+      className={`outline-none border-gray-300 min-h-[1.2em] ${className}`}
       onInput={handleInput}
       {...props}
     >
