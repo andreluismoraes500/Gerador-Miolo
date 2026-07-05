@@ -1,14 +1,17 @@
 // src/App.jsx
 
-import { MdPrint, MdTune } from "react-icons/md";
+import { MdPrint, MdTune, MdAutoStories, MdDescription } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import AgendaPreview from "./components/AgendaPreview";
+import AgendaBuilderPreview from "./components/AgendaBuilderPreview";
+import BuilderPanel from "./components/BuilderPanel";
 import PaymentPanel from "./components/PaymentPanel";
 import ConfigBar from "./components/ConfigBar";
 import { AgendaConfigProvider, useAgendaConfig } from "./context/AgendaConfigContext";
 import { AgendaDataProvider } from "./context/AgendaDataContext";
 import { BusinessProfileProvider } from "./context/BusinessProfileContext";
 import { useAgendaSettings } from "./hooks/useAgendaSettings";
+import { useAgendaBuilder } from "./hooks/useAgendaBuilder";
 import "./styles/print.css";
 
 function AppContent() {
@@ -17,6 +20,9 @@ function AppContent() {
 
   // Configurações de sessão/template/perfil vivem no hook
   const settings = useAgendaSettings();
+
+  // Modo Montagem: empilhar vários templates em um único miolo
+  const builder = useAgendaBuilder();
 
   const {
     template, setTemplate,
@@ -57,6 +63,32 @@ function AppContent() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center rounded-lg border border-[#D8CBA8] overflow-hidden mr-1">
+            <button
+              onClick={() => builder.setBuilderMode(false)}
+              className={`px-3 py-2 text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                !builder.builderMode
+                  ? "bg-[#24344D] text-[#F6F1E7]"
+                  : "bg-transparent text-[#6B6458] hover:bg-[#EFE7D8]"
+              }`}
+              title="Modelo único"
+            >
+              <MdDescription className="w-4 h-4" />
+              Único
+            </button>
+            <button
+              onClick={() => builder.setBuilderMode(true)}
+              className={`px-3 py-2 text-xs font-semibold flex items-center gap-1.5 transition-all border-l border-[#D8CBA8] ${
+                builder.builderMode
+                  ? "bg-[#24344D] text-[#F6F1E7]"
+                  : "bg-transparent text-[#6B6458] hover:bg-[#EFE7D8]"
+              }`}
+              title="Montagem completa"
+            >
+              <MdAutoStories className="w-4 h-4" />
+              Montagem
+            </button>
+          </div>
           <button
             onClick={() => setShowConfig(!showConfig)}
             className={`p-2.5 rounded-lg transition-all border ${
@@ -91,19 +123,33 @@ function AppContent() {
           handleRemoveWatermark={handleRemoveWatermark}
           businessProfileId={businessProfileId}
           setBusinessProfile={setBusinessProfile}
+          builderMode={builder.builderMode}
         />
       )}
 
+      {showConfig && builder.builderMode && <BuilderPanel builder={builder} />}
+
       <main className="flex-1 p-8 flex justify-center items-start overflow-y-auto print:p-0 print:overflow-visible">
-        <AgendaPreview
-          template={template}
-          customName={footerName}
-          paid={paid}
-          selectedDate={selectedDate}
-          printing={printing}
-          businessProfile={businessProfile}
-          businessProfileId={businessProfileId}
-        />
+        {builder.builderMode ? (
+          <AgendaBuilderPreview
+            modules={builder.modules}
+            customName={footerName}
+            selectedDate={selectedDate}
+            printing={printing}
+            businessProfile={businessProfile}
+            businessProfileId={businessProfileId}
+          />
+        ) : (
+          <AgendaPreview
+            template={template}
+            customName={footerName}
+            paid={paid}
+            selectedDate={selectedDate}
+            printing={printing}
+            businessProfile={businessProfile}
+            businessProfileId={businessProfileId}
+          />
+        )}
       </main>
 
       <PaymentPanel

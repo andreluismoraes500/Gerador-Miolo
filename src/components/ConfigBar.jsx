@@ -38,6 +38,8 @@ export default function ConfigBar({
   handleWatermarkUpload, handleRemoveWatermark,
   // perfil de negócio
   businessProfileId, setBusinessProfile,
+  // modo montagem (esconde o seletor de Modelo, que não se aplica aqui)
+  builderMode = false,
 }) {
   // Aparência lida diretamente do contexto
   const {
@@ -59,6 +61,7 @@ export default function ConfigBar({
     template,
     selectedDate,
     setSelectedDate,
+    builderMode,
   );
 
   const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({ id, nome }));
@@ -83,20 +86,26 @@ export default function ConfigBar({
       <div className="max-w-7xl mx-auto flex flex-col gap-5">
         {/* Linha 1: Modelo, Data e Perfil */}
         <div className="flex flex-wrap items-end gap-6">
-          <div className="flex items-center gap-3">
-            <Label>Modelo:</Label>
-            <TemplateSelector selected={template} onSelect={setTemplate} compact />
-          </div>
+          {builderMode ? (
+            <div className="flex items-center gap-2 text-[11px] text-[#8B6A1F] italic">
+              Use o painel de montagem abaixo para escolher os módulos da agenda.
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Label>Modelo:</Label>
+              <TemplateSelector selected={template} onSelect={setTemplate} compact />
+            </div>
+          )}
 
           <div className="flex items-center gap-3">
-            <Label>Data Base:</Label>
+            <Label>{builderMode ? "Ano:" : "Data Base:"}</Label>
             <input
               type={inputType}
               min={inputType === "number" ? 2020 : undefined}
               max={inputType === "number" ? 2035 : undefined}
               value={inputValue}
               onChange={(e) => handleDateChange(e.target.value)}
-              className={`${inputCls} w-28`}
+              className={`${inputCls} ${builderMode ? "w-20" : "w-28"}`}
             />
           </div>
 

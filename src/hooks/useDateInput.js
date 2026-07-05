@@ -10,16 +10,18 @@ function formatLocalDate(year, month, day) {
 const MONTH_BASED_TEMPLATES = ["mensalCompleto", "plannerMensal"];
 const YEAR_BASED_TEMPLATES = ["anualCompleto", "calendarios", "capa"]; // <-- adicione "capa"
 
-export function useDateInput(template, selectedDate, setSelectedDate) {
+export function useDateInput(template, selectedDate, setSelectedDate, forceYearOnly = false) {
   const [currentYear, currentMonth] = selectedDate.split("-").map(Number);
 
-  const inputType = YEAR_BASED_TEMPLATES.includes(template)
+  const isYearBased = forceYearOnly || YEAR_BASED_TEMPLATES.includes(template);
+
+  const inputType = isYearBased
     ? "number"
     : MONTH_BASED_TEMPLATES.includes(template)
       ? "month"
       : "date";
 
-  const inputValue = YEAR_BASED_TEMPLATES.includes(template)
+  const inputValue = isYearBased
     ? currentYear
     : MONTH_BASED_TEMPLATES.includes(template)
       ? `${currentYear}-${String(currentMonth).padStart(2, "0")}`
@@ -27,19 +29,19 @@ export function useDateInput(template, selectedDate, setSelectedDate) {
 
   const handleDateChange = useCallback(
     (value) => {
-      if (MONTH_BASED_TEMPLATES.includes(template)) {
+      if (isYearBased) {
+        const year = parseInt(value, 10);
+        if (!isNaN(year)) setSelectedDate(formatLocalDate(year, 0, 1));
+      } else if (MONTH_BASED_TEMPLATES.includes(template)) {
         const [year, month] = value.split("-");
         setSelectedDate(
           formatLocalDate(parseInt(year, 10), parseInt(month, 10) - 1, 1),
         );
-      } else if (YEAR_BASED_TEMPLATES.includes(template)) {
-        const year = parseInt(value, 10);
-        if (!isNaN(year)) setSelectedDate(formatLocalDate(year, 0, 1));
       } else {
         setSelectedDate(value);
       }
     },
-    [template, setSelectedDate],
+    [template, setSelectedDate, isYearBased],
   );
 
   return { inputType, inputValue, handleDateChange };
