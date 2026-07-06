@@ -15,9 +15,18 @@ export default {
     const [y] = selectedDate.split("-").map(Number);
     const dias = gerarDiasDoAno(y);
 
-    // Agrupa os dias em pares (folhas de 2 dias cada)
+    // Agrupa os dias em pares (folhas de 2 dias cada), reiniciando a
+    // contagem em cada mês — assim a numeração nunca "escorrega" de um
+    // mês para o outro, e o último dia de um mês com número ímpar de
+    // dias sempre cai sozinho na sua folha (o mês seguinte começa
+    // sempre em folha nova, forçando a quebra de página no fim do mês).
     const todasFolhas = [];
-    for (let i = 0; i < dias.length; i += 2) todasFolhas.push(dias[i]);
+    for (let m = 0; m < 12; m++) {
+      const diasDoMes = dias.filter((d) => d.getMonth() === m);
+      for (let i = 0; i < diasDoMes.length; i += 2) {
+        todasFolhas.push(diasDoMes[i]);
+      }
+    }
     // `apenasMes` (0-11) é usado pela Montagem para extrair só as folhas de
     // um mês específico, permitindo intercalar com o Planner Mensal.
     const folhas =

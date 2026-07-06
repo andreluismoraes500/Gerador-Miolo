@@ -39,6 +39,7 @@ export default function DiaComercial({
         secondaryColor={secondaryColor}
         logo={logo}
         compact={false}
+        posicaoMiniCalendario="direita"
       />
 
       <Footer

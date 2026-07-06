@@ -15,14 +15,18 @@ import { FaCalendarDays } from "react-icons/fa6";
 import { getFeriado, getComemorativa } from "../../utils/agendaUtils";
 import EditableField from "../EditableField";
 import Logo from "../Logo";
+import MiniCalendario from "../MiniCalendario";
 
 export default function DiaComercialBloco({
   data,
+  diaSecundario, // opcional: outro dia da mesma folha, para destacar no mini calendário
   primaryColor = "#000000",
   secondaryColor = "#cbd5e1",
   compact = false,
   linhas, // opcional: força a quantidade de linhas
   logo,
+  mostrarMiniCalendario = true,
+  posicaoMiniCalendario = "esquerda", // "esquerda" | "direita"
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
@@ -43,7 +47,16 @@ export default function DiaComercialBloco({
         }`}
         style={{ borderBottomColor: primaryColor }}
       >
-        <div className="flex items-center gap-2.5">
+        <div className={`flex items-center ${compact ? "gap-2" : "gap-2.5"}`}>
+          {mostrarMiniCalendario && posicaoMiniCalendario === "esquerda" && (
+            <MiniCalendario
+              data={data}
+              diaSecundario={diaSecundario}
+              primaryColor={primaryColor}
+              secondaryColor={secondaryColor}
+              compact={compact}
+            />
+          )}
           {!compact && <Logo src={logo} />}
           <FaCalendarDays
             className={compact ? "w-3.5 h-3.5" : "w-5 h-5 mb-1"}
@@ -56,34 +69,47 @@ export default function DiaComercialBloco({
             >
               {data.toLocaleDateString("pt-BR", { weekday: "long" })}
             </h2>
-            {!compact && (
-              <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
-                {data.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
-              </p>
-            )}
+            <p
+              className={`uppercase tracking-wide text-gray-400 font-semibold ${
+                compact ? "text-[9px]" : "text-[11px]"
+              }`}
+            >
+              {data.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
+            </p>
           </div>
         </div>
 
-        <div className="flex items-baseline gap-3 text-right">
-          <div className="flex flex-col justify-end text-[8px] uppercase tracking-wider font-semibold text-gray-400 space-y-1 mb-0.5">
-            {feriado && (
-              <span className="text-black border border-black px-1.5 py-0.5 rounded-sm flex items-center gap-1 bg-gray-50">
-                <MdStarBorder className="w-3 h-3 text-amber-500" /> {feriado.nome}
-              </span>
-            )}
-            {comemorativa && !feriado && (
-              <span className="italic font-medium flex items-center justify-end gap-1 text-gray-500">
-                <MdPushPin className="w-2.5 h-2.5 text-gray-400" /> {comemorativa}
-              </span>
-            )}
+        <div className="flex items-center gap-3 text-right">
+          {mostrarMiniCalendario && posicaoMiniCalendario === "direita" && (
+            <MiniCalendario
+              data={data}
+              diaSecundario={diaSecundario}
+              primaryColor={primaryColor}
+              secondaryColor={secondaryColor}
+              compact={compact}
+            />
+          )}
+          <div className="flex items-baseline gap-3">
+            <div className="flex flex-col justify-end text-[8px] uppercase tracking-wider font-semibold text-gray-400 space-y-1 mb-0.5">
+              {feriado && (
+                <span className="text-black border border-black px-1.5 py-0.5 rounded-sm flex items-center gap-1 bg-gray-50">
+                  <MdStarBorder className="w-3 h-3 text-amber-500" /> {feriado.nome}
+                </span>
+              )}
+              {comemorativa && !feriado && (
+                <span className="italic font-medium flex items-center justify-end gap-1 text-gray-500">
+                  <MdPushPin className="w-2.5 h-2.5 text-gray-400" /> {comemorativa}
+                </span>
+              )}
+            </div>
+            <span
+              className={`font-extralight tracking-tighter font-serif text-black leading-none ${
+                compact ? "text-2xl min-w-[1.6rem]" : "text-5xl min-w-[2.8rem]"
+              }`}
+            >
+              {String(data.getDate()).padStart(2, "0")}
+            </span>
           </div>
-          <span
-            className={`font-extralight tracking-tighter font-serif text-black leading-none ${
-              compact ? "text-2xl min-w-[1.6rem]" : "text-5xl min-w-[2.8rem]"
-            }`}
-          >
-            {String(data.getDate()).padStart(2, "0")}
-          </span>
         </div>
       </div>
 

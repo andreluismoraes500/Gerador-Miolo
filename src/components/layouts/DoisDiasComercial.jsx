@@ -30,7 +30,12 @@ export default function DoisDiasComercial({
   watermarkOpacity,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
-  const diaB = addDias(data, 1);
+  const diaBBruto = addDias(data, 1);
+  // Se o dia seguinte já cair no próximo mês, esta folha fica só com o
+  // último dia do mês corrente — o próximo mês sempre começa em folha
+  // nova, então a página "quebra" exatamente no último dia do mês.
+  const mesmoMes = diaBBruto.getMonth() === data.getMonth();
+  const diaB = mesmoMes ? diaBBruto : null;
 
   const bgColor = customColors.background || "#ffffff";
   const primaryColor = customColors.primary || tema.text || "#000000";
@@ -55,15 +60,21 @@ export default function DoisDiasComercial({
           data={data}
           primaryColor={primaryColor}
           secondaryColor={secondaryColor}
-          compact
+          compact={!!diaB}
+          mostrarMiniCalendario={false}
         />
 
-        <DiaComercialBloco
-          data={diaB}
-          primaryColor={primaryColor}
-          secondaryColor={secondaryColor}
-          compact
-        />
+        {/* Último dia do mês sozinho na folha: o mês seguinte só começa na
+            próxima página. */}
+        {diaB && (
+          <DiaComercialBloco
+            data={diaB}
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            compact
+            mostrarMiniCalendario={false}
+          />
+        )}
       </div>
 
       <Footer
