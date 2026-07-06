@@ -16,7 +16,7 @@ import {
 } from "../components/layouts/CadernoUniversitarioLayout";
 
 const NUM_MATERIAS = 10;
-const PAGINAS_POR_MATERIA = 6;
+const PAGINAS_POR_MATERIA = 20;
 const NUM_BIMESTRES = 4;
 const PAGINAS_QUADRICULADAS = 6;
 
@@ -44,7 +44,11 @@ export default {
 
         {Array.from({ length: NUM_BIMESTRES }).map((_, i) => (
           <div key={`bimestre-${i}`} className="page-break">
-            <CadernoBimestrePage numero={i + 1} numMaterias={NUM_MATERIAS} {...rest} />
+            <CadernoBimestrePage
+              numero={i + 1}
+              numMaterias={NUM_MATERIAS}
+              {...rest}
+            />
           </div>
         ))}
 
@@ -58,7 +62,10 @@ export default {
               />
             </div>
             {Array.from({ length: PAGINAS_POR_MATERIA }).map((_, pageIndex) => (
-              <div key={`pautada-${materiaIndex}-${pageIndex}`} className="page-break">
+              <div
+                key={`pautada-${materiaIndex}-${pageIndex}`}
+                className="page-break"
+              >
                 <CadernoPautadaPage
                   materiaIndex={materiaIndex}
                   pageIndex={pageIndex}

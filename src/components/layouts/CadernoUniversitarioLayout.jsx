@@ -61,7 +61,9 @@ function PageShell({
       className="printable-page bg-white text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {watermarkSrc && <Watermark src={watermarkSrc} opacity={watermarkOpacity} />}
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
       <div className="flex flex-col flex-1 min-h-0">{children}</div>
       <Footer
         name={footerName}
@@ -82,7 +84,11 @@ function nomeMateriaFieldKey(index) {
 // 1. SUMÁRIO
 // ─────────────────────────────────────────────────────────────────────────
 export function CadernoSumarioPage({ numMaterias, logo, ...rest }) {
-  const { primaryColor, tema } = useVisual(rest.colorTheme, rest.customColors, rest.fontFamily);
+  const { primaryColor, tema } = useVisual(
+    rest.colorTheme,
+    rest.customColors,
+    rest.fontFamily,
+  );
 
   return (
     <PageShell {...rest}>
@@ -128,7 +134,7 @@ export function CadernoSumarioPage({ numMaterias, logo, ...rest }) {
             <EditableField
               fieldKey={nomeMateriaFieldKey(i)}
               className="flex-1 text-sm font-medium"
-              placeholder={`Disciplina ${String(i + 1).padStart(2, "0")}`}
+              placeholder={``}
             />
             <span className="text-[9px] uppercase tracking-wide text-gray-400 shrink-0">
               pág.
@@ -136,7 +142,7 @@ export function CadernoSumarioPage({ numMaterias, logo, ...rest }) {
             <EditableField
               fieldKey={`caderno-sumario-pagina-${i}`}
               className="w-12 text-xs text-center border-b border-dashed border-gray-300 shrink-0"
-              placeholder="___"
+              placeholder=""
             />
           </div>
         ))}
@@ -193,9 +199,18 @@ export function CadernoContatosPage({ logo, ...rest }) {
             key={i}
             className="grid grid-cols-[1fr_1fr_1.2fr] gap-2 py-2.5 border-b border-dotted border-gray-200 last:border-0"
           >
-            <EditableField fieldKey={`caderno-contato-nome-${i}`} className="text-xs" />
-            <EditableField fieldKey={`caderno-contato-disciplina-${i}`} className="text-xs" />
-            <EditableField fieldKey={`caderno-contato-info-${i}`} className="text-xs" />
+            <EditableField
+              fieldKey={`caderno-contato-nome-${i}`}
+              className="text-xs"
+            />
+            <EditableField
+              fieldKey={`caderno-contato-disciplina-${i}`}
+              className="text-xs"
+            />
+            <EditableField
+              fieldKey={`caderno-contato-info-${i}`}
+              className="text-xs"
+            />
           </div>
         ))}
       </div>
@@ -264,12 +279,12 @@ export function CadernoBimestrePage({ numero, numMaterias, logo, ...rest }) {
                 <EditableField
                   fieldKey={nomeMateriaFieldKey(i)}
                   className="text-xs truncate"
-                  placeholder={`Disciplina ${String(i + 1).padStart(2, "0")}`}
+                  placeholder={``}
                 />
                 <EditableField
                   fieldKey={`caderno-bimestre-${numero}-nota-${i}`}
                   className="text-xs text-center border-b border-dashed border-gray-300"
-                  placeholder="__,_"
+                  placeholder=""
                 />
               </div>
             ))}
@@ -320,12 +335,12 @@ export function CadernoBimestrePage({ numero, numMaterias, logo, ...rest }) {
                   fieldKey={`caderno-bimestre-${numero}-data-${i}`}
                   className="text-xs text-center border-r pr-1"
                   style={{ borderColor: secondaryColor }}
-                  placeholder="__/__"
+                  placeholder="___/___"
                 />
                 <EditableField
                   fieldKey={`caderno-bimestre-${numero}-evento-${i}`}
                   className="text-xs"
-                  placeholder="Prova, trabalho, entrega..."
+                  placeholder=""
                 />
               </div>
             ))}
@@ -339,10 +354,26 @@ export function CadernoBimestrePage({ numero, numMaterias, logo, ...rest }) {
 // ─────────────────────────────────────────────────────────────────────────
 // 4. DIVISÓRIA (matéria ou seção genérica, ex: "Folhas Quadriculadas")
 // ─────────────────────────────────────────────────────────────────────────
-export function CadernoDivisoriaPage({ index, subtitle, defaultTitle, logo, ...rest }) {
-  const { primaryColor, tema } = useVisual(rest.colorTheme, rest.customColors, rest.fontFamily);
-  const cor = index != null ? PALETA_DIVISORIAS[index % PALETA_DIVISORIAS.length] : primaryColor;
-  const fieldKey = index != null ? nomeMateriaFieldKey(index) : "caderno-divisoria-extra-titulo";
+export function CadernoDivisoriaPage({
+  index,
+  subtitle,
+  defaultTitle,
+  logo,
+  ...rest
+}) {
+  const { primaryColor, tema } = useVisual(
+    rest.colorTheme,
+    rest.customColors,
+    rest.fontFamily,
+  );
+  const cor =
+    index != null
+      ? PALETA_DIVISORIAS[index % PALETA_DIVISORIAS.length]
+      : primaryColor;
+  const fieldKey =
+    index != null
+      ? nomeMateriaFieldKey(index)
+      : "caderno-divisoria-extra-titulo";
 
   return (
     <PageShell {...rest}>
@@ -351,7 +382,10 @@ export function CadernoDivisoriaPage({ index, subtitle, defaultTitle, logo, ...r
           className="absolute top-0 left-0 w-full h-[42%]"
           style={{ backgroundColor: cor, opacity: 0.1 }}
         />
-        <div className="absolute top-0 left-0 w-full h-2.5" style={{ backgroundColor: cor }} />
+        <div
+          className="absolute top-0 left-0 w-full h-2.5"
+          style={{ backgroundColor: cor }}
+        />
 
         <div className="relative z-10 flex flex-col items-center gap-5 text-center px-8">
           <Logo src={logo} />
@@ -373,7 +407,9 @@ export function CadernoDivisoriaPage({ index, subtitle, defaultTitle, logo, ...r
           />
 
           {subtitle && (
-            <p className="text-xs uppercase tracking-[0.3em] text-gray-400">{subtitle}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-400">
+              {subtitle}
+            </p>
           )}
 
           {index != null && (
@@ -414,7 +450,11 @@ export function CadernoPautadaPage({
   numLinhas = 26,
   ...rest
 }) {
-  const { secondaryColor } = useVisual(rest.colorTheme, rest.customColors, rest.fontFamily);
+  const { secondaryColor } = useVisual(
+    rest.colorTheme,
+    rest.customColors,
+    rest.fontFamily,
+  );
   const { getField } = useAgendaData();
   const cor = PALETA_DIVISORIAS[materiaIndex % PALETA_DIVISORIAS.length];
   const nomeMateria =
@@ -428,7 +468,10 @@ export function CadernoPautadaPage({
         style={{ borderColor: secondaryColor }}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: cor }} />
+          <span
+            className="w-2.5 h-2.5 rounded-full shrink-0"
+            style={{ backgroundColor: cor }}
+          />
           <span className="text-xs font-bold uppercase tracking-widest text-gray-700 truncate">
             {nomeMateria}
           </span>
@@ -449,10 +492,17 @@ export function CadernoPautadaPage({
 
       {/* Corpo pautado, com margem estilo caderno universitário comum */}
       <div className="flex-1 relative min-h-0">
-        <div className="absolute top-0 bottom-0" style={{ left: "13mm", width: "1px", backgroundColor: "#f3a6a6" }} />
+        <div
+          className="absolute top-0 bottom-0"
+          style={{ left: "13mm", width: "1px", backgroundColor: "#f3a6a6" }}
+        />
         <div className="h-full flex flex-col" style={{ paddingLeft: "17mm" }}>
           {Array.from({ length: numLinhas }).map((_, i) => (
-            <div key={i} className="flex-1 border-b" style={{ borderColor: "#c7dcf5" }}>
+            <div
+              key={i}
+              className="flex-1 border-b"
+              style={{ borderColor: "#c7dcf5" }}
+            >
               <EditableField
                 fieldKey={`caderno-materia-${materiaIndex}-pautada-${pageIndex}-linha-${i}`}
                 className="w-full h-full text-sm px-1"
@@ -469,7 +519,11 @@ export function CadernoPautadaPage({
 // 6. FOLHA QUADRICULADA
 // ─────────────────────────────────────────────────────────────────────────
 export function CadernoQuadriculadaPage({ pageIndex, totalPaginas, ...rest }) {
-  const { secondaryColor } = useVisual(rest.colorTheme, rest.customColors, rest.fontFamily);
+  const { secondaryColor } = useVisual(
+    rest.colorTheme,
+    rest.customColors,
+    rest.fontFamily,
+  );
 
   return (
     <PageShell {...rest}>
