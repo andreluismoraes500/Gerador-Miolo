@@ -7,7 +7,10 @@ import AgendaBuilderPreview from "./components/AgendaBuilderPreview";
 import BuilderPanel from "./components/BuilderPanel";
 import PaymentPanel from "./components/PaymentPanel";
 import ConfigBar from "./components/ConfigBar";
-import { AgendaConfigProvider, useAgendaConfig } from "./context/AgendaConfigContext";
+import {
+  AgendaConfigProvider,
+  useAgendaConfig,
+} from "./context/AgendaConfigContext";
 import { AgendaDataProvider } from "./context/AgendaDataContext";
 import { BusinessProfileProvider } from "./context/BusinessProfileContext";
 import { useAgendaSettings } from "./hooks/useAgendaSettings";
@@ -25,28 +28,41 @@ function AppContent() {
   const builder = useAgendaBuilder();
 
   const {
-    template, setTemplate,
-    selectedDate, setSelectedDate,
-    paid, setPaid,
-    customName, setCustomName,
-    footerName, clearFooterName,
+    template,
+    setTemplate,
+    selectedDate,
+    setSelectedDate,
+    paid,
+    setPaid,
+    customName,
+    setCustomName,
+    footerName,
+    clearFooterName,
     printing,
-    showConfig, setShowConfig,
+    showConfig,
+    setShowConfig,
     handlePrint,
-    handleLogoUpload, handleRemoveLogo,
-    handleWatermarkUpload, handleRemoveWatermark,
+    handleLogoUpload,
+    handleRemoveLogo,
+    handleWatermarkUpload,
+    handleRemoveWatermark,
     applyThemeColors,
-    businessProfile, businessProfileId, setBusinessProfile,
+    businessProfile,
+    businessProfileId,
+    setBusinessProfile,
   } = settings;
 
   return (
-    <div className="min-h-screen bg-[#F6F1E7] bg-[radial-gradient(circle_at_top,_#FBF8F1_0%,_#F1EADB_55%,_#EAE1CD_100%)] flex flex-col font-sans text-[#2B2A28]">
+    <div className="min-h-screen bg-[#F6F1E7] bg-[radial-gradient(circle_at_top,#FBF8F1_0%,#F1EADB_55%,#EAE1CD_100%)] flex flex-col font-sans text-[#2B2A28]">
       <Toaster position="bottom-right" />
 
       <header className="relative bg-[#FBF8F1]/90 backdrop-blur-sm border-b border-[#D8CBA8] py-3.5 px-6 flex items-center justify-between print:hidden shadow-[0_1px_0_0_rgba(184,147,61,0.35)]">
         <div className="flex items-center gap-3.5">
           <div className="relative flex items-center justify-center w-9 h-9 rounded-md bg-[#24344D] shadow-[2px_2px_0_0_#B8933D] shrink-0">
-            <span className="text-[#F6F1E7] text-base leading-none" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <span
+              className="text-[#F6F1E7] text-base leading-none"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            >
               M
             </span>
           </div>

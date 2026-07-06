@@ -69,6 +69,23 @@ export function useAgendaBuilder() {
     [setModules],
   );
 
+  // Reordena via drag-and-drop: move o módulo `uid` para a posição `targetIndex`.
+  const reorderModule = useCallback(
+    (uid, targetIndex) => {
+      setModules((prev) => {
+        const fromIndex = prev.findIndex((m) => m.uid === uid);
+        if (fromIndex === -1) return prev;
+        const clamped = Math.max(0, Math.min(targetIndex, prev.length - 1));
+        if (fromIndex === clamped) return prev;
+        const next = [...prev];
+        const [moved] = next.splice(fromIndex, 1);
+        next.splice(clamped, 0, moved);
+        return next;
+      });
+    },
+    [setModules],
+  );
+
   const clearModules = useCallback(() => setModules([]), [setModules]);
 
   const loadPreset = useCallback(
@@ -88,6 +105,7 @@ export function useAgendaBuilder() {
     addModule,
     removeModule,
     moveModule,
+    reorderModule,
     clearModules,
     loadPreset,
   };

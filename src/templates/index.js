@@ -34,6 +34,7 @@ import viagem from "./viagem.jsx"; // ← NOVO — planner de viagem
 import compras from "./compras.jsx"; // ← NOVO — lista de compras
 import sonhos from "./sonhos.jsx"; // ← NOVO — diário de sonhos
 import wishlist from "./wishlist.jsx"; // ← NOVO — wishlist / metas de compra
+import cadernoUniversitario from "./cadernoUniversitario.jsx"; // ← NOVO — caderno universitário completo
 
 export const TEMPLATES = {
   diario,
@@ -67,4 +68,5 @@ export const TEMPLATES = {
   compras, // ← NOVO
   sonhos, // ← NOVO
   wishlist, // ← NOVO
+  cadernoUniversitario, // ← NOVO
 };

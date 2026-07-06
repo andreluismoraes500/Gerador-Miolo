@@ -338,6 +338,258 @@ const PROFESSOR_PROFILE = {
 };
 
 // ============================================
+// PERFIL DENTISTA
+// ============================================
+const DENTISTA_PROFILE = {
+  ...BASE_PROFILE,
+  id: "dentista",
+  nome: "Dentista",
+  icon: "🦷",
+  description: "Perfil para cirurgiões-dentistas e clínicas odontológicas",
+  slogan: "Sorrisos organizados, agenda impecável",
+
+  colors: {
+    primary: "#0e7490",
+    secondary: "#a5f3fc",
+    background: "#ecfeff",
+  },
+
+  campos: {
+    cliente: "Paciente",
+    servico: "Procedimento",
+    extra: "Convênio / Plano",
+    valor: "Valor do Procedimento",
+    status: "Status do Tratamento",
+  },
+
+  placeholders: {
+    cliente: "Nome do paciente",
+    servico: "Ex: Limpeza, Canal, Restauração",
+    extra: "Nome do convênio",
+    valor: "R$ 0,00",
+    status: "Em andamento / Concluído",
+  },
+
+  keywords: ["dentista", "odontologia", "dental", "ortodontia"],
+};
+
+// ============================================
+// PERFIL NUTRICIONISTA
+// ============================================
+const NUTRICIONISTA_PROFILE = {
+  ...BASE_PROFILE,
+  id: "nutricionista",
+  nome: "Nutricionista",
+  icon: "🥗",
+  description: "Perfil para nutricionistas e consultórios de nutrição",
+  slogan: "Saúde e equilíbrio em cada consulta",
+
+  colors: {
+    primary: "#15803d",
+    secondary: "#bbf7d0",
+    background: "#f0fdf4",
+  },
+
+  campos: {
+    cliente: "Paciente",
+    servico: "Tipo de Consulta",
+    extra: "Objetivo / Plano Alimentar",
+    valor: "Valor da Consulta",
+    status: "Evolução",
+  },
+
+  placeholders: {
+    cliente: "Nome do paciente",
+    servico: "Ex: Retorno, Avaliação inicial",
+    extra: "Emagrecimento / Ganho de massa",
+    valor: "R$ 0,00",
+    status: "Em acompanhamento",
+  },
+
+  keywords: ["nutrição", "dieta", "alimentação", "nutricionista"],
+};
+
+// ============================================
+// PERFIL BARBEIRO
+// ============================================
+const BARBEIRO_PROFILE = {
+  ...BASE_PROFILE,
+  id: "barbeiro",
+  nome: "Barbeiro",
+  icon: "💈",
+  description: "Perfil para barbeiros e barbearias",
+  slogan: "Estilo e precisão em cada corte",
+
+  colors: {
+    primary: "#1c1917",
+    secondary: "#d6d3d1",
+    background: "#fafaf9",
+  },
+
+  campos: {
+    cliente: "Cliente",
+    servico: "Serviço",
+    extra: "Observações",
+    valor: "Valor",
+    status: "Status",
+  },
+
+  placeholders: {
+    cliente: "Nome do cliente",
+    servico: "Ex: Corte, Barba, Sobrancelha",
+    extra: "Preferências do cliente",
+    valor: "R$ 0,00",
+    status: "Agendado / Concluído",
+  },
+
+  keywords: ["barbearia", "barbeiro", "corte", "barba"],
+};
+
+// ============================================
+// PERFIL TATUADOR
+// ============================================
+const TATUADOR_PROFILE = {
+  ...BASE_PROFILE,
+  id: "tatuador",
+  nome: "Tatuador(a)",
+  icon: "🖋️",
+  description: "Perfil para tatuadores e estúdios de tatuagem",
+  slogan: "Arte que fica para sempre",
+
+  colors: {
+    primary: "#18181b",
+    secondary: "#a1a1aa",
+    background: "#f4f4f5",
+  },
+
+  campos: {
+    cliente: "Cliente",
+    servico: "Estilo / Tema da Tattoo",
+    extra: "Tamanho / Local no Corpo",
+    valor: "Valor da Sessão",
+    status: "Status",
+  },
+
+  placeholders: {
+    cliente: "Nome do cliente",
+    servico: "Ex: Realismo, Fineline",
+    extra: "Ex: 15cm, antebraço",
+    valor: "R$ 0,00",
+    status: "Orçado / Agendado / Concluído",
+  },
+
+  keywords: ["tatuagem", "tattoo", "tatuador", "estúdio"],
+};
+
+// ============================================
+// PERFIL DESIGNER DE SOBRANCELHAS
+// ============================================
+const DESIGNER_SOBRANCELHAS_PROFILE = {
+  ...BASE_PROFILE,
+  id: "designerSobrancelhas",
+  nome: "Designer de Sobrancelhas",
+  icon: "✨",
+  description: "Perfil para designers de sobrancelhas e cílios",
+  slogan: "Realçando o seu melhor olhar",
+
+  colors: {
+    primary: "#9d174d",
+    secondary: "#fbcfe8",
+    background: "#fdf2f8",
+  },
+
+  campos: {
+    cliente: "Cliente",
+    servico: "Serviço",
+    extra: "Técnica Utilizada",
+    valor: "Valor",
+    status: "Status",
+  },
+
+  placeholders: {
+    cliente: "Nome da cliente",
+    servico: "Ex: Design, Henna, Micropigmentação",
+    extra: "Ex: Fio a fio, volume russo",
+    valor: "R$ 0,00",
+    status: "Agendado / Realizado",
+  },
+
+  keywords: ["sobrancelha", "cílios", "design", "henna", "micropigmentação"],
+};
+
+// ============================================
+// PERFIL CORRETOR DE IMÓVEIS
+// ============================================
+const CORRETOR_IMOVEIS_PROFILE = {
+  ...BASE_PROFILE,
+  id: "corretorImoveis",
+  nome: "Corretor de Imóveis",
+  icon: "🏠",
+  description: "Perfil para corretores e consultores imobiliários",
+  slogan: "Conectando pessoas ao lar ideal",
+
+  colors: {
+    primary: "#78350f",
+    secondary: "#fde68a",
+    background: "#fffbeb",
+  },
+
+  campos: {
+    cliente: "Cliente",
+    servico: "Tipo de Imóvel / Visita",
+    extra: "Endereço do Imóvel",
+    valor: "Valor do Imóvel",
+    status: "Status da Negociação",
+  },
+
+  placeholders: {
+    cliente: "Nome do cliente",
+    servico: "Ex: Visita, Apresentação de proposta",
+    extra: "Endereço completo do imóvel",
+    valor: "R$ 0,00",
+    status: "Em negociação / Fechado",
+  },
+
+  keywords: ["imóveis", "corretor", "imobiliária", "aluguel", "venda"],
+};
+
+// ============================================
+// PERFIL VETERINÁRIO
+// ============================================
+const VETERINARIO_PROFILE = {
+  ...BASE_PROFILE,
+  id: "veterinario",
+  nome: "Veterinário(a)",
+  icon: "🐾",
+  description: "Perfil para veterinários e clínicas veterinárias",
+  slogan: "Cuidando de quem não pode falar",
+
+  colors: {
+    primary: "#0d9488",
+    secondary: "#99f6e4",
+    background: "#f0fdfa",
+  },
+
+  campos: {
+    cliente: "Tutor / Pet",
+    servico: "Procedimento",
+    extra: "Espécie / Raça",
+    valor: "Valor da Consulta",
+    status: "Status do Atendimento",
+  },
+
+  placeholders: {
+    cliente: "Nome do tutor e do pet",
+    servico: "Ex: Consulta, Vacina, Cirurgia",
+    extra: "Ex: Cão, SRD",
+    valor: "R$ 0,00",
+    status: "Agendado / Atendido",
+  },
+
+  keywords: ["veterinário", "pet", "animais", "clínica veterinária"],
+};
+
+// ============================================
 // EXPORTAÇÕES
 // ============================================
 
@@ -352,6 +604,13 @@ export const BUSINESS_PROFILES = {
   fotografo: FOTOGRAFO_PROFILE,
   consultor: CONSULTOR_PROFILE,
   professor: PROFESSOR_PROFILE,
+  dentista: DENTISTA_PROFILE,
+  nutricionista: NUTRICIONISTA_PROFILE,
+  barbeiro: BARBEIRO_PROFILE,
+  tatuador: TATUADOR_PROFILE,
+  designerSobrancelhas: DESIGNER_SOBRANCELHAS_PROFILE,
+  corretorImoveis: CORRETOR_IMOVEIS_PROFILE,
+  veterinario: VETERINARIO_PROFILE,
 };
 
 // Função para obter um perfil pelo ID

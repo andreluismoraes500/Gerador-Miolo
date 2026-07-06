@@ -8,8 +8,7 @@ import { useState } from "react";
 import {
   MdAdd,
   MdDelete,
-  MdArrowUpward,
-  MdArrowDownward,
+  MdDragIndicator,
   MdAutoAwesome,
   MdDeleteSweep,
 } from "react-icons/md";
@@ -25,13 +24,47 @@ const MULTI_PAGE_TEMPLATES = new Set([
   "mensalLivre",
   "mensalComercialDuplo",
   "calendarios",
+  "cadernoUniversitario",
 ]);
 
 const ANNUAL_DAY_TEMPLATES = new Set(["anualCompleto", "anualLivre", "anualComercialDuplo"]);
 
 export default function BuilderPanel({ builder }) {
-  const { modules, addModule, removeModule, moveModule, clearModules, loadPreset } = builder;
+  const { modules, addModule, removeModule, reorderModule, clearModules, loadPreset } = builder;
   const [selectedToAdd, setSelectedToAdd] = useState(Object.keys(TEMPLATES)[0]);
+
+  // Drag-and-drop: uid do módulo sendo arrastado e índice sobre o qual paira.
+  const [draggedUid, setDraggedUid] = useState(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
+
+  const handleDragStart = (uid) => (e) => {
+    setDraggedUid(uid);
+    // Necessário para o Firefox aceitar o drag.
+    e.dataTransfer.effectAllowed = "move";
+    try {
+      e.dataTransfer.setData("text/plain", uid);
+    } catch {
+      // alguns navegadores mobile não suportam — sem problema, seguimos com o state
+    }
+  };
+
+  const handleDragOver = (idx) => (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIdx !== idx) setDragOverIdx(idx);
+  };
+
+  const handleDrop = (idx) => (e) => {
+    e.preventDefault();
+    if (draggedUid) reorderModule(draggedUid, idx);
+    setDraggedUid(null);
+    setDragOverIdx(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedUid(null);
+    setDragOverIdx(null);
+  };
 
   const templateOptions = Object.entries(TEMPLATES).map(([key, t]) => ({
     key,
@@ -133,11 +166,28 @@ export default function BuilderPanel({ builder }) {
             {modules.map((mod, idx) => {
               const def = TEMPLATES[mod.templateKey];
               if (!def) return null;
+              const isDragging = draggedUid === mod.uid;
+              const showDropLine = dragOverIdx === idx && draggedUid && draggedUid !== mod.uid;
               return (
                 <li
                   key={mod.uid}
-                  className="flex items-center gap-3 bg-[#FBF8F1] border border-[#D8CBA8] rounded-lg px-3 py-2"
+                  draggable
+                  onDragStart={handleDragStart(mod.uid)}
+                  onDragOver={handleDragOver(idx)}
+                  onDrop={handleDrop(idx)}
+                  onDragEnd={handleDragEnd}
+                  className={`flex items-center gap-3 bg-[#FBF8F1] border rounded-lg px-3 py-2 transition-all ${
+                    isDragging
+                      ? "opacity-40 border-dashed border-[#B8933D]"
+                      : "border-[#D8CBA8]"
+                  } ${showDropLine ? "border-t-4 border-t-[#B8933D]" : ""}`}
                 >
+                  <span
+                    className="text-[#8B6A1F] cursor-grab active:cursor-grabbing shrink-0 touch-none"
+                    title="Arrastar para reordenar"
+                  >
+                    <MdDragIndicator className="w-4 h-4" />
+                  </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] bg-[#EFE4C8] border border-[#DEC98B] rounded-full w-6 h-6 flex items-center justify-center shrink-0">
                     {idx + 1}
                   </span>
@@ -150,22 +200,6 @@ export default function BuilderPanel({ builder }) {
                     )}
                   </span>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      onClick={() => moveModule(mod.uid, -1)}
-                      disabled={idx === 0}
-                      className="p-1.5 rounded-md text-[#6B6458] hover:bg-[#EFE4C8] hover:text-[#24344D] disabled:opacity-30 disabled:hover:bg-transparent transition"
-                      title="Mover para cima"
-                    >
-                      <MdArrowUpward className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => moveModule(mod.uid, 1)}
-                      disabled={idx === modules.length - 1}
-                      className="p-1.5 rounded-md text-[#6B6458] hover:bg-[#EFE4C8] hover:text-[#24344D] disabled:opacity-30 disabled:hover:bg-transparent transition"
-                      title="Mover para baixo"
-                    >
-                      <MdArrowDownward className="w-4 h-4" />
-                    </button>
                     <button
                       onClick={() => removeModule(mod.uid)}
                       className="p-1.5 rounded-md text-[#8B2E3F] hover:bg-[#8B2E3F]/10 transition"
