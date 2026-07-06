@@ -11,13 +11,19 @@ import { gerarDiasDoAno } from "../utils/agendaUtils";
 export default {
   nome: "Anual Comercial (2 dias por página)",
   layout: (props) => {
-    const { selectedDate, printing, ...rest } = props;
+    const { selectedDate, printing, apenasMes, ...rest } = props;
     const [y] = selectedDate.split("-").map(Number);
     const dias = gerarDiasDoAno(y);
 
     // Agrupa os dias em pares (folhas de 2 dias cada)
-    const folhas = [];
-    for (let i = 0; i < dias.length; i += 2) folhas.push(dias[i]);
+    const todasFolhas = [];
+    for (let i = 0; i < dias.length; i += 2) todasFolhas.push(dias[i]);
+    // `apenasMes` (0-11) é usado pela Montagem para extrair só as folhas de
+    // um mês específico, permitindo intercalar com o Planner Mensal.
+    const folhas =
+      apenasMes == null
+        ? todasFolhas
+        : todasFolhas.filter((d) => d.getMonth() === apenasMes);
 
     if (!printing) {
       return (

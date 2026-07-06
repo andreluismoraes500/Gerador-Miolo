@@ -11,6 +11,13 @@
 import React from "react";
 import { TEMPLATES } from "../templates";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
+import PlannerMensalLayout from "./layouts/PlannerMensalLayout";
+
+// Templates que geram os dias do ANO INTEIRO (miolo diário completo).
+// Quando um destes estiver na Montagem junto com o "Planner Mensal", os dois
+// são mesclados automaticamente: o planner de cada mês passa a sair logo
+// antes dos dias daquele mês, em vez de sair todo de uma vez no início.
+const ANNUAL_DAY_TEMPLATES = new Set(["anualCompleto", "anualLivre", "anualComercialDuplo"]);
 
 // Cada template, quando chamado com printing=true, sempre retorna:
 //   <div className="print-container">{ ...um ou mais .page-break... }</div>
@@ -84,7 +91,46 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
 
   // ── Impressão: achata tudo em um único print-container ──
   if (printing) {
+    const temPlannerMensal = validModules.some((m) => m.templateKey === "plannerMensal");
+    const modulosAnuais = validModules.filter((m) => ANNUAL_DAY_TEMPLATES.has(m.templateKey));
+    // Só faz sentido mesclar mês-a-mês quando o Planner Mensal está
+    // acompanhado de pelo menos um miolo diário anual.
+    const usarMesclagemMensal = temPlannerMensal && modulosAnuais.length > 0;
+    const anoBase = parseInt(selectedDate.split("-")[0], 10);
+
+    let jaMesclado = false;
     const allPages = validModules.flatMap((mod) => {
+      const ehModuloEspecial =
+        mod.templateKey === "plannerMensal" || ANNUAL_DAY_TEMPLATES.has(mod.templateKey);
+
+      if (usarMesclagemMensal && ehModuloEspecial) {
+        // Insere o bloco mesclado (Planner Jan + dias Jan + Planner Fev + ...)
+        // uma única vez, na posição do primeiro módulo especial encontrado.
+        // As demais ocorrências de módulos especiais são ignoradas aqui,
+        // pois já fazem parte do bloco mesclado.
+        if (jaMesclado) return [];
+        jaMesclado = true;
+
+        const paginasMescladas = [];
+        for (let mes = 0; mes < 12; mes += 1) {
+          paginasMescladas.push(
+            <div key={`planner-${mod.uid}-mes${mes}`} className="page-break">
+              <PlannerMensalLayout ano={anoBase} mes={mes} {...baseLayoutProps} />
+            </div>,
+          );
+          modulosAnuais.forEach((modAnual) => {
+            const defAnual = TEMPLATES[modAnual.templateKey];
+            const renderizado = defAnual.layout({
+              ...baseLayoutProps,
+              printing: true,
+              apenasMes: mes,
+            });
+            paginasMescladas.push(...extractPrintPages(renderizado, `${modAnual.uid}-mes${mes}`));
+          });
+        }
+        return paginasMescladas;
+      }
+
       const def = TEMPLATES[mod.templateKey];
       const rendered = def.layout({ ...baseLayoutProps, printing: true });
       return extractPrintPages(rendered, mod.uid);

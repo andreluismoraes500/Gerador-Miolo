@@ -27,7 +27,11 @@ export const BUILDER_PRESETS = {
   },
   bemEstar: {
     label: "Combo Bem-estar",
-    modules: ["capa", "dadosPessoais", "habitos", "gratidao", "saude", "refeicoes", "metas"],
+    modules: ["capa", "dadosPessoais", "habitos", "gratidao", "saude", "sono", "refeicoes", "metas"],
+  },
+  organizacao: {
+    label: "Combo Organização",
+    modules: ["capa", "dadosPessoais", "estudos", "leitura", "viagem", "compras", "wishlist"],
   },
 };
 

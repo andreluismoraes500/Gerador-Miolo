@@ -5,9 +5,13 @@ import { gerarDiasDoAno } from "../utils/agendaUtils";
 export default {
   nome: "Anual (completo)",
   layout: (props) => {
-    const { selectedDate, printing, ...rest } = props;
+    const { selectedDate, printing, apenasMes, ...rest } = props;
     const [y] = selectedDate.split("-").map(Number);
-    const dias = gerarDiasDoAno(y);
+    const diasDoAno = gerarDiasDoAno(y);
+    // `apenasMes` (0-11) é usado pela Montagem para extrair só os dias de um
+    // mês específico, permitindo intercalar com o Planner Mensal.
+    const dias =
+      apenasMes == null ? diasDoAno : diasDoAno.filter((d) => d.getMonth() === apenasMes);
 
     if (!printing) {
       return (

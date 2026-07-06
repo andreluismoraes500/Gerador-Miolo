@@ -27,6 +27,13 @@ import metas from "./metas.jsx";
 import saude from "./saude.jsx";
 import pet from "./pet.jsx";
 import capa from "./capa.jsx";
+import sono from "./sono.jsx"; // ← NOVO — sono e bem-estar mental
+import estudos from "./estudos.jsx"; // ← NOVO — planner de estudos
+import leitura from "./leitura.jsx"; // ← NOVO — controle de leitura
+import viagem from "./viagem.jsx"; // ← NOVO — planner de viagem
+import compras from "./compras.jsx"; // ← NOVO — lista de compras
+import sonhos from "./sonhos.jsx"; // ← NOVO — diário de sonhos
+import wishlist from "./wishlist.jsx"; // ← NOVO — wishlist / metas de compra
 
 export const TEMPLATES = {
   diario,
@@ -53,4 +60,11 @@ export const TEMPLATES = {
   saude,
   pet,
   capa,
+  sono, // ← NOVO
+  estudos, // ← NOVO
+  leitura, // ← NOVO
+  viagem, // ← NOVO
+  compras, // ← NOVO
+  sonhos, // ← NOVO
+  wishlist, // ← NOVO
 };

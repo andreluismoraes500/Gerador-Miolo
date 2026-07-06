@@ -27,6 +27,8 @@ const MULTI_PAGE_TEMPLATES = new Set([
   "calendarios",
 ]);
 
+const ANNUAL_DAY_TEMPLATES = new Set(["anualCompleto", "anualLivre", "anualComercialDuplo"]);
+
 export default function BuilderPanel({ builder }) {
   const { modules, addModule, removeModule, moveModule, clearModules, loadPreset } = builder;
   const [selectedToAdd, setSelectedToAdd] = useState(Object.keys(TEMPLATES)[0]);
@@ -35,6 +37,10 @@ export default function BuilderPanel({ builder }) {
     key,
     nome: t.nome,
   }));
+
+  const temPlannerMensal = modules.some((m) => m.templateKey === "plannerMensal");
+  const temAnual = modules.some((m) => ANNUAL_DAY_TEMPLATES.has(m.templateKey));
+  const mesclagemAtiva = temPlannerMensal && temAnual;
 
   return (
     <div className="bg-[#F1EADB]/95 border-b border-[#D8CBA8] px-6 py-5 print:hidden">
@@ -103,6 +109,19 @@ export default function BuilderPanel({ builder }) {
             Adicionar
           </button>
         </div>
+
+        {mesclagemAtiva && (
+          <div className="text-[11px] text-[#1B5E3F] bg-[#E4F3EA] border border-[#B7DEC7] rounded-lg px-3 py-2 flex items-start gap-2">
+            <span>✅</span>
+            <span>
+              <strong>Mesclagem automática ativa:</strong> como você tem o{" "}
+              <strong>Planner Mensal</strong> junto com um módulo anual, o planner de cada mês vai
+              sair sozinho, sempre antes do dia 1 daquele mês (janeiro antes do dia 1/jan,
+              fevereiro logo após 31/jan e antes do dia 1/fev, e assim por diante). Não é preciso
+              adicionar o Planner Mensal 12 vezes.
+            </span>
+          </div>
+        )}
 
         {/* Lista de módulos escolhidos */}
         {modules.length === 0 ? (
