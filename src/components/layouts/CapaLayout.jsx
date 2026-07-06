@@ -84,7 +84,7 @@ export default function CapaLayout({
                 className="absolute -top-4 left-0 right-0 mx-auto text-sm tracking-[0.3em] uppercase z-10"
                 style={{ color: secondaryColor }} // Texto "AGENDA" usa a cor secundária
               >
-                AGENDA {ano}
+                {ano}
               </p>
             </>
           )}
