@@ -5,6 +5,7 @@
 
 import diario from "./diario.jsx";
 import diarioLivre from "./diarioLivre.jsx"; // ← NOVO
+import diarioFloral from "./diarioFloral.jsx"; // ← NOVO — agenda floral, 1 dia/página, folha pautada
 import diarioComercial from "./diarioComercial.jsx"; // ← NOVO — sem horário, 1 dia/página
 import diarioComercialDuplo from "./diarioComercialDuplo.jsx"; // ← NOVO — sem horário, 2 dias/página
 import mensalCompleto from "./mensalCompleto.jsx";
@@ -39,6 +40,7 @@ import cadernoUniversitario from "./cadernoUniversitario.jsx"; // ← NOVO — c
 export const TEMPLATES = {
   diario,
   diarioLivre, // ← NOVO — aparece logo após "Diário" no seletor
+  diarioFloral, // ← NOVO — agenda floral (folha pautada + versículo)
   diarioComercial, // ← NOVO — 1 dia/página, sem horário
   diarioComercialDuplo, // ← NOVO — 2 dias/página, sem horário
   mensalCompleto,

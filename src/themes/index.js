@@ -2,6 +2,7 @@
 
 import classico from "./classico";
 import floral from "./floral";
+import floralAzul from "./floralAzul";
 import comercial from "./comercial";
 import moderno from "./moderno";
 import rustico from "./rustico";
@@ -14,6 +15,7 @@ import manicure from "./segments/manicure";
 export const TEMAS = {
   classico,
   floral,
+  floralAzul,
   comercial,
   moderno,
   rustico,
