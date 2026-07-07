@@ -97,10 +97,10 @@ export default function FloralCorner({
     position === "top-left"
       ? 0
       : position === "top-right"
-      ? 90
-      : position === "bottom-right"
-      ? 180
-      : 270; // bottom-left
+        ? 90
+        : position === "bottom-right"
+          ? 180
+          : 270; // bottom-left
 
   const placement = {
     "top-left": { top: 0, left: 0 },
