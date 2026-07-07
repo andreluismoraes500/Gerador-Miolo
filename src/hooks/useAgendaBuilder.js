@@ -33,6 +33,10 @@ export const BUILDER_PRESETS = {
     label: "Combo Organização",
     modules: ["capa", "dadosPessoais", "estudos", "leitura", "viagem", "compras", "wishlist"],
   },
+  universitario: {
+    label: "Combo Universitário",
+    modules: ["capa", "dadosPessoais", "calendarios", "cadernoUniversitario", "estudos", "tarefas"],
+  },
 };
 
 export function useAgendaBuilder() {

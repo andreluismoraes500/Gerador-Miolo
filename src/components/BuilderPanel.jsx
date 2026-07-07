@@ -11,6 +11,11 @@ import {
   MdDragIndicator,
   MdAutoAwesome,
   MdDeleteSweep,
+  MdStars,
+  MdWorkOutline,
+  MdSpa,
+  MdChecklistRtl,
+  MdSchool,
 } from "react-icons/md";
 import { TEMPLATES } from "../templates";
 import { BUILDER_PRESETS } from "../hooks/useAgendaBuilder";
@@ -28,6 +33,16 @@ const MULTI_PAGE_TEMPLATES = new Set([
 ]);
 
 const ANNUAL_DAY_TEMPLATES = new Set(["anualCompleto", "anualLivre", "anualComercialDuplo"]);
+
+// Ícone de cada preset rápido — só estética, ajuda a diferenciar os combos
+// num piscar de olhos antes mesmo de ler o rótulo.
+const PRESET_ICONS = {
+  essencial: MdStars,
+  profissional: MdWorkOutline,
+  bemEstar: MdSpa,
+  organizacao: MdChecklistRtl,
+  universitario: MdSchool,
+};
 
 export default function BuilderPanel({ builder }) {
   const { modules, addModule, removeModule, reorderModule, clearModules, loadPreset } = builder;
@@ -106,15 +121,19 @@ export default function BuilderPanel({ builder }) {
             <MdAutoAwesome className="w-3.5 h-3.5" />
             Começar com:
           </span>
-          {Object.entries(BUILDER_PRESETS).map(([id, preset]) => (
-            <button
-              key={id}
-              onClick={() => loadPreset(id)}
-              className="px-3 py-1 text-[11px] font-medium rounded-full border border-[#D8CBA8] bg-[#FBF8F1] text-[#6B6458] hover:border-[#B8933D] hover:text-[#24344D] transition-all"
-            >
-              {preset.label}
-            </button>
-          ))}
+          {Object.entries(BUILDER_PRESETS).map(([id, preset]) => {
+            const Icon = PRESET_ICONS[id] ?? MdStars;
+            return (
+              <button
+                key={id}
+                onClick={() => loadPreset(id)}
+                className="group px-3 py-1.5 text-[11px] font-medium rounded-full border border-[#D8CBA8] bg-[#FBF8F1] text-[#6B6458] hover:border-[#B8933D] hover:text-[#24344D] hover:bg-white hover:shadow-sm active:scale-[0.97] transition-all flex items-center gap-1.5"
+              >
+                <Icon className="w-3.5 h-3.5 text-[#B8933D] group-hover:text-[#8B6A1F] transition-colors" />
+                {preset.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Adicionar módulo */}
@@ -176,7 +195,7 @@ export default function BuilderPanel({ builder }) {
                   onDragOver={handleDragOver(idx)}
                   onDrop={handleDrop(idx)}
                   onDragEnd={handleDragEnd}
-                  className={`flex items-center gap-3 bg-[#FBF8F1] border rounded-lg px-3 py-2 transition-all ${
+                  className={`flex items-center gap-3 bg-[#FBF8F1] border rounded-lg px-3 py-2 transition-all hover:shadow-sm hover:border-[#C9B77E] ${
                     isDragging
                       ? "opacity-40 border-dashed border-[#B8933D]"
                       : "border-[#D8CBA8]"
