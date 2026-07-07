@@ -80,15 +80,6 @@ export default function DiaComercialBloco({
         </div>
 
         <div className="flex items-center gap-3 text-right">
-          {mostrarMiniCalendario && posicaoMiniCalendario === "direita" && (
-            <MiniCalendario
-              data={data}
-              diaSecundario={diaSecundario}
-              primaryColor={primaryColor}
-              secondaryColor={secondaryColor}
-              compact={compact}
-            />
-          )}
           <div className="flex items-baseline gap-3">
             <div className="flex flex-col justify-end text-[8px] uppercase tracking-wider font-semibold text-gray-400 space-y-1 mb-0.5">
               {feriado && (
@@ -110,6 +101,15 @@ export default function DiaComercialBloco({
               {String(data.getDate()).padStart(2, "0")}
             </span>
           </div>
+          {mostrarMiniCalendario && posicaoMiniCalendario === "direita" && (
+            <MiniCalendario
+              data={data}
+              diaSecundario={diaSecundario}
+              primaryColor={primaryColor}
+              secondaryColor={secondaryColor}
+              compact={compact}
+            />
+          )}
         </div>
       </div>
 

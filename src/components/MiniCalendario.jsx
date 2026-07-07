@@ -48,26 +48,36 @@ export default function MiniCalendario({
 
   return (
     <div
-      className={`shrink-0 select-none rounded-sm border ${boxWidth} ${
+      className={`shrink-0 select-none rounded-md border bg-white ${boxWidth} ${
         compact ? "p-1" : "p-1.5"
       }`}
-      style={{ borderColor: secondaryColor }}
+      style={{
+        borderColor: secondaryColor,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+      }}
     >
       <div
-        className={`grid grid-cols-7 gap-y-[1px] ${
-          compact ? "gap-x-0" : "gap-x-[1px]"
+        className={`grid grid-cols-7 border-b mb-[2px] ${
+          compact ? "gap-x-0 pb-[1px]" : "gap-x-[1px] pb-[2px]"
         }`}
+        style={{ borderBottomColor: secondaryColor }}
       >
         {DIAS_SEMANA.map((d, i) => (
           <span
             key={i}
             className={`flex items-center justify-center font-bold ${cellSize}`}
-            style={{ color: secondaryColor, opacity: 0.9 }}
+            style={{ color: primaryColor, opacity: 0.75 }}
           >
             {d}
           </span>
         ))}
+      </div>
 
+      <div
+        className={`grid grid-cols-7 gap-y-[1px] ${
+          compact ? "gap-x-0" : "gap-x-[1px]"
+        }`}
+      >
         {semanas.map((semana, si) =>
           semana.map((dia, di) => {
             if (!dia) return <span key={`${si}-${di}`} className={cellSize} />;
