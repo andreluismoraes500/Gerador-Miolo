@@ -9,6 +9,7 @@ import AppLayout from "./layout/AppLayout";
 import TemplatesPage from "./pages/TemplatesPage";
 import ConfigPage from "./pages/ConfigPage";
 import PreviewPage from "./pages/PreviewPage";
+import TalonarioPage from "./pages/TalonarioPage";
 import { AgendaConfigProvider } from "./context/AgendaConfigContext";
 import { AgendaDataProvider } from "./context/AgendaDataContext";
 import { BusinessProfileProvider } from "./context/BusinessProfileContext";
@@ -27,6 +28,9 @@ export default function App() {
                 <Route path="preview" element={<PreviewPage />} />
                 <Route path="*" element={<Navigate to="/templates" replace />} />
               </Route>
+              {/* Talonário tem cabeçalho e abas próprios, por isso vive fora
+                  do AppLayout da agenda (que traz nav/print específicos dela). */}
+              <Route path="talonario" element={<TalonarioPage />} />
             </Routes>
           </BrowserRouter>
         </BusinessProfileProvider>

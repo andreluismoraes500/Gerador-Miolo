@@ -7,7 +7,7 @@
 // nada se perde ao trocar de rota.
 
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { MdPrint, MdGridView, MdTune, MdVisibility } from "react-icons/md";
+import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import { useAgendaSettings } from "../hooks/useAgendaSettings";
 import { useAgendaBuilder } from "../hooks/useAgendaBuilder";
@@ -85,6 +85,15 @@ export default function AppLayout() {
               </NavLink>
             ))}
           </nav>
+
+          {/* Ferramenta extra: gerador de talões */}
+          <NavLink
+            to="/talonario"
+            className="hidden lg:flex items-center gap-1.5 text-[#6B6458] hover:text-[#24344D] hover:bg-[#EFE4C8] font-medium text-xs py-2 px-3 rounded-lg transition-all shrink-0"
+          >
+            <MdReceiptLong className="w-4 h-4" />
+            Talonário
+          </NavLink>
 
           {/* Ação principal */}
           <button

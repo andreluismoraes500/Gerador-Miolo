@@ -1,0 +1,25 @@
+/* src/styles/talonario.css
+ *
+ * Estilos exclusivos do Talonário: fonte monoespaçada para os números de
+ * talão/via, e a paginação do lote impresso (cada item em sua própria
+ * folha). O restante do visual é feito em Tailwind direto no componente.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
+
+@media print {
+  .tal-print-page {
+    padding: 14mm;
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    justify-content: center;
+  }
+  .tal-print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  .tal-print-page .doc-card {
+    box-shadow: none !important;
+  }
+}
