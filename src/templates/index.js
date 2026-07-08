@@ -36,6 +36,9 @@ import compras from "./compras.jsx"; // ← NOVO — lista de compras
 import sonhos from "./sonhos.jsx"; // ← NOVO — diário de sonhos
 import wishlist from "./wishlist.jsx"; // ← NOVO — wishlist / metas de compra
 import cadernoUniversitario from "./cadernoUniversitario.jsx"; // ← NOVO — caderno universitário completo
+import listaChamada from "./listaChamada.jsx"; // ← NOVO — lista de chamada (frequência) para professores
+import boletim from "./boletim.jsx"; // ← NOVO — boletim escolar (notas e frequência)
+import planoAula from "./planoAula.jsx"; // ← NOVO — plano de aula para professores
 
 export const TEMPLATES = {
   diario,
@@ -71,4 +74,7 @@ export const TEMPLATES = {
   sonhos, // ← NOVO
   wishlist, // ← NOVO
   cadernoUniversitario, // ← NOVO
+  listaChamada, // ← NOVO — professor: chamada/frequência
+  boletim, // ← NOVO — professor: boletim de notas
+  planoAula, // ← NOVO — professor: plano de aula
 };
