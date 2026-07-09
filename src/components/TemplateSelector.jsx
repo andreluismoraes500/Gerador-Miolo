@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import { MdDescription, MdCheckCircle } from "react-icons/md";
 import { TEMPLATES } from "../templates";
+import { staggerIn, popHover } from "../utils/gsapAnimations";
 
 // Paleta de acentos usada para dar variedade visual aos cards da galeria,
 // escolhida de forma determinística a partir da chave do template (sem
@@ -23,9 +25,19 @@ export default function TemplateSelector({
   compact = false,
   grid = false,
 }) {
+  const gridRef = useRef(null);
+
+  useEffect(() => {
+    if (!grid) return;
+    const tween = staggerIn(gridRef.current?.children, { stagger: 0.03 });
+    return () => tween?.kill();
+    // Reanima sempre que a lista de templates muda de tamanho/ordem.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [grid]);
+
   if (grid) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {Object.entries(TEMPLATES).map(([key, t]) => {
           const isActive = selected === key;
           const accent = accentFor(key);
@@ -33,10 +45,12 @@ export default function TemplateSelector({
             <button
               key={key}
               onClick={() => onSelect(key)}
-              className={`group relative text-left p-4 rounded-2xl border transition-all ${
+              onMouseEnter={(e) => popHover(e.currentTarget, true)}
+              onMouseLeave={(e) => popHover(e.currentTarget, false)}
+              className={`group relative text-left p-4 rounded-2xl border transition-colors ${
                 isActive
-                  ? "border-[#24344D] bg-[#FBF8F1] shadow-[3px_3px_0_0_#24344D] -translate-y-0.5"
-                  : "border-[#D8CBA8] bg-[#FBF8F1]/80 hover:border-[#B8933D] hover:-translate-y-0.5 hover:shadow-[2px_2px_0_0_#D8CBA8]"
+                  ? "border-[#24344D] bg-[#FBF8F1] shadow-[3px_3px_0_0_#24344D]"
+                  : "border-[#D8CBA8] bg-[#FBF8F1]/80 hover:border-[#B8933D] hover:shadow-[2px_2px_0_0_#D8CBA8]"
               }`}
             >
               {isActive && (

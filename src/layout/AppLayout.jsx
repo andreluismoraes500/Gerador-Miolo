@@ -6,11 +6,13 @@
 // vive aqui e é repassado às páginas via <Outlet context={...} />, então
 // nada se perde ao trocar de rota.
 
+import { useEffect, useRef } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import { useAgendaSettings } from "../hooks/useAgendaSettings";
 import { useAgendaBuilder } from "../hooks/useAgendaBuilder";
+import { animateHeaderIn, animatePageIn } from "../utils/gsapAnimations";
 import "../styles/print.css";
 
 const NAV_ITEMS = [
@@ -26,6 +28,21 @@ export default function AppLayout() {
   const builder = useAgendaBuilder();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const headerRef = useRef(null);
+  const mainRef = useRef(null);
+
+  // Cabeçalho entra suavemente uma única vez, ao montar o app.
+  useEffect(() => {
+    animateHeaderIn(headerRef.current);
+  }, []);
+
+  // A cada troca de rota, o conteúdo principal recebe um fade + leve subida
+  // — dá sensação de transição de página sem precisar de rota animada.
+  useEffect(() => {
+    const tween = animatePageIn(mainRef.current);
+    return () => tween?.kill();
+  }, [location.pathname]);
 
   // Imprimir de qualquer página: se não estivermos na Visualização, navega
   // até lá primeiro (é onde o miolo completo é renderizado) e só então
@@ -43,7 +60,10 @@ export default function AppLayout() {
     <div className="min-h-screen bg-[#F6F1E7] bg-[radial-gradient(circle_at_top,#FBF8F1_0%,#F1EADB_55%,#EAE1CD_100%)] flex flex-col font-sans text-[#2B2A28]">
       <Toaster position="bottom-right" />
 
-      <header className="sticky top-0 z-40 bg-[#FBF8F1]/90 backdrop-blur-md border-b border-[#D8CBA8] print:hidden">
+      <header
+        ref={headerRef}
+        className="sticky top-0 z-40 bg-[#FBF8F1]/90 backdrop-blur-md border-b border-[#D8CBA8] print:hidden"
+      >
         <div className="max-w-7xl mx-auto px-5 sm:px-6 py-3 flex items-center justify-between gap-4">
           {/* Marca */}
           <div className="flex items-center gap-3 shrink-0">
@@ -103,7 +123,7 @@ export default function AppLayout() {
         </div>
       </header>
 
-      <main className="flex-1 print:p-0 print:overflow-visible">
+      <main ref={mainRef} className="flex-1 print:p-0 print:overflow-visible">
         <Outlet context={{ settings, builder }} />
       </main>
     </div>

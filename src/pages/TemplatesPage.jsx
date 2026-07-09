@@ -3,12 +3,14 @@
 // Primeira etapa do fluxo: escolher o modo (Único ou Montagem), o perfil de
 // negócio, a data base e — no modo Único — o modelo de miolo desejado.
 
+import { useEffect, useRef } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { MdDescription, MdAutoStories, MdArrowForward } from "react-icons/md";
 import TemplateSelector from "../components/TemplateSelector";
 import BusinessProfileSelector from "../components/BusinessProfileSelector";
 import BuilderPanel from "../components/BuilderPanel";
 import { useDateInput } from "../hooks/useDateInput";
+import { staggerIn, pulse } from "../utils/gsapAnimations";
 
 function SectionCard({ title, description, children }) {
   return (
@@ -44,8 +46,17 @@ export default function TemplatesPage() {
     builderMode,
   );
 
+  // Cada bloco filho direto (cabeçalho, cards de modo, seções, CTA) entra em
+  // sequência, dando ritmo à página sem animar cada elemento individual.
+  const containerRef = useRef(null);
+  const ctaRef = useRef(null);
+  useEffect(() => {
+    const tween = staggerIn(containerRef.current?.children);
+    return () => tween?.kill();
+  }, []);
+
   return (
-    <div className="max-w-6xl mx-auto px-5 sm:px-6 py-8 flex flex-col gap-6">
+    <div ref={containerRef} className="max-w-6xl mx-auto px-5 sm:px-6 py-8 flex flex-col gap-6">
       {/* Cabeçalho da página */}
       <div>
         <h1
@@ -149,7 +160,11 @@ export default function TemplatesPage() {
       {/* CTA */}
       <div className="flex justify-end pt-2">
         <button
-          onClick={() => navigate("/config")}
+          ref={ctaRef}
+          onClick={() => {
+            pulse(ctaRef.current);
+            navigate("/config");
+          }}
           className="bg-[#24344D] hover:bg-[#1B2740] text-[#F6F1E7] font-semibold text-sm py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#111B2B] hover:shadow-[0_1px_0_0_#111B2B] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
         >
           Continuar para Configurações
