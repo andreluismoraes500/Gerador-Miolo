@@ -13,8 +13,6 @@ export const TAL_ACCENTS = {
   receita: { accent: "#c9822c", dark: "#966017", light: "#fbf1df" },
 };
 
-const uid = () => Math.random().toString(36).slice(2, 10);
-
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -73,6 +71,9 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Receita culinária ----------------
+  // Talão simples: cabeçalho com os dados do prato + pautas em branco
+  // (com marcações) para preencher os ingredientes e o modo de preparo à
+  // mão — sem campos estruturados de ingrediente/passo.
   const [receita, setReceita] = useState({
     titulo: "",
     categoria: "",
@@ -81,51 +82,15 @@ export function useTalonarioBuilder() {
     tempoPreparo: "",
     tempoCoccao: "",
     autor: "",
-    dica: "",
+    linhasIngredientes: 6,
+    linhasPreparo: 11,
   });
   const setReceitaField = useCallback((key, value) => {
     setReceita((r) => ({ ...r, [key]: value }));
   }, []);
 
-  const [ingredientes, setIngredientes] = useState([
-    { id: uid(), qtd: "2", unidade: "xícaras", nome: "farinha de trigo" },
-    { id: uid(), qtd: "3", unidade: "unid.", nome: "cenoura média" },
-    { id: uid(), qtd: "4", unidade: "unid.", nome: "ovos" },
-  ]);
-  const addIngrediente = useCallback(() => {
-    setIngredientes((list) => [...list, { id: uid(), qtd: "", unidade: "", nome: "" }]);
-  }, []);
-  const updateIngrediente = useCallback((id, key, value) => {
-    setIngredientes((list) =>
-      list.map((it) => (it.id === id ? { ...it, [key]: value } : it)),
-    );
-  }, []);
-  const removeIngrediente = useCallback((id) => {
-    setIngredientes((list) => list.filter((it) => it.id !== id));
-  }, []);
-
-  const [passos, setPassos] = useState([
-    {
-      id: uid(),
-      texto:
-        "Bata no liquidificador a cenoura, os ovos e o óleo até obter um creme homogêneo.",
-    },
-    { id: uid(), texto: "Misture os ingredientes secos e junte ao creme, mexendo bem." },
-    { id: uid(), texto: "Asse em forno pré-aquecido a 180°C por 40 minutos." },
-  ]);
-  const addPasso = useCallback(() => {
-    setPassos((list) => [...list, { id: uid(), texto: "" }]);
-  }, []);
-  const updatePasso = useCallback((id, texto) => {
-    setPassos((list) => list.map((p) => (p.id === id ? { ...p, texto } : p)));
-  }, []);
-  const removePasso = useCallback((id) => {
-    setPassos((list) => list.filter((p) => p.id !== id));
-  }, []);
-
-  // ---------------- Logos / foto ----------------
+  // ---------------- Logos ----------------
   const [logos, setLogos] = useState({ pedido: null, receituario: null, receita: null });
-  const [foto, setFoto] = useState(null);
 
   const handleLogoUpload = useCallback(async (who, file) => {
     if (!file) return;
@@ -135,12 +100,6 @@ export function useTalonarioBuilder() {
   const clearLogo = useCallback((who) => {
     setLogos((l) => ({ ...l, [who]: null }));
   }, []);
-  const handleFotoUpload = useCallback(async (file) => {
-    if (!file) return;
-    const dataUrl = await fileToDataUrl(file);
-    setFoto(dataUrl);
-  }, []);
-  const clearFoto = useCallback(() => setFoto(null), []);
 
   // ---------------- Marca d'água ----------------
   const [watermark, setWatermark] = useState({
@@ -284,21 +243,10 @@ export function useTalonarioBuilder() {
 
     receita,
     setReceitaField,
-    ingredientes,
-    addIngrediente,
-    updateIngrediente,
-    removeIngrediente,
-    passos,
-    addPasso,
-    updatePasso,
-    removePasso,
 
     logos,
     handleLogoUpload,
     clearLogo,
-    foto,
-    handleFotoUpload,
-    clearFoto,
 
     watermark,
     setWatermarkField,

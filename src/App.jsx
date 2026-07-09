@@ -26,11 +26,14 @@ export default function App() {
                 <Route path="templates" element={<TemplatesPage />} />
                 <Route path="config" element={<ConfigPage />} />
                 <Route path="preview" element={<PreviewPage />} />
+                {/* Talonário agora vive dentro do layout principal do app,
+                    compartilhando cabeçalho, navegação e (crucialmente) o
+                    print.css global — antes ele ficava fora do AppLayout e,
+                    ao ser acessado direto, carregava sem Tailwind/CSS de
+                    impressão nenhum. */}
+                <Route path="talonario" element={<TalonarioPage />} />
                 <Route path="*" element={<Navigate to="/templates" replace />} />
               </Route>
-              {/* Talonário tem cabeçalho e abas próprios, por isso vive fora
-                  do AppLayout da agenda (que traz nav/print específicos dela). */}
-              <Route path="talonario" element={<TalonarioPage />} />
             </Routes>
           </BrowserRouter>
         </BusinessProfileProvider>

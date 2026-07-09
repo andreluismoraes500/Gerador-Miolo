@@ -9,6 +9,8 @@
 
 @media print {
   .tal-print-page {
+    width: 210mm;
+    min-height: 297mm;
     padding: 14mm;
     page-break-after: always;
     break-after: page;
@@ -21,5 +23,17 @@
   }
   .tal-print-page .doc-card {
     box-shadow: none !important;
+  }
+
+  /* Garante que a marca d'água (background-image gerado em canvas) e as
+     cores de destaque de cada aba realmente saiam na impressão — sem isso
+     o navegador pode omitir imagens/cores de fundo por padrão. Reforça,
+     de forma escopada ao Talonário, o mesmo que o print.css já faz de
+     forma global. */
+  .doc-card,
+  .doc-card * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 }

@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { to: "/templates", label: "Modelos", icon: MdGridView },
   { to: "/config", label: "Configurações", icon: MdTune },
   { to: "/preview", label: "Visualização", icon: MdVisibility },
+  { to: "/talonario", label: "Talonário", icon: MdReceiptLong },
 ];
 
 export default function AppLayout() {
@@ -86,23 +87,18 @@ export default function AppLayout() {
             ))}
           </nav>
 
-          {/* Ferramenta extra: gerador de talões */}
-          <NavLink
-            to="/talonario"
-            className="hidden lg:flex items-center gap-1.5 text-[#6B6458] hover:text-[#24344D] hover:bg-[#EFE4C8] font-medium text-xs py-2 px-3 rounded-lg transition-all shrink-0"
-          >
-            <MdReceiptLong className="w-4 h-4" />
-            Talonário
-          </NavLink>
-
-          {/* Ação principal */}
-          <button
-            onClick={handlePrintClick}
-            className="relative shrink-0 bg-[#8B2E3F] hover:bg-[#7A2837] text-[#FBF8F1] text-xs font-semibold py-2.5 px-4 sm:px-5 rounded-lg flex items-center gap-2 transition-all shadow-[0_2px_0_0_#5E1F2B] hover:shadow-[0_1px_0_0_#5E1F2B] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
-          >
-            <MdPrint className="w-4 h-4" />
-            <span className="hidden sm:inline">Gerar Impressão / PDF</span>
-          </button>
+          {/* Ação principal — o Talonário tem seu próprio botão de impressão
+              em lote (numeração/marca d'água), então o botão global de PDF
+              da agenda fica escondido nessa rota para não confundir. */}
+          {location.pathname !== "/talonario" && (
+            <button
+              onClick={handlePrintClick}
+              className="relative shrink-0 bg-[#8B2E3F] hover:bg-[#7A2837] text-[#FBF8F1] text-xs font-semibold py-2.5 px-4 sm:px-5 rounded-lg flex items-center gap-2 transition-all shadow-[0_2px_0_0_#5E1F2B] hover:shadow-[0_1px_0_0_#5E1F2B] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
+            >
+              <MdPrint className="w-4 h-4" />
+              <span className="hidden sm:inline">Gerar Impressão / PDF</span>
+            </button>
+          )}
         </div>
       </header>
 
