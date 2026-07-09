@@ -26,7 +26,7 @@ export function SectionTitle({ children }) {
 export function Label({ children, first }) {
   return (
     <label
-      className={`block text-[12px] font-semibold text-[var(--tal-ink-soft)] ${first ? "mt-0" : "mt-3"} mb-1`}
+      className={`block text-[12px] font-semibold text-(--tal-ink-soft) ${first ? "mt-0" : "mt-3"} mb-1`}
     >
       {children}
     </label>
@@ -43,9 +43,7 @@ export function NumberInput(props) {
   return <input type="number" {...props} className={inputCls} />;
 }
 export function TextArea(props) {
-  return (
-    <textarea {...props} className={`${inputCls} min-h-[56px] resize-y`} />
-  );
+  return <textarea {...props} className={`${inputCls} min-h-14 resize-y`} />;
 }
 export function Select({ children, ...props }) {
   return (
@@ -58,18 +56,18 @@ export function Select({ children, ...props }) {
 export function UploadBox({ label, hint, thumb, onFile, inputId }) {
   return (
     <div
-      className="flex items-center gap-2.5 rounded-lg p-2.5 mt-1 cursor-pointer bg-[#fafbfa] border-[1.5px] border-dashed border-[#cfd6d4] hover:border-[var(--tal-accent)] hover:bg-[var(--tal-accent-light)] transition-colors"
+      className="flex items-center gap-2.5 rounded-lg p-2.5 mt-1 cursor-pointer bg-[#fafbfa] border-[1.5px] border-dashed border-[#cfd6d4] hover:border-(--tal-accent) hover:bg-(--tal-accent-light) transition-colors"
       onClick={() => document.getElementById(inputId)?.click()}
     >
       <div className="w-11 h-11 rounded-lg bg-white border border-[#e2e6e4] flex items-center justify-center overflow-hidden shrink-0">
         {thumb ? (
           <img src={thumb} alt="" className="w-full h-full object-contain" />
         ) : (
-          <MdImage className="text-[var(--tal-ink-soft)]" />
+          <MdImage className="text-(--tal-ink-soft)" />
         )}
       </div>
-      <div className="text-[12.5px] text-[var(--tal-ink-soft)]">
-        <b className="block text-[13px] text-[var(--tal-ink)]">{label}</b>
+      <div className="text-[12.5px] text-(--tal-ink-soft)">
+        <b className="block text-[13px] text-(--tal-ink)">{label}</b>
         {hint}
       </div>
       <input
@@ -85,12 +83,12 @@ export function UploadBox({ label, hint, thumb, onFile, inputId }) {
 
 export function CheckRow({ label, checked, onChange }) {
   return (
-    <label className="flex items-center gap-2 py-1.5 text-[13px] text-[var(--tal-ink)]">
+    <label className="flex items-center gap-2 py-1.5 text-[13px] text-(--tal-ink)">
       <input
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="w-4 h-4 accent-[var(--tal-accent)]"
+        className="w-4 h-4 accent-(--tal-accent)"
       />
       {label}
     </label>
@@ -500,9 +498,9 @@ export function WatermarkPanel({ watermark, setField, activeTab, hasLogo }) {
               max={35}
               value={watermark.opacity}
               onChange={(e) => setField("opacity", Number(e.target.value))}
-              className="flex-1 accent-[var(--tal-accent)]"
+              className="flex-1 accent-(--tal-accent)"
             />
-            <span className="text-xs text-[var(--tal-ink-soft)] w-9 text-right">
+            <span className="text-xs text-(--tal-ink-soft) w-9 text-right">
               {watermark.opacity}%
             </span>
           </div>
@@ -514,9 +512,9 @@ export function WatermarkPanel({ watermark, setField, activeTab, hasLogo }) {
               max={420}
               value={watermark.size}
               onChange={(e) => setField("size", Number(e.target.value))}
-              className="flex-1 accent-[var(--tal-accent)]"
+              className="flex-1 accent-(--tal-accent)"
             />
-            <span className="text-xs text-[var(--tal-ink-soft)] w-9 text-right">
+            <span className="text-xs text-(--tal-ink-soft) w-9 text-right">
               {watermark.size}
             </span>
           </div>
