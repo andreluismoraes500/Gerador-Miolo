@@ -39,6 +39,7 @@ import cadernoUniversitario from "./cadernoUniversitario.jsx"; // ← NOVO — c
 import listaChamada from "./listaChamada.jsx"; // ← NOVO — lista de chamada (frequência) para professores
 import boletim from "./boletim.jsx"; // ← NOVO — boletim escolar (notas e frequência)
 import planoAula from "./planoAula.jsx"; // ← NOVO — plano de aula para professores
+import caligrafia from "./caligrafia.jsx"; // ← NOVO — guia de caligrafia (alfabeto, números, lettering)
 
 export const TEMPLATES = {
   diario,
@@ -77,4 +78,5 @@ export const TEMPLATES = {
   listaChamada, // ← NOVO — professor: chamada/frequência
   boletim, // ← NOVO — professor: boletim de notas
   planoAula, // ← NOVO — professor: plano de aula
+  caligrafia, // ← NOVO — guia de caligrafia (alfabeto, números, lettering)
 };
