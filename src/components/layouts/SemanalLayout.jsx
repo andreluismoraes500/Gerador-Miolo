@@ -4,6 +4,7 @@ import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
+import Background from "../Background";
 
 export default function SemanalLayout({
   footerName,
@@ -15,6 +16,8 @@ export default function SemanalLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const bgColor = customColors.background || "#ffffff";
@@ -36,6 +39,7 @@ export default function SemanalLayout({
       className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}

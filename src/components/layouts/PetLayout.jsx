@@ -1,6 +1,7 @@
 import Footer from "../Footer";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import EditableField from "../EditableField";
 
 function PetCard({
@@ -57,6 +58,8 @@ export default function PetLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const primaryColor = customColors.primary || "#F97316";
   const bgColor = customColors.background || "#FFFDF8";
@@ -76,6 +79,7 @@ export default function PetLayout({
         fontFamily,
       }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}

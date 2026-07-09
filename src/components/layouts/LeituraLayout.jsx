@@ -1,6 +1,7 @@
 import Footer from "../Footer";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import EditableField from "../EditableField";
 
 function BookRow({ index, primaryColor }) {
@@ -40,6 +41,8 @@ export default function LeituraLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const primaryColor = customColors.primary || "#B45309";
   const bgColor = customColors.background || "#ffffff";
@@ -52,6 +55,7 @@ export default function LeituraLayout({
         fontFamily,
       }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}

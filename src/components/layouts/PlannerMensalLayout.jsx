@@ -4,6 +4,7 @@ import { TEMAS } from "../../themes";
 import Logo from "../Logo";
 import { getFeriado, getComemorativa } from "../../utils/agendaUtils";
 import Watermark from "../Watermark";
+import Background from "../Background";
 
 const NOMES_MESES = [
   "Janeiro",
@@ -31,6 +32,8 @@ export default function PlannerMensalLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const nomeMes = NOMES_MESES[mes];
@@ -58,6 +61,7 @@ export default function PlannerMensalLayout({
       className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}

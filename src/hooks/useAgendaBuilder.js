@@ -19,7 +19,7 @@ function generateUid() {
 export const BUILDER_PRESETS = {
   essencial: {
     label: "Combo Essencial",
-    modules: ["capa", "dadosPessoais", "calendarios", "metas", "habitos", "mensalCompleto", "semanal", "tarefas"],
+    modules: ["capa", "dadosPessoais", "calendarios", "metas", "habitos", "anualCompleto", "semanal", "tarefas"],
   },
   profissional: {
     label: "Combo Profissional",

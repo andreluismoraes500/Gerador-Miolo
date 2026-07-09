@@ -1,10 +1,11 @@
 // src/templates/anualLivre.jsx
 //
 // Template "Anual (agenda comercial)" — mesma estrutura do Anual (completo),
-// mas usando o layout DiarioLivre (sem colunas de pagamento Dinheiro/Cartão/Pix).
-// Ideal para quem quer uma agenda comercial tradicional, sem controle financeiro.
+// mas usando o layout DiaComercial (sem grade de horário fixa, sem colunas de
+// pagamento Dinheiro/Cartão/Pix) — igual ao Diário Comercial, só que para o
+// ano inteiro.
 
-import DiarioLivre from "../components/layouts/DiarioLivre";
+import DiaComercial from "../components/layouts/DiaComercial";
 import { MdCalendarToday } from "react-icons/md";
 import { gerarDiasDoAno } from "../utils/agendaUtils";
 
@@ -30,7 +31,7 @@ export default {
             <p className="text-xs text-gray-400 mt-2">
               Tema:{" "}
               <span className="uppercase font-bold">{props.colorTheme}</span>
-              . Sem colunas de pagamento (Dinheiro/Cartão/Pix).
+              . Sem horário fixo e sem colunas de pagamento (Dinheiro/Cartão/Pix).
             </p>
           </div>
         </div>
@@ -41,7 +42,7 @@ export default {
       <div className="print-container">
         {dias.map((dia, i) => (
           <div key={i} className="page-break">
-            <DiarioLivre data={dia} {...rest} />
+            <DiaComercial data={dia} {...rest} />
           </div>
         ))}
       </div>

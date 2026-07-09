@@ -1,6 +1,7 @@
 import Footer from "../Footer";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import EditableField from "../EditableField";
 
 function ItineraryRow({ index }) {
@@ -54,6 +55,8 @@ export default function ViagemLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const primaryColor = customColors.primary || "#0D9488";
   const bgColor = customColors.background || "#ffffff";
@@ -66,6 +69,7 @@ export default function ViagemLayout({
         fontFamily,
       }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}

@@ -37,6 +37,7 @@ export function useAgendaSettings() {
     colorTheme, setColorTheme,
     setPrimaryColor, setSecondaryColor, setBgColor,
     setWatermarkSrc,
+    setBackgroundSrc, removeBackground,
   } = useAgendaConfig();
 
   // --- perfil de negócio ---
@@ -132,6 +133,24 @@ export function useAgendaSettings() {
     toast("Marca d'água removida", { icon: "🗑️" });
   }, [setWatermarkSrc]);
 
+  const handleBackgroundUpload = useCallback(
+    (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBackgroundSrc(reader.result);
+        toast.success("Fundo enviado!");
+      };
+      reader.readAsDataURL(file);
+    },
+    [setBackgroundSrc],
+  );
+
+  const handleRemoveBackground = useCallback(() => {
+    removeBackground();
+    toast("Fundo removido", { icon: "🗑️" });
+  }, [removeBackground]);
 
   // ── derivados ────────────────────────────────────────────────
   const footerName = paid ? customName : "Lucas Cassiano de Moraes";
@@ -152,6 +171,7 @@ export function useAgendaSettings() {
     handlePrint,
     handleLogoUpload, handleRemoveLogo,
     handleWatermarkUpload, handleRemoveWatermark,
+    handleBackgroundUpload, handleRemoveBackground,
     // tema
     applyThemeColors,
     // perfil de negócio

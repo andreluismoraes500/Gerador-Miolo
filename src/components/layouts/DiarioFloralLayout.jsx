@@ -13,6 +13,7 @@ import { getFeriado, getComemorativa } from "../../utils/agendaUtils";
 import { getVersiculoAleatorio } from "../../utils/versiculos";
 import FloralCorner from "../FloralCorner";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import EditableField from "../EditableField";
 import { TEMAS } from "../../themes";
 
@@ -36,6 +37,8 @@ export default function DiarioFloralLayout({
   cursiveFont = "'Dancing Script', 'Brush Script MT', cursive",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.floralAzul || TEMAS.classico;
   const feriado = getFeriado ? getFeriado(data) : null;
@@ -60,6 +63,7 @@ export default function DiarioFloralLayout({
       className="printable-page text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none relative overflow-hidden"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && <Watermark src={watermarkSrc} opacity={watermarkOpacity} />}
 
       {/* Ilustrações florais nos cantos — atrás de todo o conteúdo */}

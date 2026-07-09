@@ -10,6 +10,7 @@ import TemplatesPage from "./pages/TemplatesPage";
 import ConfigPage from "./pages/ConfigPage";
 import PreviewPage from "./pages/PreviewPage";
 import TalonarioPage from "./pages/TalonarioPage";
+import SobrePage from "./pages/SobrePage";
 import { AgendaConfigProvider } from "./context/AgendaConfigContext";
 import { AgendaDataProvider } from "./context/AgendaDataContext";
 import { BusinessProfileProvider } from "./context/BusinessProfileContext";
@@ -32,6 +33,7 @@ export default function App() {
                     ao ser acessado direto, carregava sem Tailwind/CSS de
                     impressão nenhum. */}
                 <Route path="talonario" element={<TalonarioPage />} />
+                <Route path="sobre" element={<SobrePage />} />
                 <Route path="*" element={<Navigate to="/templates" replace />} />
               </Route>
             </Routes>

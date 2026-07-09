@@ -1,6 +1,7 @@
 import Footer from "../Footer";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import EditableField from "../EditableField";
 
 const CATEGORIAS = [
@@ -50,6 +51,8 @@ export default function ComprasLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const primaryColor = customColors.primary || "#16A34A";
   const bgColor = customColors.background || "#ffffff";
@@ -62,6 +65,7 @@ export default function ComprasLayout({
         fontFamily,
       }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}

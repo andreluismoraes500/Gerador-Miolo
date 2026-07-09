@@ -1,5 +1,6 @@
 import Logo from "../Logo";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import { TEMAS } from "../../themes";
 import { getCapaEstiloById } from "../../config/capaStyles.jsx";
 import { getJapaneseInitial } from "../../utils/japaneseInitials";
@@ -15,6 +16,8 @@ export default function CapaLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
   selectedDate,
   capaFrase,
 }) {
@@ -37,6 +40,7 @@ export default function CapaLayout({
       className="printable-page bg-white text-gray-900 flex flex-col justify-between relative overflow-hidden"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}

@@ -20,6 +20,8 @@ export function AgendaConfigProvider({ children }) {
   const [fontFamily, setFontFamily] = usePersistedState("agenda-fontFamily", "sans-serif");
   const [watermarkSrc, setWatermarkSrc] = usePersistedState("agenda-watermarkSrc", null);
   const [watermarkOpacity, setWatermarkOpacity] = usePersistedState("agenda-watermarkOpacity", 0.03);
+  const [backgroundSrc, setBackgroundSrc] = usePersistedState("agenda-backgroundSrc", null);
+  const [backgroundOpacity, setBackgroundOpacity] = usePersistedState("agenda-backgroundOpacity", 0.12);
 
   // --- conteúdo da capa ---
   const [capaNome, setCapaNome] = usePersistedState("agenda-capaNome", "");
@@ -31,6 +33,7 @@ export function AgendaConfigProvider({ children }) {
 
   const removeLogo = useCallback(() => setLogo(null), [setLogo]);
   const removeWatermark = useCallback(() => setWatermarkSrc(null), [setWatermarkSrc]);
+  const removeBackground = useCallback(() => setBackgroundSrc(null), [setBackgroundSrc]);
 
   const customColors = useMemo(
     () => ({ primary: primaryColor, secondary: secondaryColor, background: bgColor }),
@@ -51,6 +54,8 @@ export function AgendaConfigProvider({ children }) {
       fontFamily, setFontFamily,
       // marca d'água
       watermarkSrc, setWatermarkSrc, watermarkOpacity, setWatermarkOpacity, removeWatermark,
+      // background (imagem de fundo da página)
+      backgroundSrc, setBackgroundSrc, backgroundOpacity, setBackgroundOpacity, removeBackground,
       // capa
       capaNome, setCapaNome,
       capaEstilo, setCapaEstilo,
@@ -67,6 +72,7 @@ export function AgendaConfigProvider({ children }) {
       customColors,
       fontFamily, setFontFamily,
       watermarkSrc, setWatermarkSrc, watermarkOpacity, setWatermarkOpacity, removeWatermark,
+      backgroundSrc, setBackgroundSrc, backgroundOpacity, setBackgroundOpacity, removeBackground,
       capaNome, setCapaNome,
       capaEstilo, setCapaEstilo,
       capaFrase, setCapaFrase,

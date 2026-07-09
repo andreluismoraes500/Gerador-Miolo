@@ -1,6 +1,7 @@
 import Footer from "../Footer";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import EditableField from "../EditableField";
 
 export default function GratidaoLayout({
@@ -12,6 +13,8 @@ export default function GratidaoLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const primaryColor = customColors.primary || "#8B5CF6";
   const bgColor = customColors.background || "#FAFAF9";
@@ -32,6 +35,7 @@ export default function GratidaoLayout({
         fontFamily,
       }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}

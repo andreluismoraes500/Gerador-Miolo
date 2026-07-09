@@ -16,6 +16,7 @@ import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import EditableField from "../EditableField";
 
 // Mesmos horários do DiaCompleto (07:00 → 20:00)
@@ -34,6 +35,8 @@ export default function DiarioLivre({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
@@ -51,6 +54,7 @@ export default function DiarioLivre({
       className="printable-page font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && <Watermark src={watermarkSrc} opacity={watermarkOpacity} />}
 
       <div className="flex flex-col flex-1 min-h-0">

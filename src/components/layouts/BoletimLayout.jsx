@@ -1,6 +1,7 @@
 import Footer from "../Footer";
 import Logo from "../Logo";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import EditableField from "../EditableField";
 
 const DISCIPLINAS_PADRAO = ["", "", "", "", "", "", "", "", "", ""];
@@ -46,6 +47,8 @@ export default function BoletimLayout({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const primaryColor = customColors.primary || "#b45309";
   const bgColor = customColors.background || "#ffffff";
@@ -55,6 +58,7 @@ export default function BoletimLayout({
       className="printable-page bg-white text-gray-900 flex flex-col justify-between relative shadow-sm"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}

@@ -6,6 +6,7 @@
 
 import Footer from "../Footer";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import { TEMAS } from "../../themes";
 import DiaComercialBloco from "./DiaComercialBloco";
 
@@ -19,6 +20,8 @@ export default function DiaComercial({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
@@ -31,6 +34,7 @@ export default function DiaComercial({
       className="printable-page font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && <Watermark src={watermarkSrc} opacity={watermarkOpacity} />}
 
       <DiaComercialBloco

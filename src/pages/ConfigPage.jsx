@@ -66,6 +66,8 @@ export default function ConfigPage() {
     handleRemoveLogo,
     handleWatermarkUpload,
     handleRemoveWatermark,
+    handleBackgroundUpload,
+    handleRemoveBackground,
   } = settings;
 
   const {
@@ -78,6 +80,8 @@ export default function ConfigPage() {
     footerType, setFooterType,
     watermarkSrc,
     watermarkOpacity, setWatermarkOpacity,
+    backgroundSrc,
+    backgroundOpacity, setBackgroundOpacity,
     capaNome, setCapaNome,
     capaEstilo, setCapaEstilo,
     capaFrase, setCapaFrase,
@@ -100,7 +104,7 @@ export default function ConfigPage() {
           Deixe do seu jeito
         </h1>
         <p className="text-sm text-[#6B6458] mt-1">
-          Ajuste cores, fonte, rodapé, logo, marca d'água e a capa da agenda.
+          Ajuste cores, fonte, rodapé, logo, marca d'água, fundo e a capa da agenda.
         </p>
       </div>
 
@@ -239,6 +243,48 @@ export default function ConfigPage() {
                     step="0.01"
                     value={watermarkOpacity}
                     onChange={(e) => setWatermarkOpacity(parseFloat(e.target.value))}
+                    className="w-24 h-1 accent-[#B8933D]"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </SectionCard>
+
+        {/* Fundo da página */}
+        <SectionCard
+          title="Fundo da página"
+          description="Imagem que preenche a página inteira, atrás do conteúdo."
+          icon={MdImage}
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="cursor-pointer bg-[#FBF8F1] hover:bg-[#EFE4C8] text-[#24344D] text-xs px-3.5 py-2 rounded-lg border border-[#D8CBA8] flex items-center gap-1.5 transition hover:border-[#B8933D]">
+              <MdUpload className="w-3.5 h-3.5" />
+              {backgroundSrc ? "Alterar fundo" : "Enviar fundo"}
+              <input type="file" accept="image/*" onChange={handleBackgroundUpload} className="hidden" />
+            </label>
+            {backgroundSrc && (
+              <>
+                <img
+                  src={backgroundSrc}
+                  alt="Fundo"
+                  className="w-9 h-9 rounded-lg object-cover border border-[#D8CBA8]"
+                />
+                <button
+                  onClick={handleRemoveBackground}
+                  className="text-[#8B2E3F] hover:text-[#6E2432] text-xs underline transition"
+                >
+                  Remover
+                </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-[#8B6A1F] uppercase tracking-wide">Intensidade</span>
+                  <input
+                    type="range"
+                    min="0.05"
+                    max="1"
+                    step="0.05"
+                    value={backgroundOpacity}
+                    onChange={(e) => setBackgroundOpacity(parseFloat(e.target.value))}
                     className="w-24 h-1 accent-[#B8933D]"
                   />
                 </div>

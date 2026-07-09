@@ -14,6 +14,7 @@ import { TEMAS } from "../../themes";
 import Logo from "../Logo";
 import { getBusinessProfile } from "../../config/businessProfiles";
 import Watermark from "../Watermark";
+import Background from "../Background";
 import { useBusinessProfileContext } from "../../context/BusinessProfileContext";
 import EditableField from "../EditableField";
 
@@ -30,6 +31,8 @@ export default function DiaCompleto({
   fontFamily = "sans-serif",
   watermarkSrc,
   watermarkOpacity,
+  backgroundSrc,
+  backgroundOpacity,
   // Receber o perfil via props (do contexto ou diretamente)
   businessProfile: propBusinessProfile,
 }) {
@@ -66,6 +69,7 @@ export default function DiaCompleto({
       className="printable-page font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
