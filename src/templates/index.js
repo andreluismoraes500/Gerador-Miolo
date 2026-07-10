@@ -1,82 +1,96 @@
 // src/templates/index.js
 //
-// Registro central de todos os templates disponíveis.
-// Para adicionar um novo template: importe-o e adicione à constante TEMPLATES.
+// Registro central de templates — agora com CODE-SPLITTING de verdade.
+//
+// Antes, este arquivo importava os ~37 arquivos de template de uma vez só,
+// então a página de seleção (a PRIMEIRA tela do app) carregava o código de
+// TODOS os miolos, mesmo que o usuário só fosse usar um. Agora:
+//
+//   - `TEMPLATE_MANIFEST` (em ./manifest.js) tem só {chave, nome} — leve,
+//     usado pela galeria/dropdown de seleção.
+//   - `loadTemplate(key)` importa SOB DEMANDA (dynamic import) o arquivo do
+//     template escolhido, com cache em memória — a partir da 2ª vez que o
+//     mesmo template é aberto na sessão, é instantâneo.
+//
+// Para adicionar um novo template: crie o arquivo, registre o nome em
+// manifest.js e adicione a chave no mapa de loaders abaixo.
 
-import diario from "./diario.jsx";
-import diarioLivre from "./diarioLivre.jsx"; // ← NOVO
-import diarioFloral from "./diarioFloral.jsx"; // ← NOVO — agenda floral, 1 dia/página, folha pautada
-import diarioComercial from "./diarioComercial.jsx"; // ← NOVO — sem horário, 1 dia/página
-import diarioComercialDuplo from "./diarioComercialDuplo.jsx"; // ← NOVO — sem horário, 2 dias/página
-import mensalCompleto from "./mensalCompleto.jsx";
-import mensalLivre from "./mensalLivre.jsx"; // ← NOVO — mensal sem pix
-import mensalComercialDuplo from "./mensalComercialDuplo.jsx"; // ← NOVO — mensal, 2 dias/página, sem horário
-import anualCompleto from "./anualCompleto.jsx";
-import anualLivre from "./anualLivre.jsx"; // ← NOVO — anual sem pix
-import anualComercialDuplo from "./anualComercialDuplo.jsx"; // ← NOVO — anual, 2 dias/página, sem horário
-import semanal from "./semanal.jsx";
-import tarefas from "./tarefas.jsx";
-import dadosPessoais from "./dadosPessoais.jsx";
-import calendarios from "./calendarios.jsx";
-import plannerMensal from "./plannerMensal.jsx";
-import gratidao from "./gratidao.jsx";
-import habitos from "./habitos.jsx";
-import financas from "./financas.jsx";
-import conteudo from "./conteudo.jsx";
-import refeicoes from "./refeicoes.jsx";
-import metas from "./metas.jsx";
-import saude from "./saude.jsx";
-import pet from "./pet.jsx";
-import capa from "./capa.jsx";
-import sono from "./sono.jsx"; // ← NOVO — sono e bem-estar mental
-import estudos from "./estudos.jsx"; // ← NOVO — planner de estudos
-import leitura from "./leitura.jsx"; // ← NOVO — controle de leitura
-import viagem from "./viagem.jsx"; // ← NOVO — planner de viagem
-import compras from "./compras.jsx"; // ← NOVO — lista de compras
-import sonhos from "./sonhos.jsx"; // ← NOVO — diário de sonhos
-import wishlist from "./wishlist.jsx"; // ← NOVO — wishlist / metas de compra
-import cadernoUniversitario from "./cadernoUniversitario.jsx"; // ← NOVO — caderno universitário completo
-import listaChamada from "./listaChamada.jsx"; // ← NOVO — lista de chamada (frequência) para professores
-import boletim from "./boletim.jsx"; // ← NOVO — boletim escolar (notas e frequência)
-import planoAula from "./planoAula.jsx"; // ← NOVO — plano de aula para professores
-import caligrafia from "./caligrafia.jsx"; // ← NOVO — guia de caligrafia (alfabeto, números, lettering)
+export { TEMPLATE_MANIFEST, TEMPLATE_KEYS } from "./manifest";
 
-export const TEMPLATES = {
-  diario,
-  diarioLivre, // ← NOVO — aparece logo após "Diário" no seletor
-  diarioFloral, // ← NOVO — agenda floral (folha pautada + versículo)
-  diarioComercial, // ← NOVO — 1 dia/página, sem horário
-  diarioComercialDuplo, // ← NOVO — 2 dias/página, sem horário
-  mensalCompleto,
-  mensalLivre, // ← NOVO — aparece logo após "Mensal (completo)" no seletor
-  mensalComercialDuplo, // ← NOVO — mês inteiro, 2 dias/página, sem horário
-  anualCompleto,
-  anualLivre, // ← NOVO — aparece logo após "Anual (completo)" no seletor
-  anualComercialDuplo, // ← NOVO — ano inteiro, 2 dias/página, sem horário
-  semanal,
-  tarefas,
-  dadosPessoais,
-  calendarios,
-  plannerMensal,
-  gratidao,
-  habitos,
-  financas,
-  conteudo,
-  refeicoes,
-  metas,
-  saude,
-  pet,
-  capa,
-  sono, // ← NOVO
-  estudos, // ← NOVO
-  leitura, // ← NOVO
-  viagem, // ← NOVO
-  compras, // ← NOVO
-  sonhos, // ← NOVO
-  wishlist, // ← NOVO
-  cadernoUniversitario, // ← NOVO
-  listaChamada, // ← NOVO — professor: chamada/frequência
-  boletim, // ← NOVO — professor: boletim de notas
-  planoAula, // ← NOVO — professor: plano de aula
-  caligrafia, // ← NOVO — guia de caligrafia (alfabeto, números, lettering)
+// Um `import()` por chave — o Vite consegue criar um chunk separado para
+// cada um porque o caminho é um literal estático (não uma variável), então
+// mesmo estando dentro de um objeto, cada linha continua sendo analisável
+// e "splitável" no build.
+const LOADERS = {
+  diario: () => import("./diario.jsx"),
+  diarioLivre: () => import("./diarioLivre.jsx"),
+  diarioFloral: () => import("./diarioFloral.jsx"),
+  diarioComercial: () => import("./diarioComercial.jsx"),
+  diarioComercialDuplo: () => import("./diarioComercialDuplo.jsx"),
+  mensalCompleto: () => import("./mensalCompleto.jsx"),
+  mensalLivre: () => import("./mensalLivre.jsx"),
+  mensalComercialDuplo: () => import("./mensalComercialDuplo.jsx"),
+  anualCompleto: () => import("./anualCompleto.jsx"),
+  anualLivre: () => import("./anualLivre.jsx"),
+  anualComercialDuplo: () => import("./anualComercialDuplo.jsx"),
+  semanal: () => import("./semanal.jsx"),
+  tarefas: () => import("./tarefas.jsx"),
+  dadosPessoais: () => import("./dadosPessoais.jsx"),
+  calendarios: () => import("./calendarios.jsx"),
+  plannerMensal: () => import("./plannerMensal.jsx"),
+  gratidao: () => import("./gratidao.jsx"),
+  habitos: () => import("./habitos.jsx"),
+  financas: () => import("./financas.jsx"),
+  conteudo: () => import("./conteudo.jsx"),
+  refeicoes: () => import("./refeicoes.jsx"),
+  metas: () => import("./metas.jsx"),
+  saude: () => import("./saude.jsx"),
+  pet: () => import("./pet.jsx"),
+  capa: () => import("./capa.jsx"),
+  sono: () => import("./sono.jsx"),
+  estudos: () => import("./estudos.jsx"),
+  leitura: () => import("./leitura.jsx"),
+  viagem: () => import("./viagem.jsx"),
+  compras: () => import("./compras.jsx"),
+  sonhos: () => import("./sonhos.jsx"),
+  wishlist: () => import("./wishlist.jsx"),
+  cadernoUniversitario: () => import("./cadernoUniversitario.jsx"),
+  listaChamada: () => import("./listaChamada.jsx"),
+  boletim: () => import("./boletim.jsx"),
+  planoAula: () => import("./planoAula.jsx"),
+  caligrafia: () => import("./caligrafia.jsx"),
 };
+
+// Cache em memória: { [key]: { nome, layout } }. Vive só durante a sessão
+// (recarregar a página limpa, o que é aceitável — o chunk baixa rápido de
+// novo, e o browser ainda tem o arquivo em cache HTTP).
+const moduleCache = new Map();
+
+/**
+ * Carrega (ou devolve do cache) o módulo `{ nome, layout }` de um template.
+ * Retorna sempre uma Promise, mesmo quando já está em cache, para manter a
+ * mesma interface em todo lugar que chama.
+ */
+export function loadTemplate(key) {
+  if (moduleCache.has(key)) {
+    return Promise.resolve(moduleCache.get(key));
+  }
+  const loader = LOADERS[key];
+  if (!loader) return Promise.resolve(null);
+
+  return loader().then((mod) => {
+    const def = mod.default;
+    moduleCache.set(key, def);
+    return def;
+  });
+}
+
+/** Versão síncrona: só retorna algo se o template já tiver sido carregado antes. */
+export function getCachedTemplate(key) {
+  return moduleCache.get(key) ?? null;
+}
+
+/** Dispara o carregamento de vários templates em paralelo (usado na Montagem). */
+export function preloadTemplates(keys) {
+  return Promise.all(keys.map((key) => loadTemplate(key)));
+}

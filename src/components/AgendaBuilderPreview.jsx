@@ -7,9 +7,15 @@
 //   concatenados em UM ÚNICO `.print-container`, para que o navegador gere
 //   um PDF/impressão contínua com paginação e margens espelhadas corretas
 //   do início ao fim — sem precisar de html2canvas ou libs de PDF.
+//
+// Os templates são carregados sob demanda (ver src/templates/index.js):
+// assim que os módulos escolhidos mudam, disparamos o download de cada um
+// em paralelo e só renderizamos de verdade quando todos estiverem prontos
+// — inclusive no momento da impressão, pra nunca gerar uma página em branco.
 
-import React from "react";
-import { TEMPLATES } from "../templates";
+import React, { useEffect, useState } from "react";
+import { TEMPLATE_MANIFEST } from "../templates/manifest";
+import { preloadTemplates, getCachedTemplate } from "../templates";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 import PlannerMensalLayout from "./layouts/PlannerMensalLayout";
 
@@ -79,7 +85,37 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
     setCapaFrase,
   };
 
-  const validModules = modules.filter((m) => TEMPLATES[m.templateKey]);
+  const validModules = modules.filter((m) => TEMPLATE_MANIFEST[m.templateKey]);
+  const neededKeys = [...new Set(validModules.map((m) => m.templateKey))];
+
+  // Reavalia quais templates já estão em cache toda vez que a lista de
+  // módulos muda, e dispara o download dos que ainda faltam.
+  const [loadedDefs, setLoadedDefs] = useState(() => {
+    const initial = {};
+    neededKeys.forEach((key) => {
+      const cached = getCachedTemplate(key);
+      if (cached) initial[key] = cached;
+    });
+    return initial;
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    preloadTemplates(neededKeys).then((defs) => {
+      if (cancelled) return;
+      const next = {};
+      neededKeys.forEach((key, i) => {
+        next[key] = defs[i];
+      });
+      setLoadedDefs(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [neededKeys.join(",")]);
+
+  const allLoaded = neededKeys.every((key) => loadedDefs[key]);
 
   if (validModules.length === 0) {
     return (
@@ -89,6 +125,16 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
           <br />
           Use o painel acima para montar sua agenda completa.
         </p>
+      </div>
+    );
+  }
+
+  // Ainda baixando algum módulo — evita renderizar impressão pela metade ou
+  // piscar layout incompleto na tela.
+  if (!allLoaded) {
+    return (
+      <div className="max-w-[210mm] w-full mx-auto p-16 text-center text-[#8a8272] print:hidden">
+        <p className="text-sm">Carregando módulos da agenda...</p>
       </div>
     );
   }
@@ -123,7 +169,7 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
             </div>,
           );
           modulosAnuais.forEach((modAnual) => {
-            const defAnual = TEMPLATES[modAnual.templateKey];
+            const defAnual = loadedDefs[modAnual.templateKey];
             const renderizado = defAnual.layout({
               ...baseLayoutProps,
               printing: true,
@@ -135,7 +181,7 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
         return paginasMescladas;
       }
 
-      const def = TEMPLATES[mod.templateKey];
+      const def = loadedDefs[mod.templateKey];
       const rendered = def.layout({ ...baseLayoutProps, printing: true });
       return extractPrintPages(rendered, mod.uid);
     });
@@ -147,7 +193,7 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
   return (
     <div className="flex flex-col gap-8 w-full items-center">
       {validModules.map((mod, idx) => {
-        const def = TEMPLATES[mod.templateKey];
+        const def = loadedDefs[mod.templateKey];
         return (
           <div key={mod.uid} className="w-full max-w-[210mm]">
             <div className="flex items-center gap-2 mb-2 px-1">

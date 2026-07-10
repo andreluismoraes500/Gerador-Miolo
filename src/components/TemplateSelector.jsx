@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { MdDescription, MdCheckCircle } from "react-icons/md";
-import { TEMPLATES } from "../templates";
+import { TEMPLATE_MANIFEST } from "../templates/manifest";
 import { staggerIn, popHover } from "../utils/gsapAnimations";
 
 // Paleta de acentos usada para dar variedade visual aos cards da galeria,
@@ -38,7 +38,7 @@ export default function TemplateSelector({
   if (grid) {
     return (
       <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {Object.entries(TEMPLATES).map(([key, t]) => {
+        {Object.entries(TEMPLATE_MANIFEST).map(([key, t]) => {
           const isActive = selected === key;
           const accent = accentFor(key);
           return (
@@ -76,7 +76,7 @@ export default function TemplateSelector({
     <div
       className={`flex gap-1 flex-wrap items-end ${compact ? "text-sm" : "mb-6 justify-center"}`}
     >
-      {Object.entries(TEMPLATES).map(([key, t]) => {
+      {Object.entries(TEMPLATE_MANIFEST).map(([key, t]) => {
         const isActive = selected === key;
         return (
           <button

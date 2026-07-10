@@ -17,7 +17,7 @@ import {
   MdChecklistRtl,
   MdSchool,
 } from "react-icons/md";
-import { TEMPLATES } from "../templates";
+import { TEMPLATE_MANIFEST } from "../templates/manifest";
 import { BUILDER_PRESETS } from "../hooks/useAgendaBuilder";
 
 // Templates que geram várias páginas sozinhos — vale avisar o usuário.
@@ -46,7 +46,7 @@ const PRESET_ICONS = {
 
 export default function BuilderPanel({ builder }) {
   const { modules, addModule, removeModule, reorderModule, clearModules, loadPreset } = builder;
-  const [selectedToAdd, setSelectedToAdd] = useState(Object.keys(TEMPLATES)[0]);
+  const [selectedToAdd, setSelectedToAdd] = useState(Object.keys(TEMPLATE_MANIFEST)[0]);
 
   // Drag-and-drop: uid do módulo sendo arrastado e índice sobre o qual paira.
   const [draggedUid, setDraggedUid] = useState(null);
@@ -81,7 +81,7 @@ export default function BuilderPanel({ builder }) {
     setDragOverIdx(null);
   };
 
-  const templateOptions = Object.entries(TEMPLATES).map(([key, t]) => ({
+  const templateOptions = Object.entries(TEMPLATE_MANIFEST).map(([key, t]) => ({
     key,
     nome: t.nome,
   }));
@@ -183,7 +183,7 @@ export default function BuilderPanel({ builder }) {
         ) : (
           <ol className="flex flex-col gap-1.5">
             {modules.map((mod, idx) => {
-              const def = TEMPLATES[mod.templateKey];
+              const def = TEMPLATE_MANIFEST[mod.templateKey];
               if (!def) return null;
               const isDragging = draggedUid === mod.uid;
               const showDropLine = dragOverIdx === idx && draggedUid && draggedUid !== mod.uid;

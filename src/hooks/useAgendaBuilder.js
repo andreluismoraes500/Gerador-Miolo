@@ -7,7 +7,7 @@
 
 import { useCallback } from "react";
 import { usePersistedState } from "./usePersistedState";
-import { TEMPLATES } from "../templates";
+import { TEMPLATE_MANIFEST } from "../templates/manifest";
 
 let uidCounter = 0;
 function generateUid() {
@@ -45,7 +45,7 @@ export function useAgendaBuilder() {
 
   const addModule = useCallback(
     (templateKey) => {
-      if (!TEMPLATES[templateKey]) return;
+      if (!TEMPLATE_MANIFEST[templateKey]) return;
       setModules((prev) => [...prev, { uid: generateUid(), templateKey }]);
     },
     [setModules],
