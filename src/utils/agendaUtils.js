@@ -120,17 +120,36 @@ export function getFeriado(date) {
   return null;
 }
 
-export function gerarHorarios() {
+// Antes esta função era fixa (sempre 07:00–20:00 a cada 30min), então TODOS
+// os perfis de negócio mostravam a mesma grade — mesmo perfis configurados
+// com outro horário/intervalo em src/config/*.js (ex.: Personal Trainer
+// 06:00–22:00, Psicólogo sessões de 50min). Agora aceita esses parâmetros,
+// com os valores antigos como padrão pra não quebrar quem já usava sem perfil.
+export function gerarHorarios(inicio = "07:00", fim = "20:00", intervaloMin = 30) {
+  const [hIni, mIni] = inicio.split(":").map(Number);
+  const [hFim, mFim] = fim.split(":").map(Number);
+  const inicioMin = hIni * 60 + mIni;
+  const fimMin = hFim * 60 + mFim;
+  const passo = intervaloMin > 0 ? intervaloMin : 30;
+
   const horarios = [];
-  for (let h = 7; h <= 20; h++) {
-    for (let m = 0; m < 60; m += 30) {
-      if (h === 20 && m > 0) break;
-      horarios.push(
-        `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`,
-      );
-    }
+  for (let t = inicioMin; t <= fimMin; t += passo) {
+    const h = Math.floor(t / 60);
+    const m = t % 60;
+    horarios.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
   }
   return horarios;
+}
+
+// Soma minutos a um horário "HH:MM" e devolve no mesmo formato — usado pra
+// calcular a coluna "Até" (hora de término) quando o perfil pede
+// `mostrarHoraFim` (ex.: sessão de 50min do Psicólogo).
+export function somarMinutos(horaStr, minutos) {
+  const [h, m] = horaStr.split(":").map(Number);
+  const total = h * 60 + m + minutos;
+  const hNovo = Math.floor(((total % (24 * 60)) + 24 * 60) / 60) % 24;
+  const mNovo = ((total % 60) + 60) % 60;
+  return `${String(hNovo).padStart(2, "0")}:${String(mNovo).padStart(2, "0")}`;
 }
 
 export function gerarDiasDoMes(ano, mes) {
