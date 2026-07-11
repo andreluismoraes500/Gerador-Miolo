@@ -15,7 +15,6 @@ import {
 } from "react-icons/md";
 import {
   useTalonarioBuilder,
-  TAL_ACCENTS,
   BINGO_LAYOUTS,
 } from "../hooks/useTalonarioBuilder";
 import {
@@ -30,6 +29,7 @@ import {
   ReceitaPanel,
   BingoPanel,
   WatermarkPanel,
+  ColorPanel,
   UploadBox,
 } from "../components/talonario/TalonarioPanels";
 import "../styles/talonario.css";
@@ -51,7 +51,7 @@ const TABS = [
 
 export default function TalonarioPage() {
   const t = useTalonarioBuilder();
-  const accent = TAL_ACCENTS[t.activeTab];
+  const accent = t.accents;
 
   const cssVars = {
     "--tal-accent": accent.accent,
@@ -97,7 +97,7 @@ export default function TalonarioPage() {
                   style={{
                     background:
                       id === t.activeTab
-                        ? TAL_ACCENTS[id].accent
+                        ? t.accentColors[id].accent
                         : "currentColor",
                   }}
                 />
@@ -222,6 +222,14 @@ export default function TalonarioPage() {
             </>
           )}
 
+          <ColorPanel
+            activeTab={t.activeTab}
+            tabLabel={TABS.find((tb) => tb.id === t.activeTab)?.label}
+            color={t.accents.accent}
+            onChange={(hex) => t.setAccentColor(t.activeTab, hex)}
+            onReset={() => t.resetAccentColor(t.activeTab)}
+          />
+
           <WatermarkPanel
             watermark={t.watermark}
             setField={t.setWatermarkField}
@@ -289,6 +297,7 @@ export default function TalonarioPage() {
                 logo={t.logos.bingo}
                 columns={t.bingoCards[0]}
                 watermarkStyle={t.watermarkStyle}
+                porPagina={1}
               />
             </div>
           )}
@@ -352,7 +361,6 @@ export default function TalonarioPage() {
             (() => {
               const porPagina = t.bingo.porPagina;
               const layout = BINGO_LAYOUTS[porPagina] || BINGO_LAYOUTS[4];
-              const compact = porPagina > 1;
               return chunk(t.printBatch.items, porPagina).map((grupo, gi) => (
                 <div key={gi} className="tal-print-page tal-print-page-bingo">
                   <div
@@ -372,7 +380,7 @@ export default function TalonarioPage() {
                         logo={t.logos.bingo}
                         columns={columns}
                         watermarkStyle={t.watermarkStyle}
-                        compact={compact}
+                        porPagina={porPagina}
                       />
                     ))}
                   </div>

@@ -6,13 +6,52 @@
 // useAgendaSettings — um hook único que a página consome via desestruturação.
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { usePersistedState } from "./usePersistedState";
 
+// Paleta padrão de cada aba — usada como ponto de partida e como opção de
+// "restaurar cor padrão" nas configurações.
 export const TAL_ACCENTS = {
   pedido: { accent: "#0f7a72", dark: "#0a5951", light: "#e4f7f3" },
   receituario: { accent: "#0f6e94", dark: "#0a4e6a", light: "#e3f2f8" },
   receita: { accent: "#c9822c", dark: "#966017", light: "#fbf1df" },
   bingo: { accent: "#7c3aed", dark: "#5b21b6", light: "#f1e9fe" },
 };
+
+// Algumas sugestões de cor rápidas para o seletor de configurações
+// (além da cor padrão de cada aba e de um campo de cor livre).
+export const TAL_COLOR_PRESETS = [
+  "#0f7a72", "#0f6e94", "#c9822c", "#7c3aed",
+  "#b23b3b", "#2563eb", "#15803d", "#be185d",
+  "#334155", "#a16207",
+];
+
+function clamp255(n) {
+  return Math.max(0, Math.min(255, n));
+}
+
+// Deriva as variações "dark" (traço/texto) e "light" (fundo suave) a
+// partir de uma única cor-base escolhida pela pessoa nas configurações —
+// assim ela só escolhe 1 cor e o resto (badges, bordas, sombra do botão)
+// se adapta sozinho, mantendo contraste e legibilidade.
+export function deriveAccentShades(hex) {
+  const clean = /^#?[0-9a-fA-F]{6}$/.test(hex) ? hex.replace("#", "") : "0f7a72";
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+
+  const mix = (amt) => {
+    const rr = clamp255(Math.round(r + (amt > 0 ? 255 - r : r) * Math.abs(amt)));
+    const gg = clamp255(Math.round(g + (amt > 0 ? 255 - g : g) * Math.abs(amt)));
+    const bb = clamp255(Math.round(b + (amt > 0 ? 255 - b : b) * Math.abs(amt)));
+    return `#${[rr, gg, bb].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+  };
+
+  return {
+    accent: `#${clean}`,
+    dark: mix(-0.32), // mais escura, para texto/título
+    light: mix(0.88), // bem clara, para fundos de badge/hover
+  };
+}
 
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -74,10 +113,31 @@ export const BINGO_LAYOUTS = {
   2: { cols: 2, rows: 1 },
   4: { cols: 2, rows: 2 },
   6: { cols: 2, rows: 3 },
+  9: { cols: 3, rows: 3 },
 };
 
 export function useTalonarioBuilder() {
   const [activeTab, setActiveTab] = useState("pedido");
+
+  // ---------------- Cores (configuráveis por aba) ----------------
+  // Guardadas no localStorage para não se perder entre visitas. Cada aba
+  // (pedido/receituario/receita/bingo) tem sua própria cor de destaque.
+  const [accentColors, setAccentColors] = usePersistedState(
+    "talonario-accentColors",
+    TAL_ACCENTS,
+  );
+  const setAccentColor = useCallback(
+    (tab, hex) => {
+      setAccentColors((prev) => ({ ...prev, [tab]: deriveAccentShades(hex) }));
+    },
+    [setAccentColors],
+  );
+  const resetAccentColor = useCallback(
+    (tab) => {
+      setAccentColors((prev) => ({ ...prev, [tab]: TAL_ACCENTS[tab] }));
+    },
+    [setAccentColors],
+  );
 
   // ---------------- Pedido de Venda ----------------
   const [pedido, setPedido] = useState({
@@ -345,7 +405,10 @@ export function useTalonarioBuilder() {
   return {
     activeTab,
     setActiveTab,
-    accents: TAL_ACCENTS[activeTab],
+    accents: accentColors[activeTab] || TAL_ACCENTS[activeTab],
+    accentColors,
+    setAccentColor,
+    resetAccentColor,
 
     pedido,
     setPedidoField,

@@ -9,9 +9,12 @@
 // (e o loader correspondente em `./index.js`).
 
 export const TEMPLATE_MANIFEST = {
+  semData: { nome: "Agenda Sem Data (Permanente)" },
   diario: { nome: "Diário" },
   diarioLivre: { nome: "Diário Livre" },
   diarioFloral: { nome: "Agenda Floral" },
+  floralMensal: { nome: "Agenda Floral (mensal)" },
+  floralAnual: { nome: "Agenda Floral (anual)" },
   diarioComercial: { nome: "Diário Comercial (sem horário)" },
   diarioComercialDuplo: { nome: "Diário Comercial (2 dias por página)" },
   mensalCompleto: { nome: "Mensal (completo)" },

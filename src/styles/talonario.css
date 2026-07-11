@@ -10,12 +10,15 @@
 @media print {
   .tal-print-page {
     width: 210mm;
-    min-height: 297mm;
+    height: 297mm;
+    box-sizing: border-box;
     padding: 14mm;
     page-break-after: always;
     break-after: page;
     display: flex;
     justify-content: center;
+    align-items: stretch;
+    overflow: hidden;
   }
   .tal-print-page:last-child {
     page-break-after: auto;
@@ -39,14 +42,28 @@
 
   /* Folha do Bingo: várias cartelas lado a lado numa grade, em vez de uma
      por página. O número de colunas/linhas é definido inline via JS
-     (BINGO_LAYOUTS), aqui só o espaçamento e o preenchimento da folha. */
+     (BINGO_LAYOUTS), aqui só o espaçamento e o preenchimento da folha.
+     Padding e gap enxutos = mais área útil pra grade de números, que é
+     o que interessa numa cartela — sem ficar apertado ou feio.
+
+     IMPORTANTE: `.tal-print-page` precisa de uma altura FIXA (não só
+     min-height) pra que `.tal-bingo-grid` (height: 100%) e as cartelas
+     dentro dela (h-full) realmente estiquem até preencher a folha inteira,
+     em vez de encolherem pro tamanho do conteúdo e sobrar espaço em
+     branco embaixo — que era exatamente o bug de antes. */
   .tal-print-page.tal-print-page-bingo {
-    padding: 10mm;
+    padding: 6mm;
+    width: 210mm;
+    height: 297mm;
   }
   .tal-bingo-grid {
     width: 100%;
     height: 100%;
     display: grid;
-    gap: 6mm;
+    gap: 4mm;
+  }
+  .tal-bingo-grid > * {
+    min-height: 0;
+    min-width: 0;
   }
 }

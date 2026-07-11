@@ -22,9 +22,12 @@ export { TEMPLATE_MANIFEST, TEMPLATE_KEYS } from "./manifest";
 // mesmo estando dentro de um objeto, cada linha continua sendo analisável
 // e "splitável" no build.
 const LOADERS = {
+  semData: () => import("./semData.jsx"),
   diario: () => import("./diario.jsx"),
   diarioLivre: () => import("./diarioLivre.jsx"),
   diarioFloral: () => import("./diarioFloral.jsx"),
+  floralMensal: () => import("./floralMensal.jsx"),
+  floralAnual: () => import("./floralAnual.jsx"),
   diarioComercial: () => import("./diarioComercial.jsx"),
   diarioComercialDuplo: () => import("./diarioComercialDuplo.jsx"),
   mensalCompleto: () => import("./mensalCompleto.jsx"),

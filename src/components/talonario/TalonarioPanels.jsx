@@ -3,7 +3,9 @@
 // Formulários da barra lateral do Talonário, um por aba (Pedido,
 // Receituário, Receita) mais o painel de marca d'água, compartilhado.
 
-import { MdImage, MdCasino } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { MdImage, MdCasino, MdRestartAlt, MdPalette } from "react-icons/md";
+import { TAL_COLOR_PRESETS } from "../../hooks/useTalonarioBuilder";
 
 export function SectionTitle({ children }) {
   return (
@@ -477,6 +479,7 @@ export function BingoPanel({ bingo, setField, qty, onRegenerate }) {
         <option value={2}>2 (lado a lado)</option>
         <option value={4}>4 (grade 2×2, recomendado)</option>
         <option value={6}>6 (grade 2×3, compacta)</option>
+        <option value={9}>9 (grade 3×3, máximo por folha)</option>
       </Select>
 
       <div className="mt-3">
@@ -502,6 +505,79 @@ export function BingoPanel({ bingo, setField, qty, onRegenerate }) {
         Cada cartela segue o bingo tradicional de 75 bolas: coluna B (1–15),
         I (16–30), N (31–45), G (46–60) e O (61–75), sem números repetidos
         dentro da mesma cartela.
+      </p>
+    </div>
+  );
+}
+
+// ---------------- Cor do talão ----------------
+// Configuração de cor aplicada ao documento da aba ativa (Pedido,
+// Receituário, Receita ou Bingo). A pessoa escolhe uma cor-base e as
+// variações (título, badges, sombra do botão) se ajustam automaticamente.
+
+export function ColorPanel({ activeTab, tabLabel, color, onChange, onReset }) {
+  // Buffer local do campo de texto: o valor "oficial" (color) só é
+  // atualizado quando o texto digitado for um hex válido, então digitar
+  // "#" ou os primeiros dígitos não trava o campo nem volta pra cor antiga.
+  const [text, setText] = useState(color);
+  useEffect(() => setText(color), [color, activeTab]);
+
+  const handleTextChange = (e) => {
+    const v = e.target.value;
+    setText(v);
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) onChange(v);
+  };
+
+  return (
+    <div>
+      <SectionTitle>Cor do {tabLabel || "talão"}</SectionTitle>
+      <div className="flex items-center gap-2.5">
+        <label
+          className="relative w-10 h-10 rounded-lg border-[1.5px] border-[#dfe3e1] overflow-hidden shrink-0 cursor-pointer"
+          style={{ background: color }}
+        >
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => onChange(e.target.value)}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+        </label>
+        <TextInput
+          value={text}
+          onChange={handleTextChange}
+          className="flex-1"
+        />
+        <button
+          type="button"
+          onClick={onReset}
+          title="Restaurar cor padrão"
+          className="w-9 h-9 shrink-0 flex items-center justify-center rounded-lg border-[1.5px] border-[#dfe3e1] text-(--tal-ink-soft) hover:text-(--tal-accent-dark) hover:border-(--tal-accent) transition-colors"
+        >
+          <MdRestartAlt className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="flex flex-wrap gap-1.5 mt-2.5">
+        {TAL_COLOR_PRESETS.map((hex) => (
+          <button
+            key={hex}
+            type="button"
+            onClick={() => onChange(hex)}
+            title={hex}
+            className="w-6 h-6 rounded-full border border-black/10 transition-transform hover:scale-110"
+            style={{
+              background: hex,
+              outline: color?.toLowerCase() === hex ? "2px solid var(--tal-accent-dark)" : "none",
+              outlineOffset: "2px",
+            }}
+          />
+        ))}
+      </div>
+      <p className="text-[11px] text-(--tal-ink-soft) mt-2 leading-relaxed flex items-start gap-1">
+        <MdPalette className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+        Essa cor é só desta aba ({tabLabel}) — cada tipo de talão guarda a
+        própria cor.
       </p>
     </div>
   );
