@@ -18,7 +18,7 @@ Gerador de miolos personalizáveis para agendas, com múltiplos layouts e temas 
   - **Calendários** – visão geral dos 12 meses com feriados e datas comemorativas, com páginas para 3 anos consecutivos.
 
 - **Temas visuais** – altere a aparência de **todas as páginas** de uma vez com um único clique:
-  - Clássico, Floral, Comercial, Moderno, Rústico e mais (você pode criar quantos quiser).
+  - Clássico, Floral, Comercial, Moderno, Rústico e mais (você pode criar quantos quiser). Bingo
 
 - **Pré-visualização em tempo real** – veja as alterações antes de imprimir.
 
