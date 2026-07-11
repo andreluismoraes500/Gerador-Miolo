@@ -10,27 +10,43 @@ import {
   MdReceiptLong,
   MdMedicalServices,
   MdRestaurantMenu,
+  MdGridOn,
   MdPrint,
 } from "react-icons/md";
-import { useTalonarioBuilder, TAL_ACCENTS } from "../hooks/useTalonarioBuilder";
+import {
+  useTalonarioBuilder,
+  TAL_ACCENTS,
+  BINGO_LAYOUTS,
+} from "../hooks/useTalonarioBuilder";
 import {
   PedidoCard,
   ReceituarioCard,
   ReceitaCard,
+  BingoCard,
 } from "../components/talonario/TalonarioCards";
 import {
   PedidoPanel,
   ReceituarioPanel,
   ReceitaPanel,
+  BingoPanel,
   WatermarkPanel,
   UploadBox,
 } from "../components/talonario/TalonarioPanels";
 import "../styles/talonario.css";
 
+// Agrupa a lista de cartelas em blocos do tamanho escolhido (cartelas por
+// folha), para renderizar uma <div className="tal-print-page"> por bloco.
+function chunk(arr, size) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
 const TABS = [
   { id: "pedido", label: "Pedido de Venda", icon: MdReceiptLong },
   { id: "receituario", label: "Receituário", icon: MdMedicalServices },
   { id: "receita", label: "Receita Culinária", icon: MdRestaurantMenu },
+  { id: "bingo", label: "Bingo", icon: MdGridOn },
 ];
 
 export default function TalonarioPage() {
@@ -177,6 +193,35 @@ export default function TalonarioPage() {
             </>
           )}
 
+          {t.activeTab === "bingo" && (
+            <>
+              <BingoPanel
+                bingo={t.bingo}
+                setField={t.setBingoField}
+                qty={t.bingoQty}
+                onRegenerate={t.regenerateBingo}
+              />
+              <div className="mt-4">
+                <UploadBox
+                  inputId="tal-logo-bingo"
+                  label="Enviar logo"
+                  hint="Aparece no cabeçalho de cada cartela"
+                  thumb={t.logos.bingo}
+                  onFile={(f) => t.handleLogoUpload("bingo", f)}
+                />
+                {t.logos.bingo && (
+                  <button
+                    onClick={() => t.clearLogo("bingo")}
+                    className="text-[11.5px] underline mt-1"
+                    style={{ color: "var(--tal-stamp)" }}
+                  >
+                    remover logo
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
           <WatermarkPanel
             watermark={t.watermark}
             setField={t.setWatermarkField}
@@ -234,6 +279,19 @@ export default function TalonarioPage() {
               watermarkStyle={t.watermarkStyle}
             />
           )}
+          {t.activeTab === "bingo" && t.bingoCards[0] && (
+            <div className="w-full max-w-100 aspect-[3/4]">
+              <BingoCard
+                titulo={t.bingo.titulo}
+                subtitulo={t.bingo.subtitulo}
+                numero={1}
+                total={t.bingoCards.length}
+                logo={t.logos.bingo}
+                columns={t.bingoCards[0]}
+                watermarkStyle={t.watermarkStyle}
+              />
+            </div>
+          )}
 
           <p className="text-[12.5px] text-[#8a9694] text-center max-w-160">
             {t.activeTab === "pedido" &&
@@ -244,6 +302,8 @@ export default function TalonarioPage() {
                 : "Pré-visualização da via de receituário.")}
             {t.activeTab === "receita" &&
               "Pré-visualização do talão de receita — pautas para preencher à mão."}
+            {t.activeTab === "bingo" &&
+              `Pré-visualização da cartela 1 de ${t.bingoCards.length}. Na impressão, ${t.bingo.porPagina} cartela${t.bingo.porPagina > 1 ? "s" : ""} ${t.bingo.porPagina > 1 ? "saem lado a lado em cada" : "sai por"} folha, cada uma com números diferentes.`}
           </p>
         </div>
       </div>
@@ -288,6 +348,37 @@ export default function TalonarioPage() {
               />
             </div>
           )}
+          {t.printBatch.tab === "bingo" &&
+            (() => {
+              const porPagina = t.bingo.porPagina;
+              const layout = BINGO_LAYOUTS[porPagina] || BINGO_LAYOUTS[4];
+              const compact = porPagina > 1;
+              return chunk(t.printBatch.items, porPagina).map((grupo, gi) => (
+                <div key={gi} className="tal-print-page tal-print-page-bingo">
+                  <div
+                    className="tal-bingo-grid"
+                    style={{
+                      gridTemplateColumns: `repeat(${layout.cols}, 1fr)`,
+                      gridTemplateRows: `repeat(${layout.rows}, 1fr)`,
+                    }}
+                  >
+                    {grupo.map((columns, i) => (
+                      <BingoCard
+                        key={gi * porPagina + i}
+                        titulo={t.bingo.titulo}
+                        subtitulo={t.bingo.subtitulo}
+                        numero={gi * porPagina + i + 1}
+                        total={t.printBatch.items.length}
+                        logo={t.logos.bingo}
+                        columns={columns}
+                        watermarkStyle={t.watermarkStyle}
+                        compact={compact}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ));
+            })()}
         </div>
       )}
     </div>

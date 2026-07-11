@@ -5,6 +5,8 @@
 // estado, então servem tanto para a pré-visualização quanto para o lote
 // de impressão.
 
+import { BINGO_LETTERS } from "../../hooks/useTalonarioBuilder";
+
 function pad(n, digits) {
   let s = String(n);
   while (s.length < digits) s = "0" + s;
@@ -567,6 +569,153 @@ export function ReceitaCard({
             {autor}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ============================== BINGO ==============================
+//
+// Cartela de bingo tradicional (75 bolas): 5 colunas fixas B-I-N-G-O, cada
+// uma sorteada dentro de sua própria faixa de números (a lógica do sorteio
+// vive no hook, aqui só desenhamos a grade 5×5 já pronta). A coluna N pode
+// ter espaço livre no centro.
+
+export function BingoCard({
+  titulo,
+  subtitulo,
+  numero,
+  total,
+  logo,
+  columns,
+  watermarkStyle,
+  compact = false,
+}) {
+  return (
+    <div
+      className="doc-card relative w-full h-full flex flex-col rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{
+        border: compact ? "1.8px solid var(--tal-accent)" : "2.5px solid var(--tal-accent)",
+        outline: compact ? "none" : "2px solid var(--tal-accent)",
+        outlineOffset: compact ? 0 : 5,
+        margin: compact ? 0 : 5,
+      }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div
+        className={`relative z-2 flex flex-col flex-1 min-h-0 ${compact ? "px-3.5 pt-3 pb-3" : "px-6 pt-5 pb-6"}`}
+      >
+        <div
+          className={`flex items-center justify-between gap-2.5 shrink-0 ${compact ? "pb-2 mb-2" : "pb-3 mb-4"}`}
+          style={{ borderBottom: `${compact ? 1.5 : 2}px solid var(--tal-accent)` }}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            {logo && (
+              <img
+                src={logo}
+                alt="Logo"
+                className={`object-contain rounded-md shrink-0 ${compact ? "max-w-8 max-h-8" : "max-w-11 max-h-11"}`}
+              />
+            )}
+            <div className="min-w-0">
+              <h2
+                className="leading-tight m-0 truncate"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontWeight: 700,
+                  fontSize: compact ? 13.5 : 18,
+                  color: "var(--tal-accent-dark)",
+                }}
+              >
+                {titulo || "Noite de Bingo"}
+              </h2>
+              {subtitulo && (
+                <p
+                  className="m-0 mt-0.5 text-(--tal-ink-soft) truncate"
+                  style={{ fontSize: compact ? 9 : 11 }}
+                >
+                  {subtitulo}
+                </p>
+              )}
+            </div>
+          </div>
+          {total > 1 && (
+            <div
+              className="shrink-0 font-bold rounded-lg"
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: compact ? 10.5 : 13,
+                padding: compact ? "2px 6px" : "4px 10px",
+                color: "var(--tal-stamp)",
+                border: `${compact ? 1.5 : 2}px solid var(--tal-stamp)`,
+                transform: "rotate(-2deg)",
+              }}
+            >
+              Nº {numero}
+            </div>
+          )}
+        </div>
+
+        {/* a tabela tem altura 100% e o navegador distribui o espaço
+            sobrando entre as linhas — assim a cartela sempre preenche a
+            célula da grade, seja 1, 2, 4 ou 6 por folha */}
+        <div className="flex-1 min-h-0">
+          <table
+            className="w-full h-full border-collapse table-fixed"
+            style={{
+              border: `${compact ? 1.8 : 2.5}px solid var(--tal-accent)`,
+            }}
+          >
+            <thead>
+              <tr>
+                {BINGO_LETTERS.map((letter) => (
+                  <th
+                    key={letter}
+                    className="text-white text-center"
+                    style={{
+                      background: "var(--tal-accent)",
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: compact ? 16 : 26,
+                      fontWeight: 700,
+                      padding: compact ? "3px 0" : "8px 0",
+                      border: "1.2px solid var(--tal-accent-dark)",
+                    }}
+                  >
+                    {letter}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[0, 1, 2, 3, 4].map((row) => (
+                <tr key={row}>
+                  {BINGO_LETTERS.map((letter) => {
+                    const value = columns[letter][row];
+                    const isFree = value === null || value === undefined;
+                    return (
+                      <td
+                        key={letter}
+                        className="text-center align-middle"
+                        style={{
+                          border: "1.2px solid var(--tal-accent)",
+                          background: isFree ? "var(--tal-accent-light)" : "#fff",
+                          fontFamily: "'Space Mono', monospace",
+                          fontSize: isFree ? (compact ? 8 : 11) : compact ? 15 : 21,
+                          fontWeight: 700,
+                          color: isFree ? "var(--tal-accent-dark)" : "var(--tal-ink)",
+                          textTransform: isFree ? "uppercase" : "none",
+                          letterSpacing: isFree ? "0.5px" : "normal",
+                        }}
+                      >
+                        {isFree ? "Livre" : value}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

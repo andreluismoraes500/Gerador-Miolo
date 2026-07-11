@@ -11,6 +11,7 @@ export const TAL_ACCENTS = {
   pedido: { accent: "#0f7a72", dark: "#0a5951", light: "#e4f7f3" },
   receituario: { accent: "#0f6e94", dark: "#0a4e6a", light: "#e3f2f8" },
   receita: { accent: "#c9822c", dark: "#966017", light: "#fbf1df" },
+  bingo: { accent: "#7c3aed", dark: "#5b21b6", light: "#f1e9fe" },
 };
 
 function fileToDataUrl(file) {
@@ -21,6 +22,59 @@ function fileToDataUrl(file) {
     reader.readAsDataURL(file);
   });
 }
+
+// ---------------- Bingo: sorteio das cartelas ----------------
+// Bingo tradicional de 75 bolas: cada coluna sorteia números de uma faixa
+// fixa (B 1–15, I 16–30, N 31–45, G 46–60, O 61–75), sem repetição dentro
+// da própria coluna/cartela. A coluna N tem espaço livre no centro quando
+// a opção está ativa.
+
+export const BINGO_RANGES = {
+  B: [1, 15],
+  I: [16, 30],
+  N: [31, 45],
+  G: [46, 60],
+  O: [61, 75],
+};
+export const BINGO_LETTERS = ["B", "I", "N", "G", "O"];
+
+function shuffled(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function generateBingoCard(freeSpace) {
+  const columns = {};
+  for (const letter of BINGO_LETTERS) {
+    const [min, max] = BINGO_RANGES[letter];
+    const pool = [];
+    for (let n = min; n <= max; n++) pool.push(n);
+    const count = letter === "N" && freeSpace ? 4 : 5;
+    columns[letter] = shuffled(pool).slice(0, count);
+  }
+  if (freeSpace) columns.N.splice(2, 0, null); // espaço livre no centro da cartela
+  return columns;
+}
+
+function generateBingoCards(qty, freeSpace) {
+  return Array.from({ length: qty }, () => generateBingoCard(freeSpace));
+}
+
+const BINGO_MAX = 300;
+
+// Quantas cartelas cabem numa folha impressa e como organizá-las em grade
+// (colunas × linhas). "1" preenche a folha inteira com uma cartela grande;
+// as demais opções colocam as cartelas lado a lado, uma ao lado da outra.
+export const BINGO_LAYOUTS = {
+  1: { cols: 1, rows: 1 },
+  2: { cols: 2, rows: 1 },
+  4: { cols: 2, rows: 2 },
+  6: { cols: 2, rows: 3 },
+};
 
 export function useTalonarioBuilder() {
   const [activeTab, setActiveTab] = useState("pedido");
@@ -89,8 +143,53 @@ export function useTalonarioBuilder() {
     setReceita((r) => ({ ...r, [key]: value }));
   }, []);
 
+  // ---------------- Bingo ----------------
+  const [bingo, setBingo] = useState({
+    titulo: "Noite de Bingo",
+    subtitulo: "",
+    quantidade: 4,
+    freeSpace: true,
+    porPagina: 4,
+  });
+  const setBingoField = useCallback((key, value) => {
+    setBingo((b) => ({ ...b, [key]: value }));
+  }, []);
+
+  const bingoQty = useMemo(() => {
+    const n = parseInt(bingo.quantidade, 10) || 1;
+    return Math.min(Math.max(n, 1), BINGO_MAX);
+  }, [bingo.quantidade]);
+
+  const [bingoCards, setBingoCards] = useState(() =>
+    generateBingoCards(4, true),
+  );
+
+  // Ajusta a quantidade de cartelas geradas sem re-sortear as que já
+  // existem (só sorteia as que faltam, ou descarta as excedentes).
+  useEffect(() => {
+    setBingoCards((prev) => {
+      if (prev.length === bingoQty) return prev;
+      if (prev.length < bingoQty) {
+        return [
+          ...prev,
+          ...generateBingoCards(bingoQty - prev.length, bingo.freeSpace),
+        ];
+      }
+      return prev.slice(0, bingoQty);
+    });
+  }, [bingoQty, bingo.freeSpace]);
+
+  const regenerateBingo = useCallback(() => {
+    setBingoCards(generateBingoCards(bingoQty, bingo.freeSpace));
+  }, [bingoQty, bingo.freeSpace]);
+
   // ---------------- Logos ----------------
-  const [logos, setLogos] = useState({ pedido: null, receituario: null, receita: null });
+  const [logos, setLogos] = useState({
+    pedido: null,
+    receituario: null,
+    receita: null,
+    bingo: null,
+  });
 
   const handleLogoUpload = useCallback(async (who, file) => {
     if (!file) return;
@@ -213,10 +312,26 @@ export function useTalonarioBuilder() {
       } else {
         setPrintBatch({ tab: "receituario", items: [null] });
       }
-    } else {
+    } else if (activeTab === "receita") {
       setPrintBatch({ tab: "receita", items: [null] });
+    } else if (activeTab === "bingo") {
+      if (
+        bingoCards.length > 100 &&
+        !window.confirm(
+          `Você está prestes a gerar ${bingoCards.length} cartelas. Isso pode demorar. Deseja continuar?`,
+        )
+      ) {
+        return;
+      }
+      setPrintBatch({ tab: "bingo", items: bingoCards });
     }
-  }, [activeTab, pedidoRange, receituario.numerar, receituarioRange]);
+  }, [
+    activeTab,
+    pedidoRange,
+    receituario.numerar,
+    receituarioRange,
+    bingoCards,
+  ]);
 
   useEffect(() => {
     if (!printBatch) return;
@@ -243,6 +358,12 @@ export function useTalonarioBuilder() {
 
     receita,
     setReceitaField,
+
+    bingo,
+    setBingoField,
+    bingoCards,
+    bingoQty,
+    regenerateBingo,
 
     logos,
     handleLogoUpload,

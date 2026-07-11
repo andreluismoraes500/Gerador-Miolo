@@ -3,7 +3,7 @@
 // Formulários da barra lateral do Talonário, um por aba (Pedido,
 // Receituário, Receita) mais o painel de marca d'água, compartilhado.
 
-import { MdImage } from "react-icons/md";
+import { MdImage, MdCasino } from "react-icons/md";
 
 export function SectionTitle({ children }) {
   return (
@@ -433,6 +433,76 @@ export function ReceitaPanel({ receita, setField }) {
           />
         </div>
       </div>
+    </div>
+  );
+}
+
+// ---------------- Bingo ----------------
+
+export function BingoPanel({ bingo, setField, qty, onRegenerate }) {
+  return (
+    <div>
+      <SectionTitle>Identidade do evento</SectionTitle>
+      <Label first>Título</Label>
+      <TextInput
+        placeholder="Ex: Bingo Beneficente"
+        value={bingo.titulo}
+        onChange={(e) => setField("titulo", e.target.value)}
+      />
+      <Label>Subtítulo (opcional)</Label>
+      <TextInput
+        placeholder="Ex: Sábado, 20h — Salão Paroquial"
+        value={bingo.subtitulo}
+        onChange={(e) => setField("subtitulo", e.target.value)}
+      />
+
+      <SectionTitle>Cartelas</SectionTitle>
+      <Label first>Quantidade de cartelas</Label>
+      <NumberInput
+        min={1}
+        max={300}
+        value={bingo.quantidade}
+        onChange={(e) => setField("quantidade", e.target.value)}
+      />
+      <CountBadge>
+        {qty} cartela{qty > 1 ? "s" : ""} — números sorteados automaticamente
+      </CountBadge>
+
+      <Label>Cartelas por folha impressa</Label>
+      <Select
+        value={bingo.porPagina}
+        onChange={(e) => setField("porPagina", Number(e.target.value))}
+      >
+        <option value={1}>1 (uma cartela grande por folha)</option>
+        <option value={2}>2 (lado a lado)</option>
+        <option value={4}>4 (grade 2×2, recomendado)</option>
+        <option value={6}>6 (grade 2×3, compacta)</option>
+      </Select>
+
+      <div className="mt-3">
+        <CheckRow
+          label="Espaço livre no centro (coluna N)"
+          checked={bingo.freeSpace}
+          onChange={(e) => setField("freeSpace", e.target.checked)}
+        />
+      </div>
+
+      <button
+        onClick={onRegenerate}
+        className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 mt-3 text-[13px] font-semibold transition-colors"
+        style={{
+          background: "var(--tal-accent-light)",
+          color: "var(--tal-accent-dark)",
+        }}
+      >
+        <MdCasino className="w-4 h-4" />
+        Sortear novos números
+      </button>
+      <p className="text-[11px] text-(--tal-ink-soft) mt-2 leading-relaxed">
+        Cada cartela segue o bingo tradicional de 75 bolas: coluna B (1–15),
+        I (16–30), N (31–45), G (46–60) e O (61–75), sem números repetidos
+        dentro da mesma cartela.
+      </p>
     </div>
   );
 }

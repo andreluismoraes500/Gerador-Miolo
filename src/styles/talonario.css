@@ -36,4 +36,17 @@
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
+
+  /* Folha do Bingo: várias cartelas lado a lado numa grade, em vez de uma
+     por página. O número de colunas/linhas é definido inline via JS
+     (BINGO_LAYOUTS), aqui só o espaçamento e o preenchimento da folha. */
+  .tal-print-page.tal-print-page-bingo {
+    padding: 10mm;
+  }
+  .tal-bingo-grid {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    gap: 6mm;
+  }
 }
