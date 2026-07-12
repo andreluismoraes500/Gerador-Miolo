@@ -78,16 +78,38 @@ export default function SemDataLayout({
             </div>
           </div>
 
-          {/* Número do dia — também editável, sem cálculo automático */}
-          <div className="flex items-baseline gap-4 text-right">
+          {/* Data — escrita à mão ou digitada. Antes havia um campo de
+              número gigante com placeholder "00": como a folha normalmente
+              fica em branco (o uso típico é imprimir e preencher a mão),
+              esse "00" saía impresso de verdade na página, parecendo um
+              erro. Agora é uma linha de data com sublinhados de verdade
+              (border-bottom, não texto), que fica limpa até ser preenchida. */}
+          <div className="flex flex-col items-end gap-1.5">
             <span className="text-[9px] uppercase tracking-wider font-semibold text-gray-300">
-              Dia
+              Data
             </span>
-            <EditableField
-              fieldKey={`${chave}-numero-dia`}
-              className="text-5xl font-extralight tracking-tighter font-serif text-black leading-none min-w-[2.8rem] text-right"
-              placeholder="00"
-            />
+            <div className="flex items-baseline gap-1.5">
+              <EditableField
+                fieldKey={`${chave}-data-dia`}
+                className="w-7 text-center text-lg font-serif font-light text-black leading-none pb-0.5"
+                style={{ borderBottom: `1.5px solid ${secondary}` }}
+                placeholder=""
+              />
+              <span className="text-gray-300 font-light text-sm select-none">/</span>
+              <EditableField
+                fieldKey={`${chave}-data-mes`}
+                className="w-7 text-center text-lg font-serif font-light text-black leading-none pb-0.5"
+                style={{ borderBottom: `1.5px solid ${secondary}` }}
+                placeholder=""
+              />
+              <span className="text-gray-300 font-light text-sm select-none">/</span>
+              <EditableField
+                fieldKey={`${chave}-data-ano`}
+                className="w-12 text-center text-lg font-serif font-light text-black leading-none pb-0.5"
+                style={{ borderBottom: `1.5px solid ${secondary}` }}
+                placeholder=""
+              />
+            </div>
           </div>
         </div>
 
