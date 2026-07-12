@@ -10,10 +10,14 @@ import { useEffect, useRef } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useAgendaSettings } from "../hooks/useAgendaSettings";
 import { useAgendaBuilder } from "../hooks/useAgendaBuilder";
 import { animateHeaderIn, animatePageIn } from "../utils/gsapAnimations";
 import "../styles/print.css";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const NAV_ITEMS = [
   { to: "/templates", label: "Modelos", icon: MdGridView },
@@ -39,9 +43,28 @@ export default function AppLayout() {
 
   // A cada troca de rota, o conteúdo principal recebe um fade + leve subida
   // — dá sensação de transição de página sem precisar de rota animada.
+  //
+  // Também é aqui que resolvemos um bug de navegação: se o usuário rolar a
+  // página (ex.: Sobre, que é longa e usa ScrollTrigger) e trocar de rota, o
+  // React Router NÃO reseta o scroll do navegador sozinho. O resultado é
+  // "aterrissar" na página nova já rolado lá embaixo — às vezes além da
+  // altura do conteúdo dela — dando a impressão de que a página não
+  // carregou, e só um F5 (que reseta o scroll) resolvia. Por isso, a cada
+  // troca de rota: voltamos o scroll pro topo e mandamos o ScrollTrigger
+  // recalcular as posições dos triggers da página recém-montada.
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
     const tween = animatePageIn(mainRef.current);
-    return () => tween?.kill();
+
+    // Espera o próximo frame (DOM da nova página já pintado) antes de
+    // recalcular; refresh() antes disso mediria a página anterior/errada.
+    const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+
+    return () => {
+      tween?.kill();
+      cancelAnimationFrame(raf);
+    };
   }, [location.pathname]);
 
   // Imprimir de qualquer página: se não estivermos na Visualização, navega
