@@ -73,7 +73,7 @@ function StepNode({ n, title, children, stepRef }) {
         {n}
       </div>
       <h3 className="text-sm font-bold text-[#24344D]">{title}</h3>
-      <p className="text-xs text-[#6B6458] leading-relaxed max-w-[220px]">
+      <p className="text-xs text-[#6B6458] leading-relaxed max-w-55">
         {children}
       </p>
     </div>
@@ -423,7 +423,7 @@ export default function SobrePage() {
 
         <div className="relative">
           <svg
-            className="hidden sm:block absolute top-[22px] left-0 w-full h-[2px]"
+            className="hidden sm:block absolute top-5.5 left-0 w-full h-0.5"
             viewBox="0 0 100 2"
             preserveAspectRatio="none"
           >
