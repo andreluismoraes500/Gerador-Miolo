@@ -35,6 +35,8 @@ const AgendaPreview = React.memo(function AgendaPreview({
   // Cada template só é baixado (chunk separado) na primeira vez que é
   // selecionado — daí em diante fica em cache em memória (ver templates/index.js).
   const [currentTemplate, setCurrentTemplate] = useState(() => getCachedTemplate(template));
+  const [loadError, setLoadError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,16 +44,42 @@ const AgendaPreview = React.memo(function AgendaPreview({
     const cached = getCachedTemplate(template);
     if (cached) {
       setCurrentTemplate(cached);
+      setLoadError(null);
     } else {
       setCurrentTemplate(null);
-      loadTemplate(template).then((def) => {
-        if (!cancelled) setCurrentTemplate(def);
-      });
+      setLoadError(null);
+      loadTemplate(template)
+        .then((def) => {
+          if (!cancelled) setCurrentTemplate(def);
+        })
+        .catch((err) => {
+          // Sem isso, uma falha no import dinâmico (ex.: "Failed to fetch
+          // dynamically imported module", comum quando o Vite invalida
+          // chunks antigos após salvar um arquivo) ficava como promise
+          // rejeitada sem tratamento — a tela travava em "Carregando
+          // modelo..." pra sempre e o erro só aparecia no console.
+          if (!cancelled) setLoadError(err);
+        });
     }
     return () => {
       cancelled = true;
     };
-  }, [template]);
+  }, [template, retryCount]);
+
+  if (loadError) {
+    return (
+      <div className="agenda-preview-container flex flex-col items-center justify-center gap-2 py-24 text-xs text-[#8a8272] print:hidden">
+        <p>Não foi possível carregar este modelo.</p>
+        <button
+          type="button"
+          onClick={() => setRetryCount((n) => n + 1)}
+          className="text-[#8B6A1F] font-semibold underline underline-offset-2 hover:text-[#6B4F10]"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
 
   if (!currentTemplate) {
     return (

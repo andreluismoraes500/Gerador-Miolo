@@ -15,6 +15,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useAgendaSettings } from "../hooks/useAgendaSettings";
 import { useAgendaBuilder } from "../hooks/useAgendaBuilder";
 import { animateHeaderIn, animatePageIn } from "../utils/gsapAnimations";
+import ErrorBoundary from "../components/ErrorBoundary";
 import "../styles/print.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -147,7 +148,9 @@ export default function AppLayout() {
       </header>
 
       <main ref={mainRef} className="flex-1 print:p-0 print:overflow-visible">
-        <Outlet context={{ settings, builder }} />
+        <ErrorBoundary key={location.pathname}>
+          <Outlet context={{ settings, builder }} />
+        </ErrorBoundary>
       </main>
     </div>
   );

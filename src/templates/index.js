@@ -69,6 +69,16 @@ const LOADERS = {
 // novo, e o browser ainda tem o arquivo em cache HTTP).
 const moduleCache = new Map();
 
+// Chave usada pra não entrar num loop de reload infinito (ver mais abaixo).
+const RELOAD_FLAG_KEY = "miolos:chunk-reload-attempt";
+
+function isChunkLoadError(err) {
+  const msg = String(err?.message || err || "");
+  return /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed|dynamically imported module/i.test(
+    msg,
+  );
+}
+
 /**
  * Carrega (ou devolve do cache) o módulo `{ nome, layout }` de um template.
  * Retorna sempre uma Promise, mesmo quando já está em cache, para manter a
@@ -81,11 +91,51 @@ export function loadTemplate(key) {
   const loader = LOADERS[key];
   if (!loader) return Promise.resolve(null);
 
-  return loader().then((mod) => {
-    const def = mod.default;
-    moduleCache.set(key, def);
-    return def;
-  });
+  return loader()
+    .then((mod) => {
+      const def = mod.default;
+      moduleCache.set(key, def);
+      try {
+        sessionStorage.removeItem(RELOAD_FLAG_KEY);
+      } catch {
+        /* sessionStorage indisponível (modo privado etc.) — sem problema */
+      }
+      return def;
+    })
+    .catch((err) => {
+      // "Failed to fetch dynamically imported module" quase sempre significa
+      // que o arquivo do chunk que o navegador tentou baixar não existe mais
+      // com aquele hash — geralmente porque o Vite recompilou (dev: algum
+      // arquivo foi salvo; produção: um novo deploy substituiu os assets)
+      // enquanto o app já estava aberto na aba. A correção de verdade é
+      // simples: recarregar a página, que baixa o build/lista de chunks
+      // atual. Fazemos isso automaticamente, UMA única vez por sessão (a
+      // flag em sessionStorage evita loop infinito se o erro for outra
+      // coisa, tipo a internet ter caído de verdade).
+      if (isChunkLoadError(err)) {
+        let jaTentou = false;
+        try {
+          jaTentou = sessionStorage.getItem(RELOAD_FLAG_KEY) === key;
+        } catch {
+          /* sem sessionStorage: só segue sem o auto-reload */
+        }
+        if (!jaTentou && typeof window !== "undefined") {
+          try {
+            sessionStorage.setItem(RELOAD_FLAG_KEY, key);
+          } catch {
+            /* noop */
+          }
+          window.location.reload();
+          // A página vai recarregar; devolvemos uma promise que nunca
+          // resolve pra não deixar o `.then()` de quem chamou correr com
+          // `undefined` no meio do reload.
+          return new Promise(() => {});
+        }
+      }
+      // Não é erro de chunk (ou já tentamos recarregar e continua falhando):
+      // propaga pra quem chamou decidir o que mostrar na tela.
+      throw err;
+    });
 }
 
 /** Versão síncrona: só retorna algo se o template já tiver sido carregado antes. */

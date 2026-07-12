@@ -98,22 +98,33 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
     });
     return initial;
   });
+  const [loadError, setLoadError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    preloadTemplates(neededKeys).then((defs) => {
-      if (cancelled) return;
-      const next = {};
-      neededKeys.forEach((key, i) => {
-        next[key] = defs[i];
+    setLoadError(null);
+    preloadTemplates(neededKeys)
+      .then((defs) => {
+        if (cancelled) return;
+        const next = {};
+        neededKeys.forEach((key, i) => {
+          next[key] = defs[i];
+        });
+        setLoadedDefs(next);
+      })
+      .catch((err) => {
+        // Mesmo cuidado do AgendaPreview: sem .catch() aqui, uma falha no
+        // import dinâmico de qualquer um dos módulos (ex.: chunk invalidado
+        // pelo Vite) virava uma promise rejeitada sem tratamento, e a tela
+        // ficava travada em "Carregando módulos da agenda..." pra sempre.
+        if (!cancelled) setLoadError(err);
       });
-      setLoadedDefs(next);
-    });
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [neededKeys.join(",")]);
+  }, [neededKeys.join(","), retryCount]);
 
   const allLoaded = neededKeys.every((key) => loadedDefs[key]);
 
@@ -131,6 +142,21 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
 
   // Ainda baixando algum módulo — evita renderizar impressão pela metade ou
   // piscar layout incompleto na tela.
+  if (loadError) {
+    return (
+      <div className="max-w-[210mm] w-full mx-auto p-16 text-center text-[#8a8272] print:hidden flex flex-col items-center gap-2">
+        <p className="text-sm">Não foi possível carregar um ou mais módulos.</p>
+        <button
+          type="button"
+          onClick={() => setRetryCount((n) => n + 1)}
+          className="text-xs text-[#8B6A1F] font-semibold underline underline-offset-2 hover:text-[#6B4F10]"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
   if (!allLoaded) {
     return (
       <div className="max-w-[210mm] w-full mx-auto p-16 text-center text-[#8a8272] print:hidden">

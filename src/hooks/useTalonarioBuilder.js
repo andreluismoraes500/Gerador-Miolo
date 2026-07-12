@@ -6,6 +6,7 @@
 // useAgendaSettings — um hook único que a página consome via desestruturação.
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import toast from "react-hot-toast";
 import { usePersistedState } from "./usePersistedState";
 
 // Paleta padrão de cada aba — usada como ponto de partida e como opção de
@@ -253,8 +254,13 @@ export function useTalonarioBuilder() {
 
   const handleLogoUpload = useCallback(async (who, file) => {
     if (!file) return;
-    const dataUrl = await fileToDataUrl(file);
-    setLogos((l) => ({ ...l, [who]: dataUrl }));
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setLogos((l) => ({ ...l, [who]: dataUrl }));
+    } catch (err) {
+      console.error("[useTalonarioBuilder] Erro ao ler logo:", err);
+      toast.error("Não foi possível carregar essa imagem.");
+    }
   }, []);
   const clearLogo = useCallback((who) => {
     setLogos((l) => ({ ...l, [who]: null }));
