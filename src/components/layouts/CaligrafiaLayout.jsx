@@ -131,12 +131,14 @@ const EXTENSO = [
   "Dez",
 ];
 
-export const NUMEROS_CALIGRAFIA = Array.from({ length: 11 }).map((_, numero) => ({
-  numero,
-  extenso: EXTENSO[numero],
-  emoji: EMOJIS_CONTAGEM[numero % EMOJIS_CONTAGEM.length],
-  paleta: PALETA_INFANTIL[(numero + 3) % PALETA_INFANTIL.length],
-}));
+export const NUMEROS_CALIGRAFIA = Array.from({ length: 11 }).map(
+  (_, numero) => ({
+    numero,
+    extenso: EXTENSO[numero],
+    emoji: EMOJIS_CONTAGEM[numero % EMOJIS_CONTAGEM.length],
+    paleta: PALETA_INFANTIL[(numero + 3) % PALETA_INFANTIL.length],
+  }),
+);
 
 export const FRASES_CALIGRAFIA = [
   "Acredite no seu potencial",
@@ -191,7 +193,9 @@ function PageShell({
       className="printable-page bg-white text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -207,7 +211,14 @@ function PageShell({
   );
 }
 
-function PageHeader({ logo, titulo, subtitulo, primaryColor, pageIndex, totalPaginas }) {
+function PageHeader({
+  logo,
+  titulo,
+  subtitulo,
+  primaryColor,
+  pageIndex,
+  totalPaginas,
+}) {
   return (
     <div
       className="flex items-center justify-between border-b-2 pb-3 mb-3 shrink-0"
@@ -246,7 +257,12 @@ function PageHeader({ logo, titulo, subtitulo, primaryColor, pageIndex, totalPag
 // pedagógica. `children` é o texto-modelo esmaecido que fica apoiado na
 // linha de base, pronto para o aluno traçar por cima e continuar na
 // sequência.
-function GuideRow({ children, primaryColor, secondaryColor, rowHeight = "16mm" }) {
+function GuideRow({
+  children,
+  primaryColor,
+  secondaryColor,
+  rowHeight = "16mm",
+}) {
   return (
     <div className="relative shrink-0" style={{ height: rowHeight }}>
       <div
@@ -261,14 +277,20 @@ function GuideRow({ children, primaryColor, secondaryColor, rowHeight = "16mm" }
         className="absolute left-0 right-0 bottom-0 border-t-2"
         style={{ borderColor: primaryColor, opacity: 0.85 }}
       />
-      <div className="absolute inset-0 flex items-end overflow-hidden pointer-events-none select-none pb-[1px]">
+      <div className="absolute inset-0 flex items-end overflow-hidden pointer-events-none select-none pb-px">
         {children}
       </div>
     </div>
   );
 }
 
-function TraceText({ children, primaryColor, size = "9mm", tracking = "5mm", font = "'Dancing Script', cursive" }) {
+function TraceText({
+  children,
+  primaryColor,
+  size = "9mm",
+  tracking = "5mm",
+  font = "'Dancing Script', cursive",
+}) {
   return (
     <span
       className="whitespace-nowrap"
@@ -300,7 +322,10 @@ function Doodle({ x, y, size, color, shape }) {
   };
   if (shape === "star") {
     return (
-      <span style={{ ...style, fontSize: size, lineHeight: 1 }} className="select-none">
+      <span
+        style={{ ...style, fontSize: size, lineHeight: 1 }}
+        className="select-none"
+      >
         ⭐
       </span>
     );
@@ -336,12 +361,48 @@ export function CaligrafiaCapaPage(rest) {
           }}
         />
 
-        <Doodle x="12%" y="18%" size="14mm" color={PALETA_INFANTIL[0].ink} shape="star" />
-        <Doodle x="80%" y="14%" size="10mm" color={PALETA_INFANTIL[3].ink} shape="star" />
-        <Doodle x="20%" y="72%" size="9mm" color={PALETA_INFANTIL[4].ink} shape="star" />
-        <Doodle x="85%" y="70%" size="12mm" color={PALETA_INFANTIL[1].ink} shape="star" />
-        <Doodle x="10%" y="45%" size="7mm" color={PALETA_INFANTIL[2].bg} shape="dot" />
-        <Doodle x="88%" y="45%" size="9mm" color={PALETA_INFANTIL[5].bg} shape="dot" />
+        <Doodle
+          x="12%"
+          y="18%"
+          size="14mm"
+          color={PALETA_INFANTIL[0].ink}
+          shape="star"
+        />
+        <Doodle
+          x="80%"
+          y="14%"
+          size="10mm"
+          color={PALETA_INFANTIL[3].ink}
+          shape="star"
+        />
+        <Doodle
+          x="20%"
+          y="72%"
+          size="9mm"
+          color={PALETA_INFANTIL[4].ink}
+          shape="star"
+        />
+        <Doodle
+          x="85%"
+          y="70%"
+          size="12mm"
+          color={PALETA_INFANTIL[1].ink}
+          shape="star"
+        />
+        <Doodle
+          x="10%"
+          y="45%"
+          size="7mm"
+          color={PALETA_INFANTIL[2].bg}
+          shape="dot"
+        />
+        <Doodle
+          x="88%"
+          y="45%"
+          size="9mm"
+          color={PALETA_INFANTIL[5].bg}
+          shape="dot"
+        />
 
         <div className="relative z-10">
           {rest.logo && <Logo src={rest.logo} className="h-16 mb-8 mx-auto" />}
@@ -352,12 +413,19 @@ export function CaligrafiaCapaPage(rest) {
 
           <h1
             className="text-4xl font-bold mb-2"
-            style={{ color: primaryColor, fontFamily: FONTE_INFANTIL, fontSize: "22mm" }}
+            style={{
+              color: primaryColor,
+              fontFamily: FONTE_INFANTIL,
+              fontSize: "22mm",
+            }}
           >
             Meu Caderno de Caligrafia
           </h1>
 
-          <p className="text-sm text-gray-500 mb-6" style={{ fontFamily: FONTE_INFANTIL }}>
+          <p
+            className="text-sm text-gray-500 mb-6"
+            style={{ fontFamily: FONTE_INFANTIL }}
+          >
             Letrinhas, números e muita diversão de A a Z ✨
           </p>
 
@@ -410,11 +478,19 @@ export function CaligrafiaLetraPage({ item, ...rest }) {
       {/* Cartão ilustrado */}
       <div
         className="flex items-center gap-4 rounded-3xl px-5 py-3 mb-3 shrink-0"
-        style={{ backgroundColor: paleta.bg, border: `2px dashed ${paleta.ink}66` }}
+        style={{
+          backgroundColor: paleta.bg,
+          border: `2px dashed ${paleta.ink}66`,
+        }}
       >
         <div
           className="flex items-center justify-center rounded-full shrink-0"
-          style={{ width: "20mm", height: "20mm", backgroundColor: `${paleta.ink}22`, fontSize: "12mm" }}
+          style={{
+            width: "20mm",
+            height: "20mm",
+            backgroundColor: `${paleta.ink}22`,
+            fontSize: "12mm",
+          }}
         >
           {emoji}
         </div>
@@ -428,13 +504,31 @@ export function CaligrafiaLetraPage({ item, ...rest }) {
 
       {/* Traçado grande — maiúscula e minúscula */}
       <div className="flex flex-col gap-2 shrink-0 mb-1">
-        <GuideRow primaryColor={primaryColor} secondaryColor={secondaryColor} rowHeight="30mm">
-          <TraceText primaryColor={paleta.ink} size="24mm" tracking="8mm" font={FONTE_INFANTIL}>
+        <GuideRow
+          primaryColor={primaryColor}
+          secondaryColor={secondaryColor}
+          rowHeight="30mm"
+        >
+          <TraceText
+            primaryColor={paleta.ink}
+            size="24mm"
+            tracking="8mm"
+            font={FONTE_INFANTIL}
+          >
             {`${letra}  ${letra}  ${letra}`}
           </TraceText>
         </GuideRow>
-        <GuideRow primaryColor={primaryColor} secondaryColor={secondaryColor} rowHeight="24mm">
-          <TraceText primaryColor={paleta.ink} size="18mm" tracking="6mm" font={FONTE_INFANTIL}>
+        <GuideRow
+          primaryColor={primaryColor}
+          secondaryColor={secondaryColor}
+          rowHeight="24mm"
+        >
+          <TraceText
+            primaryColor={paleta.ink}
+            size="18mm"
+            tracking="6mm"
+            font={FONTE_INFANTIL}
+          >
             {`${minuscula}  ${minuscula}  ${minuscula}  ${minuscula}`}
           </TraceText>
         </GuideRow>
@@ -443,7 +537,12 @@ export function CaligrafiaLetraPage({ item, ...rest }) {
       {/* Linhas de prática */}
       <div className="flex flex-col gap-1.5 min-h-0 mb-2">
         {[0, 1, 2].map((i) => (
-          <GuideRow key={i} primaryColor={primaryColor} secondaryColor={secondaryColor} rowHeight="14mm">
+          <GuideRow
+            key={i}
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            rowHeight="14mm"
+          >
             <TraceText primaryColor={primaryColor} size="8mm" tracking="4mm">
               {Array(6).fill(`${letra} ${minuscula}`).join("   ")}
             </TraceText>
@@ -454,7 +553,10 @@ export function CaligrafiaLetraPage({ item, ...rest }) {
       {/* Mini-atividade: circule a letra */}
       <div
         className="rounded-2xl px-4 py-2.5 shrink-0"
-        style={{ backgroundColor: `${paleta.ink}0d`, border: `1.5px solid ${paleta.ink}33` }}
+        style={{
+          backgroundColor: `${paleta.ink}0d`,
+          border: `1.5px solid ${paleta.ink}33`,
+        }}
       >
         <p
           className="text-[10px] uppercase tracking-widest font-bold mb-1.5"
@@ -467,7 +569,11 @@ export function CaligrafiaLetraPage({ item, ...rest }) {
             <span
               key={i}
               className="flex items-center justify-center rounded-full border border-gray-300 text-sm font-semibold text-gray-600 bg-white"
-              style={{ width: "9mm", height: "9mm", fontFamily: FONTE_INFANTIL }}
+              style={{
+                width: "9mm",
+                height: "9mm",
+                fontFamily: FONTE_INFANTIL,
+              }}
             >
               {c}
             </span>
@@ -504,7 +610,10 @@ export function CaligrafiaNumeroPage({ item, ...rest }) {
       {/* Cartão de contagem */}
       <div
         className="rounded-3xl px-5 py-3 mb-3 shrink-0"
-        style={{ backgroundColor: paleta.bg, border: `2px dashed ${paleta.ink}66` }}
+        style={{
+          backgroundColor: paleta.bg,
+          border: `2px dashed ${paleta.ink}66`,
+        }}
       >
         <p
           className="text-lg font-bold mb-2"
@@ -514,7 +623,10 @@ export function CaligrafiaNumeroPage({ item, ...rest }) {
         </p>
         <div className="flex flex-wrap gap-1.5 min-h-[10mm] items-center">
           {numero === 0 ? (
-            <span className="text-xs text-gray-400 italic" style={{ fontFamily: FONTE_INFANTIL }}>
+            <span
+              className="text-xs text-gray-400 italic"
+              style={{ fontFamily: FONTE_INFANTIL }}
+            >
               nenhum {emoji} por aqui... conte até zero! 😉
             </span>
           ) : (
@@ -529,8 +641,17 @@ export function CaligrafiaNumeroPage({ item, ...rest }) {
 
       {/* Traçado grande do número */}
       <div className="flex flex-col gap-2 shrink-0 mb-1">
-        <GuideRow primaryColor={primaryColor} secondaryColor={secondaryColor} rowHeight="34mm">
-          <TraceText primaryColor={paleta.ink} size="28mm" tracking="10mm" font={FONTE_INFANTIL}>
+        <GuideRow
+          primaryColor={primaryColor}
+          secondaryColor={secondaryColor}
+          rowHeight="34mm"
+        >
+          <TraceText
+            primaryColor={paleta.ink}
+            size="28mm"
+            tracking="10mm"
+            font={FONTE_INFANTIL}
+          >
             {`${numero}  ${numero}  ${numero}`}
           </TraceText>
         </GuideRow>
@@ -539,7 +660,12 @@ export function CaligrafiaNumeroPage({ item, ...rest }) {
       {/* Linhas de prática */}
       <div className="flex flex-col gap-1.5 min-h-0">
         {[0, 1, 2, 3].map((i) => (
-          <GuideRow key={i} primaryColor={primaryColor} secondaryColor={secondaryColor} rowHeight="14mm">
+          <GuideRow
+            key={i}
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            rowHeight="14mm"
+          >
             <TraceText primaryColor={primaryColor} size="8mm" tracking="4mm">
               {Array(8).fill(numero).join("   ")}
             </TraceText>
@@ -582,14 +708,21 @@ export function CaligrafiaPersonalizadaPage({ numLinhas = 9, ...rest }) {
         <EditableField
           fieldKey="caligrafia-palavra-modelo"
           className="w-full min-h-9 border-b-2 text-lg py-1"
-          style={{ borderColor: primaryColor, fontFamily: "'Dancing Script', cursive" }}
+          style={{
+            borderColor: primaryColor,
+            fontFamily: "'Dancing Script', cursive",
+          }}
           placeholder="Escreva aqui"
         />
       </div>
 
       <div className="flex-1 flex flex-col gap-1.5 min-h-0">
         {Array.from({ length: numLinhas }).map((_, i) => (
-          <GuideRow key={i} primaryColor={primaryColor} secondaryColor={secondaryColor}>
+          <GuideRow
+            key={i}
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+          >
             <TraceText primaryColor={primaryColor} size="8mm" tracking="1mm">
               {Array(4).fill(palavra).join("   ")}
             </TraceText>
@@ -604,7 +737,12 @@ export function CaligrafiaPersonalizadaPage({ numLinhas = 9, ...rest }) {
 // 5. FRASES
 // ─────────────────────────────────────────────────────────────────────────
 
-export function CaligrafiaFrasesPage({ frases, pageIndex = 0, totalPaginas = 1, ...rest }) {
+export function CaligrafiaFrasesPage({
+  frases,
+  pageIndex = 0,
+  totalPaginas = 1,
+  ...rest
+}) {
   const { primaryColor, secondaryColor } = useVisual(
     rest.colorTheme,
     rest.customColors,
@@ -624,12 +762,24 @@ export function CaligrafiaFrasesPage({ frases, pageIndex = 0, totalPaginas = 1, 
       <div className="flex-1 flex flex-col gap-4 min-h-0 pt-1">
         {frases.map((frase, i) => (
           <div key={i} className="flex flex-col gap-1.5">
-            <GuideRow primaryColor={primaryColor} secondaryColor={secondaryColor} rowHeight="17mm">
-              <TraceText primaryColor={primaryColor} size="7mm" tracking="0.5mm">
+            <GuideRow
+              primaryColor={primaryColor}
+              secondaryColor={secondaryColor}
+              rowHeight="17mm"
+            >
+              <TraceText
+                primaryColor={primaryColor}
+                size="7mm"
+                tracking="0.5mm"
+              >
                 {frase}
               </TraceText>
             </GuideRow>
-            <GuideRow primaryColor={primaryColor} secondaryColor={secondaryColor} rowHeight="15mm">
+            <GuideRow
+              primaryColor={primaryColor}
+              secondaryColor={secondaryColor}
+              rowHeight="15mm"
+            >
               {null}
             </GuideRow>
           </div>
@@ -672,7 +822,11 @@ export function CaligrafiaLetteringPage({ palavras, ...rest }) {
           >
             <div
               className="absolute left-0 right-0 border-t-2"
-              style={{ borderColor: primaryColor, opacity: 0.85, bottom: "6mm" }}
+              style={{
+                borderColor: primaryColor,
+                opacity: 0.85,
+                bottom: "6mm",
+              }}
             />
             <div className="absolute inset-0 flex items-end pb-[7mm] overflow-hidden pointer-events-none select-none">
               <span
