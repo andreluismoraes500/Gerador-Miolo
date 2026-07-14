@@ -10,7 +10,7 @@
 //   4. Palavra Personalizada → nome do(a) aluno(a) ou palavra-modelo do(a)
 //      professor(a), repetida esmaecida para treinar
 //   5. Frases                → frases curtas e positivas para praticar
-//   6. Lettering              → cabeçalhos com guia diagonal, para quem já
+//   6. Lettering             → cabeçalhos com guia diagonal, para quem já
 //      quer ir além do traçado básico
 //
 // Todas compartilham o mesmo "casco" (PageShell), no mesmo espírito dos
@@ -140,22 +140,24 @@ export const NUMEROS_CALIGRAFIA = Array.from({ length: 11 }).map(
   }),
 );
 
+// FRASES MAIS INFANTIS (para a seção "Frases para Praticar")
 export const FRASES_CALIGRAFIA = [
-  "Acredite no seu potencial",
-  "Cada dia é uma nova chance",
-  "Organização gera liberdade",
-  "Pequenos passos, grandes conquistas",
-  "Foco, calma e persistência",
-  "Hoje é um bom dia para recomeçar",
+  "Eu gosto de aprender coisas novas!",
+  "Brincar e estudar é muito legal!",
+  "Cada letra é uma descoberta feliz",
+  "Com carinho e atenção, tudo fica bonito",
+  "Sorrir enquanto escrevo deixa o dia melhor",
+  "Sou capaz, vou treinar e vou melhorar",
 ];
 
+// LETTERING COM FRASES INFANTIS (substituindo os cabeçalhos antigos)
 export const LETTERING_PALAVRAS = [
-  "Bom dia",
-  "Segunda-feira",
-  "Metas da semana",
-  "Gratidão",
-  "Foco total",
-  "Você consegue",
+  "Aprender é divertido",
+  "Meu caderno colorido",
+  "Escrever com alegria",
+  "Cada dia um novo traço",
+  "Solta a imaginação",
+  "Você é muito especial",
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -468,7 +470,7 @@ export function CaligrafiaLetraPage({ item, ...rest }) {
     <PageShell {...rest}>
       <PageHeader
         logo={rest.logo}
-        titulo={`Letra ${letra} ${minuscula}`}
+        titulo={`Letra ${letra}`}
         subtitulo="Alfabeto ilustrado"
         primaryColor={primaryColor}
         pageIndex={index}
@@ -534,9 +536,9 @@ export function CaligrafiaLetraPage({ item, ...rest }) {
         </GuideRow>
       </div>
 
-      {/* Linhas de prática */}
+      {/* Linhas de prática — 6 linhas */}
       <div className="flex flex-col gap-1.5 min-h-0 mb-2">
-        {[0, 1, 2].map((i) => (
+        {[0, 1, 2, 3, 4, 5].map((i) => (
           <GuideRow
             key={i}
             primaryColor={primaryColor}
@@ -657,9 +659,9 @@ export function CaligrafiaNumeroPage({ item, ...rest }) {
         </GuideRow>
       </div>
 
-      {/* Linhas de prática */}
+      {/* Linhas de prática — AGORA SÃO 6 LINHAS (em vez de 4) */}
       <div className="flex flex-col gap-1.5 min-h-0">
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2, 3, 4, 5].map((i) => (
           <GuideRow
             key={i}
             primaryColor={primaryColor}
@@ -687,7 +689,7 @@ export function CaligrafiaPersonalizadaPage({ numLinhas = 9, ...rest }) {
     rest.fontFamily,
   );
   const { getField } = useAgendaData();
-  const palavra = getField("caligrafia-palavra-modelo") || "Escreva aqui";
+  const palavra = getField("caligrafia-palavra-modelo") || "";
 
   return (
     <PageShell {...rest}>
@@ -712,7 +714,7 @@ export function CaligrafiaPersonalizadaPage({ numLinhas = 9, ...rest }) {
             borderColor: primaryColor,
             fontFamily: "'Dancing Script', cursive",
           }}
-          placeholder="Escreva aqui"
+          placeholder=""
         />
       </div>
 
