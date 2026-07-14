@@ -49,6 +49,8 @@ export const TEMPLATE_MANIFEST = {
   boletim: { nome: "Boletim Escolar" },
   planoAula: { nome: "Plano de Aula" },
   caligrafia: { nome: "Guia de Caligrafia" },
+  noivas: { nome: "Planner de Noivas" },
+  partituras: { nome: "Caderno de Partituras" },
 };
 
 export const TEMPLATE_KEYS = Object.keys(TEMPLATE_MANIFEST);

@@ -30,6 +30,9 @@ const MULTI_PAGE_TEMPLATES = new Set([
   "mensalComercialDuplo",
   "calendarios",
   "cadernoUniversitario",
+  "caligrafia",
+  "noivas",
+  "partituras",
 ]);
 
 const ANNUAL_DAY_TEMPLATES = new Set(["anualCompleto", "anualLivre", "anualComercialDuplo"]);
