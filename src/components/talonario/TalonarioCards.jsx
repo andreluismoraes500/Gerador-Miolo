@@ -418,7 +418,7 @@ export function OrdemServicoCard({
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: 4 }).map((_, i) => (
+            {Array.from({ length: 18 }).map((_, i) => (
               <tr key={i}>
                 {[0, 1, 2].map((c) => (
                   <td
@@ -452,9 +452,7 @@ export function OrdemServicoCard({
             <span className="block text-[9.5px] font-bold uppercase tracking-wide">
               Total
             </span>
-            {prazo && (
-              <span className="text-[10px]">sugestão: {prazo}</span>
-            )}
+            {prazo && <span className="text-[10px]">sugestão: {prazo}</span>}
           </div>
         </div>
 
@@ -806,11 +804,116 @@ export function ReceitaCard({
 // números (que é o que realmente importa numa cartela). `porPagina`
 // indefinido (preview grande fora da grade de impressão) usa o nível "xl".
 const BINGO_DENSITY = {
-  1:  { tier: "xl", radius: 16, cardBorder: 2.5, outline: 2,   outlineOffset: 5, pad: "px-6 pt-5 pb-6",      headPad: "pb-3 mb-4",   headBorder: 2,   logo: "max-w-11 max-h-11", title: 18,   sub: 11,  badgeFont: 13,   badgePad: "4px 10px", badgeBorder: 2,   tableBorder: 2.5, thFont: 26, thPad: "8px 0",   cellBorder: 1.2,  cellFont: 21, freeFont: 11 },
-  2:  { tier: "lg", radius: 14, cardBorder: 2,   outline: 1.4, outlineOffset: 3, pad: "px-7 pt-6 pb-7",      headPad: "pb-4 mb-5",   headBorder: 2,   logo: "max-w-12 max-h-12", title: 23,   sub: 12.5,badgeFont: 15,   badgePad: "5px 12px", badgeBorder: 2,   tableBorder: 2.2, thFont: 38, thPad: "13px 0",  cellBorder: 1.4,  cellFont: 32, freeFont: 13 },
-  4:  { tier: "md", radius: 12, cardBorder: 1.6, outline: 0,   outlineOffset: 0, pad: "px-4.5 pt-4 pb-4",    headPad: "pb-2.5 mb-3", headBorder: 1.6, logo: "max-w-9 max-h-9",  title: 16.5, sub: 10,  badgeFont: 12.5, badgePad: "3px 9px",  badgeBorder: 1.6, tableBorder: 1.8, thFont: 25, thPad: "6px 0",   cellBorder: 1.1,  cellFont: 21, freeFont: 9.5 },
-  6:  { tier: "sm", radius: 10, cardBorder: 1.3, outline: 0,   outlineOffset: 0, pad: "px-3 pt-2.5 pb-2.5",  headPad: "pb-1.5 mb-2", headBorder: 1.3, logo: "max-w-6 max-h-6",  title: 13.5, sub: 8.5, badgeFont: 10.5, badgePad: "2.5px 7px",badgeBorder: 1.3, tableBorder: 1.4, thFont: 17.5,thPad: "4px 0",   cellBorder: 0.9,  cellFont: 16, freeFont: 7.5 },
-  9:  { tier: "xs", radius: 8,  cardBorder: 1,   outline: 0,   outlineOffset: 0, pad: "px-2.5 pt-2 pb-2",    headPad: "pb-1 mb-1.5", headBorder: 1,   logo: "max-w-5 max-h-5",  title: 10.5, sub: 7,   badgeFont: 8.5,  badgePad: "2px 5px",  badgeBorder: 1,   tableBorder: 1.1, thFont: 13,  thPad: "2.5px 0", cellBorder: 0.75, cellFont: 13.5, freeFont: 6.5 },
+  1: {
+    tier: "xl",
+    radius: 16,
+    cardBorder: 2.5,
+    outline: 2,
+    outlineOffset: 5,
+    pad: "px-6 pt-5 pb-6",
+    headPad: "pb-3 mb-4",
+    headBorder: 2,
+    logo: "max-w-11 max-h-11",
+    title: 18,
+    sub: 11,
+    badgeFont: 13,
+    badgePad: "4px 10px",
+    badgeBorder: 2,
+    tableBorder: 2.5,
+    thFont: 26,
+    thPad: "8px 0",
+    cellBorder: 1.2,
+    cellFont: 21,
+    freeFont: 11,
+  },
+  2: {
+    tier: "lg",
+    radius: 14,
+    cardBorder: 2,
+    outline: 1.4,
+    outlineOffset: 3,
+    pad: "px-7 pt-6 pb-7",
+    headPad: "pb-4 mb-5",
+    headBorder: 2,
+    logo: "max-w-12 max-h-12",
+    title: 23,
+    sub: 12.5,
+    badgeFont: 15,
+    badgePad: "5px 12px",
+    badgeBorder: 2,
+    tableBorder: 2.2,
+    thFont: 38,
+    thPad: "13px 0",
+    cellBorder: 1.4,
+    cellFont: 32,
+    freeFont: 13,
+  },
+  4: {
+    tier: "md",
+    radius: 12,
+    cardBorder: 1.6,
+    outline: 0,
+    outlineOffset: 0,
+    pad: "px-4.5 pt-4 pb-4",
+    headPad: "pb-2.5 mb-3",
+    headBorder: 1.6,
+    logo: "max-w-9 max-h-9",
+    title: 16.5,
+    sub: 10,
+    badgeFont: 12.5,
+    badgePad: "3px 9px",
+    badgeBorder: 1.6,
+    tableBorder: 1.8,
+    thFont: 25,
+    thPad: "6px 0",
+    cellBorder: 1.1,
+    cellFont: 21,
+    freeFont: 9.5,
+  },
+  6: {
+    tier: "sm",
+    radius: 10,
+    cardBorder: 1.3,
+    outline: 0,
+    outlineOffset: 0,
+    pad: "px-3 pt-2.5 pb-2.5",
+    headPad: "pb-1.5 mb-2",
+    headBorder: 1.3,
+    logo: "max-w-6 max-h-6",
+    title: 13.5,
+    sub: 8.5,
+    badgeFont: 10.5,
+    badgePad: "2.5px 7px",
+    badgeBorder: 1.3,
+    tableBorder: 1.4,
+    thFont: 17.5,
+    thPad: "4px 0",
+    cellBorder: 0.9,
+    cellFont: 16,
+    freeFont: 7.5,
+  },
+  9: {
+    tier: "xs",
+    radius: 8,
+    cardBorder: 1,
+    outline: 0,
+    outlineOffset: 0,
+    pad: "px-2.5 pt-2 pb-2",
+    headPad: "pb-1 mb-1.5",
+    headBorder: 1,
+    logo: "max-w-5 max-h-5",
+    title: 10.5,
+    sub: 7,
+    badgeFont: 8.5,
+    badgePad: "2px 5px",
+    badgeBorder: 1,
+    tableBorder: 1.1,
+    thFont: 13,
+    thPad: "2.5px 0",
+    cellBorder: 0.75,
+    cellFont: 13.5,
+    freeFont: 6.5,
+  },
 };
 
 export function BingoCard({
@@ -826,7 +929,8 @@ export function BingoCard({
 }) {
   // `porPagina` é a fonte da verdade; `compact` (legado) só serve de
   // fallback pra quem ainda não passa porPagina explicitamente.
-  const d = BINGO_DENSITY[porPagina] || (compact ? BINGO_DENSITY[4] : BINGO_DENSITY[1]);
+  const d =
+    BINGO_DENSITY[porPagina] || (compact ? BINGO_DENSITY[4] : BINGO_DENSITY[1]);
   const isCompact = d.tier !== "xl";
 
   return (
@@ -937,11 +1041,15 @@ export function BingoCard({
                         className="text-center align-middle"
                         style={{
                           border: `${d.cellBorder}px solid var(--tal-accent)`,
-                          background: isFree ? "var(--tal-accent-light)" : "#fff",
+                          background: isFree
+                            ? "var(--tal-accent-light)"
+                            : "#fff",
                           fontFamily: "'Space Mono', monospace",
                           fontSize: isFree ? d.freeFont : d.cellFont,
                           fontWeight: 700,
-                          color: isFree ? "var(--tal-accent-dark)" : "var(--tal-ink)",
+                          color: isFree
+                            ? "var(--tal-accent-dark)"
+                            : "var(--tal-ink)",
                           textTransform: isFree ? "uppercase" : "none",
                           letterSpacing: isFree ? "0.4px" : "normal",
                         }}
