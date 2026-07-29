@@ -16,6 +16,7 @@ export const TAL_ACCENTS = {
   receituario: { accent: "#0f6e94", dark: "#0a4e6a", light: "#e3f2f8" },
   receita: { accent: "#c9822c", dark: "#966017", light: "#fbf1df" },
   bingo: { accent: "#7c3aed", dark: "#5b21b6", light: "#f1e9fe" },
+  ordemServico: { accent: "#b45309", dark: "#7c3908", light: "#fbead2" },
 };
 
 // Algumas sugestões de cor rápidas para o seletor de configurações
@@ -204,6 +205,22 @@ export function useTalonarioBuilder() {
     setReceita((r) => ({ ...r, [key]: value }));
   }, []);
 
+  // ---------------- Ordem de Serviço ----------------
+  const [ordemServico, setOrdemServico] = useState({
+    empresa: "",
+    slogan: "",
+    numStart: 1,
+    numEnd: 50,
+    prefix: "OS-",
+    digits: 4,
+    prazo: "",
+    garantia: "90 dias",
+    rodape: "",
+  });
+  const setOrdemServicoField = useCallback((key, value) => {
+    setOrdemServico((o) => ({ ...o, [key]: value }));
+  }, []);
+
   // ---------------- Bingo ----------------
   const [bingo, setBingo] = useState({
     titulo: "Noite de Bingo",
@@ -250,6 +267,7 @@ export function useTalonarioBuilder() {
     receituario: null,
     receita: null,
     bingo: null,
+    ordemServico: null,
   });
 
   const handleLogoUpload = useCallback(async (who, file) => {
@@ -345,6 +363,13 @@ export function useTalonarioBuilder() {
     return { start, end, total: end - start + 1 };
   }, [receituario.numStart, receituario.numEnd]);
 
+  const ordemServicoRange = useMemo(() => {
+    let start = parseInt(ordemServico.numStart, 10) || 1;
+    let end = parseInt(ordemServico.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [ordemServico.numStart, ordemServico.numEnd]);
+
   // ---------------- impressão ----------------
   const [printBatch, setPrintBatch] = useState(null); // { tab, items } | null
   const printTimeoutRef = useRef(null);
@@ -380,6 +405,18 @@ export function useTalonarioBuilder() {
       }
     } else if (activeTab === "receita") {
       setPrintBatch({ tab: "receita", items: [null] });
+    } else if (activeTab === "ordemServico") {
+      const { start, end, total } = ordemServicoRange;
+      if (
+        total > 800 &&
+        !window.confirm(
+          `Você está prestes a gerar ${total} ordens de serviço. Isso pode demorar. Deseja continuar?`,
+        )
+      ) {
+        return;
+      }
+      const items = Array.from({ length: total }, (_, i) => start + i);
+      setPrintBatch({ tab: "ordemServico", items });
     } else if (activeTab === "bingo") {
       if (
         bingoCards.length > 100 &&
@@ -396,6 +433,7 @@ export function useTalonarioBuilder() {
     pedidoRange,
     receituario.numerar,
     receituarioRange,
+    ordemServicoRange,
     bingoCards,
   ]);
 
@@ -427,6 +465,10 @@ export function useTalonarioBuilder() {
 
     receita,
     setReceitaField,
+
+    ordemServico,
+    setOrdemServicoField,
+    ordemServicoRange,
 
     bingo,
     setBingoField,

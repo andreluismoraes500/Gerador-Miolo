@@ -35,7 +35,7 @@ export const BUILDER_PRESETS = {
   },
   universitario: {
     label: "Combo Universitário",
-    modules: ["capa", "dadosPessoais", "calendarios", "cadernoUniversitario", "estudos", "tarefas"],
+    modules: ["capa", "dadosPessoais", "cadernoUniversitario", "estudos", "tarefas"],
   },
 };
 

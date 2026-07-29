@@ -274,7 +274,227 @@ export function PedidoCard({
   );
 }
 
-// ============================ RECEITUÁRIO ============================
+// ========================= ORDEM DE SERVIÇO ==========================
+
+export function OrdemServicoCard({
+  empresa,
+  slogan,
+  logo,
+  prazo,
+  garantia,
+  rodape,
+  numero,
+  digits,
+  prefix,
+  watermarkStyle,
+}) {
+  const numStr = `${prefix || ""}${pad(numero, digits)}`;
+
+  return (
+    <div
+      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{
+        border: "2.5px solid var(--tal-accent)",
+        outline: "2px solid var(--tal-accent)",
+        outlineOffset: 5,
+        margin: 5,
+      }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-7 pt-6 pb-5">
+        <div
+          className="flex items-start justify-between gap-3.5 pb-3 mb-2.5"
+          style={{ borderBottom: "2px solid var(--tal-accent)" }}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            {logo && (
+              <img
+                src={logo}
+                alt="Logo"
+                className="max-w-16 max-h-16 object-contain rounded-md shrink-0"
+              />
+            )}
+            <div className="min-w-0">
+              <h2
+                className="text-[19px] leading-tight m-0 truncate"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontWeight: 700,
+                  color: "var(--tal-accent-dark)",
+                }}
+              >
+                {empresa || "Sua Oficina / Assistência"}
+              </h2>
+              {slogan && (
+                <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
+                  {slogan}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div
+              className="text-[11px] uppercase tracking-[1.5px]"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                color: "var(--tal-ink-soft)",
+              }}
+            >
+              Ordem de Serviço
+            </div>
+            <div
+              className="inline-block font-bold text-2xl rounded-lg px-3 py-1 mt-0.5"
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                color: "var(--tal-stamp)",
+                border: "2px solid var(--tal-stamp)",
+                transform: "rotate(-2deg)",
+              }}
+            >
+              Nº {numStr}
+            </div>
+            <div className="text-[11.5px] text-(--tal-ink-soft) mt-1.5">
+              Data ____ / ____ / ______
+            </div>
+          </div>
+        </div>
+
+        {/* Cliente */}
+        <div
+          className="flex border-t-[1.3px]"
+          style={{ borderColor: "var(--tal-accent)" }}
+        >
+          <Campo label="Cliente" flex={2} />
+          <Campo label="Telefone" flex={1} />
+        </div>
+        <div
+          className="flex border-t-[1.3px]"
+          style={{ borderColor: "var(--tal-accent)" }}
+        >
+          <Campo label="Equipamento / Modelo" flex={1.6} />
+          <Campo label="Nº de série" flex={1} />
+        </div>
+        <div
+          className="flex border-t-[1.3px] border-b-[1.3px]"
+          style={{ borderColor: "var(--tal-accent)" }}
+        >
+          <Campo label="Defeito relatado pelo cliente" flex={1} />
+        </div>
+
+        {/* Diagnóstico / serviço executado */}
+        <div className="mt-3">
+          <span
+            className="block text-[9.5px] font-bold uppercase tracking-wide mb-1"
+            style={{ color: "var(--tal-accent-dark)" }}
+          >
+            Diagnóstico / Serviço executado
+          </span>
+          <div
+            className="w-full"
+            style={{
+              minHeight: 56,
+              border: "1.3px solid var(--tal-accent)",
+              backgroundImage:
+                "repeating-linear-gradient(transparent, transparent 17px, #e4e4e4 18px)",
+            }}
+          />
+        </div>
+
+        <table className="w-full border-collapse mt-3.5 text-xs">
+          <thead>
+            <tr>
+              {["Peças / Materiais", "Qtd.", "Valor"].map((h) => (
+                <th
+                  key={h}
+                  className="text-white font-semibold text-[11px] uppercase tracking-wide py-1.5 px-1.5"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    background: "var(--tal-accent)",
+                  }}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <tr key={i}>
+                {[0, 1, 2].map((c) => (
+                  <td
+                    key={c}
+                    className="h-5.75 px-1.5"
+                    style={{
+                      border: "1px solid var(--tal-accent)",
+                      width: c === 1 || c === 2 ? "16%" : undefined,
+                      textAlign: c === 1 ? "center" : undefined,
+                    }}
+                  />
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div
+          className="grid grid-cols-3"
+          style={{ border: "1.3px solid var(--tal-accent)", borderTop: "none" }}
+        >
+          <Campo label="Mão de obra" flex={1} />
+          <Campo label="Prazo de entrega" flex={1} />
+          <div
+            className="py-1.5 px-2.5 pt-1"
+            style={{
+              background: "var(--tal-accent-light)",
+              color: "var(--tal-accent-dark)",
+            }}
+          >
+            <span className="block text-[9.5px] font-bold uppercase tracking-wide">
+              Total
+            </span>
+            {prazo && (
+              <span className="text-[10px]">sugestão: {prazo}</span>
+            )}
+          </div>
+        </div>
+
+        <div
+          className="flex justify-between items-center mt-2"
+          style={{ border: "1.3px solid var(--tal-accent)" }}
+        >
+          <div className="flex-1 py-2 px-2.5 text-[11px] text-(--tal-ink-soft)">
+            {rodape ? (
+              rodape
+            ) : (
+              <span className="italic text-[#c3cac8]">
+                assinatura do cliente / técnico responsável
+              </span>
+            )}
+          </div>
+          <div
+            className="py-2 px-2.5 text-[11px] text-right shrink-0"
+            style={{
+              borderLeft: "1.3px solid var(--tal-accent)",
+              color: "var(--tal-ink-soft)",
+            }}
+          >
+            Garantia: {garantia || "—"}
+          </div>
+        </div>
+
+        <div
+          className="text-center mt-3.5 pt-2.5 text-[10.5px] text-[#9aa5a3] tracking-wide"
+          style={{ borderTop: "2px dashed #c7cdcb" }}
+        >
+          ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+          - - - - - -
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================== RECEITUÁRIO ============================
 
 export function ReceituarioCard({
   clinica,

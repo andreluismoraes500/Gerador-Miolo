@@ -234,6 +234,94 @@ export function PedidoPanel({ pedido, setField, toggleCampo, range }) {
   );
 }
 
+// ---------------- Ordem de Serviço ----------------
+
+export function OrdemServicoPanel({ ordemServico, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Identidade</SectionTitle>
+      <Label first>Nome da oficina / assistência técnica</Label>
+      <TextInput
+        placeholder="Ex: Assistência TechFix"
+        value={ordemServico.empresa}
+        onChange={(e) => setField("empresa", e.target.value)}
+      />
+      <Label>Slogan (opcional)</Label>
+      <TextInput
+        placeholder="Ex: Conserto rápido e garantido"
+        value={ordemServico.slogan}
+        onChange={(e) => setField("slogan", e.target.value)}
+      />
+
+      <SectionTitle>Numeração automática</SectionTitle>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label first>Do número</Label>
+          <NumberInput
+            min={1}
+            value={ordemServico.numStart}
+            onChange={(e) => setField("numStart", e.target.value)}
+          />
+        </div>
+        <div>
+          <Label first>Até o número</Label>
+          <NumberInput
+            min={1}
+            value={ordemServico.numEnd}
+            onChange={(e) => setField("numEnd", e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label>Prefixo (opcional)</Label>
+          <TextInput
+            placeholder="Ex: OS-"
+            value={ordemServico.prefix}
+            onChange={(e) => setField("prefix", e.target.value)}
+          />
+        </div>
+        <div>
+          <Label>Zeros à esquerda</Label>
+          <Select
+            value={ordemServico.digits}
+            onChange={(e) => setField("digits", Number(e.target.value))}
+          >
+            <option value={0}>Sem zeros (1, 2, 3…)</option>
+            <option value={3}>3 dígitos (001)</option>
+            <option value={4}>4 dígitos (0001)</option>
+            <option value={5}>5 dígitos (00001)</option>
+          </Select>
+        </div>
+      </div>
+      <CountBadge>
+        {range.total} ordem{range.total > 1 ? "ns" : ""} de serviço será
+        {range.total > 1 ? "ão" : ""} gerada{range.total > 1 ? "s" : ""}
+      </CountBadge>
+
+      <SectionTitle>Condições</SectionTitle>
+      <Label first>Prazo de entrega sugerido</Label>
+      <TextInput
+        placeholder="Ex: 5 dias úteis"
+        value={ordemServico.prazo}
+        onChange={(e) => setField("prazo", e.target.value)}
+      />
+      <Label>Garantia do serviço</Label>
+      <TextInput
+        placeholder="Ex: 90 dias"
+        value={ordemServico.garantia}
+        onChange={(e) => setField("garantia", e.target.value)}
+      />
+      <Label>Texto de rodapé (opcional)</Label>
+      <TextInput
+        placeholder="Ex: Peças substituídas ficam com a assistência"
+        value={ordemServico.rodape}
+        onChange={(e) => setField("rodape", e.target.value)}
+      />
+    </div>
+  );
+}
+
 // ---------------- Receituário ----------------
 
 export function ReceituarioPanel({ receituario, setField, range }) {

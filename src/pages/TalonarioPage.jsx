@@ -12,6 +12,7 @@ import {
   MdRestaurantMenu,
   MdGridOn,
   MdPrint,
+  MdBuild,
 } from "react-icons/md";
 import {
   useTalonarioBuilder,
@@ -22,12 +23,14 @@ import {
   ReceituarioCard,
   ReceitaCard,
   BingoCard,
+  OrdemServicoCard,
 } from "../components/talonario/TalonarioCards";
 import {
   PedidoPanel,
   ReceituarioPanel,
   ReceitaPanel,
   BingoPanel,
+  OrdemServicoPanel,
   WatermarkPanel,
   ColorPanel,
   UploadBox,
@@ -47,6 +50,7 @@ const TABS = [
   { id: "receituario", label: "Receituário", icon: MdMedicalServices },
   { id: "receita", label: "Receita Culinária", icon: MdRestaurantMenu },
   { id: "bingo", label: "Bingo", icon: MdGridOn },
+  { id: "ordemServico", label: "Ordem de Serviço", icon: MdBuild },
 ];
 
 export default function TalonarioPage() {
@@ -193,6 +197,34 @@ export default function TalonarioPage() {
             </>
           )}
 
+          {t.activeTab === "ordemServico" && (
+            <>
+              <OrdemServicoPanel
+                ordemServico={t.ordemServico}
+                setField={t.setOrdemServicoField}
+                range={t.ordemServicoRange}
+              />
+              <div className="mt-4">
+                <UploadBox
+                  inputId="tal-logo-os"
+                  label="Enviar logo"
+                  hint="Aparece no cabeçalho da ordem de serviço"
+                  thumb={t.logos.ordemServico}
+                  onFile={(f) => t.handleLogoUpload("ordemServico", f)}
+                />
+                {t.logos.ordemServico && (
+                  <button
+                    onClick={() => t.clearLogo("ordemServico")}
+                    className="text-[11.5px] underline mt-1"
+                    style={{ color: "var(--tal-stamp)" }}
+                  >
+                    remover logo
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
           {t.activeTab === "bingo" && (
             <>
               <BingoPanel
@@ -287,6 +319,20 @@ export default function TalonarioPage() {
               watermarkStyle={t.watermarkStyle}
             />
           )}
+          {t.activeTab === "ordemServico" && (
+            <OrdemServicoCard
+              empresa={t.ordemServico.empresa}
+              slogan={t.ordemServico.slogan}
+              logo={t.logos.ordemServico}
+              prazo={t.ordemServico.prazo}
+              garantia={t.ordemServico.garantia}
+              rodape={t.ordemServico.rodape}
+              numero={t.ordemServicoRange.start}
+              digits={Number(t.ordemServico.digits)}
+              prefix={t.ordemServico.prefix}
+              watermarkStyle={t.watermarkStyle}
+            />
+          )}
           {t.activeTab === "bingo" && t.bingoCards[0] && (
             <div className="w-full max-w-100 aspect-[3/4]">
               <BingoCard
@@ -311,6 +357,8 @@ export default function TalonarioPage() {
                 : "Pré-visualização da via de receituário.")}
             {t.activeTab === "receita" &&
               "Pré-visualização do talão de receita — pautas para preencher à mão."}
+            {t.activeTab === "ordemServico" &&
+              `Pré-visualização da 1ª ordem de serviço do lote (Nº ${t.ordemServico.prefix || ""}${String(t.ordemServicoRange.start).padStart(Number(t.ordemServico.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`}
             {t.activeTab === "bingo" &&
               `Pré-visualização da cartela 1 de ${t.bingoCards.length}. Na impressão, ${t.bingo.porPagina} cartela${t.bingo.porPagina > 1 ? "s" : ""} ${t.bingo.porPagina > 1 ? "saem lado a lado em cada" : "sai por"} folha, cada uma com números diferentes.`}
           </p>
@@ -357,6 +405,23 @@ export default function TalonarioPage() {
               />
             </div>
           )}
+          {t.printBatch.tab === "ordemServico" &&
+            t.printBatch.items.map((n) => (
+              <div key={n} className="tal-print-page">
+                <OrdemServicoCard
+                  empresa={t.ordemServico.empresa}
+                  slogan={t.ordemServico.slogan}
+                  logo={t.logos.ordemServico}
+                  prazo={t.ordemServico.prazo}
+                  garantia={t.ordemServico.garantia}
+                  rodape={t.ordemServico.rodape}
+                  numero={n}
+                  digits={Number(t.ordemServico.digits)}
+                  prefix={t.ordemServico.prefix}
+                  watermarkStyle={t.watermarkStyle}
+                />
+              </div>
+            ))}
           {t.printBatch.tab === "bingo" &&
             (() => {
               const porPagina = t.bingo.porPagina;
