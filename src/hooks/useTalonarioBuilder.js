@@ -124,9 +124,16 @@ export function useTalonarioBuilder() {
   // ---------------- Cores (configuráveis por aba) ----------------
   // Guardadas no localStorage para não se perder entre visitas. Cada aba
   // (pedido/receituario/receita/bingo) tem sua própria cor de destaque.
-  const [accentColors, setAccentColors] = usePersistedState(
+  const [accentColorsRaw, setAccentColors] = usePersistedState(
     "talonario-accentColors",
     TAL_ACCENTS,
+  );
+  // Mescla com os padrões atuais: se o usuário já tinha dados salvos de uma
+  // versão anterior do app (sem alguma aba nova, ex: "ordemServico"), a
+  // chave que falta não fica `undefined` — cai no padrão dessa aba.
+  const accentColors = useMemo(
+    () => ({ ...TAL_ACCENTS, ...accentColorsRaw }),
+    [accentColorsRaw],
   );
   const setAccentColor = useCallback(
     (tab, hex) => {

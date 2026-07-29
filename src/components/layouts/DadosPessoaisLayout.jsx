@@ -32,9 +32,7 @@ export default function DadosPessoaisLayout({
       className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && (
-        <Background src={backgroundSrc} opacity={backgroundOpacity} />
-      )}
+      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -49,7 +47,7 @@ export default function DadosPessoaisLayout({
             className={`text-2xl font-light tracking-widest text-gray-900 uppercase ${tema.headingFont}`}
             style={{ color: primaryColor }}
           >
-            Pertence a:
+            Esta agenda pertence a:
           </h2>
           <div
             className={`w-16 h-0.5 mx-auto ${tema.headerBorder.replace("border-", "bg-")}`}
