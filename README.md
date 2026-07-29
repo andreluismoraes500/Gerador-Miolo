@@ -1,6 +1,6 @@
 # 📅 Miolos de Agenda
 
-Gerador de miolos personalizáveis para agendas, com múltiplos layouts e temas visuais. Ideal para gráficas, designers e criadores que desejam produzir agendas sob medida com aparência profissional realizado por André Luis de Moraes.
+Gerador de miolos personalizáveis para agendas, com múltiplos layouts e temas visuais. Ideal para gráficas, designers e criadores que desejam produzir agendas sob medida com aparência profissional.
 
 ![Preview](./public/preview.png) _(adicione uma imagem se desejar)_
 
