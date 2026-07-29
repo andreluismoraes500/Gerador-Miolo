@@ -65,7 +65,10 @@ function StatBlock({ value, suffix = "", label, statRef }) {
 
 function StepNode({ n, title, children, stepRef }) {
   return (
-    <div ref={stepRef} className="step-node flex flex-col items-center text-center gap-3 flex-1">
+    <div
+      ref={stepRef}
+      className="step-node flex flex-col items-center text-center gap-3 flex-1"
+    >
       <div className="w-11 h-11 rounded-full bg-[#24344D] text-[#F6F1E7] flex items-center justify-center font-semibold text-sm shrink-0 relative z-10">
         {n}
       </div>
@@ -186,7 +189,8 @@ export default function SobrePage() {
                   duration: 1.1,
                   ease: "power2.out",
                   onUpdate: () => {
-                    if (ref.current) ref.current.textContent = Math.round(counter.n);
+                    if (ref.current)
+                      ref.current.textContent = Math.round(counter.n);
                   },
                 }),
               );
@@ -294,7 +298,8 @@ export default function SobrePage() {
           duration: 0.15,
           delay: 1.6,
           onComplete: () => {
-            if (copyIconRef.current) gsap.set(copyIconRef.current, { opacity: 1, scale: 1 });
+            if (copyIconRef.current)
+              gsap.set(copyIconRef.current, { opacity: 1, scale: 1 });
           },
         }),
       );
@@ -324,7 +329,10 @@ export default function SobrePage() {
         <h1
           ref={heroTitleRef}
           className="text-3xl sm:text-5xl font-semibold text-[#24344D] tracking-tight max-w-3xl leading-tight"
-          style={{ fontFamily: "'Cormorant Garamond', serif", perspective: 600 }}
+          style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            perspective: 600,
+          }}
         >
           {heroTitleWords.map((word, i) => (
             <span
@@ -355,8 +363,8 @@ export default function SobrePage() {
             Toda agenda começa do mesmo jeito por aqui: uma folha em branco na
             tela. A partir daí, o Miolos de Agenda entra em ação — dezenas de
             layouts prontos, cada um pensado pixel a pixel pra funcionar tanto
-            na tela quanto no papel impresso, com grades que se alinham
-            certinho na hora do corte e da encadernação.
+            na tela quanto no papel impresso, com grades que se alinham certinho
+            na hora do corte e da encadernação.
           </p>
           <p>
             Não é um gerador genérico. Tem miolo para quem vive de agenda de
@@ -368,8 +376,8 @@ export default function SobrePage() {
           </p>
           <p>
             No fim, você monta a agenda do seu jeito: escolhe o modelo, ajusta
-            cores e tipografia, decide o que aparece em cada página, coloca
-            seu nome ou o da sua marca no rodapé — e exporta um PDF em alta
+            cores e tipografia, decide o que aparece em cada página, coloca seu
+            nome ou o da sua marca no rodapé — e exporta um PDF em alta
             resolução, calibrado para sair impresso do jeito que apareceu na
             tela.
           </p>
@@ -431,8 +439,8 @@ export default function SobrePage() {
             numa agenda de advogado não é o que aparece na de uma manicure.
           </FeatureCard>
           <FeatureCard icon={MdPalette} title="Temas e identidade visual">
-            Paletas prontas ou cores personalizadas, tipografia, capa e
-            rodapé — pra a agenda sair com a sua cara ou a da sua marca.
+            Paletas prontas ou cores personalizadas, tipografia, capa e rodapé —
+            pra a agenda sair com a sua cara ou a da sua marca.
           </FeatureCard>
           <FeatureCard icon={MdTune} title="Ajuste fino de verdade">
             Escolha a data de início, o que cada página mostra, a ordem dos
@@ -443,8 +451,8 @@ export default function SobrePage() {
             impressão, sem margens tortas ou grade desalinhada.
           </FeatureCard>
           <FeatureCard icon={MdAutoAwesome} title="Sempre em construção">
-            Novos modelos e ajustes continuam entrando — o catálogo de hoje
-            não é o catálogo definitivo.
+            Novos modelos e ajustes continuam entrando — o catálogo de hoje não
+            é o catálogo definitivo.
           </FeatureCard>
         </div>
       </div>
@@ -565,8 +573,8 @@ export default function SobrePage() {
           Sua agenda ainda é só uma ideia. Vamos colocar no papel?
         </h2>
         <p className="text-sm text-[#D8CBA8] max-w-lg leading-relaxed">
-          Escolha um modelo, personalize do seu jeito e baixe um PDF pronto
-          pra imprimir em poucos minutos.
+          Escolha um modelo, personalize do seu jeito e baixe um PDF pronto pra
+          imprimir em poucos minutos.
         </p>
         <button
           onClick={() => navigate("/preview")}
