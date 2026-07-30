@@ -72,22 +72,46 @@ export default function ConfigPage() {
 
   const {
     colorTheme,
-    primaryColor, setPrimaryColor,
-    secondaryColor, setSecondaryColor,
-    bgColor, setBgColor,
-    fontFamily, setFontFamily,
+    primaryColor,
+    setPrimaryColor,
+    secondaryColor,
+    setSecondaryColor,
+    bgColor,
+    setBgColor,
+    fontFamily,
+    setFontFamily,
     logo,
-    footerType, setFooterType,
+    footerType,
+    setFooterType,
     watermarkSrc,
-    watermarkOpacity, setWatermarkOpacity,
+    watermarkOpacity,
+    setWatermarkOpacity,
     backgroundSrc,
-    backgroundOpacity, setBackgroundOpacity,
-    capaNome, setCapaNome,
-    capaEstilo, setCapaEstilo,
-    capaFrase, setCapaFrase,
+    backgroundOpacity,
+    setBackgroundOpacity,
+    capaNome,
+    setCapaNome,
+    capaEstilo,
+    setCapaEstilo,
+    capaFrase,
+    setCapaFrase,
+    // NOVAS CORES DOS DIAS
+    domingoColor,
+    setDomingoColor,
+    sabadoColor,
+    setSabadoColor,
+    diaNormalColor,
+    setDiaNormalColor,
+    feriadoColor,
+    setFeriadoColor,
+    comemorativaColor,
+    setComemorativaColor,
   } = useAgendaConfig();
 
-  const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({ id, nome }));
+  const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
+    id,
+    nome,
+  }));
 
   const onFooterTypeChange = (type, label, icon) => {
     setFooterType(type);
@@ -104,7 +128,8 @@ export default function ConfigPage() {
           Deixe do seu jeito
         </h1>
         <p className="text-sm text-[#6B6458] mt-1">
-          Ajuste cores, fonte, rodapé, logo, marca d'água, fundo e a capa da agenda.
+          Ajuste cores, fonte, rodapé, logo, marca d'água, fundo e a capa da
+          agenda.
         </p>
       </div>
 
@@ -140,8 +165,16 @@ export default function ConfigPage() {
         >
           <div className="flex items-center gap-5">
             {[
-              { value: primaryColor, onChange: setPrimaryColor, title: "Primária" },
-              { value: secondaryColor, onChange: setSecondaryColor, title: "Secundária" },
+              {
+                value: primaryColor,
+                onChange: setPrimaryColor,
+                title: "Primária",
+              },
+              {
+                value: secondaryColor,
+                onChange: setSecondaryColor,
+                title: "Secundária",
+              },
               { value: bgColor, onChange: setBgColor, title: "Fundo" },
             ].map(({ value, onChange, title }) => (
               <div key={title} className="flex flex-col items-center gap-1.5">
@@ -152,14 +185,78 @@ export default function ConfigPage() {
                   className="w-9 h-9 p-0 border-2 border-[#D8CBA8] rounded-full cursor-pointer hover:border-[#B8933D] transition shadow-sm"
                   title={title}
                 />
-                <span className="text-[10px] text-[#8B6A1F] font-medium">{title}</span>
+                <span className="text-[10px] text-[#8B6A1F] font-medium">
+                  {title}
+                </span>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+
+        {/* Cores dos Dias do Calendário */}
+        <SectionCard
+          title="Cores dos dias do calendário"
+          description="Personalize as cores dos dias, feriados e datas comemorativas."
+          icon={MdColorLens}
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[
+              {
+                value: domingoColor,
+                onChange: setDomingoColor,
+                title: "Domingo",
+                label: "Domingo",
+              },
+              {
+                value: sabadoColor,
+                onChange: setSabadoColor,
+                title: "Sábado",
+                label: "Sábado",
+              },
+              {
+                value: diaNormalColor,
+                onChange: setDiaNormalColor,
+                title: "Dia normal",
+                label: "Dia normal",
+              },
+              {
+                value: feriadoColor,
+                onChange: setFeriadoColor,
+                title: "Feriado",
+                label: "Feriado",
+              },
+              {
+                value: comemorativaColor,
+                onChange: setComemorativaColor,
+                title: "Comemorativa",
+                label: "Comemorativa",
+              },
+            ].map(({ value, onChange, title, label }) => (
+              <div
+                key={title}
+                className="flex flex-col items-center gap-1.5 p-3 bg-[#FBF8F1] rounded-xl border border-[#D8CBA8]"
+              >
+                <input
+                  type="color"
+                  value={value}
+                  onChange={(e) => onChange(e.target.value)}
+                  className="w-10 h-10 p-0 border-2 border-[#D8CBA8] rounded-full cursor-pointer hover:border-[#B8933D] transition shadow-sm"
+                  title={title}
+                />
+                <span className="text-[10px] text-[#8B6A1F] font-medium">
+                  {label}
+                </span>
               </div>
             ))}
           </div>
         </SectionCard>
 
         {/* Fonte */}
-        <SectionCard title="Tipografia" description="Fonte usada nos textos da agenda." icon={MdFontDownload}>
+        <SectionCard
+          title="Tipografia"
+          description="Fonte usada nos textos da agenda."
+          icon={MdFontDownload}
+        >
           <select
             value={fontFamily}
             onChange={(e) => setFontFamily(e.target.value)}
@@ -167,7 +264,11 @@ export default function ConfigPage() {
             style={{ fontFamily }}
           >
             {FONT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value} style={{ fontFamily: opt.value }}>
+              <option
+                key={opt.value}
+                value={opt.value}
+                style={{ fontFamily: opt.value }}
+              >
                 {opt.label}
               </option>
             ))}
@@ -175,11 +276,24 @@ export default function ConfigPage() {
         </SectionCard>
 
         {/* Rodapé */}
-        <SectionCard title="Rodapé" description="Estilo do rodapé exibido nas páginas.">
+        <SectionCard
+          title="Rodapé"
+          description="Estilo do rodapé exibido nas páginas."
+        >
           <div className="flex flex-wrap gap-2">
             {[
-              { type: "default", label: "Rodapé padrão", icon: "📄", display: "Padrão" },
-              { type: "biblical", label: "Rodapé bíblico", icon: "📖", display: "Bíblico" },
+              {
+                type: "default",
+                label: "Rodapé padrão",
+                icon: "📄",
+                display: "Padrão",
+              },
+              {
+                type: "biblical",
+                label: "Rodapé bíblico",
+                icon: "📖",
+                display: "Bíblico",
+              },
             ].map(({ type, label, icon, display }) => (
               <button
                 key={type}
@@ -197,16 +311,29 @@ export default function ConfigPage() {
         </SectionCard>
 
         {/* Logo */}
-        <SectionCard title="Logo" description="Aparece no cabeçalho das páginas." icon={MdImage}>
+        <SectionCard
+          title="Logo"
+          description="Aparece no cabeçalho das páginas."
+          icon={MdImage}
+        >
           <div className="flex items-center gap-3">
             <label className="cursor-pointer bg-[#FBF8F1] hover:bg-[#EFE4C8] text-[#24344D] text-xs px-3.5 py-2 rounded-lg border border-[#D8CBA8] flex items-center gap-1.5 transition hover:border-[#B8933D]">
               <MdUpload className="w-3.5 h-3.5" />
               {logo ? "Alterar logo" : "Enviar logo"}
-              <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
             </label>
             {logo && (
               <>
-                <img src={logo} alt="Logo" className="w-9 h-9 rounded-lg object-cover border border-[#D8CBA8]" />
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className="w-9 h-9 rounded-lg object-cover border border-[#D8CBA8]"
+                />
                 <button
                   onClick={handleRemoveLogo}
                   className="text-[#8B2E3F] hover:text-[#6E2432] text-xs underline transition"
@@ -219,12 +346,21 @@ export default function ConfigPage() {
         </SectionCard>
 
         {/* Marca d'água */}
-        <SectionCard title="Marca d'água" description="Imagem sutil no fundo das páginas." icon={MdImage}>
+        <SectionCard
+          title="Marca d'água"
+          description="Imagem sutil no fundo das páginas."
+          icon={MdImage}
+        >
           <div className="flex flex-wrap items-center gap-3">
             <label className="cursor-pointer bg-[#FBF8F1] hover:bg-[#EFE4C8] text-[#24344D] text-xs px-3.5 py-2 rounded-lg border border-[#D8CBA8] flex items-center gap-1.5 transition hover:border-[#B8933D]">
               <MdUpload className="w-3.5 h-3.5" />
               {watermarkSrc ? "Alterar" : "Enviar"}
-              <input type="file" accept="image/*" onChange={handleWatermarkUpload} className="hidden" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleWatermarkUpload}
+                className="hidden"
+              />
             </label>
             {watermarkSrc && (
               <>
@@ -235,14 +371,18 @@ export default function ConfigPage() {
                   Remover
                 </button>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[#8B6A1F] uppercase tracking-wide">Opacidade</span>
+                  <span className="text-[10px] text-[#8B6A1F] uppercase tracking-wide">
+                    Opacidade
+                  </span>
                   <input
                     type="range"
                     min="0.01"
                     max="0.1"
                     step="0.01"
                     value={watermarkOpacity}
-                    onChange={(e) => setWatermarkOpacity(parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      setWatermarkOpacity(parseFloat(e.target.value))
+                    }
                     className="w-24 h-1 accent-[#B8933D]"
                   />
                 </div>
@@ -261,7 +401,12 @@ export default function ConfigPage() {
             <label className="cursor-pointer bg-[#FBF8F1] hover:bg-[#EFE4C8] text-[#24344D] text-xs px-3.5 py-2 rounded-lg border border-[#D8CBA8] flex items-center gap-1.5 transition hover:border-[#B8933D]">
               <MdUpload className="w-3.5 h-3.5" />
               {backgroundSrc ? "Alterar fundo" : "Enviar fundo"}
-              <input type="file" accept="image/*" onChange={handleBackgroundUpload} className="hidden" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleBackgroundUpload}
+                className="hidden"
+              />
             </label>
             {backgroundSrc && (
               <>
@@ -277,14 +422,18 @@ export default function ConfigPage() {
                   Remover
                 </button>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[#8B6A1F] uppercase tracking-wide">Intensidade</span>
+                  <span className="text-[10px] text-[#8B6A1F] uppercase tracking-wide">
+                    Intensidade
+                  </span>
                   <input
                     type="range"
                     min="0.05"
                     max="1"
                     step="0.05"
                     value={backgroundOpacity}
-                    onChange={(e) => setBackgroundOpacity(parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      setBackgroundOpacity(parseFloat(e.target.value))
+                    }
                     className="w-24 h-1 accent-[#B8933D]"
                   />
                 </div>
@@ -295,7 +444,10 @@ export default function ConfigPage() {
       </div>
 
       {/* Capa */}
-      <SectionCard title="Capa" description="Nome, frase e estilo exibidos na página de capa.">
+      <SectionCard
+        title="Capa"
+        description="Nome, frase e estilo exibidos na página de capa."
+      >
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F]">

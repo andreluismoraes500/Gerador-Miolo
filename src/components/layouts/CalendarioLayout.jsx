@@ -61,6 +61,14 @@ export default function CalendarioLayout({
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
 
+  // CORES PERSONALIZÁVEIS PARA OS DIAS
+  // Você pode adicionar estas cores no ConfigBar e no AgendaConfigContext
+  const domingoColor = customColors.domingo || "#ef4444"; // vermelho padrão
+  const sabadoColor = customColors.sabado || "#3b82f6"; // azul padrão
+  const diaNormalColor = customColors.diaNormal || "#374151"; // cinza escuro padrão
+  const feriadoColor = customColors.feriado || "#dc2626"; // vermelho escuro padrão
+  const comemorativaColor = customColors.comemorativa || "#b45309"; // laranja padrão
+
   const legendaCompleta = useMemo(() => {
     const eventos = [];
     for (let m = 0; m < 12; m++) {
@@ -94,7 +102,9 @@ export default function CalendarioLayout({
       className="printable-page bg-white font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -147,7 +157,21 @@ export default function CalendarioLayout({
                   {DIAS_SEMANA.map((d, i) => (
                     <span
                       key={i}
-                      className={`h-3.5 flex items-center justify-center ${i === 0 ? "text-red-400 font-extrabold" : i === 6 ? "text-blue-500 font-extrabold" : ""}`}
+                      className={`h-3.5 flex items-center justify-center ${
+                        i === 0
+                          ? "font-extrabold"
+                          : i === 6
+                            ? "font-extrabold"
+                            : ""
+                      }`}
+                      style={{
+                        color:
+                          i === 0
+                            ? domingoColor
+                            : i === 6
+                              ? sabadoColor
+                              : "inherit",
+                      }}
                     >
                       {d}
                     </span>
@@ -167,18 +191,28 @@ export default function CalendarioLayout({
                         const feriadoObj = getFeriado(dataAtual);
                         const comemorativaNome = getComemorativa(dataAtual);
 
-                        let classeDia = "text-gray-700 hover:bg-gray-50";
-                        if (isDomingo)
-                          classeDia = "text-red-500 font-bold bg-red-50/40";
-                        else if (isSabado)
-                          classeDia = tema.sabado + " font-bold";
-                        if (comemorativaNome) {
-                          classeDia =
-                            "text-amber-700 font-bold bg-amber-50 rounded-full border border-dashed border-amber-300";
+                        // Define a cor baseada no tipo de dia
+                        let corDia = diaNormalColor;
+                        let classeDia = "hover:bg-gray-50 transition-colors";
+
+                        if (isDomingo) {
+                          corDia = domingoColor;
+                          classeDia += " font-bold bg-red-50/40";
+                        } else if (isSabado) {
+                          corDia = sabadoColor;
+                          classeDia += ` font-bold ${tema.sabado || ""}`;
                         }
+
+                        if (comemorativaNome) {
+                          corDia = comemorativaColor;
+                          classeDia +=
+                            " font-bold bg-amber-50 rounded-full border border-dashed border-amber-300";
+                        }
+
                         if (feriadoObj) {
-                          classeDia =
-                            "text-red-700 font-extrabold bg-red-100/70 rounded-full border border-solid border-red-200";
+                          corDia = feriadoColor;
+                          classeDia +=
+                            " font-extrabold bg-red-100/70 rounded-full border border-solid border-red-200";
                         }
 
                         return (
@@ -189,7 +223,8 @@ export default function CalendarioLayout({
                                 ? feriadoObj.nome
                                 : comemorativaNome || undefined
                             }
-                            className={`w-full h-full flex items-center justify-center rounded-sm transition-colors ${classeDia}`}
+                            className={`w-full h-full flex items-center justify-center rounded-sm ${classeDia}`}
+                            style={{ color: corDia }}
                           >
                             {String(dia).padStart(2, "0")}
                           </span>
@@ -229,7 +264,14 @@ export default function CalendarioLayout({
                   className="flex items-center gap-1.5 text-gray-700 border-b border-gray-100/30 py-0.5 min-w-0"
                 >
                   <span
-                    className={`font-mono font-bold shrink-0 px-1 rounded-sm ${isFeriado ? "text-red-600 bg-red-50" : "text-amber-700 bg-amber-50/60"}`}
+                    className={`font-mono font-bold shrink-0 px-1 rounded-sm ${
+                      isFeriado
+                        ? "text-red-600 bg-red-50"
+                        : "text-amber-700 bg-amber-50/60"
+                    }`}
+                    style={{
+                      color: isFeriado ? feriadoColor : comemorativaColor,
+                    }}
                   >
                     {String(evento.dia).padStart(2, "0")}/
                     {String(evento.mes).padStart(2, "0")}
