@@ -418,7 +418,7 @@ export function OrdemServicoCard({
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: 18 }).map((_, i) => (
+            {Array.from({ length: 4 }).map((_, i) => (
               <tr key={i}>
                 {[0, 1, 2].map((c) => (
                   <td
@@ -452,7 +452,9 @@ export function OrdemServicoCard({
             <span className="block text-[9.5px] font-bold uppercase tracking-wide">
               Total
             </span>
-            {prazo && <span className="text-[10px]">sugestão: {prazo}</span>}
+            {prazo && (
+              <span className="text-[10px]">sugestão: {prazo}</span>
+            )}
           </div>
         </div>
 
@@ -487,6 +489,262 @@ export function OrdemServicoCard({
           ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           - - - - - -
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================== RECIBO ================================
+
+export function ReciboCard({
+  empresa,
+  slogan,
+  logo,
+  referenteA,
+  rodape,
+  numero,
+  digits,
+  prefix,
+  watermarkStyle,
+}) {
+  const numStr = `${prefix || ""}${pad(numero, digits)}`;
+  return (
+    <div
+      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{ border: "2.5px solid var(--tal-accent)", outline: "2px solid var(--tal-accent)", outlineOffset: 5, margin: 5 }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-7 pt-6 pb-5">
+        <div className="flex items-start justify-between gap-3.5 pb-3 mb-4" style={{ borderBottom: "2px solid var(--tal-accent)" }}>
+          <div className="flex items-center gap-2.5 min-w-0">
+            {logo && <img src={logo} alt="Logo" className="max-w-16 max-h-16 object-contain rounded-md shrink-0" />}
+            <div className="min-w-0">
+              <h2 className="text-[19px] leading-tight m-0 truncate" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "var(--tal-accent-dark)" }}>
+                {empresa || "Recibo de Pagamento"}
+              </h2>
+              {slogan && <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">{slogan}</p>}
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="text-[11px] uppercase tracking-[1.5px]" style={{ fontFamily: "'Cormorant Garamond', serif", color: "var(--tal-ink-soft)" }}>
+              Recibo
+            </div>
+            <div
+              className="inline-block font-bold text-2xl rounded-lg px-3 py-1 mt-0.5"
+              style={{ fontFamily: "'Space Mono', monospace", color: "var(--tal-stamp)", border: "2px solid var(--tal-stamp)", transform: "rotate(-2deg)" }}
+            >
+              Nº {numStr}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex" style={{ borderTop: "1.3px solid var(--tal-accent)" }}>
+          <Campo label="Valor (R$)" flex={0.8} />
+          <Campo label="Data" flex={1} />
+        </div>
+        <div className="flex" style={{ borderTop: "1.3px solid var(--tal-accent)" }}>
+          <Campo label="Recebi de" flex={1} />
+        </div>
+        <div className="flex" style={{ borderTop: "1.3px solid var(--tal-accent)" }}>
+          <Campo label="A quantia de (por extenso)" flex={1} />
+        </div>
+        <div className="flex border-b-[1.3px]" style={{ borderTop: "1.3px solid var(--tal-accent)", borderColor: "var(--tal-accent)" }}>
+          <Campo label="Referente a" flex={1} />
+        </div>
+
+        <div className="flex justify-between items-end mt-8 pt-3">
+          <div className="text-[11px] text-(--tal-ink-soft)">
+            {referenteA ? `Padrão: ${referenteA}` : ""}
+          </div>
+          <div className="text-center">
+            <div className="w-52 border-t border-gray-400 mb-1" />
+            <span className="text-[10.5px] text-(--tal-ink-soft)">assinatura de quem recebeu</span>
+          </div>
+        </div>
+
+        {rodape && <div className="mt-3 text-[11px] text-(--tal-ink-soft)">{rodape}</div>}
+
+        <div className="text-center mt-3.5 pt-2.5 text-[10.5px] text-[#9aa5a3] tracking-wide" style={{ borderTop: "2px dashed #c7cdcb" }}>
+          ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================== COMANDA ===============================
+
+export function ComandaCard({ empresa, logo, linhas, rodape, numero, digits, prefix, watermarkStyle }) {
+  const numStr = `${prefix || ""}${pad(numero, digits)}`;
+  return (
+    <div
+      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{ border: "2.5px solid var(--tal-accent)", outline: "2px solid var(--tal-accent)", outlineOffset: 5, margin: 5 }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-7 pt-6 pb-5">
+        <div className="flex items-start justify-between gap-3.5 pb-3 mb-2.5" style={{ borderBottom: "2px solid var(--tal-accent)" }}>
+          <div className="flex items-center gap-2.5 min-w-0">
+            {logo && <img src={logo} alt="Logo" className="max-w-16 max-h-16 object-contain rounded-md shrink-0" />}
+            <h2 className="text-[19px] leading-tight m-0 truncate" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "var(--tal-accent-dark)" }}>
+              {empresa || "Comanda"}
+            </h2>
+          </div>
+          <div
+            className="inline-block font-bold text-2xl rounded-lg px-3 py-1 shrink-0"
+            style={{ fontFamily: "'Space Mono', monospace", color: "var(--tal-stamp)", border: "2px solid var(--tal-stamp)", transform: "rotate(-2deg)" }}
+          >
+            Nº {numStr}
+          </div>
+        </div>
+
+        <div className="flex" style={{ borderTop: "1.3px solid var(--tal-accent)", borderBottom: "1.3px solid var(--tal-accent)" }}>
+          <Campo label="Mesa / Comanda" flex={1} />
+          <Campo label="Garçom(ete)" flex={1} />
+          <Campo label="Nº de pessoas" flex={0.8} />
+        </div>
+
+        <table className="w-full border-collapse mt-3.5 text-xs">
+          <thead>
+            <tr>
+              {["Qtd.", "Item", "Observações"].map((h) => (
+                <th key={h} className="text-white font-semibold text-[11px] uppercase tracking-wide py-1.5 px-1.5" style={{ fontFamily: "'Cormorant Garamond', serif", background: "var(--tal-accent)" }}>
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: linhas || 10 }).map((_, i) => (
+              <tr key={i}>
+                <td className="h-5.75 px-1.5 text-center" style={{ border: "1px solid var(--tal-accent)", width: "14%" }} />
+                <td className="h-5.75 px-1.5" style={{ border: "1px solid var(--tal-accent)" }} />
+                <td className="h-5.75 px-1.5" style={{ border: "1px solid var(--tal-accent)" }} />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {rodape && <div className="mt-3 text-[11px] text-(--tal-ink-soft)">{rodape}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ============================== RESERVA ===============================
+
+export function ReservaCard({ empresa, slogan, logo, politica, rodape, numero, digits, prefix, watermarkStyle }) {
+  const numStr = `${prefix || ""}${pad(numero, digits)}`;
+  return (
+    <div
+      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{ border: "2.5px solid var(--tal-accent)", outline: "2px solid var(--tal-accent)", outlineOffset: 5, margin: 5 }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-7 pt-6 pb-5">
+        <div className="flex items-start justify-between gap-3.5 pb-3 mb-2.5" style={{ borderBottom: "2px solid var(--tal-accent)" }}>
+          <div className="flex items-center gap-2.5 min-w-0">
+            {logo && <img src={logo} alt="Logo" className="max-w-16 max-h-16 object-contain rounded-md shrink-0" />}
+            <div className="min-w-0">
+              <h2 className="text-[19px] leading-tight m-0 truncate" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "var(--tal-accent-dark)" }}>
+                {empresa || "Ficha de Reserva"}
+              </h2>
+              {slogan && <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">{slogan}</p>}
+            </div>
+          </div>
+          <div
+            className="inline-block font-bold text-2xl rounded-lg px-3 py-1 shrink-0"
+            style={{ fontFamily: "'Space Mono', monospace", color: "var(--tal-stamp)", border: "2px solid var(--tal-stamp)", transform: "rotate(-2deg)" }}
+          >
+            Nº {numStr}
+          </div>
+        </div>
+
+        <div className="flex" style={{ borderTop: "1.3px solid var(--tal-accent)" }}>
+          <Campo label="Cliente" flex={2} />
+          <Campo label="Telefone" flex={1} />
+        </div>
+        <div className="flex" style={{ borderTop: "1.3px solid var(--tal-accent)" }}>
+          <Campo label="Serviço / motivo" flex={1.4} />
+          <Campo label="Profissional" flex={1} />
+        </div>
+        <div className="flex border-b-[1.3px]" style={{ borderTop: "1.3px solid var(--tal-accent)", borderColor: "var(--tal-accent)" }}>
+          <Campo label="Data" flex={1} />
+          <Campo label="Horário" flex={1} />
+          <Campo label="Confirmado?" flex={1} />
+        </div>
+
+        <div className="mt-3">
+          <span className="block text-[9.5px] font-bold uppercase tracking-wide mb-1" style={{ color: "var(--tal-accent-dark)" }}>
+            Observações
+          </span>
+          <div className="w-full" style={{ minHeight: 42, border: "1.3px solid var(--tal-accent)", backgroundImage: "repeating-linear-gradient(transparent, transparent 17px, #e4e4e4 18px)" }} />
+        </div>
+
+        {politica && <div className="mt-3 text-[10.5px] text-(--tal-ink-soft)">Política de cancelamento: {politica}</div>}
+        {rodape && <div className="mt-1.5 text-[10.5px] text-(--tal-ink-soft)">{rodape}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ============================ VALE-PRESENTE =============================
+
+export function ValePresenteCard({
+  empresa,
+  slogan,
+  logo,
+  validade,
+  mensagemPadrao,
+  numero,
+  digits,
+  prefix,
+  watermarkStyle,
+}) {
+  const numStr = `${prefix || ""}${pad(numero, digits)}`;
+  return (
+    <div
+      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{ border: "2.5px solid var(--tal-accent)", outline: "2px solid var(--tal-accent)", outlineOffset: 5, margin: 5 }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-8 pt-7 pb-6 text-center">
+        {logo && <img src={logo} alt="Logo" className="max-w-16 max-h-16 object-contain rounded-md mx-auto mb-2" />}
+        <h2 className="text-[22px] m-0" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "var(--tal-accent-dark)" }}>
+          {empresa || "Vale-Presente"}
+        </h2>
+        {slogan && <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">{slogan}</p>}
+
+        <div
+          className="inline-block font-bold text-xl rounded-lg px-4 py-1.5 mt-4"
+          style={{ fontFamily: "'Space Mono', monospace", color: "var(--tal-stamp)", border: "2px solid var(--tal-stamp)", transform: "rotate(-2deg)" }}
+        >
+          Código {numStr}
+        </div>
+
+        <div className="mt-5 flex justify-center gap-6">
+          <div className="text-left">
+            <span className="block text-[9.5px] uppercase tracking-widest text-(--tal-ink-soft)">De</span>
+            <div className="w-40 border-b border-gray-400 h-6" />
+          </div>
+          <div className="text-left">
+            <span className="block text-[9.5px] uppercase tracking-widest text-(--tal-ink-soft)">Para</span>
+            <div className="w-40 border-b border-gray-400 h-6" />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <span className="block text-[9.5px] uppercase tracking-widest text-(--tal-ink-soft) mb-1">Valor</span>
+          <div className="w-40 mx-auto border-b border-gray-400 h-7" />
+        </div>
+
+        <p className="mt-4 text-[11.5px] text-(--tal-ink-soft) max-w-100 mx-auto min-h-[6mm]">
+          {mensagemPadrao || "mensagem"}
+        </p>
+
+        <p className="mt-4 text-[10.5px] text-(--tal-ink-soft)">
+          Válido até: {validade || "____/____/______"}
+        </p>
       </div>
     </div>
   );
@@ -804,116 +1062,11 @@ export function ReceitaCard({
 // números (que é o que realmente importa numa cartela). `porPagina`
 // indefinido (preview grande fora da grade de impressão) usa o nível "xl".
 const BINGO_DENSITY = {
-  1: {
-    tier: "xl",
-    radius: 16,
-    cardBorder: 2.5,
-    outline: 2,
-    outlineOffset: 5,
-    pad: "px-6 pt-5 pb-6",
-    headPad: "pb-3 mb-4",
-    headBorder: 2,
-    logo: "max-w-11 max-h-11",
-    title: 18,
-    sub: 11,
-    badgeFont: 13,
-    badgePad: "4px 10px",
-    badgeBorder: 2,
-    tableBorder: 2.5,
-    thFont: 26,
-    thPad: "8px 0",
-    cellBorder: 1.2,
-    cellFont: 21,
-    freeFont: 11,
-  },
-  2: {
-    tier: "lg",
-    radius: 14,
-    cardBorder: 2,
-    outline: 1.4,
-    outlineOffset: 3,
-    pad: "px-7 pt-6 pb-7",
-    headPad: "pb-4 mb-5",
-    headBorder: 2,
-    logo: "max-w-12 max-h-12",
-    title: 23,
-    sub: 12.5,
-    badgeFont: 15,
-    badgePad: "5px 12px",
-    badgeBorder: 2,
-    tableBorder: 2.2,
-    thFont: 38,
-    thPad: "13px 0",
-    cellBorder: 1.4,
-    cellFont: 32,
-    freeFont: 13,
-  },
-  4: {
-    tier: "md",
-    radius: 12,
-    cardBorder: 1.6,
-    outline: 0,
-    outlineOffset: 0,
-    pad: "px-4.5 pt-4 pb-4",
-    headPad: "pb-2.5 mb-3",
-    headBorder: 1.6,
-    logo: "max-w-9 max-h-9",
-    title: 16.5,
-    sub: 10,
-    badgeFont: 12.5,
-    badgePad: "3px 9px",
-    badgeBorder: 1.6,
-    tableBorder: 1.8,
-    thFont: 25,
-    thPad: "6px 0",
-    cellBorder: 1.1,
-    cellFont: 21,
-    freeFont: 9.5,
-  },
-  6: {
-    tier: "sm",
-    radius: 10,
-    cardBorder: 1.3,
-    outline: 0,
-    outlineOffset: 0,
-    pad: "px-3 pt-2.5 pb-2.5",
-    headPad: "pb-1.5 mb-2",
-    headBorder: 1.3,
-    logo: "max-w-6 max-h-6",
-    title: 13.5,
-    sub: 8.5,
-    badgeFont: 10.5,
-    badgePad: "2.5px 7px",
-    badgeBorder: 1.3,
-    tableBorder: 1.4,
-    thFont: 17.5,
-    thPad: "4px 0",
-    cellBorder: 0.9,
-    cellFont: 16,
-    freeFont: 7.5,
-  },
-  9: {
-    tier: "xs",
-    radius: 8,
-    cardBorder: 1,
-    outline: 0,
-    outlineOffset: 0,
-    pad: "px-2.5 pt-2 pb-2",
-    headPad: "pb-1 mb-1.5",
-    headBorder: 1,
-    logo: "max-w-5 max-h-5",
-    title: 10.5,
-    sub: 7,
-    badgeFont: 8.5,
-    badgePad: "2px 5px",
-    badgeBorder: 1,
-    tableBorder: 1.1,
-    thFont: 13,
-    thPad: "2.5px 0",
-    cellBorder: 0.75,
-    cellFont: 13.5,
-    freeFont: 6.5,
-  },
+  1:  { tier: "xl", radius: 16, cardBorder: 2.5, outline: 2,   outlineOffset: 5, pad: "px-6 pt-5 pb-6",      headPad: "pb-3 mb-4",   headBorder: 2,   logo: "max-w-11 max-h-11", title: 18,   sub: 11,  badgeFont: 13,   badgePad: "4px 10px", badgeBorder: 2,   tableBorder: 2.5, thFont: 26, thPad: "8px 0",   cellBorder: 1.2,  cellFont: 21, freeFont: 11 },
+  2:  { tier: "lg", radius: 14, cardBorder: 2,   outline: 1.4, outlineOffset: 3, pad: "px-7 pt-6 pb-7",      headPad: "pb-4 mb-5",   headBorder: 2,   logo: "max-w-12 max-h-12", title: 23,   sub: 12.5,badgeFont: 15,   badgePad: "5px 12px", badgeBorder: 2,   tableBorder: 2.2, thFont: 38, thPad: "13px 0",  cellBorder: 1.4,  cellFont: 32, freeFont: 13 },
+  4:  { tier: "md", radius: 12, cardBorder: 1.6, outline: 0,   outlineOffset: 0, pad: "px-4.5 pt-4 pb-4",    headPad: "pb-2.5 mb-3", headBorder: 1.6, logo: "max-w-9 max-h-9",  title: 16.5, sub: 10,  badgeFont: 12.5, badgePad: "3px 9px",  badgeBorder: 1.6, tableBorder: 1.8, thFont: 25, thPad: "6px 0",   cellBorder: 1.1,  cellFont: 21, freeFont: 9.5 },
+  6:  { tier: "sm", radius: 10, cardBorder: 1.3, outline: 0,   outlineOffset: 0, pad: "px-3 pt-2.5 pb-2.5",  headPad: "pb-1.5 mb-2", headBorder: 1.3, logo: "max-w-6 max-h-6",  title: 13.5, sub: 8.5, badgeFont: 10.5, badgePad: "2.5px 7px",badgeBorder: 1.3, tableBorder: 1.4, thFont: 17.5,thPad: "4px 0",   cellBorder: 0.9,  cellFont: 16, freeFont: 7.5 },
+  9:  { tier: "xs", radius: 8,  cardBorder: 1,   outline: 0,   outlineOffset: 0, pad: "px-2.5 pt-2 pb-2",    headPad: "pb-1 mb-1.5", headBorder: 1,   logo: "max-w-5 max-h-5",  title: 10.5, sub: 7,   badgeFont: 8.5,  badgePad: "2px 5px",  badgeBorder: 1,   tableBorder: 1.1, thFont: 13,  thPad: "2.5px 0", cellBorder: 0.75, cellFont: 13.5, freeFont: 6.5 },
 };
 
 export function BingoCard({
@@ -929,8 +1082,7 @@ export function BingoCard({
 }) {
   // `porPagina` é a fonte da verdade; `compact` (legado) só serve de
   // fallback pra quem ainda não passa porPagina explicitamente.
-  const d =
-    BINGO_DENSITY[porPagina] || (compact ? BINGO_DENSITY[4] : BINGO_DENSITY[1]);
+  const d = BINGO_DENSITY[porPagina] || (compact ? BINGO_DENSITY[4] : BINGO_DENSITY[1]);
   const isCompact = d.tier !== "xl";
 
   return (
@@ -1041,15 +1193,11 @@ export function BingoCard({
                         className="text-center align-middle"
                         style={{
                           border: `${d.cellBorder}px solid var(--tal-accent)`,
-                          background: isFree
-                            ? "var(--tal-accent-light)"
-                            : "#fff",
+                          background: isFree ? "var(--tal-accent-light)" : "#fff",
                           fontFamily: "'Space Mono', monospace",
                           fontSize: isFree ? d.freeFont : d.cellFont,
                           fontWeight: 700,
-                          color: isFree
-                            ? "var(--tal-accent-dark)"
-                            : "var(--tal-ink)",
+                          color: isFree ? "var(--tal-accent-dark)" : "var(--tal-ink)",
                           textTransform: isFree ? "uppercase" : "none",
                           letterSpacing: isFree ? "0.4px" : "normal",
                         }}

@@ -17,6 +17,10 @@ export const TAL_ACCENTS = {
   receita: { accent: "#c9822c", dark: "#966017", light: "#fbf1df" },
   bingo: { accent: "#7c3aed", dark: "#5b21b6", light: "#f1e9fe" },
   ordemServico: { accent: "#b45309", dark: "#7c3908", light: "#fbead2" },
+  recibo: { accent: "#166534", dark: "#0f4a25", light: "#e4f5e9" },
+  comanda: { accent: "#9d174d", dark: "#701038", light: "#fbe4ee" },
+  reserva: { accent: "#4338ca", dark: "#312a8f", light: "#e7e5fb" },
+  valePresente: { accent: "#be123c", dark: "#8b0e2c", light: "#fbe0e6" },
 };
 
 // Algumas sugestões de cor rápidas para o seletor de configurações
@@ -228,6 +232,66 @@ export function useTalonarioBuilder() {
     setOrdemServico((o) => ({ ...o, [key]: value }));
   }, []);
 
+  // ---------------- Recibo de Pagamento ----------------
+  const [recibo, setRecibo] = useState({
+    empresa: "",
+    slogan: "",
+    numStart: 1,
+    numEnd: 50,
+    prefix: "REC-",
+    digits: 4,
+    referenteA: "",
+    rodape: "",
+  });
+  const setReciboField = useCallback((key, value) => {
+    setRecibo((r) => ({ ...r, [key]: value }));
+  }, []);
+
+  // ---------------- Comandas ----------------
+  const [comanda, setComanda] = useState({
+    empresa: "",
+    slogan: "",
+    numStart: 1,
+    numEnd: 100,
+    prefix: "",
+    digits: 3,
+    linhas: 10,
+    rodape: "",
+  });
+  const setComandaField = useCallback((key, value) => {
+    setComanda((c) => ({ ...c, [key]: value }));
+  }, []);
+
+  // ---------------- Reserva / Agendamento ----------------
+  const [reserva, setReserva] = useState({
+    empresa: "",
+    slogan: "",
+    numStart: 1,
+    numEnd: 50,
+    prefix: "",
+    digits: 3,
+    politica: "",
+    rodape: "",
+  });
+  const setReservaField = useCallback((key, value) => {
+    setReserva((r) => ({ ...r, [key]: value }));
+  }, []);
+
+  // ---------------- Vale-Presente / Voucher ----------------
+  const [valePresente, setValePresente] = useState({
+    empresa: "",
+    slogan: "",
+    numStart: 1,
+    numEnd: 50,
+    prefix: "VP-",
+    digits: 4,
+    validade: "",
+    mensagemPadrao: "",
+  });
+  const setValePresenteField = useCallback((key, value) => {
+    setValePresente((v) => ({ ...v, [key]: value }));
+  }, []);
+
   // ---------------- Bingo ----------------
   const [bingo, setBingo] = useState({
     titulo: "Noite de Bingo",
@@ -275,6 +339,10 @@ export function useTalonarioBuilder() {
     receita: null,
     bingo: null,
     ordemServico: null,
+    recibo: null,
+    comanda: null,
+    reserva: null,
+    valePresente: null,
   });
 
   const handleLogoUpload = useCallback(async (who, file) => {
@@ -377,6 +445,34 @@ export function useTalonarioBuilder() {
     return { start, end, total: end - start + 1 };
   }, [ordemServico.numStart, ordemServico.numEnd]);
 
+  const reciboRange = useMemo(() => {
+    let start = parseInt(recibo.numStart, 10) || 1;
+    let end = parseInt(recibo.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [recibo.numStart, recibo.numEnd]);
+
+  const comandaRange = useMemo(() => {
+    let start = parseInt(comanda.numStart, 10) || 1;
+    let end = parseInt(comanda.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [comanda.numStart, comanda.numEnd]);
+
+  const reservaRange = useMemo(() => {
+    let start = parseInt(reserva.numStart, 10) || 1;
+    let end = parseInt(reserva.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [reserva.numStart, reserva.numEnd]);
+
+  const valePresenteRange = useMemo(() => {
+    let start = parseInt(valePresente.numStart, 10) || 1;
+    let end = parseInt(valePresente.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [valePresente.numStart, valePresente.numEnd]);
+
   // ---------------- impressão ----------------
   const [printBatch, setPrintBatch] = useState(null); // { tab, items } | null
   const printTimeoutRef = useRef(null);
@@ -424,6 +520,42 @@ export function useTalonarioBuilder() {
       }
       const items = Array.from({ length: total }, (_, i) => start + i);
       setPrintBatch({ tab: "ordemServico", items });
+    } else if (activeTab === "recibo") {
+      const { start, end, total } = reciboRange;
+      if (
+        total > 800 &&
+        !window.confirm(`Você está prestes a gerar ${total} recibos. Isso pode demorar. Deseja continuar?`)
+      ) {
+        return;
+      }
+      setPrintBatch({ tab: "recibo", items: Array.from({ length: total }, (_, i) => start + i) });
+    } else if (activeTab === "comanda") {
+      const { start, end, total } = comandaRange;
+      if (
+        total > 800 &&
+        !window.confirm(`Você está prestes a gerar ${total} comandas. Isso pode demorar. Deseja continuar?`)
+      ) {
+        return;
+      }
+      setPrintBatch({ tab: "comanda", items: Array.from({ length: total }, (_, i) => start + i) });
+    } else if (activeTab === "reserva") {
+      const { start, end, total } = reservaRange;
+      if (
+        total > 800 &&
+        !window.confirm(`Você está prestes a gerar ${total} fichas de reserva. Isso pode demorar. Deseja continuar?`)
+      ) {
+        return;
+      }
+      setPrintBatch({ tab: "reserva", items: Array.from({ length: total }, (_, i) => start + i) });
+    } else if (activeTab === "valePresente") {
+      const { start, end, total } = valePresenteRange;
+      if (
+        total > 800 &&
+        !window.confirm(`Você está prestes a gerar ${total} vale-presentes. Isso pode demorar. Deseja continuar?`)
+      ) {
+        return;
+      }
+      setPrintBatch({ tab: "valePresente", items: Array.from({ length: total }, (_, i) => start + i) });
     } else if (activeTab === "bingo") {
       if (
         bingoCards.length > 100 &&
@@ -441,6 +573,10 @@ export function useTalonarioBuilder() {
     receituario.numerar,
     receituarioRange,
     ordemServicoRange,
+    reciboRange,
+    comandaRange,
+    reservaRange,
+    valePresenteRange,
     bingoCards,
   ]);
 
@@ -476,6 +612,22 @@ export function useTalonarioBuilder() {
     ordemServico,
     setOrdemServicoField,
     ordemServicoRange,
+
+    recibo,
+    setReciboField,
+    reciboRange,
+
+    comanda,
+    setComandaField,
+    comandaRange,
+
+    reserva,
+    setReservaField,
+    reservaRange,
+
+    valePresente,
+    setValePresenteField,
+    valePresenteRange,
 
     bingo,
     setBingoField,

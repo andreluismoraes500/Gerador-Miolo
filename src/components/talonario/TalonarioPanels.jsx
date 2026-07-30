@@ -322,6 +322,243 @@ export function OrdemServicoPanel({ ordemServico, setField, range }) {
   );
 }
 
+// ---------------- Recibo de Pagamento ----------------
+
+export function ReciboPanel({ recibo, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Identidade</SectionTitle>
+      <Label first>Nome / empresa</Label>
+      <TextInput
+        placeholder="Ex: João Silva - Serviços Gerais"
+        value={recibo.empresa}
+        onChange={(e) => setField("empresa", e.target.value)}
+      />
+      <Label>Slogan (opcional)</Label>
+      <TextInput
+        value={recibo.slogan}
+        onChange={(e) => setField("slogan", e.target.value)}
+      />
+
+      <SectionTitle>Numeração automática</SectionTitle>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label first>Do número</Label>
+          <NumberInput min={1} value={recibo.numStart} onChange={(e) => setField("numStart", e.target.value)} />
+        </div>
+        <div>
+          <Label first>Até o número</Label>
+          <NumberInput min={1} value={recibo.numEnd} onChange={(e) => setField("numEnd", e.target.value)} />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label>Prefixo (opcional)</Label>
+          <TextInput placeholder="Ex: REC-" value={recibo.prefix} onChange={(e) => setField("prefix", e.target.value)} />
+        </div>
+        <div>
+          <Label>Zeros à esquerda</Label>
+          <Select value={recibo.digits} onChange={(e) => setField("digits", Number(e.target.value))}>
+            <option value={0}>Sem zeros (1, 2, 3…)</option>
+            <option value={3}>3 dígitos (001)</option>
+            <option value={4}>4 dígitos (0001)</option>
+            <option value={5}>5 dígitos (00001)</option>
+          </Select>
+        </div>
+      </div>
+      <CountBadge>
+        {range.total} recibo{range.total > 1 ? "s" : ""} será{range.total > 1 ? "ão" : ""} gerado{range.total > 1 ? "s" : ""}
+      </CountBadge>
+
+      <SectionTitle>Conteúdo</SectionTitle>
+      <Label first>Texto padrão de "Referente a" (opcional)</Label>
+      <TextInput
+        placeholder="Ex: Prestação de serviço"
+        value={recibo.referenteA}
+        onChange={(e) => setField("referenteA", e.target.value)}
+      />
+      <Label>Texto de rodapé (opcional)</Label>
+      <TextInput value={recibo.rodape} onChange={(e) => setField("rodape", e.target.value)} />
+    </div>
+  );
+}
+
+// ---------------- Comandas ----------------
+
+export function ComandaPanel({ comanda, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Identidade</SectionTitle>
+      <Label first>Nome do estabelecimento</Label>
+      <TextInput
+        placeholder="Ex: Restaurante Sabor & Arte"
+        value={comanda.empresa}
+        onChange={(e) => setField("empresa", e.target.value)}
+      />
+      <Label>Slogan (opcional)</Label>
+      <TextInput value={comanda.slogan} onChange={(e) => setField("slogan", e.target.value)} />
+
+      <SectionTitle>Numeração automática</SectionTitle>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label first>Do número</Label>
+          <NumberInput min={1} value={comanda.numStart} onChange={(e) => setField("numStart", e.target.value)} />
+        </div>
+        <div>
+          <Label first>Até o número</Label>
+          <NumberInput min={1} value={comanda.numEnd} onChange={(e) => setField("numEnd", e.target.value)} />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label>Prefixo (opcional)</Label>
+          <TextInput value={comanda.prefix} onChange={(e) => setField("prefix", e.target.value)} />
+        </div>
+        <div>
+          <Label>Zeros à esquerda</Label>
+          <Select value={comanda.digits} onChange={(e) => setField("digits", Number(e.target.value))}>
+            <option value={0}>Sem zeros (1, 2, 3…)</option>
+            <option value={3}>3 dígitos (001)</option>
+            <option value={4}>4 dígitos (0001)</option>
+          </Select>
+        </div>
+      </div>
+      <CountBadge>
+        {range.total} comanda{range.total > 1 ? "s" : ""} será{range.total > 1 ? "ão" : ""} gerada{range.total > 1 ? "s" : ""}
+      </CountBadge>
+
+      <SectionTitle>Layout</SectionTitle>
+      <Label first>Linhas de itens</Label>
+      <NumberInput
+        min={4}
+        max={30}
+        value={comanda.linhas}
+        onChange={(e) => setField("linhas", Number(e.target.value) || 10)}
+      />
+      <Label>Texto de rodapé (opcional)</Label>
+      <TextInput value={comanda.rodape} onChange={(e) => setField("rodape", e.target.value)} />
+    </div>
+  );
+}
+
+// ---------------- Reserva / Agendamento ----------------
+
+export function ReservaPanel({ reserva, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Identidade</SectionTitle>
+      <Label first>Nome do negócio</Label>
+      <TextInput
+        placeholder="Ex: Studio Bela Hair"
+        value={reserva.empresa}
+        onChange={(e) => setField("empresa", e.target.value)}
+      />
+      <Label>Slogan (opcional)</Label>
+      <TextInput value={reserva.slogan} onChange={(e) => setField("slogan", e.target.value)} />
+
+      <SectionTitle>Numeração automática</SectionTitle>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label first>Do número</Label>
+          <NumberInput min={1} value={reserva.numStart} onChange={(e) => setField("numStart", e.target.value)} />
+        </div>
+        <div>
+          <Label first>Até o número</Label>
+          <NumberInput min={1} value={reserva.numEnd} onChange={(e) => setField("numEnd", e.target.value)} />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label>Prefixo (opcional)</Label>
+          <TextInput value={reserva.prefix} onChange={(e) => setField("prefix", e.target.value)} />
+        </div>
+        <div>
+          <Label>Zeros à esquerda</Label>
+          <Select value={reserva.digits} onChange={(e) => setField("digits", Number(e.target.value))}>
+            <option value={0}>Sem zeros (1, 2, 3…)</option>
+            <option value={3}>3 dígitos (001)</option>
+            <option value={4}>4 dígitos (0001)</option>
+          </Select>
+        </div>
+      </div>
+      <CountBadge>
+        {range.total} ficha{range.total > 1 ? "s" : ""} de reserva será{range.total > 1 ? "ão" : ""} gerada{range.total > 1 ? "s" : ""}
+      </CountBadge>
+
+      <SectionTitle>Condições</SectionTitle>
+      <Label first>Política de cancelamento (opcional)</Label>
+      <TextInput
+        placeholder="Ex: cancelamento com 24h de antecedência"
+        value={reserva.politica}
+        onChange={(e) => setField("politica", e.target.value)}
+      />
+      <Label>Texto de rodapé (opcional)</Label>
+      <TextInput value={reserva.rodape} onChange={(e) => setField("rodape", e.target.value)} />
+    </div>
+  );
+}
+
+// ---------------- Vale-Presente / Voucher ----------------
+
+export function ValePresentePanel({ valePresente, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Identidade</SectionTitle>
+      <Label first>Nome da loja / negócio</Label>
+      <TextInput
+        placeholder="Ex: Boutique Flor de Lis"
+        value={valePresente.empresa}
+        onChange={(e) => setField("empresa", e.target.value)}
+      />
+      <Label>Slogan (opcional)</Label>
+      <TextInput value={valePresente.slogan} onChange={(e) => setField("slogan", e.target.value)} />
+
+      <SectionTitle>Numeração automática (código do vale)</SectionTitle>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label first>Do número</Label>
+          <NumberInput min={1} value={valePresente.numStart} onChange={(e) => setField("numStart", e.target.value)} />
+        </div>
+        <div>
+          <Label first>Até o número</Label>
+          <NumberInput min={1} value={valePresente.numEnd} onChange={(e) => setField("numEnd", e.target.value)} />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <Label>Prefixo (opcional)</Label>
+          <TextInput placeholder="Ex: VP-" value={valePresente.prefix} onChange={(e) => setField("prefix", e.target.value)} />
+        </div>
+        <div>
+          <Label>Zeros à esquerda</Label>
+          <Select value={valePresente.digits} onChange={(e) => setField("digits", Number(e.target.value))}>
+            <option value={0}>Sem zeros (1, 2, 3…)</option>
+            <option value={4}>4 dígitos (0001)</option>
+            <option value={5}>5 dígitos (00001)</option>
+          </Select>
+        </div>
+      </div>
+      <CountBadge>
+        {range.total} vale{range.total > 1 ? "s" : ""}-presente será{range.total > 1 ? "ão" : ""} gerado{range.total > 1 ? "s" : ""}
+      </CountBadge>
+
+      <SectionTitle>Conteúdo</SectionTitle>
+      <Label first>Validade (opcional)</Label>
+      <TextInput
+        placeholder="Ex: 90 dias após a emissão"
+        value={valePresente.validade}
+        onChange={(e) => setField("validade", e.target.value)}
+      />
+      <Label>Mensagem padrão (opcional)</Label>
+      <TextInput
+        placeholder="Ex: Feliz aniversário!"
+        value={valePresente.mensagemPadrao}
+        onChange={(e) => setField("mensagemPadrao", e.target.value)}
+      />
+    </div>
+  );
+}
+
 // ---------------- Receituário ----------------
 
 export function ReceituarioPanel({ receituario, setField, range }) {
