@@ -131,51 +131,60 @@ export function PedidoPanel({ pedido, setField, toggleCampo, range }) {
       />
 
       <SectionTitle>Numeração automática</SectionTitle>
-      <div className="grid grid-cols-2 gap-2.5">
-        <div>
-          <Label first>Do número</Label>
-          <NumberInput
-            min={1}
-            value={pedido.numStart}
-            onChange={(e) => setField("numStart", e.target.value)}
-          />
-        </div>
-        <div>
-          <Label first>Até o número</Label>
-          <NumberInput
-            min={1}
-            value={pedido.numEnd}
-            onChange={(e) => setField("numEnd", e.target.value)}
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-2.5">
-        <div>
-          <Label>Prefixo (opcional)</Label>
-          <TextInput
-            placeholder="Ex: PV-"
-            value={pedido.prefix}
-            onChange={(e) => setField("prefix", e.target.value)}
-          />
-        </div>
-        <div>
-          <Label>Zeros à esquerda</Label>
-          <Select
-            value={pedido.digits}
-            onChange={(e) => setField("digits", Number(e.target.value))}
-          >
-            <option value={0}>Sem zeros (1, 2, 3…)</option>
-            <option value={3}>3 dígitos (001)</option>
-            <option value={4}>4 dígitos (0001)</option>
-            <option value={5}>5 dígitos (00001)</option>
-          </Select>
-        </div>
-      </div>
-      <CountBadge>
-        {range.total} página{range.total > 1 ? "s" : ""} será
-        {range.total > 1 ? "ão" : ""} gerada
-        {range.total > 1 ? "s" : ""}
-      </CountBadge>
+      <CheckRow
+        label="Numerar os pedidos"
+        checked={pedido.numerar}
+        onChange={(e) => setField("numerar", e.target.checked)}
+      />
+      {pedido.numerar && (
+        <>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label first>Do número</Label>
+              <NumberInput
+                min={1}
+                value={pedido.numStart}
+                onChange={(e) => setField("numStart", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label first>Até o número</Label>
+              <NumberInput
+                min={1}
+                value={pedido.numEnd}
+                onChange={(e) => setField("numEnd", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label>Prefixo (opcional)</Label>
+              <TextInput
+                placeholder="Ex: PV-"
+                value={pedido.prefix}
+                onChange={(e) => setField("prefix", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Zeros à esquerda</Label>
+              <Select
+                value={pedido.digits}
+                onChange={(e) => setField("digits", Number(e.target.value))}
+              >
+                <option value={0}>Sem zeros (1, 2, 3…)</option>
+                <option value={3}>3 dígitos (001)</option>
+                <option value={4}>4 dígitos (0001)</option>
+                <option value={5}>5 dígitos (00001)</option>
+              </Select>
+            </div>
+          </div>
+          <CountBadge>
+            {range.total} página{range.total > 1 ? "s" : ""} será
+            {range.total > 1 ? "ão" : ""} gerada
+            {range.total > 1 ? "s" : ""}
+          </CountBadge>
+        </>
+      )}
 
       <SectionTitle>Campos do cabeçalho</SectionTitle>
       <div className="grid grid-cols-2 gap-x-2.5">
@@ -254,50 +263,59 @@ export function OrdemServicoPanel({ ordemServico, setField, range }) {
       />
 
       <SectionTitle>Numeração automática</SectionTitle>
-      <div className="grid grid-cols-2 gap-2.5">
-        <div>
-          <Label first>Do número</Label>
-          <NumberInput
-            min={1}
-            value={ordemServico.numStart}
-            onChange={(e) => setField("numStart", e.target.value)}
-          />
-        </div>
-        <div>
-          <Label first>Até o número</Label>
-          <NumberInput
-            min={1}
-            value={ordemServico.numEnd}
-            onChange={(e) => setField("numEnd", e.target.value)}
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-2.5">
-        <div>
-          <Label>Prefixo (opcional)</Label>
-          <TextInput
-            placeholder="Ex: OS-"
-            value={ordemServico.prefix}
-            onChange={(e) => setField("prefix", e.target.value)}
-          />
-        </div>
-        <div>
-          <Label>Zeros à esquerda</Label>
-          <Select
-            value={ordemServico.digits}
-            onChange={(e) => setField("digits", Number(e.target.value))}
-          >
-            <option value={0}>Sem zeros (1, 2, 3…)</option>
-            <option value={3}>3 dígitos (001)</option>
-            <option value={4}>4 dígitos (0001)</option>
-            <option value={5}>5 dígitos (00001)</option>
-          </Select>
-        </div>
-      </div>
-      <CountBadge>
-        {range.total} ordem{range.total > 1 ? "ns" : ""} de serviço será
-        {range.total > 1 ? "ão" : ""} gerada{range.total > 1 ? "s" : ""}
-      </CountBadge>
+      <CheckRow
+        label="Numerar as ordens de serviço"
+        checked={ordemServico.numerar}
+        onChange={(e) => setField("numerar", e.target.checked)}
+      />
+      {ordemServico.numerar && (
+        <>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label first>Do número</Label>
+              <NumberInput
+                min={1}
+                value={ordemServico.numStart}
+                onChange={(e) => setField("numStart", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label first>Até o número</Label>
+              <NumberInput
+                min={1}
+                value={ordemServico.numEnd}
+                onChange={(e) => setField("numEnd", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label>Prefixo (opcional)</Label>
+              <TextInput
+                placeholder="Ex: OS-"
+                value={ordemServico.prefix}
+                onChange={(e) => setField("prefix", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Zeros à esquerda</Label>
+              <Select
+                value={ordemServico.digits}
+                onChange={(e) => setField("digits", Number(e.target.value))}
+              >
+                <option value={0}>Sem zeros (1, 2, 3…)</option>
+                <option value={3}>3 dígitos (001)</option>
+                <option value={4}>4 dígitos (0001)</option>
+                <option value={5}>5 dígitos (00001)</option>
+              </Select>
+            </div>
+          </div>
+          <CountBadge>
+            {range.total} ordem{range.total > 1 ? "ns" : ""} de serviço será
+            {range.total > 1 ? "ão" : ""} gerada{range.total > 1 ? "s" : ""}
+          </CountBadge>
+        </>
+      )}
 
       <SectionTitle>Condições</SectionTitle>
       <Label first>Prazo de entrega sugerido</Label>
@@ -317,6 +335,359 @@ export function OrdemServicoPanel({ ordemServico, setField, range }) {
         placeholder="Ex: Peças substituídas ficam com a assistência"
         value={ordemServico.rodape}
         onChange={(e) => setField("rodape", e.target.value)}
+      />
+    </div>
+  );
+}
+
+// ---------------- Recibo de Pagamento ----------------
+
+export function ReciboPanel({ recibo, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Identidade</SectionTitle>
+      <Label first>Nome / empresa</Label>
+      <TextInput
+        placeholder="Ex: João Silva - Serviços Gerais"
+        value={recibo.empresa}
+        onChange={(e) => setField("empresa", e.target.value)}
+      />
+      <Label>Slogan (opcional)</Label>
+      <TextInput
+        value={recibo.slogan}
+        onChange={(e) => setField("slogan", e.target.value)}
+      />
+
+      <SectionTitle>Numeração automática</SectionTitle>
+      <CheckRow
+        label="Numerar os recibos"
+        checked={recibo.numerar}
+        onChange={(e) => setField("numerar", e.target.checked)}
+      />
+      {recibo.numerar && (
+        <>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label first>Do número</Label>
+              <NumberInput
+                min={1}
+                value={recibo.numStart}
+                onChange={(e) => setField("numStart", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label first>Até o número</Label>
+              <NumberInput
+                min={1}
+                value={recibo.numEnd}
+                onChange={(e) => setField("numEnd", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label>Prefixo (opcional)</Label>
+              <TextInput
+                placeholder="Ex: REC-"
+                value={recibo.prefix}
+                onChange={(e) => setField("prefix", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Zeros à esquerda</Label>
+              <Select
+                value={recibo.digits}
+                onChange={(e) => setField("digits", Number(e.target.value))}
+              >
+                <option value={0}>Sem zeros (1, 2, 3…)</option>
+                <option value={3}>3 dígitos (001)</option>
+                <option value={4}>4 dígitos (0001)</option>
+                <option value={5}>5 dígitos (00001)</option>
+              </Select>
+            </div>
+          </div>
+          <CountBadge>
+            {range.total} recibo{range.total > 1 ? "s" : ""} será
+            {range.total > 1 ? "ão" : ""} gerado{range.total > 1 ? "s" : ""}
+          </CountBadge>
+        </>
+      )}
+
+      <SectionTitle>Conteúdo</SectionTitle>
+      <Label first>Texto padrão de "Referente a" (opcional)</Label>
+      <TextInput
+        placeholder="Ex: Prestação de serviço"
+        value={recibo.referenteA}
+        onChange={(e) => setField("referenteA", e.target.value)}
+      />
+      <Label>Texto de rodapé (opcional)</Label>
+      <TextInput
+        value={recibo.rodape}
+        onChange={(e) => setField("rodape", e.target.value)}
+      />
+    </div>
+  );
+}
+
+// ---------------- Comandas ----------------
+
+export function ComandaPanel({ comanda, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Identidade</SectionTitle>
+      <Label first>Nome do estabelecimento</Label>
+      <TextInput
+        placeholder="Ex: Restaurante Sabor & Arte"
+        value={comanda.empresa}
+        onChange={(e) => setField("empresa", e.target.value)}
+      />
+      <Label>Slogan (opcional)</Label>
+      <TextInput
+        value={comanda.slogan}
+        onChange={(e) => setField("slogan", e.target.value)}
+      />
+
+      <SectionTitle>Numeração automática</SectionTitle>
+      <CheckRow
+        label="Numerar as comandas"
+        checked={comanda.numerar}
+        onChange={(e) => setField("numerar", e.target.checked)}
+      />
+      {comanda.numerar && (
+        <>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label first>Do número</Label>
+              <NumberInput
+                min={1}
+                value={comanda.numStart}
+                onChange={(e) => setField("numStart", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label first>Até o número</Label>
+              <NumberInput
+                min={1}
+                value={comanda.numEnd}
+                onChange={(e) => setField("numEnd", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label>Prefixo (opcional)</Label>
+              <TextInput
+                value={comanda.prefix}
+                onChange={(e) => setField("prefix", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Zeros à esquerda</Label>
+              <Select
+                value={comanda.digits}
+                onChange={(e) => setField("digits", Number(e.target.value))}
+              >
+                <option value={0}>Sem zeros (1, 2, 3…)</option>
+                <option value={3}>3 dígitos (001)</option>
+                <option value={4}>4 dígitos (0001)</option>
+              </Select>
+            </div>
+          </div>
+          <CountBadge>
+            {range.total} comanda{range.total > 1 ? "s" : ""} será
+            {range.total > 1 ? "ão" : ""} gerada{range.total > 1 ? "s" : ""}
+          </CountBadge>
+        </>
+      )}
+
+      <SectionTitle>Layout</SectionTitle>
+      <Label first>Linhas de itens</Label>
+      <NumberInput
+        min={4}
+        max={30}
+        value={comanda.linhas}
+        onChange={(e) => setField("linhas", Number(e.target.value) || 10)}
+      />
+      <Label>Texto de rodapé (opcional)</Label>
+      <TextInput
+        value={comanda.rodape}
+        onChange={(e) => setField("rodape", e.target.value)}
+      />
+    </div>
+  );
+}
+
+// ---------------- Reserva / Agendamento ----------------
+
+export function ReservaPanel({ reserva, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Identidade</SectionTitle>
+      <Label first>Nome do negócio</Label>
+      <TextInput
+        placeholder="Ex: Studio Bela Hair"
+        value={reserva.empresa}
+        onChange={(e) => setField("empresa", e.target.value)}
+      />
+      <Label>Slogan (opcional)</Label>
+      <TextInput
+        value={reserva.slogan}
+        onChange={(e) => setField("slogan", e.target.value)}
+      />
+
+      <SectionTitle>Numeração automática</SectionTitle>
+      <CheckRow
+        label="Numerar as fichas de reserva"
+        checked={reserva.numerar}
+        onChange={(e) => setField("numerar", e.target.checked)}
+      />
+      {reserva.numerar && (
+        <>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label first>Do número</Label>
+              <NumberInput
+                min={1}
+                value={reserva.numStart}
+                onChange={(e) => setField("numStart", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label first>Até o número</Label>
+              <NumberInput
+                min={1}
+                value={reserva.numEnd}
+                onChange={(e) => setField("numEnd", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label>Prefixo (opcional)</Label>
+              <TextInput
+                value={reserva.prefix}
+                onChange={(e) => setField("prefix", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Zeros à esquerda</Label>
+              <Select
+                value={reserva.digits}
+                onChange={(e) => setField("digits", Number(e.target.value))}
+              >
+                <option value={0}>Sem zeros (1, 2, 3…)</option>
+                <option value={3}>3 dígitos (001)</option>
+                <option value={4}>4 dígitos (0001)</option>
+              </Select>
+            </div>
+          </div>
+          <CountBadge>
+            {range.total} ficha{range.total > 1 ? "s" : ""} de reserva será
+            {range.total > 1 ? "ão" : ""} gerada{range.total > 1 ? "s" : ""}
+          </CountBadge>
+        </>
+      )}
+
+      <SectionTitle>Condições</SectionTitle>
+      <Label first>Política de cancelamento (opcional)</Label>
+      <TextInput
+        placeholder="Ex: cancelamento com 24h de antecedência"
+        value={reserva.politica}
+        onChange={(e) => setField("politica", e.target.value)}
+      />
+      <Label>Texto de rodapé (opcional)</Label>
+      <TextInput
+        value={reserva.rodape}
+        onChange={(e) => setField("rodape", e.target.value)}
+      />
+    </div>
+  );
+}
+
+// ---------------- Vale-Presente / Voucher ----------------
+
+export function ValePresentePanel({ valePresente, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Identidade</SectionTitle>
+      <Label first>Nome da loja / negócio</Label>
+      <TextInput
+        placeholder="Ex: Boutique Flor de Lis"
+        value={valePresente.empresa}
+        onChange={(e) => setField("empresa", e.target.value)}
+      />
+      <Label>Slogan (opcional)</Label>
+      <TextInput
+        value={valePresente.slogan}
+        onChange={(e) => setField("slogan", e.target.value)}
+      />
+
+      <SectionTitle>Numeração automática (código do vale)</SectionTitle>
+      <CheckRow
+        label="Numerar os vales-presente"
+        checked={valePresente.numerar}
+        onChange={(e) => setField("numerar", e.target.checked)}
+      />
+      {valePresente.numerar && (
+        <>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label first>Do número</Label>
+              <NumberInput
+                min={1}
+                value={valePresente.numStart}
+                onChange={(e) => setField("numStart", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label first>Até o número</Label>
+              <NumberInput
+                min={1}
+                value={valePresente.numEnd}
+                onChange={(e) => setField("numEnd", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <Label>Prefixo (opcional)</Label>
+              <TextInput
+                placeholder="Ex: VP-"
+                value={valePresente.prefix}
+                onChange={(e) => setField("prefix", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Zeros à esquerda</Label>
+              <Select
+                value={valePresente.digits}
+                onChange={(e) => setField("digits", Number(e.target.value))}
+              >
+                <option value={0}>Sem zeros (1, 2, 3…)</option>
+                <option value={4}>4 dígitos (0001)</option>
+                <option value={5}>5 dígitos (00001)</option>
+              </Select>
+            </div>
+          </div>
+          <CountBadge>
+            {range.total} vale{range.total > 1 ? "s" : ""}-presente será
+            {range.total > 1 ? "ão" : ""} gerado{range.total > 1 ? "s" : ""}
+          </CountBadge>
+        </>
+      )}
+
+      <SectionTitle>Conteúdo</SectionTitle>
+      <Label first>Validade (opcional)</Label>
+      <TextInput
+        placeholder="Ex: 90 dias após a emissão"
+        value={valePresente.validade}
+        onChange={(e) => setField("validade", e.target.value)}
+      />
+      <Label>Mensagem padrão (opcional)</Label>
+      <TextInput
+        placeholder="Ex: Feliz aniversário!"
+        value={valePresente.mensagemPadrao}
+        onChange={(e) => setField("mensagemPadrao", e.target.value)}
       />
     </div>
   );
@@ -428,7 +799,6 @@ export function ReceituarioPanel({ receituario, setField, range }) {
 }
 
 // ---------------- Receita ----------------
-//
 // O cartão em si é só pauta em branco (com marcações) para escrever à mão
 // — aqui só configuramos o cabeçalho e a quantidade de linhas de cada
 // seção, sem listas estruturadas de ingrediente/passo.
@@ -547,6 +917,12 @@ export function BingoPanel({ bingo, setField, qty, onRegenerate }) {
       />
 
       <SectionTitle>Cartelas</SectionTitle>
+      <CheckRow
+        label="Numerar as cartelas"
+        checked={bingo.numerar}
+        onChange={(e) => setField("numerar", e.target.checked)}
+      />
+
       <Label first>Quantidade de cartelas</Label>
       <NumberInput
         min={1}
@@ -590,9 +966,9 @@ export function BingoPanel({ bingo, setField, qty, onRegenerate }) {
         Sortear novos números
       </button>
       <p className="text-[11px] text-(--tal-ink-soft) mt-2 leading-relaxed">
-        Cada cartela segue o bingo tradicional de 75 bolas: coluna B (1–15),
-        I (16–30), N (31–45), G (46–60) e O (61–75), sem números repetidos
-        dentro da mesma cartela.
+        Cada cartela segue o bingo tradicional de 75 bolas: coluna B (1–15), I
+        (16–30), N (31–45), G (46–60) e O (61–75), sem números repetidos dentro
+        da mesma cartela.
       </p>
     </div>
   );
@@ -656,7 +1032,10 @@ export function ColorPanel({ activeTab, tabLabel, color, onChange, onReset }) {
             className="w-6 h-6 rounded-full border border-black/10 transition-transform hover:scale-110"
             style={{
               background: hex,
-              outline: color?.toLowerCase() === hex ? "2px solid var(--tal-accent-dark)" : "none",
+              outline:
+                color?.toLowerCase() === hex
+                  ? "2px solid var(--tal-accent-dark)"
+                  : "none",
               outlineOffset: "2px",
             }}
           />

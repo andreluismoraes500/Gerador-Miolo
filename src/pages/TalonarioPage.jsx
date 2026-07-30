@@ -13,6 +13,10 @@ import {
   MdGridOn,
   MdPrint,
   MdBuild,
+  MdReceipt,
+  MdRoomService,
+  MdEventAvailable,
+  MdCardGiftcard,
 } from "react-icons/md";
 import {
   useTalonarioBuilder,
@@ -24,6 +28,10 @@ import {
   ReceitaCard,
   BingoCard,
   OrdemServicoCard,
+  ReciboCard,
+  ComandaCard,
+  ReservaCard,
+  ValePresenteCard,
 } from "../components/talonario/TalonarioCards";
 import {
   PedidoPanel,
@@ -31,6 +39,10 @@ import {
   ReceitaPanel,
   BingoPanel,
   OrdemServicoPanel,
+  ReciboPanel,
+  ComandaPanel,
+  ReservaPanel,
+  ValePresentePanel,
   WatermarkPanel,
   ColorPanel,
   UploadBox,
@@ -51,6 +63,10 @@ const TABS = [
   { id: "receita", label: "Receita Culinária", icon: MdRestaurantMenu },
   { id: "bingo", label: "Bingo", icon: MdGridOn },
   { id: "ordemServico", label: "Ordem de Serviço", icon: MdBuild },
+  { id: "recibo", label: "Recibo de Pagamento", icon: MdReceipt },
+  { id: "comanda", label: "Comandas", icon: MdRoomService },
+  { id: "reserva", label: "Reserva / Agendamento", icon: MdEventAvailable },
+  { id: "valePresente", label: "Vale-Presente", icon: MdCardGiftcard },
 ];
 
 export default function TalonarioPage() {
@@ -225,6 +241,118 @@ export default function TalonarioPage() {
             </>
           )}
 
+          {t.activeTab === "recibo" && (
+            <>
+              <ReciboPanel
+                recibo={t.recibo}
+                setField={t.setReciboField}
+                range={t.reciboRange}
+              />
+              <div className="mt-4">
+                <UploadBox
+                  inputId="tal-logo-recibo"
+                  label="Enviar logo"
+                  hint="Aparece no cabeçalho do recibo"
+                  thumb={t.logos.recibo}
+                  onFile={(f) => t.handleLogoUpload("recibo", f)}
+                />
+                {t.logos.recibo && (
+                  <button
+                    onClick={() => t.clearLogo("recibo")}
+                    className="text-[11.5px] underline mt-1"
+                    style={{ color: "var(--tal-stamp)" }}
+                  >
+                    remover logo
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
+          {t.activeTab === "comanda" && (
+            <>
+              <ComandaPanel
+                comanda={t.comanda}
+                setField={t.setComandaField}
+                range={t.comandaRange}
+              />
+              <div className="mt-4">
+                <UploadBox
+                  inputId="tal-logo-comanda"
+                  label="Enviar logo"
+                  hint="Aparece no cabeçalho da comanda"
+                  thumb={t.logos.comanda}
+                  onFile={(f) => t.handleLogoUpload("comanda", f)}
+                />
+                {t.logos.comanda && (
+                  <button
+                    onClick={() => t.clearLogo("comanda")}
+                    className="text-[11.5px] underline mt-1"
+                    style={{ color: "var(--tal-stamp)" }}
+                  >
+                    remover logo
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
+          {t.activeTab === "reserva" && (
+            <>
+              <ReservaPanel
+                reserva={t.reserva}
+                setField={t.setReservaField}
+                range={t.reservaRange}
+              />
+              <div className="mt-4">
+                <UploadBox
+                  inputId="tal-logo-reserva"
+                  label="Enviar logo"
+                  hint="Aparece no cabeçalho da ficha"
+                  thumb={t.logos.reserva}
+                  onFile={(f) => t.handleLogoUpload("reserva", f)}
+                />
+                {t.logos.reserva && (
+                  <button
+                    onClick={() => t.clearLogo("reserva")}
+                    className="text-[11.5px] underline mt-1"
+                    style={{ color: "var(--tal-stamp)" }}
+                  >
+                    remover logo
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
+          {t.activeTab === "valePresente" && (
+            <>
+              <ValePresentePanel
+                valePresente={t.valePresente}
+                setField={t.setValePresenteField}
+                range={t.valePresenteRange}
+              />
+              <div className="mt-4">
+                <UploadBox
+                  inputId="tal-logo-vale"
+                  label="Enviar logo"
+                  hint="Aparece no vale-presente"
+                  thumb={t.logos.valePresente}
+                  onFile={(f) => t.handleLogoUpload("valePresente", f)}
+                />
+                {t.logos.valePresente && (
+                  <button
+                    onClick={() => t.clearLogo("valePresente")}
+                    className="text-[11.5px] underline mt-1"
+                    style={{ color: "var(--tal-stamp)" }}
+                  >
+                    remover logo
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
           {t.activeTab === "bingo" && (
             <>
               <BingoPanel
@@ -301,6 +429,7 @@ export default function TalonarioPage() {
               numero={t.pedidoRange.start}
               digits={Number(t.pedido.digits)}
               prefix={t.pedido.prefix}
+              numerar={t.pedido.numerar}
               watermarkStyle={t.watermarkStyle}
             />
           )}
@@ -330,6 +459,62 @@ export default function TalonarioPage() {
               numero={t.ordemServicoRange.start}
               digits={Number(t.ordemServico.digits)}
               prefix={t.ordemServico.prefix}
+              numerar={t.ordemServico.numerar}
+              watermarkStyle={t.watermarkStyle}
+            />
+          )}
+          {t.activeTab === "recibo" && (
+            <ReciboCard
+              empresa={t.recibo.empresa}
+              slogan={t.recibo.slogan}
+              logo={t.logos.recibo}
+              referenteA={t.recibo.referenteA}
+              rodape={t.recibo.rodape}
+              numero={t.reciboRange.start}
+              digits={Number(t.recibo.digits)}
+              prefix={t.recibo.prefix}
+              numerar={t.recibo.numerar}
+              watermarkStyle={t.watermarkStyle}
+            />
+          )}
+          {t.activeTab === "comanda" && (
+            <ComandaCard
+              empresa={t.comanda.empresa}
+              logo={t.logos.comanda}
+              linhas={t.comanda.linhas}
+              rodape={t.comanda.rodape}
+              numero={t.comandaRange.start}
+              digits={Number(t.comanda.digits)}
+              prefix={t.comanda.prefix}
+              numerar={t.comanda.numerar}
+              watermarkStyle={t.watermarkStyle}
+            />
+          )}
+          {t.activeTab === "reserva" && (
+            <ReservaCard
+              empresa={t.reserva.empresa}
+              slogan={t.reserva.slogan}
+              logo={t.logos.reserva}
+              politica={t.reserva.politica}
+              rodape={t.reserva.rodape}
+              numero={t.reservaRange.start}
+              digits={Number(t.reserva.digits)}
+              prefix={t.reserva.prefix}
+              numerar={t.reserva.numerar}
+              watermarkStyle={t.watermarkStyle}
+            />
+          )}
+          {t.activeTab === "valePresente" && (
+            <ValePresenteCard
+              empresa={t.valePresente.empresa}
+              slogan={t.valePresente.slogan}
+              logo={t.logos.valePresente}
+              validade={t.valePresente.validade}
+              mensagemPadrao={t.valePresente.mensagemPadrao}
+              numero={t.valePresenteRange.start}
+              digits={Number(t.valePresente.digits)}
+              prefix={t.valePresente.prefix}
+              numerar={t.valePresente.numerar}
               watermarkStyle={t.watermarkStyle}
             />
           )}
@@ -344,23 +529,46 @@ export default function TalonarioPage() {
                 columns={t.bingoCards[0]}
                 watermarkStyle={t.watermarkStyle}
                 porPagina={1}
+                numerar={t.bingo.numerar}
               />
             </div>
           )}
 
           <p className="text-[12.5px] text-[#8a9694] text-center max-w-160">
             {t.activeTab === "pedido" &&
-              `Pré-visualização do 1º pedido do lote (Nº ${t.pedido.prefix || ""}${String(t.pedidoRange.start).padStart(Number(t.pedido.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`}
+              (t.pedido.numerar
+                ? `Pré-visualização do 1º pedido do lote (Nº ${t.pedido.prefix || ""}${String(t.pedidoRange.start).padStart(Number(t.pedido.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`
+                : "Pré-visualização do pedido sem numeração. Todos os exemplares sairão sem número.")}
             {t.activeTab === "receituario" &&
               (t.receituario.numerar
                 ? "Pré-visualização da 1ª via numerada do lote."
-                : "Pré-visualização da via de receituário.")}
+                : "Pré-visualização da via de receituário sem numeração.")}
             {t.activeTab === "receita" &&
               "Pré-visualização do talão de receita — pautas para preencher à mão."}
+            {t.activeTab === "recibo" &&
+              (t.recibo.numerar
+                ? `Pré-visualização do 1º recibo do lote (Nº ${t.recibo.prefix || ""}${String(t.reciboRange.start).padStart(Number(t.recibo.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`
+                : "Pré-visualização do recibo sem numeração. Todos os exemplares sairão sem número.")}
+            {t.activeTab === "comanda" &&
+              (t.comanda.numerar
+                ? `Pré-visualização da 1ª comanda do lote (Nº ${t.comanda.prefix || ""}${String(t.comandaRange.start).padStart(Number(t.comanda.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`
+                : "Pré-visualização da comanda sem numeração. Todos os exemplares sairão sem número.")}
+            {t.activeTab === "reserva" &&
+              (t.reserva.numerar
+                ? `Pré-visualização da 1ª ficha do lote (Nº ${t.reserva.prefix || ""}${String(t.reservaRange.start).padStart(Number(t.reserva.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`
+                : "Pré-visualização da ficha de reserva sem numeração. Todos os exemplares sairão sem número.")}
+            {t.activeTab === "valePresente" &&
+              (t.valePresente.numerar
+                ? `Pré-visualização do 1º vale-presente do lote (Código ${t.valePresente.prefix || ""}${String(t.valePresenteRange.start).padStart(Number(t.valePresente.digits) || 0, "0")}). Cada página impressa terá um código diferente, em sequência.`
+                : "Pré-visualização do vale-presente sem numeração. Todos os exemplares sairão sem código.")}
             {t.activeTab === "ordemServico" &&
-              `Pré-visualização da 1ª ordem de serviço do lote (Nº ${t.ordemServico.prefix || ""}${String(t.ordemServicoRange.start).padStart(Number(t.ordemServico.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`}
+              (t.ordemServico.numerar
+                ? `Pré-visualização da 1ª ordem de serviço do lote (Nº ${t.ordemServico.prefix || ""}${String(t.ordemServicoRange.start).padStart(Number(t.ordemServico.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`
+                : "Pré-visualização da ordem de serviço sem numeração. Todos os exemplares sairão sem número.")}
             {t.activeTab === "bingo" &&
-              `Pré-visualização da cartela 1 de ${t.bingoCards.length}. Na impressão, ${t.bingo.porPagina} cartela${t.bingo.porPagina > 1 ? "s" : ""} ${t.bingo.porPagina > 1 ? "saem lado a lado em cada" : "sai por"} folha, cada uma com números diferentes.`}
+              (t.bingo.numerar
+                ? `Pré-visualização da cartela 1 de ${t.bingoCards.length}. Na impressão, ${t.bingo.porPagina} cartela${t.bingo.porPagina > 1 ? "s" : ""} ${t.bingo.porPagina > 1 ? "saem lado a lado em cada" : "sai por"} folha, cada uma com números diferentes.`
+                : `Pré-visualização da cartela 1 de ${t.bingoCards.length} (sem numeração). Na impressão, ${t.bingo.porPagina} cartela${t.bingo.porPagina > 1 ? "s" : ""} ${t.bingo.porPagina > 1 ? "saem lado a lado em cada" : "sai por"} folha.`)}
           </p>
         </div>
       </div>
@@ -381,6 +589,7 @@ export default function TalonarioPage() {
                   numero={n}
                   digits={Number(t.pedido.digits)}
                   prefix={t.pedido.prefix}
+                  numerar={t.pedido.numerar}
                   watermarkStyle={t.watermarkStyle}
                 />
               </div>
@@ -405,6 +614,73 @@ export default function TalonarioPage() {
               />
             </div>
           )}
+          {t.printBatch.tab === "recibo" &&
+            t.printBatch.items.map((n) => (
+              <div key={n} className="tal-print-page">
+                <ReciboCard
+                  empresa={t.recibo.empresa}
+                  slogan={t.recibo.slogan}
+                  logo={t.logos.recibo}
+                  referenteA={t.recibo.referenteA}
+                  rodape={t.recibo.rodape}
+                  numero={n}
+                  digits={Number(t.recibo.digits)}
+                  prefix={t.recibo.prefix}
+                  numerar={t.recibo.numerar}
+                  watermarkStyle={t.watermarkStyle}
+                />
+              </div>
+            ))}
+          {t.printBatch.tab === "comanda" &&
+            t.printBatch.items.map((n) => (
+              <div key={n} className="tal-print-page">
+                <ComandaCard
+                  empresa={t.comanda.empresa}
+                  logo={t.logos.comanda}
+                  linhas={t.comanda.linhas}
+                  rodape={t.comanda.rodape}
+                  numero={n}
+                  digits={Number(t.comanda.digits)}
+                  prefix={t.comanda.prefix}
+                  numerar={t.comanda.numerar}
+                  watermarkStyle={t.watermarkStyle}
+                />
+              </div>
+            ))}
+          {t.printBatch.tab === "reserva" &&
+            t.printBatch.items.map((n) => (
+              <div key={n} className="tal-print-page">
+                <ReservaCard
+                  empresa={t.reserva.empresa}
+                  slogan={t.reserva.slogan}
+                  logo={t.logos.reserva}
+                  politica={t.reserva.politica}
+                  rodape={t.reserva.rodape}
+                  numero={n}
+                  digits={Number(t.reserva.digits)}
+                  prefix={t.reserva.prefix}
+                  numerar={t.reserva.numerar}
+                  watermarkStyle={t.watermarkStyle}
+                />
+              </div>
+            ))}
+          {t.printBatch.tab === "valePresente" &&
+            t.printBatch.items.map((n) => (
+              <div key={n} className="tal-print-page">
+                <ValePresenteCard
+                  empresa={t.valePresente.empresa}
+                  slogan={t.valePresente.slogan}
+                  logo={t.logos.valePresente}
+                  validade={t.valePresente.validade}
+                  mensagemPadrao={t.valePresente.mensagemPadrao}
+                  numero={n}
+                  digits={Number(t.valePresente.digits)}
+                  prefix={t.valePresente.prefix}
+                  numerar={t.valePresente.numerar}
+                  watermarkStyle={t.watermarkStyle}
+                />
+              </div>
+            ))}
           {t.printBatch.tab === "ordemServico" &&
             t.printBatch.items.map((n) => (
               <div key={n} className="tal-print-page">
@@ -418,6 +694,7 @@ export default function TalonarioPage() {
                   numero={n}
                   digits={Number(t.ordemServico.digits)}
                   prefix={t.ordemServico.prefix}
+                  numerar={t.ordemServico.numerar}
                   watermarkStyle={t.watermarkStyle}
                 />
               </div>
@@ -426,7 +703,12 @@ export default function TalonarioPage() {
             (() => {
               const porPagina = t.bingo.porPagina;
               const layout = BINGO_LAYOUTS[porPagina] || BINGO_LAYOUTS[4];
-              return chunk(t.printBatch.items, porPagina).map((grupo, gi) => (
+              const items = t.bingo.numerar
+                ? t.printBatch.items
+                : t.printBatch.items.map(() =>
+                    generateBingoCard(t.bingo.freeSpace),
+                  );
+              return chunk(items, porPagina).map((grupo, gi) => (
                 <div key={gi} className="tal-print-page tal-print-page-bingo">
                   <div
                     className="tal-bingo-grid"
@@ -440,12 +722,13 @@ export default function TalonarioPage() {
                         key={gi * porPagina + i}
                         titulo={t.bingo.titulo}
                         subtitulo={t.bingo.subtitulo}
-                        numero={gi * porPagina + i + 1}
-                        total={t.printBatch.items.length}
+                        numero={t.bingo.numerar ? gi * porPagina + i + 1 : null}
+                        total={t.bingo.numerar ? t.printBatch.items.length : 0}
                         logo={t.logos.bingo}
                         columns={columns}
                         watermarkStyle={t.watermarkStyle}
                         porPagina={porPagina}
+                        numerar={t.bingo.numerar}
                       />
                     ))}
                   </div>

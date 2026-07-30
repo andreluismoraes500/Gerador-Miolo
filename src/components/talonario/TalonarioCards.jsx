@@ -55,9 +55,10 @@ export function PedidoCard({
   numero,
   digits,
   prefix,
+  numerar = true,
   watermarkStyle,
 }) {
-  const numStr = `${prefix || ""}${pad(numero, digits)}`;
+  const numStr = numerar ? `${prefix || ""}${pad(numero, digits)}` : "";
   const rows = [];
 
   if (campos.nome) {
@@ -176,17 +177,19 @@ export function PedidoCard({
             >
               Pedido de Venda
             </div>
-            <div
-              className="inline-block font-bold text-2xl rounded-lg px-3 py-1 mt-0.5"
-              style={{
-                fontFamily: "'Space Mono', monospace",
-                color: "var(--tal-stamp)",
-                border: "2px solid var(--tal-stamp)",
-                transform: "rotate(-2deg)",
-              }}
-            >
-              Nº {numStr}
-            </div>
+            {numerar && (
+              <div
+                className="inline-block font-bold text-2xl rounded-lg px-3 py-1 mt-0.5"
+                style={{
+                  fontFamily: "'Space Mono', monospace",
+                  color: "var(--tal-stamp)",
+                  border: "2px solid var(--tal-stamp)",
+                  transform: "rotate(-2deg)",
+                }}
+              >
+                Nº {numStr}
+              </div>
+            )}
             <div className="text-[11.5px] text-(--tal-ink-soft) mt-1.5">
               Data ____ / ____ / ______
             </div>
@@ -286,9 +289,10 @@ export function OrdemServicoCard({
   numero,
   digits,
   prefix,
+  numerar = true,
   watermarkStyle,
 }) {
-  const numStr = `${prefix || ""}${pad(numero, digits)}`;
+  const numStr = numerar ? `${prefix || ""}${pad(numero, digits)}` : "";
 
   return (
     <div
@@ -342,17 +346,19 @@ export function OrdemServicoCard({
             >
               Ordem de Serviço
             </div>
-            <div
-              className="inline-block font-bold text-2xl rounded-lg px-3 py-1 mt-0.5"
-              style={{
-                fontFamily: "'Space Mono', monospace",
-                color: "var(--tal-stamp)",
-                border: "2px solid var(--tal-stamp)",
-                transform: "rotate(-2deg)",
-              }}
-            >
-              Nº {numStr}
-            </div>
+            {numerar && (
+              <div
+                className="inline-block font-bold text-2xl rounded-lg px-3 py-1 mt-0.5"
+                style={{
+                  fontFamily: "'Space Mono', monospace",
+                  color: "var(--tal-stamp)",
+                  border: "2px solid var(--tal-stamp)",
+                  transform: "rotate(-2deg)",
+                }}
+              >
+                Nº {numStr}
+              </div>
+            )}
             <div className="text-[11.5px] text-(--tal-ink-soft) mt-1.5">
               Data ____ / ____ / ______
             </div>
@@ -418,7 +424,7 @@ export function OrdemServicoCard({
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: 18 }).map((_, i) => (
+            {Array.from({ length: 4 }).map((_, i) => (
               <tr key={i}>
                 {[0, 1, 2].map((c) => (
                   <td
@@ -487,6 +493,499 @@ export function OrdemServicoCard({
           ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           - - - - - -
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================== RECIBO ================================
+
+export function ReciboCard({
+  empresa,
+  slogan,
+  logo,
+  referenteA,
+  rodape,
+  numero,
+  digits,
+  prefix,
+  numerar = true,
+  watermarkStyle,
+}) {
+  const numStr = numerar ? `${prefix || ""}${pad(numero, digits)}` : "";
+  return (
+    <div
+      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{
+        border: "2.5px solid var(--tal-accent)",
+        outline: "2px solid var(--tal-accent)",
+        outlineOffset: 5,
+        margin: 5,
+      }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-7 pt-6 pb-5">
+        <div
+          className="flex items-start justify-between gap-3.5 pb-3 mb-4"
+          style={{ borderBottom: "2px solid var(--tal-accent)" }}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            {logo && (
+              <img
+                src={logo}
+                alt="Logo"
+                className="max-w-16 max-h-16 object-contain rounded-md shrink-0"
+              />
+            )}
+            <div className="min-w-0">
+              <h2
+                className="text-[19px] leading-tight m-0 truncate"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontWeight: 700,
+                  color: "var(--tal-accent-dark)",
+                }}
+              >
+                {empresa || "Recibo de Pagamento"}
+              </h2>
+              {slogan && (
+                <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
+                  {slogan}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div
+              className="text-[11px] uppercase tracking-[1.5px]"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                color: "var(--tal-ink-soft)",
+              }}
+            >
+              Recibo
+            </div>
+            {numerar && (
+              <div
+                className="inline-block font-bold text-2xl rounded-lg px-3 py-1 mt-0.5"
+                style={{
+                  fontFamily: "'Space Mono', monospace",
+                  color: "var(--tal-stamp)",
+                  border: "2px solid var(--tal-stamp)",
+                  transform: "rotate(-2deg)",
+                }}
+              >
+                Nº {numStr}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div
+          className="flex"
+          style={{ borderTop: "1.3px solid var(--tal-accent)" }}
+        >
+          <Campo label="Valor (R$)" flex={0.8} />
+          <Campo label="Data" flex={1} />
+        </div>
+        <div
+          className="flex"
+          style={{ borderTop: "1.3px solid var(--tal-accent)" }}
+        >
+          <Campo label="Recebi de" flex={1} />
+        </div>
+        <div
+          className="flex"
+          style={{ borderTop: "1.3px solid var(--tal-accent)" }}
+        >
+          <Campo label="A quantia de (por extenso)" flex={1} />
+        </div>
+        <div
+          className="flex border-b-[1.3px]"
+          style={{
+            borderTop: "1.3px solid var(--tal-accent)",
+            borderColor: "var(--tal-accent)",
+          }}
+        >
+          <Campo label="Referente a" flex={1} />
+        </div>
+
+        <div className="flex justify-between items-end mt-8 pt-3">
+          <div className="text-[11px] text-(--tal-ink-soft)">
+            {referenteA ? `Padrão: ${referenteA}` : ""}
+          </div>
+          <div className="text-center">
+            <div className="w-52 border-t border-gray-400 mb-1" />
+            <span className="text-[10.5px] text-(--tal-ink-soft)">
+              assinatura de quem recebeu
+            </span>
+          </div>
+        </div>
+
+        {rodape && (
+          <div className="mt-3 text-[11px] text-(--tal-ink-soft)">{rodape}</div>
+        )}
+
+        <div
+          className="text-center mt-3.5 pt-2.5 text-[10.5px] text-[#9aa5a3] tracking-wide"
+          style={{ borderTop: "2px dashed #c7cdcb" }}
+        >
+          ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+          - - - - -
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================== COMANDA ===============================
+
+export function ComandaCard({
+  empresa,
+  logo,
+  linhas,
+  rodape,
+  numero,
+  digits,
+  prefix,
+  numerar = true,
+  watermarkStyle,
+}) {
+  const numStr = numerar ? `${prefix || ""}${pad(numero, digits)}` : "";
+  return (
+    <div
+      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{
+        border: "2.5px solid var(--tal-accent)",
+        outline: "2px solid var(--tal-accent)",
+        outlineOffset: 5,
+        margin: 5,
+      }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-7 pt-6 pb-5">
+        <div
+          className="flex items-start justify-between gap-3.5 pb-3 mb-2.5"
+          style={{ borderBottom: "2px solid var(--tal-accent)" }}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            {logo && (
+              <img
+                src={logo}
+                alt="Logo"
+                className="max-w-16 max-h-16 object-contain rounded-md shrink-0"
+              />
+            )}
+            <h2
+              className="text-[19px] leading-tight m-0 truncate"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 700,
+                color: "var(--tal-accent-dark)",
+              }}
+            >
+              {empresa || "Comanda"}
+            </h2>
+          </div>
+          {numerar && (
+            <div
+              className="inline-block font-bold text-2xl rounded-lg px-3 py-1 shrink-0"
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                color: "var(--tal-stamp)",
+                border: "2px solid var(--tal-stamp)",
+                transform: "rotate(-2deg)",
+              }}
+            >
+              Nº {numStr}
+            </div>
+          )}
+        </div>
+
+        <div
+          className="flex"
+          style={{
+            borderTop: "1.3px solid var(--tal-accent)",
+            borderBottom: "1.3px solid var(--tal-accent)",
+          }}
+        >
+          <Campo label="Mesa / Comanda" flex={1} />
+          <Campo label="Garçom(ete)" flex={1} />
+          <Campo label="Nº de pessoas" flex={0.8} />
+        </div>
+
+        <table className="w-full border-collapse mt-3.5 text-xs">
+          <thead>
+            <tr>
+              {["Qtd.", "Item", "Observações"].map((h) => (
+                <th
+                  key={h}
+                  className="text-white font-semibold text-[11px] uppercase tracking-wide py-1.5 px-1.5"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    background: "var(--tal-accent)",
+                  }}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: linhas || 10 }).map((_, i) => (
+              <tr key={i}>
+                <td
+                  className="h-5.75 px-1.5 text-center"
+                  style={{
+                    border: "1px solid var(--tal-accent)",
+                    width: "14%",
+                  }}
+                />
+                <td
+                  className="h-5.75 px-1.5"
+                  style={{ border: "1px solid var(--tal-accent)" }}
+                />
+                <td
+                  className="h-5.75 px-1.5"
+                  style={{ border: "1px solid var(--tal-accent)" }}
+                />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {rodape && (
+          <div className="mt-3 text-[11px] text-(--tal-ink-soft)">{rodape}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================== RESERVA ===============================
+
+export function ReservaCard({
+  empresa,
+  slogan,
+  logo,
+  politica,
+  rodape,
+  numero,
+  digits,
+  prefix,
+  numerar = true,
+  watermarkStyle,
+}) {
+  const numStr = numerar ? `${prefix || ""}${pad(numero, digits)}` : "";
+  return (
+    <div
+      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{
+        border: "2.5px solid var(--tal-accent)",
+        outline: "2px solid var(--tal-accent)",
+        outlineOffset: 5,
+        margin: 5,
+      }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-7 pt-6 pb-5">
+        <div
+          className="flex items-start justify-between gap-3.5 pb-3 mb-2.5"
+          style={{ borderBottom: "2px solid var(--tal-accent)" }}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            {logo && (
+              <img
+                src={logo}
+                alt="Logo"
+                className="max-w-16 max-h-16 object-contain rounded-md shrink-0"
+              />
+            )}
+            <div className="min-w-0">
+              <h2
+                className="text-[19px] leading-tight m-0 truncate"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontWeight: 700,
+                  color: "var(--tal-accent-dark)",
+                }}
+              >
+                {empresa || "Ficha de Reserva"}
+              </h2>
+              {slogan && (
+                <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
+                  {slogan}
+                </p>
+              )}
+            </div>
+          </div>
+          {numerar && (
+            <div
+              className="inline-block font-bold text-2xl rounded-lg px-3 py-1 shrink-0"
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                color: "var(--tal-stamp)",
+                border: "2px solid var(--tal-stamp)",
+                transform: "rotate(-2deg)",
+              }}
+            >
+              Nº {numStr}
+            </div>
+          )}
+        </div>
+
+        <div
+          className="flex"
+          style={{ borderTop: "1.3px solid var(--tal-accent)" }}
+        >
+          <Campo label="Cliente" flex={2} />
+          <Campo label="Telefone" flex={1} />
+        </div>
+        <div
+          className="flex"
+          style={{ borderTop: "1.3px solid var(--tal-accent)" }}
+        >
+          <Campo label="Serviço / motivo" flex={1.4} />
+          <Campo label="Profissional" flex={1} />
+        </div>
+        <div
+          className="flex border-b-[1.3px]"
+          style={{
+            borderTop: "1.3px solid var(--tal-accent)",
+            borderColor: "var(--tal-accent)",
+          }}
+        >
+          <Campo label="Data" flex={1} />
+          <Campo label="Horário" flex={1} />
+          <Campo label="Confirmado?" flex={1} />
+        </div>
+
+        <div className="mt-3">
+          <span
+            className="block text-[9.5px] font-bold uppercase tracking-wide mb-1"
+            style={{ color: "var(--tal-accent-dark)" }}
+          >
+            Observações
+          </span>
+          <div
+            className="w-full"
+            style={{
+              minHeight: 42,
+              border: "1.3px solid var(--tal-accent)",
+              backgroundImage:
+                "repeating-linear-gradient(transparent, transparent 17px, #e4e4e4 18px)",
+            }}
+          />
+        </div>
+
+        {politica && (
+          <div className="mt-3 text-[10.5px] text-(--tal-ink-soft)">
+            Política de cancelamento: {politica}
+          </div>
+        )}
+        {rodape && (
+          <div className="mt-1.5 text-[10.5px] text-(--tal-ink-soft)">
+            {rodape}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================ VALE-PRESENTE =============================
+
+export function ValePresenteCard({
+  empresa,
+  slogan,
+  logo,
+  validade,
+  mensagemPadrao,
+  numero,
+  digits,
+  prefix,
+  numerar = true,
+  watermarkStyle,
+}) {
+  const numStr = numerar ? `${prefix || ""}${pad(numero, digits)}` : "";
+  return (
+    <div
+      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      style={{
+        border: "2.5px solid var(--tal-accent)",
+        outline: "2px solid var(--tal-accent)",
+        outlineOffset: 5,
+        margin: 5,
+      }}
+    >
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-8 pt-7 pb-6 text-center">
+        {logo && (
+          <img
+            src={logo}
+            alt="Logo"
+            className="max-w-16 max-h-16 object-contain rounded-md mx-auto mb-2"
+          />
+        )}
+        <h2
+          className="text-[22px] m-0"
+          style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontWeight: 700,
+            color: "var(--tal-accent-dark)",
+          }}
+        >
+          {empresa || "Vale-Presente"}
+        </h2>
+        {slogan && (
+          <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
+            {slogan}
+          </p>
+        )}
+
+        {numerar && (
+          <div
+            className="inline-block font-bold text-xl rounded-lg px-4 py-1.5 mt-4"
+            style={{
+              fontFamily: "'Space Mono', monospace",
+              color: "var(--tal-stamp)",
+              border: "2px solid var(--tal-stamp)",
+              transform: "rotate(-2deg)",
+            }}
+          >
+            Código {numStr}
+          </div>
+        )}
+
+        <div className="mt-5 flex justify-center gap-6">
+          <div className="text-left">
+            <span className="block text-[9.5px] uppercase tracking-widest text-(--tal-ink-soft)">
+              De
+            </span>
+            <div className="w-40 border-b border-gray-400 h-6" />
+          </div>
+          <div className="text-left">
+            <span className="block text-[9.5px] uppercase tracking-widest text-(--tal-ink-soft)">
+              Para
+            </span>
+            <div className="w-40 border-b border-gray-400 h-6" />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <span className="block text-[9.5px] uppercase tracking-widest text-(--tal-ink-soft) mb-1">
+            Valor
+          </span>
+          <div className="w-40 mx-auto border-b border-gray-400 h-7" />
+        </div>
+
+        <p className="mt-4 text-[11.5px] text-(--tal-ink-soft) max-w-100 mx-auto min-h-[6mm]">
+          {mensagemPadrao || "mensagem"}
+        </p>
+
+        <p className="mt-4 text-[10.5px] text-(--tal-ink-soft)">
+          Válido até: {validade || "____/____/______"}
+        </p>
       </div>
     </div>
   );
@@ -926,6 +1425,7 @@ export function BingoCard({
   watermarkStyle,
   porPagina,
   compact = false,
+  numerar = true,
 }) {
   // `porPagina` é a fonte da verdade; `compact` (legado) só serve de
   // fallback pra quem ainda não passa porPagina explicitamente.
@@ -980,7 +1480,7 @@ export function BingoCard({
               )}
             </div>
           </div>
-          {total > 1 && (
+          {numerar && total > 1 && (
             <div
               className="shrink-0 font-bold rounded-md"
               style={{

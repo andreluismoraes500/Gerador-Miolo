@@ -17,14 +17,25 @@ export const TAL_ACCENTS = {
   receita: { accent: "#c9822c", dark: "#966017", light: "#fbf1df" },
   bingo: { accent: "#7c3aed", dark: "#5b21b6", light: "#f1e9fe" },
   ordemServico: { accent: "#b45309", dark: "#7c3908", light: "#fbead2" },
+  recibo: { accent: "#166534", dark: "#0f4a25", light: "#e4f5e9" },
+  comanda: { accent: "#9d174d", dark: "#701038", light: "#fbe4ee" },
+  reserva: { accent: "#4338ca", dark: "#312a8f", light: "#e7e5fb" },
+  valePresente: { accent: "#be123c", dark: "#8b0e2c", light: "#fbe0e6" },
 };
 
 // Algumas sugestões de cor rápidas para o seletor de configurações
 // (além da cor padrão de cada aba e de um campo de cor livre).
 export const TAL_COLOR_PRESETS = [
-  "#0f7a72", "#0f6e94", "#c9822c", "#7c3aed",
-  "#b23b3b", "#2563eb", "#15803d", "#be185d",
-  "#334155", "#a16207",
+  "#0f7a72",
+  "#0f6e94",
+  "#c9822c",
+  "#7c3aed",
+  "#b23b3b",
+  "#2563eb",
+  "#15803d",
+  "#be185d",
+  "#334155",
+  "#a16207",
 ];
 
 function clamp255(n) {
@@ -36,15 +47,23 @@ function clamp255(n) {
 // assim ela só escolhe 1 cor e o resto (badges, bordas, sombra do botão)
 // se adapta sozinho, mantendo contraste e legibilidade.
 export function deriveAccentShades(hex) {
-  const clean = /^#?[0-9a-fA-F]{6}$/.test(hex) ? hex.replace("#", "") : "0f7a72";
+  const clean = /^#?[0-9a-fA-F]{6}$/.test(hex)
+    ? hex.replace("#", "")
+    : "0f7a72";
   const r = parseInt(clean.slice(0, 2), 16);
   const g = parseInt(clean.slice(2, 4), 16);
   const b = parseInt(clean.slice(4, 6), 16);
 
   const mix = (amt) => {
-    const rr = clamp255(Math.round(r + (amt > 0 ? 255 - r : r) * Math.abs(amt)));
-    const gg = clamp255(Math.round(g + (amt > 0 ? 255 - g : g) * Math.abs(amt)));
-    const bb = clamp255(Math.round(b + (amt > 0 ? 255 - b : b) * Math.abs(amt)));
+    const rr = clamp255(
+      Math.round(r + (amt > 0 ? 255 - r : r) * Math.abs(amt)),
+    );
+    const gg = clamp255(
+      Math.round(g + (amt > 0 ? 255 - g : g) * Math.abs(amt)),
+    );
+    const bb = clamp255(
+      Math.round(b + (amt > 0 ? 255 - b : b) * Math.abs(amt)),
+    );
     return `#${[rr, gg, bb].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
   };
 
@@ -158,6 +177,7 @@ export function useTalonarioBuilder() {
     digits: 4,
     linhas: 12,
     rodape: "",
+    numerar: true, // <-- NOVO: controla se deve numerar
     campos: {
       nome: true,
       endereco: true,
@@ -172,7 +192,10 @@ export function useTalonarioBuilder() {
     setPedido((p) => ({ ...p, [key]: value }));
   }, []);
   const togglePedidoCampo = useCallback((key) => {
-    setPedido((p) => ({ ...p, campos: { ...p.campos, [key]: !p.campos[key] } }));
+    setPedido((p) => ({
+      ...p,
+      campos: { ...p.campos, [key]: !p.campos[key] },
+    }));
   }, []);
 
   // ---------------- Receituário ----------------
@@ -194,9 +217,6 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Receita culinária ----------------
-  // Talão simples: cabeçalho com os dados do prato + pautas em branco
-  // (com marcações) para preencher os ingredientes e o modo de preparo à
-  // mão — sem campos estruturados de ingrediente/passo.
   const [receita, setReceita] = useState({
     titulo: "",
     categoria: "",
@@ -223,9 +243,74 @@ export function useTalonarioBuilder() {
     prazo: "",
     garantia: "90 dias",
     rodape: "",
+    numerar: true, // <-- NOVO
   });
   const setOrdemServicoField = useCallback((key, value) => {
     setOrdemServico((o) => ({ ...o, [key]: value }));
+  }, []);
+
+  // ---------------- Recibo de Pagamento ----------------
+  const [recibo, setRecibo] = useState({
+    empresa: "",
+    slogan: "",
+    numStart: 1,
+    numEnd: 50,
+    prefix: "REC-",
+    digits: 4,
+    referenteA: "",
+    rodape: "",
+    numerar: true, // <-- NOVO
+  });
+  const setReciboField = useCallback((key, value) => {
+    setRecibo((r) => ({ ...r, [key]: value }));
+  }, []);
+
+  // ---------------- Comandas ----------------
+  const [comanda, setComanda] = useState({
+    empresa: "",
+    slogan: "",
+    numStart: 1,
+    numEnd: 100,
+    prefix: "",
+    digits: 3,
+    linhas: 10,
+    rodape: "",
+    numerar: true, // <-- NOVO
+  });
+  const setComandaField = useCallback((key, value) => {
+    setComanda((c) => ({ ...c, [key]: value }));
+  }, []);
+
+  // ---------------- Reserva / Agendamento ----------------
+  const [reserva, setReserva] = useState({
+    empresa: "",
+    slogan: "",
+    numStart: 1,
+    numEnd: 50,
+    prefix: "",
+    digits: 3,
+    politica: "",
+    rodape: "",
+    numerar: true, // <-- NOVO
+  });
+  const setReservaField = useCallback((key, value) => {
+    setReserva((r) => ({ ...r, [key]: value }));
+  }, []);
+
+  // ---------------- Vale-Presente / Voucher ----------------
+  const [valePresente, setValePresente] = useState({
+    empresa: "",
+    slogan: "",
+    numStart: 1,
+    numEnd: 50,
+    prefix: "VP-",
+    digits: 4,
+    validade: "",
+    mensagemPadrao: "",
+    numerar: true, // <-- NOVO
+  });
+  const setValePresenteField = useCallback((key, value) => {
+    setValePresente((v) => ({ ...v, [key]: value }));
   }, []);
 
   // ---------------- Bingo ----------------
@@ -235,6 +320,7 @@ export function useTalonarioBuilder() {
     quantidade: 4,
     freeSpace: true,
     porPagina: 4,
+    numerar: true, // <-- NOVO
   });
   const setBingoField = useCallback((key, value) => {
     setBingo((b) => ({ ...b, [key]: value }));
@@ -275,6 +361,10 @@ export function useTalonarioBuilder() {
     receita: null,
     bingo: null,
     ordemServico: null,
+    recibo: null,
+    comanda: null,
+    reserva: null,
+    valePresente: null,
   });
 
   const handleLogoUpload = useCallback(async (who, file) => {
@@ -345,7 +435,15 @@ export function useTalonarioBuilder() {
     return () => {
       cancelled = true;
     };
-  }, [watermark.on, watermark.type, watermark.text, watermark.opacity, watermark.size, logos, activeTab]);
+  }, [
+    watermark.on,
+    watermark.type,
+    watermark.text,
+    watermark.opacity,
+    watermark.size,
+    logos,
+    activeTab,
+  ]);
 
   const watermarkStyle = useMemo(() => {
     if (!watermark.on || !wmTileUrl) return null;
@@ -377,12 +475,44 @@ export function useTalonarioBuilder() {
     return { start, end, total: end - start + 1 };
   }, [ordemServico.numStart, ordemServico.numEnd]);
 
+  const reciboRange = useMemo(() => {
+    let start = parseInt(recibo.numStart, 10) || 1;
+    let end = parseInt(recibo.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [recibo.numStart, recibo.numEnd]);
+
+  const comandaRange = useMemo(() => {
+    let start = parseInt(comanda.numStart, 10) || 1;
+    let end = parseInt(comanda.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [comanda.numStart, comanda.numEnd]);
+
+  const reservaRange = useMemo(() => {
+    let start = parseInt(reserva.numStart, 10) || 1;
+    let end = parseInt(reserva.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [reserva.numStart, reserva.numEnd]);
+
+  const valePresenteRange = useMemo(() => {
+    let start = parseInt(valePresente.numStart, 10) || 1;
+    let end = parseInt(valePresente.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [valePresente.numStart, valePresente.numEnd]);
+
   // ---------------- impressão ----------------
   const [printBatch, setPrintBatch] = useState(null); // { tab, items } | null
   const printTimeoutRef = useRef(null);
 
   const handlePrint = useCallback(() => {
     if (activeTab === "pedido") {
+      if (!pedido.numerar) {
+        setPrintBatch({ tab: "pedido", items: [null] });
+        return;
+      }
       const { start, end, total } = pedidoRange;
       if (
         total > 800 &&
@@ -413,6 +543,10 @@ export function useTalonarioBuilder() {
     } else if (activeTab === "receita") {
       setPrintBatch({ tab: "receita", items: [null] });
     } else if (activeTab === "ordemServico") {
+      if (!ordemServico.numerar) {
+        setPrintBatch({ tab: "ordemServico", items: [null] });
+        return;
+      }
       const { start, end, total } = ordemServicoRange;
       if (
         total > 800 &&
@@ -424,7 +558,83 @@ export function useTalonarioBuilder() {
       }
       const items = Array.from({ length: total }, (_, i) => start + i);
       setPrintBatch({ tab: "ordemServico", items });
+    } else if (activeTab === "recibo") {
+      if (!recibo.numerar) {
+        setPrintBatch({ tab: "recibo", items: [null] });
+        return;
+      }
+      const { start, end, total } = reciboRange;
+      if (
+        total > 800 &&
+        !window.confirm(
+          `Você está prestes a gerar ${total} recibos. Isso pode demorar. Deseja continuar?`,
+        )
+      ) {
+        return;
+      }
+      setPrintBatch({
+        tab: "recibo",
+        items: Array.from({ length: total }, (_, i) => start + i),
+      });
+    } else if (activeTab === "comanda") {
+      if (!comanda.numerar) {
+        setPrintBatch({ tab: "comanda", items: [null] });
+        return;
+      }
+      const { start, end, total } = comandaRange;
+      if (
+        total > 800 &&
+        !window.confirm(
+          `Você está prestes a gerar ${total} comandas. Isso pode demorar. Deseja continuar?`,
+        )
+      ) {
+        return;
+      }
+      setPrintBatch({
+        tab: "comanda",
+        items: Array.from({ length: total }, (_, i) => start + i),
+      });
+    } else if (activeTab === "reserva") {
+      if (!reserva.numerar) {
+        setPrintBatch({ tab: "reserva", items: [null] });
+        return;
+      }
+      const { start, end, total } = reservaRange;
+      if (
+        total > 800 &&
+        !window.confirm(
+          `Você está prestes a gerar ${total} fichas de reserva. Isso pode demorar. Deseja continuar?`,
+        )
+      ) {
+        return;
+      }
+      setPrintBatch({
+        tab: "reserva",
+        items: Array.from({ length: total }, (_, i) => start + i),
+      });
+    } else if (activeTab === "valePresente") {
+      if (!valePresente.numerar) {
+        setPrintBatch({ tab: "valePresente", items: [null] });
+        return;
+      }
+      const { start, end, total } = valePresenteRange;
+      if (
+        total > 800 &&
+        !window.confirm(
+          `Você está prestes a gerar ${total} vale-presentes. Isso pode demorar. Deseja continuar?`,
+        )
+      ) {
+        return;
+      }
+      setPrintBatch({
+        tab: "valePresente",
+        items: Array.from({ length: total }, (_, i) => start + i),
+      });
     } else if (activeTab === "bingo") {
+      if (!bingo.numerar) {
+        setPrintBatch({ tab: "bingo", items: bingoCards.map(() => null) });
+        return;
+      }
       if (
         bingoCards.length > 100 &&
         !window.confirm(
@@ -437,10 +647,21 @@ export function useTalonarioBuilder() {
     }
   }, [
     activeTab,
+    pedido.numerar,
     pedidoRange,
     receituario.numerar,
     receituarioRange,
+    ordemServico.numerar,
     ordemServicoRange,
+    recibo.numerar,
+    reciboRange,
+    comanda.numerar,
+    comandaRange,
+    reserva.numerar,
+    reservaRange,
+    valePresente.numerar,
+    valePresenteRange,
+    bingo.numerar,
     bingoCards,
   ]);
 
@@ -476,6 +697,22 @@ export function useTalonarioBuilder() {
     ordemServico,
     setOrdemServicoField,
     ordemServicoRange,
+
+    recibo,
+    setReciboField,
+    reciboRange,
+
+    comanda,
+    setComandaField,
+    comandaRange,
+
+    reserva,
+    setReservaField,
+    reservaRange,
+
+    valePresente,
+    setValePresenteField,
+    valePresenteRange,
 
     bingo,
     setBingoField,
