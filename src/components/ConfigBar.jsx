@@ -3,7 +3,14 @@
 // Barra de configuração. Aparência é lida diretamente do AgendaConfigContext,
 // reduzindo o número de props recebidos de ~25 para 8.
 
-import { MdUpload, MdColorLens, MdFontDownload, MdImage } from "react-icons/md";
+import { useState } from "react";
+import {
+  MdUpload,
+  MdColorLens,
+  MdFontDownload,
+  MdImage,
+  MdPalette,
+} from "react-icons/md";
 import { TEMAS } from "../themes";
 import TemplateSelector from "./TemplateSelector";
 import { useDateInput } from "../hooks/useDateInput";
@@ -26,6 +33,98 @@ const FONT_OPTIONS = [
   { value: "Lora", label: "Lora" },
   { value: "Raleway", label: "Raleway" },
   { value: "Nunito", label: "Nunito" },
+];
+
+// PALETAS PRÉ-DEFINIDAS PARA OS DIAS DO CALENDÁRIO
+const PALETAS_DIAS = [
+  {
+    id: "classica",
+    nome: "Clássica",
+    cores: {
+      domingo: "#ef4444",
+      sabado: "#3b82f6",
+      diaNormal: "#374151",
+      feriado: "#dc2626",
+      comemorativa: "#b45309",
+    },
+  },
+  {
+    id: "pastel",
+    nome: "Pastel",
+    cores: {
+      domingo: "#f87171",
+      sabado: "#60a5fa",
+      diaNormal: "#6b7280",
+      feriado: "#fca5a5",
+      comemorativa: "#fbbf24",
+    },
+  },
+  {
+    id: "escura",
+    nome: "Escura",
+    cores: {
+      domingo: "#991b1b",
+      sabado: "#1e40af",
+      diaNormal: "#1f2937",
+      feriado: "#7f1d1d",
+      comemorativa: "#92400e",
+    },
+  },
+  {
+    id: "vibrante",
+    nome: "Vibrante",
+    cores: {
+      domingo: "#e11d48",
+      sabado: "#2563eb",
+      diaNormal: "#111827",
+      feriado: "#b91c1c",
+      comemorativa: "#d97706",
+    },
+  },
+  {
+    id: "natureza",
+    nome: "Natureza",
+    cores: {
+      domingo: "#b45309",
+      sabado: "#0369a1",
+      diaNormal: "#374151",
+      feriado: "#92400e",
+      comemorativa: "#15803d",
+    },
+  },
+  {
+    id: "monocromatico",
+    nome: "Monocromático",
+    cores: {
+      domingo: "#6b7280",
+      sabado: "#6b7280",
+      diaNormal: "#1f2937",
+      feriado: "#4b5563",
+      comemorativa: "#4b5563",
+    },
+  },
+  {
+    id: "soft",
+    nome: "Soft",
+    cores: {
+      domingo: "#fb7185",
+      sabado: "#38bdf8",
+      diaNormal: "#475569",
+      feriado: "#f43f5e",
+      comemorativa: "#f59e0b",
+    },
+  },
+  {
+    id: "retro",
+    nome: "Retrô",
+    cores: {
+      domingo: "#be123c",
+      sabado: "#1d4ed8",
+      diaNormal: "#451a03",
+      feriado: "#991b1b",
+      comemorativa: "#b45309",
+    },
+  },
 ];
 
 export default function ConfigBar({
@@ -100,6 +199,16 @@ export default function ConfigBar({
   const onFooterTypeChange = (type, label, icon) => {
     setFooterType(type);
     toast(`${label} selecionado`, { icon });
+  };
+
+  // Função para aplicar uma paleta pré-definida
+  const aplicarPaleta = (paleta) => {
+    setDomingoColor(paleta.cores.domingo);
+    setSabadoColor(paleta.cores.sabado);
+    setDiaNormalColor(paleta.cores.diaNormal);
+    setFeriadoColor(paleta.cores.feriado);
+    setComemorativaColor(paleta.cores.comemorativa);
+    toast(`Paleta "${paleta.nome}" aplicada!`, { icon: "🎨" });
   };
 
   const Label = ({ icon: Icon, children }) => (
@@ -211,35 +320,72 @@ export default function ConfigBar({
             </div>
           </div>
 
-          {/* Cores dos dias do calendário */}
+          {/* Cores dos dias do calendário com paletas pré-definidas */}
           <div className="flex items-center gap-3">
-            <Label icon={MdColorLens}>Dias:</Label>
-            <div className="flex items-center gap-2">
+            <Label icon={MdPalette}>Dias:</Label>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {/* Botões das paletas pré-definidas */}
+              {PALETAS_DIAS.map((paleta) => (
+                <button
+                  key={paleta.id}
+                  onClick={() => aplicarPaleta(paleta)}
+                  className="group relative px-2 py-1 text-[9px] font-medium rounded-full border border-[#D8CBA8] bg-[#FBF8F1] hover:border-[#B8933D] hover:bg-[#EFE4C8] transition-all flex items-center gap-1.5"
+                  title={`Aplicar paleta ${paleta.nome}`}
+                >
+                  <span className="flex items-center gap-0.5">
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: paleta.cores.domingo }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: paleta.cores.sabado }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: paleta.cores.diaNormal }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: paleta.cores.feriado }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: paleta.cores.comemorativa }}
+                    />
+                  </span>
+                  <span className="text-[8px] text-[#8B6A1F] hidden sm:inline">
+                    {paleta.nome}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Seletores individuais de cores dos dias */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {[
                 {
                   value: domingoColor,
                   onChange: setDomingoColor,
-                  title: "Domingo",
+                  title: "Dom",
                 },
-                {
-                  value: sabadoColor,
-                  onChange: setSabadoColor,
-                  title: "Sábado",
-                },
+                { value: sabadoColor, onChange: setSabadoColor, title: "Sáb" },
                 {
                   value: diaNormalColor,
                   onChange: setDiaNormalColor,
-                  title: "Normal",
+                  title: "Nor",
                 },
                 {
                   value: feriadoColor,
                   onChange: setFeriadoColor,
-                  title: "Feriado",
+                  title: "Fer",
                 },
                 {
                   value: comemorativaColor,
                   onChange: setComemorativaColor,
-                  title: "Comemorativa",
+                  title: "Com",
                 },
               ].map(({ value, onChange, title }) => (
                 <input
@@ -247,7 +393,7 @@ export default function ConfigBar({
                   type="color"
                   value={value}
                   onChange={(e) => onChange(e.target.value)}
-                  className="w-6 h-6 p-0 border-2 border-[#D8CBA8] rounded-full cursor-pointer hover:border-[#B8933D] transition shadow-sm"
+                  className="w-5 h-5 p-0 border-2 border-[#D8CBA8] rounded-full cursor-pointer hover:border-[#B8933D] transition shadow-sm"
                   title={title}
                 />
               ))}
