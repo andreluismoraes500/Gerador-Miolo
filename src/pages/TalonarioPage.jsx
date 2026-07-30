@@ -519,7 +519,7 @@ export default function TalonarioPage() {
             />
           )}
           {t.activeTab === "bingo" && t.bingoCards[0] && (
-            <div className="w-full max-w-100 aspect-[3/4]">
+            <div className="w-full max-w-100 aspect-3/4">
               <BingoCard
                 titulo={t.bingo.titulo}
                 subtitulo={t.bingo.subtitulo}
