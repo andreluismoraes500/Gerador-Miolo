@@ -32,20 +32,18 @@ export default function DiaCompleto({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
-  // Receber o perfil via props (do contexto ou diretamente)
   businessProfile: propBusinessProfile,
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
-  // Tenta usar o contexto primeiro, depois fallback para props
   let contextProfile = null;
   try {
     const context = useBusinessProfileContext();
     contextProfile = context?.profile;
   } catch (e) {
-    // Contexto não disponível, usar props
+    // Contexto não disponível
   }
 
   const perfil = propBusinessProfile ||
@@ -58,21 +56,17 @@ export default function DiaCompleto({
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
 
-  // Grade de horário do perfil (ex.: Personal Trainer 06:00–22:00, Psicólogo
-  // sessões de 50min) — antes era sempre fixa em 07:00–20:00/30min,
-  // ignorando esses valores em src/config/*.js.
   const horarioCfg = perfil.horario || {};
-  const HORARIOS = gerarHorarios(horarioCfg.inicio, horarioCfg.fim, horarioCfg.intervalo);
+  const HORARIOS = gerarHorarios(
+    horarioCfg.inicio,
+    horarioCfg.fim,
+    horarioCfg.intervalo,
+  );
   const mostrarHoraFim = perfil.layout?.mostrarHoraFim === true;
 
-  // Altura de linha calculada a partir da quantidade de horários, em vez de
-  // um valor fixo — perfis com mais horários (ex.: Personal Trainer, 33
-  // linhas) não estouram mais a página, e perfis com menos (ex.: Advogado,
-  // 21 linhas) preenchem o espaço direito, sem forçar duas páginas.
   const TABLE_BUDGET_MM = 205;
   const rowHeightMm = Math.min(7.75, TABLE_BUDGET_MM / HORARIOS.length);
 
-  // Obter labels dos campos
   const clienteLabel = perfil.campos?.cliente || "Cliente";
   const servicoLabel = perfil.campos?.servico || "Serviço";
   const extraLabel = perfil.campos?.extra || "Observações";
@@ -82,7 +76,9 @@ export default function DiaCompleto({
       className="printable-page font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -127,7 +123,9 @@ export default function DiaCompleto({
               {feriado && (
                 <span className="text-black border border-black px-1.5 py-0.5 rounded-sm flex items-center gap-1 bg-gray-50 max-w-[46mm] whitespace-nowrap overflow-hidden text-ellipsis">
                   <MdStarBorder className="w-3 h-3 text-amber-500 shrink-0" />{" "}
-                  <span className="overflow-hidden text-ellipsis">{feriado.nome}</span>
+                  <span className="overflow-hidden text-ellipsis">
+                    {feriado.nome}
+                  </span>
                 </span>
               )}
               {comemorativa && !feriado && (
@@ -135,7 +133,9 @@ export default function DiaCompleto({
                   className={`italic font-medium flex items-center justify-end gap-1 text-gray-500 max-w-[46mm] whitespace-nowrap overflow-hidden text-ellipsis ${tema.bodyFont}`}
                 >
                   <MdPushPin className="w-2.5 h-2.5 text-gray-400 shrink-0" />{" "}
-                  <span className="overflow-hidden text-ellipsis">{comemorativa}</span>
+                  <span className="overflow-hidden text-ellipsis">
+                    {comemorativa}
+                  </span>
                 </span>
               )}
             </div>
@@ -168,17 +168,27 @@ export default function DiaCompleto({
                   </th>
                 )}
                 <th
-                  className={`${mostrarHoraFim ? "w-[31%]" : "w-[34%]"} pb-2 text-black border-r ${tema.border} px-2`}
+                  className={`${mostrarHoraFim ? "w-[28%]" : "w-[30%]"} pb-2 text-black border-r ${tema.border} px-2`}
                   style={{ borderRightColor: secondaryColor }}
                 >
                   {clienteLabel}
                 </th>
                 <th
-                  className={`${mostrarHoraFim ? "w-[27%]" : "w-[30%]"} pb-2 text-black border-r ${tema.border} px-2`}
+                  className={`${mostrarHoraFim ? "w-[23%]" : "w-[25%]"} pb-2 text-black border-r ${tema.border} px-2`}
                   style={{ borderRightColor: secondaryColor }}
                 >
                   {servicoLabel}
                 </th>
+                {/* --- NOVA COLUNA "VALOR" --- */}
+                <th
+                  className={`w-[10%] pb-2 text-black border-r ${tema.border} text-center`}
+                  style={{ borderRightColor: secondaryColor }}
+                >
+                  <span className="text-[7px] font-bold tracking-tight text-gray-500 uppercase">
+                    Valor
+                  </span>
+                </th>
+                {/* --- FIM DA NOVA COLUNA --- */}
                 <th
                   className={`w-[8%] pb-2 text-center border-r ${tema.border} font-normal`}
                   style={{ borderRightColor: secondaryColor }}
@@ -225,7 +235,10 @@ export default function DiaCompleto({
                 <tr
                   key={hora}
                   className={`border-b-[1.5px] border-solid ${tema.border}`}
-                  style={{ borderBottomColor: secondaryColor, height: `${rowHeightMm}mm` }}
+                  style={{
+                    borderBottomColor: secondaryColor,
+                    height: `${rowHeightMm}mm`,
+                  }}
                 >
                   <td
                     className={`font-mono text-black font-bold text-[11px] align-middle border-r ${tema.border} pr-1`}
@@ -261,6 +274,18 @@ export default function DiaCompleto({
                       placeholder={``}
                     />
                   </td>
+                  {/* --- CÉLULA DA COLUNA "VALOR" --- */}
+                  <td
+                    className={`border-r ${tema.border} align-middle px-1`}
+                    style={{ borderRightColor: secondaryColor }}
+                  >
+                    <EditableField
+                      fieldKey={`${data.toISOString().split("T")[0]}-${hora}-valor`}
+                      className="w-full text-sm text-right"
+                      placeholder=""
+                    />
+                  </td>
+                  {/* --- FIM DA CÉLULA "VALOR" --- */}
                   <td
                     className={`text-center align-middle border-r ${tema.border}`}
                     style={{ borderRightColor: secondaryColor }}
