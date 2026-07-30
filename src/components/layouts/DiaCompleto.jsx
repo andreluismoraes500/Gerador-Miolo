@@ -55,6 +55,7 @@ export default function DiaCompleto({
   const bgColor = customColors.background || "#ffffff";
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
+  const numeroDiaColor = customColors.numeroDia || "#000000";
 
   const horarioCfg = perfil.horario || {};
   const HORARIOS = gerarHorarios(
@@ -139,7 +140,11 @@ export default function DiaCompleto({
                 </span>
               )}
             </div>
-            <span className="text-5xl font-extralight tracking-tighter font-serif text-black leading-none min-w-11.25">
+            {/* NÚMERO DO DIA COM COR PERSONALIZÁVEL */}
+            <span
+              className="text-5xl font-extralight tracking-tighter font-serif leading-none min-w-11.25"
+              style={{ color: numeroDiaColor }}
+            >
               {String(data.getDate()).padStart(2, "0")}
             </span>
           </div>
@@ -179,7 +184,7 @@ export default function DiaCompleto({
                 >
                   {servicoLabel}
                 </th>
-                {/* --- NOVA COLUNA "VALOR" --- */}
+                {/* COLUNA VALOR */}
                 <th
                   className={`w-[10%] pb-2 text-black border-r ${tema.border} text-center`}
                   style={{ borderRightColor: secondaryColor }}
@@ -188,7 +193,6 @@ export default function DiaCompleto({
                     Valor
                   </span>
                 </th>
-                {/* --- FIM DA NOVA COLUNA --- */}
                 <th
                   className={`w-[8%] pb-2 text-center border-r ${tema.border} font-normal`}
                   style={{ borderRightColor: secondaryColor }}
@@ -274,7 +278,6 @@ export default function DiaCompleto({
                       placeholder={``}
                     />
                   </td>
-                  {/* --- CÉLULA DA COLUNA "VALOR" --- */}
                   <td
                     className={`border-r ${tema.border} align-middle px-1`}
                     style={{ borderRightColor: secondaryColor }}
@@ -285,7 +288,6 @@ export default function DiaCompleto({
                       placeholder=""
                     />
                   </td>
-                  {/* --- FIM DA CÉLULA "VALOR" --- */}
                   <td
                     className={`text-center align-middle border-r ${tema.border}`}
                     style={{ borderRightColor: secondaryColor }}

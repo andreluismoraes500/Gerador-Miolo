@@ -42,7 +42,7 @@ export function AgendaConfigProvider({ children }) {
     0.12,
   );
 
-  // --- NOVAS CORES PARA DIAS DO CALENDÁRIO ---
+  // --- CORES DOS DIAS DO CALENDÁRIO ---
   const [domingoColor, setDomingoColor] = usePersistedState(
     "agenda-domingoColor",
     "#ef4444",
@@ -62,6 +62,12 @@ export function AgendaConfigProvider({ children }) {
   const [comemorativaColor, setComemorativaColor] = usePersistedState(
     "agenda-comemorativaColor",
     "#b45309",
+  );
+
+  // --- COR DO NÚMERO DO DIA (01, 02, 03...) ---
+  const [numeroDiaColor, setNumeroDiaColor] = usePersistedState(
+    "agenda-numeroDiaColor",
+    "#000000",
   );
 
   // --- conteúdo da capa ---
@@ -98,6 +104,7 @@ export function AgendaConfigProvider({ children }) {
       diaNormal: diaNormalColor,
       feriado: feriadoColor,
       comemorativa: comemorativaColor,
+      numeroDia: numeroDiaColor,
     }),
     [
       primaryColor,
@@ -108,6 +115,7 @@ export function AgendaConfigProvider({ children }) {
       diaNormalColor,
       feriadoColor,
       comemorativaColor,
+      numeroDiaColor,
     ],
   );
 
@@ -126,7 +134,7 @@ export function AgendaConfigProvider({ children }) {
       setSecondaryColor,
       bgColor,
       setBgColor,
-      // NOVAS CORES
+      // CORES DOS DIAS DO CALENDÁRIO
       domingoColor,
       setDomingoColor,
       sabadoColor,
@@ -137,6 +145,9 @@ export function AgendaConfigProvider({ children }) {
       setFeriadoColor,
       comemorativaColor,
       setComemorativaColor,
+      // COR DO NÚMERO DO DIA
+      numeroDiaColor,
+      setNumeroDiaColor,
       customColors,
       // fonte
       fontFamily,
@@ -186,6 +197,8 @@ export function AgendaConfigProvider({ children }) {
       setFeriadoColor,
       comemorativaColor,
       setComemorativaColor,
+      numeroDiaColor,
+      setNumeroDiaColor,
       customColors,
       fontFamily,
       setFontFamily,

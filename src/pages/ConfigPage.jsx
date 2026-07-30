@@ -1,7 +1,4 @@
 // src/pages/ConfigPage.jsx
-//
-// Segunda etapa do fluxo: toda a aparência da agenda (tema, cores, fonte,
-// rodapé, logo, marca d'água e capa), organizada em cards temáticos.
 
 import { useNavigate, useOutletContext } from "react-router-dom";
 import {
@@ -95,7 +92,7 @@ export default function ConfigPage() {
     setCapaEstilo,
     capaFrase,
     setCapaFrase,
-    // NOVAS CORES DOS DIAS
+    // CORES DOS DIAS DO CALENDÁRIO
     domingoColor,
     setDomingoColor,
     sabadoColor,
@@ -106,6 +103,9 @@ export default function ConfigPage() {
     setFeriadoColor,
     comemorativaColor,
     setComemorativaColor,
+    // COR DO NÚMERO DO DIA
+    numeroDiaColor,
+    setNumeroDiaColor,
   } = useAgendaConfig();
 
   const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
@@ -163,7 +163,7 @@ export default function ConfigPage() {
           description="Ajuste fino, sobrepõe o tema escolhido acima."
           icon={MdColorLens}
         >
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center gap-5">
             {[
               {
                 value: primaryColor,
@@ -176,6 +176,11 @@ export default function ConfigPage() {
                 title: "Secundária",
               },
               { value: bgColor, onChange: setBgColor, title: "Fundo" },
+              {
+                value: numeroDiaColor,
+                onChange: setNumeroDiaColor,
+                title: "Número do dia",
+              },
             ].map(({ value, onChange, title }) => (
               <div key={title} className="flex flex-col items-center gap-1.5">
                 <input
@@ -193,10 +198,10 @@ export default function ConfigPage() {
           </div>
         </SectionCard>
 
-        {/* Cores dos Dias do Calendário */}
+        {/* Cores dos dias do calendário */}
         <SectionCard
           title="Cores dos dias do calendário"
-          description="Personalize as cores dos dias, feriados e datas comemorativas."
+          description="Personalize as cores dos números dos dias, feriados e datas comemorativas."
           icon={MdColorLens}
         >
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
