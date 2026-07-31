@@ -38,6 +38,7 @@ export default function RefeicoesLayout({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
 }) {
   const primaryColor = customColors.primary || "#16a34a";
   const bgColor = customColors.background || "#ffffff";
@@ -50,7 +51,9 @@ export default function RefeicoesLayout({
         fontFamily,
       }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -179,6 +182,7 @@ export default function RefeicoesLayout({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

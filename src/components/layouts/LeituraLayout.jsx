@@ -43,6 +43,7 @@ export default function LeituraLayout({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
 }) {
   const primaryColor = customColors.primary || "#B45309";
   const bgColor = customColors.background || "#ffffff";
@@ -55,7 +56,9 @@ export default function LeituraLayout({
         fontFamily,
       }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -132,9 +135,7 @@ export default function LeituraLayout({
 
         <div className="grid grid-cols-2 gap-6 mt-6">
           <div className="p-4 rounded-xl border border-gray-200">
-            <h3
-              className="text-xs uppercase tracking-widest text-gray-400 mb-3"
-            >
+            <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-3">
               Próximos da lista de desejos
             </h3>
 
@@ -147,9 +148,7 @@ export default function LeituraLayout({
           </div>
 
           <div className="p-4 rounded-xl border border-gray-200">
-            <h3
-              className="text-xs uppercase tracking-widest text-gray-400 mb-2"
-            >
+            <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-2">
               Frase favorita do mês
             </h3>
 
@@ -168,6 +167,7 @@ export default function LeituraLayout({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

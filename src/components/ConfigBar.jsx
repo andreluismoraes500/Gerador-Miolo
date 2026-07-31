@@ -162,6 +162,9 @@ export default function ConfigBar({
     watermarkSrc,
     watermarkOpacity,
     setWatermarkOpacity,
+    backgroundSrc,
+    backgroundOpacity,
+    setBackgroundOpacity,
     capaNome,
     setCapaNome,
     capaEstilo,
@@ -508,6 +511,59 @@ export default function ConfigBar({
                     value={watermarkOpacity}
                     onChange={(e) =>
                       setWatermarkOpacity(parseFloat(e.target.value))
+                    }
+                    className="w-16 h-1 accent-[#B8933D]"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Fundo da página */}
+          <div className="flex items-center gap-2">
+            <Label icon={MdImage}>Fundo:</Label>
+            <label className="cursor-pointer bg-[#FBF8F1] hover:bg-[#EFE4C8] text-[#24344D] text-xs px-3 py-1.5 rounded-lg border border-[#D8CBA8] flex items-center gap-1.5 transition hover:border-[#B8933D]">
+              <MdUpload className="w-3.5 h-3.5" />
+              {backgroundSrc ? "Alterar" : "Enviar"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setBackgroundSrc(reader.result);
+                    toast.success("Fundo enviado!");
+                  };
+                  reader.readAsDataURL(file);
+                }}
+                className="hidden"
+              />
+            </label>
+            {backgroundSrc && (
+              <>
+                <button
+                  onClick={() => {
+                    setBackgroundSrc(null);
+                    toast("Fundo removido", { icon: "🗑️" });
+                  }}
+                  className="text-[#8B2E3F] hover:text-[#6E2432] text-xs underline transition"
+                >
+                  Remover
+                </button>
+                <div className="flex items-center gap-1">
+                  <span className="text-[8px] text-[#8B6A1F] uppercase tracking-wide">
+                    Intensidade:
+                  </span>
+                  <input
+                    type="range"
+                    min="0.01"
+                    max="0.5"
+                    step="0.01"
+                    value={backgroundOpacity}
+                    onChange={(e) =>
+                      setBackgroundOpacity(parseFloat(e.target.value))
                     }
                     className="w-16 h-1 accent-[#B8933D]"
                   />

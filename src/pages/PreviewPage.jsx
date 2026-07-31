@@ -7,7 +7,6 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
 import AgendaPreview from "../components/AgendaPreview";
 import AgendaBuilderPreview from "../components/AgendaBuilderPreview";
-import PaymentPanel from "../components/PaymentPanel";
 
 export default function PreviewPage() {
   const { settings, builder } = useOutletContext();
@@ -15,11 +14,7 @@ export default function PreviewPage() {
   const {
     template,
     customName,
-    paid,
-    setPaid,
-    setCustomName,
     footerName,
-    clearFooterName,
     selectedDate,
     printing,
     businessProfile,
@@ -43,6 +38,12 @@ export default function PreviewPage() {
               Confira o resultado abaixo. Se quiser ajustar algo, volte às
               etapas anteriores — nada se perde.
             </p>
+            {customName && (
+              <p className="text-xs text-[#2F6B45] mt-1 flex items-center gap-1">
+                <span>✓</span>
+                Rodapé personalizado: <strong>{customName}</strong>
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -62,14 +63,6 @@ export default function PreviewPage() {
             </button>
           </div>
         </div>
-
-        <PaymentPanel
-          paid={paid}
-          customName={customName}
-          onPayment={setPaid}
-          onNameChange={setCustomName}
-          onClearName={clearFooterName}
-        />
       </div>
 
       <div className="max-w-6xl mx-auto w-full px-5 sm:px-6 pb-12 flex justify-center print:p-0 print:max-w-none">
@@ -86,7 +79,7 @@ export default function PreviewPage() {
           <AgendaPreview
             template={template}
             customName={footerName}
-            paid={paid}
+            paid={false}
             selectedDate={selectedDate}
             printing={printing}
             businessProfile={businessProfile}

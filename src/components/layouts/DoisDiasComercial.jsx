@@ -31,6 +31,7 @@ export default function DoisDiasComercial({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const diaBBruto = addDias(data, 1);
@@ -49,8 +50,12 @@ export default function DoisDiasComercial({
       className="printable-page font-sans text-gray-900 flex flex-col box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
-      {watermarkSrc && <Watermark src={watermarkSrc} opacity={watermarkOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
 
       {/* Mini cabeçalho da página com logo (aparece uma única vez) */}
       {logo && (
@@ -87,6 +92,7 @@ export default function DoisDiasComercial({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

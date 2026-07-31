@@ -56,6 +56,7 @@ export default function EstudosLayout({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
 }) {
   const primaryColor = customColors.primary || "#2563EB";
   const bgColor = customColors.background || "#ffffff";
@@ -68,7 +69,9 @@ export default function EstudosLayout({
         fontFamily,
       }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -143,9 +146,7 @@ export default function EstudosLayout({
 
           <div className="flex flex-col gap-4">
             <div className="p-4 rounded-xl border border-gray-200 bg-gray-50">
-              <h3
-                className="text-xs uppercase tracking-widest text-gray-400 mb-2"
-              >
+              <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-2">
                 Meta de estudo da semana
               </h3>
 
@@ -157,9 +158,7 @@ export default function EstudosLayout({
             </div>
 
             <div className="p-4 rounded-xl border border-gray-200 flex-1">
-              <h3
-                className="text-xs uppercase tracking-widest text-gray-400 mb-3"
-              >
+              <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-3">
                 Revisar depois
               </h3>
 
@@ -180,6 +179,7 @@ export default function EstudosLayout({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

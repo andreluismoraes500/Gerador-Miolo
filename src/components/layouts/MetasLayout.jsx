@@ -51,6 +51,7 @@ export default function MetasLayout({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
 }) {
   const primaryColor = customColors.primary || "#4f46e5";
   const bgColor = customColors.background || "#ffffff";
@@ -63,7 +64,9 @@ export default function MetasLayout({
         fontFamily,
       }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -182,6 +185,7 @@ export default function MetasLayout({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

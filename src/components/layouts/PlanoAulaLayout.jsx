@@ -23,6 +23,7 @@ export default function PlanoAulaLayout({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
 }) {
   const primaryColor = customColors.primary || "#b45309";
   const bgColor = customColors.background || "#ffffff";
@@ -32,7 +33,9 @@ export default function PlanoAulaLayout({
       className="printable-page bg-white text-gray-900 flex flex-col justify-between relative"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -178,6 +181,7 @@ export default function PlanoAulaLayout({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

@@ -31,15 +31,16 @@ export default function SemDataLayout({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
   // instanceKey diferencia os campos editáveis quando a mesma folha é
   // impressa em lote (várias cópias em branco na mesma sessão)
   instanceKey = "unica",
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
-  const bgColor      = customColors.background || "#ffffff";
-  const primaryColor = customColors.primary    || tema.text   || "#000000";
-  const secondary    = customColors.secondary  || tema.border || "#cbd5e1";
+  const bgColor = customColors.background || "#ffffff";
+  const primaryColor = customColors.primary || tema.text || "#000000";
+  const secondary = customColors.secondary || tema.border || "#cbd5e1";
 
   const chave = `semdata-${instanceKey}`;
 
@@ -48,11 +49,14 @@ export default function SemDataLayout({
       className="printable-page font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
-      {watermarkSrc && <Watermark src={watermarkSrc} opacity={watermarkOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
 
       <div className="flex flex-col flex-1 min-h-0">
-
         {/* ── Cabeçalho: dia da semana, mês/ano e nº do dia, todos editáveis ── */}
         <div
           className="border-b-2 pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-2"
@@ -61,7 +65,10 @@ export default function SemDataLayout({
           <div className="flex items-center gap-3.5">
             <Logo src={logo} />
             <div className="flex items-center gap-3.5">
-              <FaCalendarDays className="w-5 h-5 mb-1" style={{ color: primaryColor }} />
+              <FaCalendarDays
+                className="w-5 h-5 mb-1"
+                style={{ color: primaryColor }}
+              />
               <div className="space-y-0.5">
                 <EditableField
                   fieldKey={`${chave}-dia-semana`}
@@ -95,14 +102,18 @@ export default function SemDataLayout({
                 style={{ borderBottom: `1.5px solid ${secondary}` }}
                 placeholder=""
               />
-              <span className="text-gray-300 font-light text-sm select-none">/</span>
+              <span className="text-gray-300 font-light text-sm select-none">
+                /
+              </span>
               <EditableField
                 fieldKey={`${chave}-data-mes`}
                 className="w-7 text-center text-lg font-serif font-light text-black leading-none pb-0.5"
                 style={{ borderBottom: `1.5px solid ${secondary}` }}
                 placeholder=""
               />
-              <span className="text-gray-300 font-light text-sm select-none">/</span>
+              <span className="text-gray-300 font-light text-sm select-none">
+                /
+              </span>
               <EditableField
                 fieldKey={`${chave}-data-ano`}
                 className="w-12 text-center text-lg font-serif font-light text-black leading-none pb-0.5"
@@ -133,9 +144,7 @@ export default function SemDataLayout({
                 >
                   Compromisso / Tarefa
                 </th>
-                <th className="w-[31%] pb-2 text-black px-2">
-                  Observações
-                </th>
+                <th className="w-[31%] pb-2 text-black px-2">Observações</th>
               </tr>
             </thead>
             <tbody>
@@ -207,6 +216,7 @@ export default function SemDataLayout({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

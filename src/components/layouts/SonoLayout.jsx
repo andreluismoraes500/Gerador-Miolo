@@ -49,6 +49,7 @@ export default function SonoLayout({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
 }) {
   const primaryColor = customColors.primary || "#6366F1";
   const bgColor = customColors.background || "#ffffff";
@@ -61,7 +62,9 @@ export default function SonoLayout({
         fontFamily,
       }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -153,7 +156,9 @@ export default function SonoLayout({
                   />
                 ))}
               </div>
-              <p className="text-[10px] text-gray-400 mt-2">1 = péssima · 5 = ótima</p>
+              <p className="text-[10px] text-gray-400 mt-2">
+                1 = péssima · 5 = ótima
+              </p>
             </div>
 
             <div className="p-4 rounded-xl border border-gray-200">
@@ -188,9 +193,7 @@ export default function SonoLayout({
         </div>
 
         <div className="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-200">
-          <h3
-            className="text-xs uppercase tracking-widest text-gray-400 mb-2"
-          >
+          <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-2">
             Uma coisa boa que aconteceu hoje
           </h3>
 
@@ -207,6 +210,7 @@ export default function SonoLayout({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

@@ -83,6 +83,10 @@ export function AgendaConfigProvider({ children }) {
     "agenda-footerType",
     "default",
   );
+  const [footerHidden, setFooterHidden] = usePersistedState(
+    "agenda-footerHidden",
+    false,
+  );
 
   const removeLogo = useCallback(() => setLogo(null), [setLogo]);
   const removeWatermark = useCallback(
@@ -174,6 +178,8 @@ export function AgendaConfigProvider({ children }) {
       // rodapé
       footerType,
       setFooterType,
+      footerHidden,
+      setFooterHidden,
     }),
     [
       logo,
@@ -220,6 +226,8 @@ export function AgendaConfigProvider({ children }) {
       setCapaFrase,
       footerType,
       setFooterType,
+      footerHidden,
+      setFooterHidden,
     ],
   );
 

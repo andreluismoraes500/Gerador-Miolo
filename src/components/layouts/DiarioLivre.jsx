@@ -11,7 +11,11 @@
 
 import { FaCalendarDays } from "react-icons/fa6";
 import { MdStarBorder, MdPushPin } from "react-icons/md";
-import { getFeriado, getComemorativa, gerarHorarios } from "../../utils/agendaUtils";
+import {
+  getFeriado,
+  getComemorativa,
+  gerarHorarios,
+} from "../../utils/agendaUtils";
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
@@ -37,14 +41,15 @@ export default function DiarioLivre({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
-  const bgColor      = customColors.background || "#ffffff";
-  const primaryColor = customColors.primary    || tema.text   || "#000000";
-  const secondary    = customColors.secondary  || tema.border || "#cbd5e1";
+  const bgColor = customColors.background || "#ffffff";
+  const primaryColor = customColors.primary || tema.text || "#000000";
+  const secondary = customColors.secondary || tema.border || "#cbd5e1";
 
   // Chave única por dia para os EditableFields
   const diaKey = data.toISOString().split("T")[0];
@@ -54,11 +59,14 @@ export default function DiarioLivre({
       className="printable-page font-sans text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
-      {watermarkSrc && <Watermark src={watermarkSrc} opacity={watermarkOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
 
       <div className="flex flex-col flex-1 min-h-0">
-
         {/* ── Cabeçalho ─────────────────────────────────────────── */}
         <div
           className="border-b-2 pb-3 flex items-end justify-between mb-4 w-full shrink-0 print:mb-2"
@@ -67,13 +75,19 @@ export default function DiarioLivre({
           <div className="flex items-center gap-3.5">
             <Logo src={logo} />
             <div className="flex items-center gap-3.5">
-              <FaCalendarDays className="w-5 h-5 mb-1" style={{ color: primaryColor }} />
+              <FaCalendarDays
+                className="w-5 h-5 mb-1"
+                style={{ color: primaryColor }}
+              />
               <div className="space-y-0.5">
                 <h2 className="capitalize" style={{ color: primaryColor }}>
                   {data.toLocaleDateString("pt-BR", { weekday: "long" })}
                 </h2>
                 <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
-                  {data.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
+                  {data.toLocaleDateString("pt-BR", {
+                    month: "long",
+                    year: "numeric",
+                  })}
                 </p>
               </div>
             </div>
@@ -126,9 +140,7 @@ export default function DiarioLivre({
                 </th>
 
                 {/* Observações — 31% */}
-                <th className="w-[31%] pb-2 text-black px-2">
-                  Observações
-                </th>
+                <th className="w-[31%] pb-2 text-black px-2">Observações</th>
               </tr>
             </thead>
             <tbody>
@@ -180,10 +192,7 @@ export default function DiarioLivre({
           >
             Notas do Dia
           </p>
-          <div
-            className="border-t"
-            style={{ borderColor: secondary }}
-          >
+          <div className="border-t" style={{ borderColor: secondary }}>
             {Array.from({ length: LINHAS_NOTAS }).map((_, i) => (
               <div
                 key={i}
@@ -208,6 +217,7 @@ export default function DiarioLivre({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

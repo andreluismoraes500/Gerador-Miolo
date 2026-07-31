@@ -20,24 +20,42 @@ function formatLocalDate(year, month, day) {
 }
 
 const hoje = new Date();
-const DATA_INICIAL = formatLocalDate(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+const DATA_INICIAL = formatLocalDate(
+  hoje.getFullYear(),
+  hoje.getMonth(),
+  hoje.getDate(),
+);
 
 export function useAgendaSettings() {
   // --- estado local da sessão ---
-  const [template, setTemplate] = usePersistedState("agenda-template", "diario");
-  const [selectedDate, setSelectedDate] = usePersistedState("agenda-selectedDate", DATA_INICIAL);
-  const [paid, setPaid] = usePersistedState("agenda-paid", false);
-  const [customName, setCustomName] = usePersistedState("agenda-customName", "");
+  const [template, setTemplate] = usePersistedState(
+    "agenda-template",
+    "diario",
+  );
+  const [selectedDate, setSelectedDate] = usePersistedState(
+    "agenda-selectedDate",
+    DATA_INICIAL,
+  );
+  const [customName, setCustomName] = usePersistedState(
+    "agenda-customName",
+    "",
+  );
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
 
   // --- aparência (contexto) ---
   const {
-    logo, setLogo, removeLogo,
-    colorTheme, setColorTheme,
-    setPrimaryColor, setSecondaryColor, setBgColor,
+    logo,
+    setLogo,
+    removeLogo,
+    colorTheme,
+    setColorTheme,
+    setPrimaryColor,
+    setSecondaryColor,
+    setBgColor,
     setWatermarkSrc,
-    setBackgroundSrc, removeBackground,
+    setBackgroundSrc,
+    removeBackground,
   } = useAgendaConfig();
 
   // --- perfil de negócio ---
@@ -60,7 +78,15 @@ export function useAgendaSettings() {
         toast.success(`Perfil alterado`);
       }
     },
-    [_setBusinessProfileId, applyProfileColors, setPrimaryColor, setSecondaryColor, setBgColor, setColorTheme, getThemeId],
+    [
+      _setBusinessProfileId,
+      applyProfileColors,
+      setPrimaryColor,
+      setSecondaryColor,
+      setBgColor,
+      setColorTheme,
+      getThemeId,
+    ],
   );
 
   const applyThemeColors = useCallback(
@@ -79,12 +105,6 @@ export function useAgendaSettings() {
     },
     [setPrimaryColor, setSecondaryColor, setBgColor, setColorTheme],
   );
-
-  const clearFooterName = useCallback(() => {
-    setCustomName("");
-    setPaid(false);
-    toast.success("Nome do rodapé limpo!", { icon: "🧹" });
-  }, [setCustomName, setPaid]);
 
   const handlePrint = useCallback(() => {
     setPrinting(true);
@@ -128,7 +148,6 @@ export function useAgendaSettings() {
   );
 
   const handleRemoveWatermark = useCallback(() => {
-    // removeWatermark vem do contexto — chamado via useAgendaConfig direto
     setWatermarkSrc(null);
     toast("Marca d'água removida", { icon: "🗑️" });
   }, [setWatermarkSrc]);
@@ -153,25 +172,34 @@ export function useAgendaSettings() {
   }, [removeBackground]);
 
   // ── derivados ────────────────────────────────────────────────
-  const footerName = paid ? customName : "Lucas Cassiano de Moraes";
+  const footerName =
+    customName && customName.trim() !== ""
+      ? customName
+      : "Lucas Cassiano de Moraes";
 
   return {
     // template / data
-    template, setTemplate,
-    selectedDate, setSelectedDate,
-    // pagamento / nome
-    paid, setPaid,
-    customName, setCustomName,
+    template,
+    setTemplate,
+    selectedDate,
+    setSelectedDate,
+    // nome do rodapé
+    customName,
+    setCustomName,
     footerName,
-    clearFooterName,
     // ui
-    printing, setPrinting,
-    showConfig, setShowConfig,
+    printing,
+    setPrinting,
+    showConfig,
+    setShowConfig,
     // handlers de arquivo
     handlePrint,
-    handleLogoUpload, handleRemoveLogo,
-    handleWatermarkUpload, handleRemoveWatermark,
-    handleBackgroundUpload, handleRemoveBackground,
+    handleLogoUpload,
+    handleRemoveLogo,
+    handleWatermarkUpload,
+    handleRemoveWatermark,
+    handleBackgroundUpload,
+    handleRemoveBackground,
     // tema
     applyThemeColors,
     // perfil de negócio

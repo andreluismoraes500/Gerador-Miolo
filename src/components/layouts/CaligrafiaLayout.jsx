@@ -188,6 +188,7 @@ function PageShell({
   footerType,
   colorTheme,
   customColors = {},
+  footerHidden = false,
 }) {
   const bgColor = customColors.background || "#ffffff";
   return (
@@ -208,6 +209,7 @@ function PageShell({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

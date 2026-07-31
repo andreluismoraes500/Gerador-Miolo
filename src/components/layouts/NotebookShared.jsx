@@ -35,6 +35,7 @@ export function PageShell({
   footerType,
   colorTheme,
   customColors = {},
+  footerHidden = false,
 }) {
   const bgColor = customColors.background || "#ffffff";
   return (
@@ -42,7 +43,9 @@ export function PageShell({
       className="printable-page bg-white text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -53,6 +56,7 @@ export function PageShell({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );
@@ -60,7 +64,14 @@ export function PageShell({
 
 // Cabeçalho padrão (logo + título + subtítulo + slot opcional à direita),
 // usado no topo da maioria das páginas dos cadernos.
-export function PageHeader({ logo, title, subtitle, right, primaryColor, tema }) {
+export function PageHeader({
+  logo,
+  title,
+  subtitle,
+  right,
+  primaryColor,
+  tema,
+}) {
   return (
     <div
       className="border-b-2 pb-3 flex items-end justify-between mb-5 w-full shrink-0"

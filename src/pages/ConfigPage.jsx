@@ -11,6 +11,9 @@ import {
   MdImage,
   MdArrowBack,
   MdArrowForward,
+  MdPerson,
+  MdVisibilityOff,
+  MdVisibility,
 } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import { TEMAS } from "../themes";
@@ -160,6 +163,9 @@ export default function ConfigPage() {
     handleRemoveWatermark,
     handleBackgroundUpload,
     handleRemoveBackground,
+    customName,
+    setCustomName,
+    footerName,
   } = settings;
 
   const {
@@ -175,6 +181,8 @@ export default function ConfigPage() {
     logo,
     footerType,
     setFooterType,
+    footerHidden,
+    setFooterHidden,
     watermarkSrc,
     watermarkOpacity,
     setWatermarkOpacity,
@@ -428,38 +436,129 @@ export default function ConfigPage() {
           </select>
         </SectionCard>
 
-        {/* Rodapé */}
+        {/* Rodapé - Personalização do Nome */}
         <SectionCard
-          title="Rodapé"
-          description="Estilo do rodapé exibido nas páginas."
+          title="Rodapé Personalizado"
+          description="Defina o nome que aparecerá no rodapé de todas as páginas."
+          icon={MdPerson}
         >
-          <div className="flex flex-wrap gap-2">
-            {[
-              {
-                type: "default",
-                label: "Rodapé padrão",
-                icon: "📄",
-                display: "Padrão",
-              },
-              {
-                type: "biblical",
-                label: "Rodapé bíblico",
-                icon: "📖",
-                display: "Bíblico",
-              },
-            ].map(({ type, label, icon, display }) => (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] mb-1.5">
+                Nome / Marca no Rodapé:
+              </label>
+              <input
+                type="text"
+                value={customName}
+                onChange={(e) => setCustomName(e.target.value)}
+                placeholder="Ex: Studio Bella, Ana Silva, Gráfica Express"
+                className={inputCls}
+                disabled={footerHidden}
+              />
+              {customName && !footerHidden && (
+                <p className="text-xs text-[#6B6458] mt-2 flex items-center gap-2">
+                  <span className="text-[#2F6B45]">✓</span>
+                  Rodapé atual:{" "}
+                  <strong className="text-[#24344D]">{customName}</strong>
+                </p>
+              )}
+              {!customName && !footerHidden && (
+                <p className="text-xs text-[#8B6A1F] mt-2 flex items-center gap-2">
+                  <span>ℹ️</span>
+                  Deixe em branco para usar o nome padrão:{" "}
+                  <strong>Lucas Cassiano de Moraes</strong>
+                </p>
+              )}
+              {footerHidden && (
+                <p className="text-xs text-[#8B2E3F] mt-2 flex items-center gap-2">
+                  <span>🚫</span>
+                  Rodapé está oculto. Nenhum texto será exibido.
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] mb-1.5">
+                Estilo do Rodapé:
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  {
+                    type: "default",
+                    label: "Rodapé padrão",
+                    icon: "📄",
+                    display: "Padrão",
+                  },
+                  {
+                    type: "biblical",
+                    label: "Rodapé bíblico",
+                    icon: "📖",
+                    display: "Bíblico",
+                  },
+                ].map(({ type, label, icon, display }) => (
+                  <button
+                    key={type}
+                    onClick={() => onFooterTypeChange(type, label, icon)}
+                    className={`px-3.5 py-1.5 text-xs font-medium rounded-full border transition-all ${
+                      footerType === type && !footerHidden
+                        ? "bg-[#24344D] text-[#F6F1E7] border-[#24344D] shadow-sm"
+                        : footerHidden
+                          ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed opacity-50"
+                          : "bg-[#FBF8F1] text-[#6B6458] border-[#D8CBA8] hover:border-[#B8933D] hover:text-[#24344D]"
+                    }`}
+                    disabled={footerHidden}
+                  >
+                    {display}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Botão para ocultar/mostrar rodapé */}
+            <div className="pt-2 border-t border-[#D8CBA8]/50">
               <button
-                key={type}
-                onClick={() => onFooterTypeChange(type, label, icon)}
-                className={`px-3.5 py-1.5 text-xs font-medium rounded-full border transition-all ${
-                  footerType === type
-                    ? "bg-[#24344D] text-[#F6F1E7] border-[#24344D] shadow-sm"
-                    : "bg-[#FBF8F1] text-[#6B6458] border-[#D8CBA8] hover:border-[#B8933D] hover:text-[#24344D]"
+                onClick={() => {
+                  setFooterHidden(!footerHidden);
+                  toast(
+                    footerHidden ? "Rodapé visível novamente" : "Rodapé oculto",
+                    {
+                      icon: footerHidden ? "👁️" : "🚫",
+                    },
+                  );
+                }}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  footerHidden
+                    ? "bg-[#2F6B45] text-white hover:bg-[#275A3B]"
+                    : "bg-[#8B2E3F] text-white hover:bg-[#7A2837]"
                 }`}
               >
-                {display}
+                {footerHidden ? (
+                  <>
+                    <MdVisibility className="w-4 h-4" />
+                    Mostrar rodapé
+                  </>
+                ) : (
+                  <>
+                    <MdVisibilityOff className="w-4 h-4" />
+                    Ocultar rodapé
+                  </>
+                )}
               </button>
-            ))}
+              <p className="text-[10px] text-[#6B6458] mt-1.5 text-center">
+                {footerHidden
+                  ? "O rodapé não aparecerá em nenhuma página"
+                  : "O rodapé aparecerá em todas as páginas"}
+              </p>
+            </div>
+
+            {customName && !footerHidden && (
+              <button
+                onClick={() => setCustomName("")}
+                className="text-[#8B2E3F] hover:text-[#6E2432] text-xs underline transition"
+              >
+                Remover nome personalizado
+              </button>
+            )}
           </div>
         </SectionCard>
 
@@ -580,9 +679,9 @@ export default function ConfigPage() {
                   </span>
                   <input
                     type="range"
-                    min="0.05"
-                    max="1"
-                    step="0.05"
+                    min="0.01"
+                    max="0.5"
+                    step="0.01"
                     value={backgroundOpacity}
                     onChange={(e) =>
                       setBackgroundOpacity(parseFloat(e.target.value))

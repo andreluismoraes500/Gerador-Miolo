@@ -33,6 +33,7 @@ export default function DiaCompleto({
   backgroundSrc,
   backgroundOpacity,
   businessProfile: propBusinessProfile,
+  footerHidden = false,
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
@@ -324,6 +325,7 @@ export default function DiaCompleto({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

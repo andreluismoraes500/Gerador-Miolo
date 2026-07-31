@@ -35,6 +35,7 @@ function PageShell({
   footerType,
   colorTheme,
   customColors = {},
+  footerHidden = false,
 }) {
   const { bgColor } = useVisual(customColors);
   return (
@@ -42,8 +43,12 @@ function PageShell({
       className="printable-page bg-white text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
-      {watermarkSrc && <Watermark src={watermarkSrc} opacity={watermarkOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
       <div className="flex flex-col flex-1 min-h-0">{children}</div>
       <Footer
         name={footerName}
@@ -51,6 +56,7 @@ function PageShell({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );
@@ -59,7 +65,9 @@ function PageShell({
 function CampoLabel({ label, fieldKey, className = "", placeholder = "" }) {
   return (
     <div className={className}>
-      <span className="text-[9px] uppercase tracking-widest text-gray-400">{label}</span>
+      <span className="text-[9px] uppercase tracking-widest text-gray-400">
+        {label}
+      </span>
       <EditableField
         fieldKey={fieldKey}
         className="w-full min-h-6 border-b border-gray-300 text-sm py-0.5"
@@ -81,13 +89,23 @@ export function PartiturasCapaPage(rest) {
       <div className="flex-1 flex flex-col items-center justify-center text-center px-10 relative overflow-hidden">
         <span
           className="absolute top-10 left-10 select-none pointer-events-none"
-          style={{ fontFamily: FONTE_MUSICAL, fontSize: "26mm", color: primaryColor, opacity: 0.08 }}
+          style={{
+            fontFamily: FONTE_MUSICAL,
+            fontSize: "26mm",
+            color: primaryColor,
+            opacity: 0.08,
+          }}
         >
           𝄞
         </span>
         <span
           className="absolute bottom-10 right-10 select-none pointer-events-none"
-          style={{ fontFamily: FONTE_MUSICAL, fontSize: "22mm", color: primaryColor, opacity: 0.08 }}
+          style={{
+            fontFamily: FONTE_MUSICAL,
+            fontSize: "22mm",
+            color: primaryColor,
+            opacity: 0.08,
+          }}
         >
           𝄢
         </span>
@@ -97,7 +115,11 @@ export function PartiturasCapaPage(rest) {
 
           <span
             className="block select-none mb-2"
-            style={{ fontFamily: FONTE_MUSICAL, fontSize: "18mm", color: primaryColor }}
+            style={{
+              fontFamily: FONTE_MUSICAL,
+              fontSize: "18mm",
+              color: primaryColor,
+            }}
           >
             𝄞
           </span>
@@ -108,7 +130,11 @@ export function PartiturasCapaPage(rest) {
 
           <h1
             className="text-4xl font-semibold mb-8"
-            style={{ color: primaryColor, fontFamily: FONTE_TITULO, fontSize: "18mm" }}
+            style={{
+              color: primaryColor,
+              fontFamily: FONTE_TITULO,
+              fontSize: "18mm",
+            }}
           >
             Caderno de Partituras
           </h1>
@@ -237,7 +263,11 @@ export function PartiturasPautaPage({
 
       {comCampos && (
         <div className="grid grid-cols-4 gap-4 mb-4 shrink-0">
-          <CampoLabel label="Título" fieldKey="partituras-titulo" className="col-span-2" />
+          <CampoLabel
+            label="Título"
+            fieldKey="partituras-titulo"
+            className="col-span-2"
+          />
           <CampoLabel label="Compositor(a)" fieldKey="partituras-compositor" />
           <CampoLabel label="Tom / Andamento" fieldKey="partituras-tom" />
         </div>

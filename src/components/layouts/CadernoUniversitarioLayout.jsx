@@ -54,6 +54,7 @@ function PageShell({
   backgroundSrc,
   backgroundOpacity,
   footerName,
+  footerhidden = false,
   footerType,
   colorTheme,
   customColors = {},
@@ -64,7 +65,9 @@ function PageShell({
       className="printable-page bg-white text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
       {watermarkSrc && (
         <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
       )}
@@ -75,6 +78,7 @@ function PageShell({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

@@ -55,6 +55,7 @@ export default function CalendarioLayout({
   watermarkOpacity,
   backgroundSrc,
   backgroundOpacity,
+  footerHidden = false,
 }) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const bgColor = customColors.background || "#ffffff";
@@ -294,6 +295,7 @@ export default function CalendarioLayout({
         colorTheme={colorTheme}
         customColors={customColors}
         fontFamily={fontFamily}
+        hidden={footerHidden}
       />
     </div>
   );

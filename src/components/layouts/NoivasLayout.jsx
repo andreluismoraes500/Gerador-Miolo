@@ -60,6 +60,7 @@ function PageShell({
   colorTheme,
   customColors = {},
   showCorners = true,
+  footerHidden = false,
 }) {
   const { bgColor } = useVisual(customColors);
   return (
@@ -97,6 +98,7 @@ function PageShell({
           colorTheme={colorTheme}
           customColors={customColors}
           fontFamily={fontFamily}
+          hidden={footerHidden}
         />
       </div>
     </div>
