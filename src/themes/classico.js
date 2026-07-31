@@ -1,3 +1,4 @@
+// src/themes/classico.js
 export default {
   nome: "Clássico",
   border: "border-slate-300",
@@ -14,5 +15,14 @@ export default {
     primary: "#475569",
     secondary: "#cbd5e1",
     background: "#f8fafc",
+    numeroDia: "#1e293b",
+    hora: "#000000",
+  },
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Compromisso",
+    valor: "Valor",
+    status: "Status",
   },
 };

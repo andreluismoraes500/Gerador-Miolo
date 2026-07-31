@@ -29,12 +29,37 @@ export function useBusinessProfile(initialProfileId = "default") {
     [setProfileId],
   );
 
+  // Agora recebe um profileOverride opcional para aplicar cores e rótulos
   const applyProfileColors = useCallback(
-    (setPrimary, setSecondary, setBg) => {
-      if (profile?.colors) {
-        setPrimary(profile.colors.primary);
-        setSecondary(profile.colors.secondary);
-        setBg(profile.colors.background);
+    (
+      setPrimary,
+      setSecondary,
+      setBg,
+      setNumeroDia,
+      setHora,
+      setColunaHora,
+      setColunaCliente,
+      setColunaServico,
+      setColunaValor,
+      setColunaStatus,
+      profileOverride = null, // perfil a ser usado (se não fornecido, usa o profile atual)
+    ) => {
+      const targetProfile = profileOverride || profile;
+      if (!targetProfile) return;
+
+      if (targetProfile.colors) {
+        setPrimary(targetProfile.colors.primary);
+        setSecondary(targetProfile.colors.secondary);
+        setBg(targetProfile.colors.background);
+        setNumeroDia(targetProfile.colors.numeroDia || "#1e293b");
+        setHora(targetProfile.colors.hora || "#000000");
+      }
+      if (targetProfile.labels) {
+        setColunaHora(targetProfile.labels.hora || "Hora");
+        setColunaCliente(targetProfile.labels.cliente || "Cliente");
+        setColunaServico(targetProfile.labels.servico || "Serviço");
+        setColunaValor(targetProfile.labels.valor || "Valor");
+        setColunaStatus(targetProfile.labels.status || "Status");
       }
     },
     [profile],

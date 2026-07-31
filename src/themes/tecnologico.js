@@ -32,5 +32,6 @@ export default {
     primary: "#06b6d4",
     secondary: "#22d3ee",
     background: "#0f172a",
+    numeroDia: "#f8fafc", // branco para fundo escuro
   },
 };

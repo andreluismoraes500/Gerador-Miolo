@@ -1,5 +1,4 @@
 // src/components/layouts/DiaCompleto.jsx
-
 import { FaPix, FaCalendarDays } from "react-icons/fa6";
 import { GiMoneyStack } from "react-icons/gi";
 import { CiCreditCard2 } from "react-icons/ci";
@@ -18,6 +17,7 @@ import Watermark from "../Watermark";
 import Background from "../Background";
 import { useBusinessProfileContext } from "../../context/BusinessProfileContext";
 import EditableField from "../EditableField";
+import { useAgendaConfig } from "../../context/AgendaConfigContext";
 
 export default function DiaCompleto({
   data,
@@ -43,9 +43,7 @@ export default function DiaCompleto({
   try {
     const context = useBusinessProfileContext();
     contextProfile = context?.profile;
-  } catch (e) {
-    // Contexto não disponível
-  }
+  } catch (e) {}
 
   const perfil = propBusinessProfile ||
     contextProfile ||
@@ -57,6 +55,16 @@ export default function DiaCompleto({
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
   const numeroDiaColor = customColors.numeroDia || "#000000";
+
+  // NOVAS PROPRIEDADES DO CONTEXTO
+  const {
+    horaColor,
+    colunaHora,
+    colunaCliente,
+    colunaServico,
+    colunaValor,
+    colunaStatus,
+  } = useAgendaConfig();
 
   const horarioCfg = perfil.horario || {};
   const HORARIOS = gerarHorarios(
@@ -141,7 +149,6 @@ export default function DiaCompleto({
                 </span>
               )}
             </div>
-            {/* NÚMERO DO DIA COM COR PERSONALIZÁVEL */}
             <span
               className="text-5xl font-extralight tracking-tighter font-serif leading-none min-w-11.25"
               style={{ color: numeroDiaColor }}
@@ -163,7 +170,7 @@ export default function DiaCompleto({
                   className={`${mostrarHoraFim ? "w-[9%]" : "w-[12%]"} pb-2 text-black border-r ${tema.border} pr-1`}
                   style={{ borderRightColor: secondaryColor }}
                 >
-                  Hora
+                  {colunaHora}
                 </th>
                 {mostrarHoraFim && (
                   <th
@@ -177,21 +184,20 @@ export default function DiaCompleto({
                   className={`${mostrarHoraFim ? "w-[28%]" : "w-[30%]"} pb-2 text-black border-r ${tema.border} px-2`}
                   style={{ borderRightColor: secondaryColor }}
                 >
-                  {clienteLabel}
+                  {colunaCliente}
                 </th>
                 <th
                   className={`${mostrarHoraFim ? "w-[23%]" : "w-[25%]"} pb-2 text-black border-r ${tema.border} px-2`}
                   style={{ borderRightColor: secondaryColor }}
                 >
-                  {servicoLabel}
+                  {colunaServico}
                 </th>
-                {/* COLUNA VALOR */}
                 <th
                   className={`w-[10%] pb-2 text-black border-r ${tema.border} text-center`}
                   style={{ borderRightColor: secondaryColor }}
                 >
                   <span className="text-[7px] font-bold tracking-tight text-gray-500 uppercase">
-                    Valor
+                    {colunaValor}
                   </span>
                 </th>
                 <th
@@ -247,7 +253,10 @@ export default function DiaCompleto({
                 >
                   <td
                     className={`font-mono text-black font-bold text-[11px] align-middle border-r ${tema.border} pr-1`}
-                    style={{ borderRightColor: secondaryColor }}
+                    style={{
+                      borderRightColor: secondaryColor,
+                      color: horaColor,
+                    }}
                   >
                     {hora}
                   </td>

@@ -1,8 +1,4 @@
 // src/pages/ConfigPage.jsx
-//
-// Segunda etapa do fluxo: toda a aparência da agenda (tema, cores, fonte,
-// rodapé, logo, marca d'água e capa), organizada em cards temáticos.
-
 import { useNavigate, useOutletContext } from "react-router-dom";
 import {
   MdUpload,
@@ -36,7 +32,6 @@ const FONT_OPTIONS = [
   { value: "Nunito", label: "Nunito" },
 ];
 
-// PALETAS PRÉ-DEFINIDAS PARA OS DIAS DO CALENDÁRIO
 const PALETAS_DIAS = [
   {
     id: "classica",
@@ -195,7 +190,6 @@ export default function ConfigPage() {
     setCapaEstilo,
     capaFrase,
     setCapaFrase,
-    // CORES DOS DIAS DO CALENDÁRIO
     domingoColor,
     setDomingoColor,
     sabadoColor,
@@ -206,9 +200,20 @@ export default function ConfigPage() {
     setFeriadoColor,
     comemorativaColor,
     setComemorativaColor,
-    // COR DO NÚMERO DO DIA
     numeroDiaColor,
     setNumeroDiaColor,
+    horaColor,
+    setHoraColor,
+    colunaHora,
+    setColunaHora,
+    colunaCliente,
+    setColunaCliente,
+    colunaServico,
+    setColunaServico,
+    colunaValor,
+    setColunaValor,
+    colunaStatus,
+    setColunaStatus,
   } = useAgendaConfig();
 
   const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
@@ -221,7 +226,6 @@ export default function ConfigPage() {
     toast(`${label} selecionado`, { icon });
   };
 
-  // Função para aplicar uma paleta pré-definida
   const aplicarPaleta = (paleta) => {
     setDomingoColor(paleta.cores.domingo);
     setSabadoColor(paleta.cores.sabado);
@@ -294,6 +298,11 @@ export default function ConfigPage() {
                 onChange: setNumeroDiaColor,
                 title: "Número do dia",
               },
+              {
+                value: horaColor,
+                onChange: setHoraColor,
+                title: "Horários",
+              },
             ].map(({ value, onChange, title }) => (
               <div key={title} className="flex flex-col items-center gap-1.5">
                 <input
@@ -311,13 +320,77 @@ export default function ConfigPage() {
           </div>
         </SectionCard>
 
+        {/* Tabela de Horários - Rótulos */}
+        <SectionCard
+          title="Rótulos das colunas"
+          description="Personalize os nomes das colunas da tabela de horários."
+          icon={MdColorLens}
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] mb-1">
+                Hora
+              </label>
+              <input
+                type="text"
+                value={colunaHora}
+                onChange={(e) => setColunaHora(e.target.value)}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] mb-1">
+                Cliente
+              </label>
+              <input
+                type="text"
+                value={colunaCliente}
+                onChange={(e) => setColunaCliente(e.target.value)}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] mb-1">
+                Serviço
+              </label>
+              <input
+                type="text"
+                value={colunaServico}
+                onChange={(e) => setColunaServico(e.target.value)}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] mb-1">
+                Valor
+              </label>
+              <input
+                type="text"
+                value={colunaValor}
+                onChange={(e) => setColunaValor(e.target.value)}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] mb-1">
+                Status
+              </label>
+              <input
+                type="text"
+                value={colunaStatus}
+                onChange={(e) => setColunaStatus(e.target.value)}
+                className={inputCls}
+              />
+            </div>
+          </div>
+        </SectionCard>
+
         {/* Cores dos dias do calendário com paletas pré-definidas */}
         <SectionCard
           title="Cores dos dias do calendário"
           description="Escolha uma paleta pronta ou personalize cada cor individualmente."
           icon={MdColorLens}
         >
-          {/* Paletas pré-definidas */}
           <div className="mb-4">
             <p className="text-[10px] text-[#8B6A1F] font-medium mb-2">
               Paletas prontas:
@@ -359,7 +432,6 @@ export default function ConfigPage() {
             </div>
           </div>
 
-          {/* Seletores individuais */}
           <div>
             <p className="text-[10px] text-[#8B6A1F] font-medium mb-2">
               Personalizar cada cor:
@@ -508,7 +580,6 @@ export default function ConfigPage() {
               </div>
             </div>
 
-            {/* Botão para ocultar/mostrar rodapé */}
             <div className="pt-2 border-t border-[#D8CBA8]/50">
               <button
                 onClick={() => {

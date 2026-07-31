@@ -1,8 +1,3 @@
-// src/themes/floralAzul.js
-//
-// Tema usado pela DiarioFloralLayout — paleta azul/aquarela + selo dourado,
-// igual à referência (flores azuis nos cantos, número do dia em dourado).
-
 export default {
   nome: "Floral Azul",
   border: "border-sky-100",
@@ -20,10 +15,8 @@ export default {
     secondary: "#e4ecef",
     background: "#ffffff",
     badge: "#e3c184",
+    numeroDia: "#1e293b",
   },
-  // Paleta usada pelo componente <FloralCorner /> — pode ser
-  // sobrescrita por customColors.floralPalette se você quiser
-  // gerar variações (rosa, verde-sálvia, terracota, etc.).
   floralPalette: {
     petalDark: "#4c7d96",
     petalMid: "#89b7cd",
