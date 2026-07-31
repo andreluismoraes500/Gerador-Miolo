@@ -1,32 +1,39 @@
 // src/pages/PreviewPage.jsx
-//
-// Etapa final do fluxo: mostra o resultado (modo único ou montagem),
-// permite personalizar o nome do rodapé e disparar a impressão/PDF.
-
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
-import toast from "react-hot-toast"; // <-- ADICIONE ESTA LINHA
+import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
 import AgendaPreview from "../components/AgendaPreview";
 import AgendaBuilderPreview from "../components/AgendaBuilderPreview";
 
 export default function PreviewPage() {
   const { settings, builder } = useOutletContext();
+  const location = useLocation();
   const navigate = useNavigate();
   const {
     template,
     customName,
     footerName,
     selectedDate,
-    printing,
+    printing: printingFromSettings,
     businessProfile,
     businessProfileId,
     colorTheme,
     footerType,
-    handlePrint, // método antigo (window.print)
+    handlePrint,
   } = settings;
   const { builderMode, modules } = builder;
 
-  // Função para gerar PDF via backend
+  // Lê o parâmetro 'printing' da URL
+  const searchParams = new URLSearchParams(location.search);
+  const forcePrint = searchParams.get("printing") === "true";
+  const [printing, setPrinting] = useState(forcePrint || printingFromSettings);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setPrinting(params.get("printing") === "true" || printingFromSettings);
+  }, [location.search, printingFromSettings]);
+
   async function gerarPDFViaBackend() {
     const toastId = toast.loading("Gerando PDF...");
     try {
@@ -55,11 +62,8 @@ export default function PreviewPage() {
         return;
       }
 
-      // Converte a resposta em Blob
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-
-      // Cria um link temporário e dispara o download
       const a = document.createElement("a");
       a.href = url;
       a.download = `agenda-${template}-${selectedDate}.pdf`;
@@ -107,7 +111,6 @@ export default function PreviewPage() {
               Configurações
             </button>
 
-            {/* Botão para gerar PDF via backend (recomendado) */}
             <button
               onClick={gerarPDFViaBackend}
               className="bg-[#2F6B45] hover:bg-[#275A3B] text-[#FBF8F1] text-sm font-semibold py-2.5 px-5 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#1B4D2F] hover:shadow-[0_1px_0_0_#1B4D2F] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
@@ -116,7 +119,6 @@ export default function PreviewPage() {
               Baixar PDF (backend)
             </button>
 
-            {/* Botão antigo (impressão via navegador) - mantido como fallback */}
             <button
               onClick={handlePrint}
               className="bg-[#8B2E3F] hover:bg-[#7A2837] text-[#FBF8F1] text-sm font-semibold py-2.5 px-5 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#5E1F2B] hover:shadow-[0_1px_0_0_#5E1F2B] hover:translate-y-px active:translate-y-0.5 active:shadow-none"

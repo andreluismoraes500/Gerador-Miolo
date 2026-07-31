@@ -24,7 +24,6 @@ app.post("/api/generate", async (req, res) => {
       .json({ error: "template e selectedDate são obrigatórios" });
   }
 
-  // URL do frontend em desenvolvimento
   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   const previewUrl = new URL("/preview", frontendUrl);
   const params = new URLSearchParams({
@@ -34,8 +33,11 @@ app.post("/api/generate", async (req, res) => {
     customName,
     footerType,
     businessProfileId,
+    printing: "true", // ← ESSENCIAL
   });
   previewUrl.search = params.toString();
+
+  console.log(`[Backend] Gerando PDF a partir de: ${previewUrl.toString()}`);
 
   try {
     const pdfBuffer = await generatePDFFromUrl(previewUrl.toString());
@@ -48,7 +50,7 @@ app.post("/api/generate", async (req, res) => {
     res.send(pdfBuffer);
   } catch (error) {
     console.error("Erro ao gerar PDF:", error);
-    res.status(500).json({ error: "Falha ao gerar o PDF" });
+    res.status(500).json({ error: "Falha ao gerar o PDF: " + error.message });
   }
 });
 

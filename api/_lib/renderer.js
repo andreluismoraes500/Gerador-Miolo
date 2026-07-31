@@ -5,17 +5,22 @@ import chromium from "@sparticuz/chromium";
 // Detecta se está rodando localmente (vercel dev) ou produção
 const isLocal = process.env.VERCEL_ENV === "development" || !process.env.VERCEL;
 
-export async function generatePDFFromUrl(previewUrl) {
-  let browser;
+// Pool para reutilizar o browser entre chamadas (instância quente)
+let browserInstance = null;
+let browserPromise = null;
 
-  try {
+async function getBrowser() {
+  if (browserInstance) return browserInstance;
+  if (browserPromise) return browserPromise;
+
+  browserPromise = (async () => {
+    let browser;
     if (isLocal) {
-      // Usa Puppeteer instalado localmente (puppeteer-core + Chromium baixado)
-      // Você precisa instalar o puppeteer (não core) para local
-      // Ou usar o chromium que vem com o puppeteer-core local
+      // Local: usa puppeteer (completo) com Chrome instalado
       const puppeteerLocal = await import("puppeteer");
       browser = await puppeteerLocal.launch({
         headless: true,
+        channel: "chrome", // usa o Chrome instalado no sistema
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
       });
     } else {
@@ -29,32 +34,78 @@ export async function generatePDFFromUrl(previewUrl) {
         ignoreHTTPSErrors: true,
       });
     }
+    browserInstance = browser;
+    browserPromise = null;
+    return browser;
+  })();
+  return browserPromise;
+}
 
-    const page = await browser.newPage();
+export async function generatePDFFromUrl(previewUrl) {
+  const browser = await getBrowser();
+  const page = await browser.newPage();
+
+  try {
+    // Ativa o modo de impressão (aplica @media print)
+    await page.emulateMediaType("print");
 
     await page.setViewport({
-      width: 794,
-      height: 1123,
+      width: 794, // 210mm em pixels (96dpi)
+      height: 1123, // 297mm
       deviceScaleFactor: 1,
     });
 
+    // Headers para bypass de proteção de deployment (se configurado)
+    const headers = {};
+    if (process.env.VERCEL_BYPASS_TOKEN) {
+      headers["x-vercel-protection-bypass"] = process.env.VERCEL_BYPASS_TOKEN;
+    }
+
+    // Navega até a URL com timeout maior
     await page.goto(previewUrl, {
       waitUntil: "networkidle0",
-      timeout: 30000,
+      timeout: 120000, // 2 minutos para renderizar 374 páginas
+      headers,
     });
 
-    // Aguarda o conteúdo ser renderizado
-    await page.waitForSelector(".agenda-preview-container", { timeout: 10000 });
+    // ============================================================
+    // 🔥 ESPERA POR RENDERIZAÇÃO REAL DO REACT
+    // Aguarda até que o front-end defina window.__PDF_READY__ = true
+    // Isso garante que todas as páginas foram montadas no DOM.
+    // ============================================================
+    await page.waitForFunction(() => window.__PDF_READY__ === true, {
+      timeout: 60000,
+      polling: 200,
+    });
 
+    // ============================================================
+    // 🔥 VALIDAÇÃO: Obtém a contagem de páginas do sinal
+    // ============================================================
+    const pageCount = await page.evaluate(() => window.__PDF_PAGE_COUNT__ || 0);
+    console.log(`[renderer] Páginas renderizadas: ${pageCount}`);
+
+    // Se não houver páginas suficientes, lança erro
+    if (pageCount < 2) {
+      throw new Error(
+        `PDF incompleto: apenas ${pageCount} página(s) renderizada(s)`,
+      );
+    }
+
+    // Pequeno delay extra para garantir pintura completa
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Gera o PDF
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
       margin: { top: 0, bottom: 0, left: 0, right: 0 },
       displayHeaderFooter: false,
+      timeout: 60000,
     });
 
     return Buffer.from(pdfBuffer);
   } finally {
-    if (browser) await browser.close();
+    await page.close();
+    // Mantém o browser aberto para reuso em próximas chamadas
   }
 }

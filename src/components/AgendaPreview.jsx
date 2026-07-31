@@ -3,7 +3,7 @@
 // Componente de visualização pura: recebe apenas dados de conteúdo e delega
 // aparência (cores, logo, fonte, etc.) ao contexto AgendaConfig.
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { loadTemplate, getCachedTemplate } from "../templates";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 
@@ -32,15 +32,15 @@ const AgendaPreview = React.memo(function AgendaPreview({
     setCapaFrase,
   } = useAgendaConfig();
 
-  // Cada template só é baixado (chunk separado) na primeira vez que é
-  // selecionado — daí em diante fica em cache em memória (ver templates/index.js).
-  const [currentTemplate, setCurrentTemplate] = useState(() => getCachedTemplate(template));
+  const [currentTemplate, setCurrentTemplate] = useState(() =>
+    getCachedTemplate(template),
+  );
   const [loadError, setLoadError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
-    // Se já está em cache, evita um "flash" de loading trocando na hora.
     const cached = getCachedTemplate(template);
     if (cached) {
       setCurrentTemplate(cached);
@@ -53,11 +53,6 @@ const AgendaPreview = React.memo(function AgendaPreview({
           if (!cancelled) setCurrentTemplate(def);
         })
         .catch((err) => {
-          // Sem isso, uma falha no import dinâmico (ex.: "Failed to fetch
-          // dynamically imported module", comum quando o Vite invalida
-          // chunks antigos após salvar um arquivo) ficava como promise
-          // rejeitada sem tratamento — a tela travava em "Carregando
-          // modelo..." pra sempre e o erro só aparecia no console.
           if (!cancelled) setLoadError(err);
         });
     }
@@ -65,6 +60,26 @@ const AgendaPreview = React.memo(function AgendaPreview({
       cancelled = true;
     };
   }, [template, retryCount]);
+
+  // ============================================================
+  // 🔥 SINAL DE PDF PRONTO
+  // Quando o modo de impressão estiver ativo e o template estiver carregado,
+  // define window.__PDF_READY__ = true após a renderização.
+  // ============================================================
+  useEffect(() => {
+    if (!printing) return;
+    // Aguarda o próximo ciclo de renderização para garantir que o DOM foi atualizado
+    const timer = setTimeout(() => {
+      if (containerRef.current) {
+        const pageBreaks = containerRef.current.querySelectorAll(".page-break");
+        const count = pageBreaks.length;
+        window.__PDF_READY__ = true;
+        window.__PDF_PAGE_COUNT__ = count;
+        console.log(`[AgendaPreview] PDF pronto: ${count} páginas`);
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [printing, template, currentTemplate]);
 
   if (loadError) {
     return (
@@ -111,7 +126,10 @@ const AgendaPreview = React.memo(function AgendaPreview({
   };
 
   return (
-    <div className={`agenda-preview-container ${printing ? "is-printing" : ""}`}>
+    <div
+      ref={containerRef}
+      className={`agenda-preview-container ${printing ? "is-printing" : ""}`}
+    >
       {currentTemplate.layout(layoutProps)}
     </div>
   );

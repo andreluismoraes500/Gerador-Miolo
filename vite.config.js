@@ -14,7 +14,7 @@ export default defineConfig(({ command, mode }) => {
         isDev && !process.env.VERCEL
           ? {
               "/api": {
-                target: "http://localhost:3001", // porta onde o backend estaria rodando
+                target: "http://localhost:3000", // porta onde o backend estaria rodando
                 changeOrigin: true,
               },
             }
