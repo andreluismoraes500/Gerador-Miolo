@@ -5,6 +5,7 @@
 
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
+import toast from "react-hot-toast"; // <-- ADICIONE ESTA LINHA
 import AgendaPreview from "../components/AgendaPreview";
 import AgendaBuilderPreview from "../components/AgendaBuilderPreview";
 
@@ -19,9 +20,60 @@ export default function PreviewPage() {
     printing,
     businessProfile,
     businessProfileId,
-    handlePrint,
+    colorTheme,
+    footerType,
+    handlePrint, // método antigo (window.print)
   } = settings;
   const { builderMode, modules } = builder;
+
+  // Função para gerar PDF via backend
+  async function gerarPDFViaBackend() {
+    const toastId = toast.loading("Gerando PDF...");
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          template,
+          selectedDate,
+          colorTheme,
+          customName,
+          footerType,
+          businessProfileId,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMsg = "Erro ao gerar PDF";
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.error || errorMsg;
+        } catch (_) {
+          errorMsg = response.statusText || errorMsg;
+        }
+        toast.error(errorMsg, { id: toastId });
+        return;
+      }
+
+      // Converte a resposta em Blob
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      // Cria um link temporário e dispara o download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `agenda-${template}-${selectedDate}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success("PDF baixado com sucesso!", { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro de conexão com o servidor.", { id: toastId });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -54,12 +106,23 @@ export default function PreviewPage() {
               <MdArrowBack className="w-4 h-4" />
               Configurações
             </button>
+
+            {/* Botão para gerar PDF via backend (recomendado) */}
+            <button
+              onClick={gerarPDFViaBackend}
+              className="bg-[#2F6B45] hover:bg-[#275A3B] text-[#FBF8F1] text-sm font-semibold py-2.5 px-5 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#1B4D2F] hover:shadow-[0_1px_0_0_#1B4D2F] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
+            >
+              <MdPrint className="w-4 h-4" />
+              Baixar PDF (backend)
+            </button>
+
+            {/* Botão antigo (impressão via navegador) - mantido como fallback */}
             <button
               onClick={handlePrint}
               className="bg-[#8B2E3F] hover:bg-[#7A2837] text-[#FBF8F1] text-sm font-semibold py-2.5 px-5 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#5E1F2B] hover:shadow-[0_1px_0_0_#5E1F2B] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
             >
               <MdPrint className="w-4 h-4" />
-              Gerar Impressão / PDF
+              Imprimir (navegador)
             </button>
           </div>
         </div>
