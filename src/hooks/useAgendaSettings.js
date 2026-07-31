@@ -49,6 +49,7 @@ export function useAgendaSettings() {
     removeBackground,
     setNumeroDiaColor,
     setHoraColor,
+    setTableTextColor,
     setColunaHora,
     setColunaCliente,
     setColunaServico,
@@ -64,26 +65,24 @@ export function useAgendaSettings() {
     getThemeId,
   } = useBusinessProfile();
 
-  // Handler para trocar perfil de negócio
   const handleSetBusinessProfile = useCallback(
     (newProfileId) => {
       const success = _setBusinessProfileId(newProfileId);
       if (success) {
-        // Buscar o perfil recém-selecionado
         const newProfile = getBusinessProfile(newProfileId);
-        // Aplicar cores e rótulos usando o perfil novo
         applyProfileColors(
           setPrimaryColor,
           setSecondaryColor,
           setBgColor,
           setNumeroDiaColor,
           setHoraColor,
+          setTableTextColor,
           setColunaHora,
           setColunaCliente,
           setColunaServico,
           setColunaValor,
           setColunaStatus,
-          newProfile, // override com o perfil correto
+          newProfile,
         );
         setColorTheme(getThemeId());
         toast.success(`Perfil alterado para ${newProfile.nome}`);
@@ -97,6 +96,7 @@ export function useAgendaSettings() {
       setBgColor,
       setNumeroDiaColor,
       setHoraColor,
+      setTableTextColor,
       setColunaHora,
       setColunaCliente,
       setColunaServico,
@@ -107,7 +107,6 @@ export function useAgendaSettings() {
     ],
   );
 
-  // Aplicar tema de cores (inclui rótulos se o tema tiver)
   const applyThemeColors = useCallback(
     (themeId) => {
       const theme = TEMAS[themeId];
@@ -117,6 +116,7 @@ export function useAgendaSettings() {
         setBgColor(theme.colors.background);
         setNumeroDiaColor(theme.colors.numeroDia || "#1e293b");
         setHoraColor(theme.colors.hora || "#000000");
+        setTableTextColor(theme.colors.tableText || "#1e293b");
         if (theme.labels) {
           setColunaHora(theme.labels.hora || "Hora");
           setColunaCliente(theme.labels.cliente || "Cliente");
@@ -130,6 +130,7 @@ export function useAgendaSettings() {
         setBgColor("#f8fafc");
         setNumeroDiaColor("#1e293b");
         setHoraColor("#000000");
+        setTableTextColor("#1e293b");
       }
       setColorTheme(themeId);
     },
@@ -139,6 +140,7 @@ export function useAgendaSettings() {
       setBgColor,
       setNumeroDiaColor,
       setHoraColor,
+      setTableTextColor,
       setColunaHora,
       setColunaCliente,
       setColunaServico,
@@ -148,7 +150,6 @@ export function useAgendaSettings() {
     ],
   );
 
-  // Handlers de impressão
   const handlePrint = useCallback(() => {
     setPrinting(true);
     setTimeout(() => {
@@ -157,7 +158,6 @@ export function useAgendaSettings() {
     }, 250);
   }, []);
 
-  // Handlers de upload de logo
   const handleLogoUpload = useCallback(
     (e) => {
       const file = e.target.files[0];
@@ -177,7 +177,6 @@ export function useAgendaSettings() {
     toast("Logo removido", { icon: "🗑️" });
   }, [removeLogo]);
 
-  // Handlers de marca d'água
   const handleWatermarkUpload = useCallback(
     (e) => {
       const file = e.target.files[0];
@@ -197,7 +196,6 @@ export function useAgendaSettings() {
     toast("Marca d'água removida", { icon: "🗑️" });
   }, [setWatermarkSrc]);
 
-  // Handlers de fundo
   const handleBackgroundUpload = useCallback(
     (e) => {
       const file = e.target.files[0];
@@ -217,7 +215,6 @@ export function useAgendaSettings() {
     toast("Fundo removido", { icon: "🗑️" });
   }, [removeBackground]);
 
-  // Nome do rodapé (personalizado ou padrão)
   const footerName =
     customName && customName.trim() !== ""
       ? customName

@@ -29,7 +29,6 @@ export function useBusinessProfile(initialProfileId = "default") {
     [setProfileId],
   );
 
-  // Agora recebe um profileOverride opcional para aplicar cores e rótulos
   const applyProfileColors = useCallback(
     (
       setPrimary,
@@ -37,12 +36,13 @@ export function useBusinessProfile(initialProfileId = "default") {
       setBg,
       setNumeroDia,
       setHora,
+      setTableText,
       setColunaHora,
       setColunaCliente,
       setColunaServico,
       setColunaValor,
       setColunaStatus,
-      profileOverride = null, // perfil a ser usado (se não fornecido, usa o profile atual)
+      profileOverride = null,
     ) => {
       const targetProfile = profileOverride || profile;
       if (!targetProfile) return;
@@ -53,6 +53,7 @@ export function useBusinessProfile(initialProfileId = "default") {
         setBg(targetProfile.colors.background);
         setNumeroDia(targetProfile.colors.numeroDia || "#1e293b");
         setHora(targetProfile.colors.hora || "#000000");
+        setTableText(targetProfile.colors.tableText || "#1e293b");
       }
       if (targetProfile.labels) {
         setColunaHora(targetProfile.labels.hora || "Hora");

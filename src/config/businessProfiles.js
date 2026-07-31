@@ -15,7 +15,7 @@ const BASE_PROFILE = {
     secondary: "#cbd5e1",
     background: "#f8fafc",
     numeroDia: "#1e293b",
-    hora: "#000000",
+    hora: "#1e293b", // cor para horários e textos da tabela
   },
 
   labels: {
@@ -753,7 +753,6 @@ const VETERINARIO_PROFILE = {
 // EXPORTAÇÕES
 // ============================================
 
-// Mapeamento de todos os perfis disponíveis
 export const BUSINESS_PROFILES = {
   default: BASE_PROFILE,
   advogado: ADVOGADO_PROFILE,
@@ -773,12 +772,10 @@ export const BUSINESS_PROFILES = {
   veterinario: VETERINARIO_PROFILE,
 };
 
-// Função para obter um perfil pelo ID
 export function getBusinessProfile(id) {
   return BUSINESS_PROFILES[id] || BUSINESS_PROFILES.default;
 }
 
-// Função para obter as opções de perfil (para selects)
 export function getBusinessProfileOptions() {
   return Object.values(BUSINESS_PROFILES).map((profile) => ({
     id: profile.id,
@@ -789,7 +786,6 @@ export function getBusinessProfileOptions() {
   }));
 }
 
-// Função para buscar perfil por palavra-chave
 export function getBusinessProfileByKeyword(keyword) {
   const lowerKeyword = keyword.toLowerCase();
   return (
@@ -799,7 +795,6 @@ export function getBusinessProfileByKeyword(keyword) {
   );
 }
 
-// Para compatibilidade com o código existente que usa BUSINESS_PROFILES_LEGACY
 export const BUSINESS_PROFILES_LEGACY = Object.fromEntries(
   Object.entries(BUSINESS_PROFILES).map(([key, profile]) => [
     key,
@@ -813,5 +808,4 @@ export const BUSINESS_PROFILES_LEGACY = Object.fromEntries(
   ]),
 );
 
-// Exportação padrão
 export default BUSINESS_PROFILES;

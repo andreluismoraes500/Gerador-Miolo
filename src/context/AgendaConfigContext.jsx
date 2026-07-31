@@ -75,6 +75,12 @@ export function AgendaConfigProvider({ children }) {
     "#000000",
   );
 
+  // --- COR DO TEXTO DA TABELA (campos editáveis) ---
+  const [tableTextColor, setTableTextColor] = usePersistedState(
+    "agenda-tableTextColor",
+    "#1e293b",
+  );
+
   // --- RÓTULOS DAS COLUNAS ---
   const [colunaHora, setColunaHora] = usePersistedState(
     "agenda-colunaHora",
@@ -137,6 +143,7 @@ export function AgendaConfigProvider({ children }) {
       comemorativa: comemorativaColor,
       numeroDia: numeroDiaColor,
       hora: horaColor,
+      tableText: tableTextColor,
     }),
     [
       primaryColor,
@@ -149,6 +156,7 @@ export function AgendaConfigProvider({ children }) {
       comemorativaColor,
       numeroDiaColor,
       horaColor,
+      tableTextColor,
     ],
   );
 
@@ -179,6 +187,8 @@ export function AgendaConfigProvider({ children }) {
       setNumeroDiaColor,
       horaColor,
       setHoraColor,
+      tableTextColor,
+      setTableTextColor,
       colunaHora,
       setColunaHora,
       colunaCliente,
@@ -239,6 +249,8 @@ export function AgendaConfigProvider({ children }) {
       setNumeroDiaColor,
       horaColor,
       setHoraColor,
+      tableTextColor,
+      setTableTextColor,
       colunaHora,
       setColunaHora,
       colunaCliente,
