@@ -71,7 +71,7 @@ export default function ConteudoLayout({
 
             <EditableField
               fieldKey="conteudo-periodo"
-              className="w-full min-h-[28px] border-b border-gray-300 text-sm text-right"
+              className="w-full min-h-7 border-b border-gray-300 text-sm text-right"
             />
           </div>
         </div>
@@ -104,22 +104,22 @@ export default function ConteudoLayout({
 
               <EditableField
                 fieldKey={`conteudo-${dia}-tema`}
-                className="min-h-[36px] border-b border-gray-300 text-sm"
+                className="min-h-9 border-b border-gray-300 text-sm"
               />
 
               <EditableField
                 fieldKey={`conteudo-${dia}-plataforma`}
-                className="min-h-[36px] border-b border-gray-300 text-sm"
+                className="min-h-9 border-b border-gray-300 text-sm"
               />
 
               <EditableField
                 fieldKey={`conteudo-${dia}-formato`}
-                className="min-h-[36px] border-b border-gray-300 text-sm"
+                className="min-h-9 border-b border-gray-300 text-sm"
               />
 
               <EditableField
                 fieldKey={`conteudo-${dia}-objetivo`}
-                className="min-h-[36px] border-b border-gray-300 text-sm"
+                className="min-h-9 border-b border-gray-300 text-sm"
               />
             </div>
           ))}

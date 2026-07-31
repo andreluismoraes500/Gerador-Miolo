@@ -72,13 +72,13 @@ export default function SemDataLayout({
               <div className="space-y-0.5">
                 <EditableField
                   fieldKey={`${chave}-dia-semana`}
-                  className="capitalize text-lg font-semibold min-w-[7rem]"
+                  className="capitalize text-lg font-semibold min-w-28"
                   style={{ color: primaryColor }}
                   placeholder="Dia da semana"
                 />
                 <EditableField
                   fieldKey={`${chave}-mes-ano`}
-                  className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold min-w-[7rem]"
+                  className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold min-w-28"
                   placeholder="Mês / Ano"
                 />
               </div>

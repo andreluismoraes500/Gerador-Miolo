@@ -22,7 +22,7 @@ export default function Footer({
   const styleColor = customColors.primary || temaBase.text || "#000000";
   const secondaryColor = customColors.secondary || temaBase.border || "#cbd5e1";
 
-  // Se hidden for true, não renderiza nada
+  // Se hidden for true, NÃO RENDERIZA ABSOLUTAMENTE NADA
   if (hidden) {
     return null;
   }

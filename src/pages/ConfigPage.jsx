@@ -469,12 +469,6 @@ export default function ConfigPage() {
                   <strong>Lucas Cassiano de Moraes</strong>
                 </p>
               )}
-              {footerHidden && (
-                <p className="text-xs text-[#8B2E3F] mt-2 flex items-center gap-2">
-                  <span>🚫</span>
-                  Rodapé está oculto. Nenhum texto será exibido.
-                </p>
-              )}
             </div>
 
             <div>
@@ -544,11 +538,6 @@ export default function ConfigPage() {
                   </>
                 )}
               </button>
-              <p className="text-[10px] text-[#6B6458] mt-1.5 text-center">
-                {footerHidden
-                  ? "O rodapé não aparecerá em nenhuma página"
-                  : "O rodapé aparecerá em todas as páginas"}
-              </p>
             </div>
 
             {customName && !footerHidden && (
