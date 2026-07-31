@@ -44,6 +44,7 @@ export default function DoisDiasComercial({
   const bgColor = customColors.background || "#ffffff";
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
+  const numeroDiaColor = customColors.numeroDia || "#000000"; // <-- NOVO
 
   return (
     <div
@@ -69,6 +70,7 @@ export default function DoisDiasComercial({
           data={data}
           primaryColor={primaryColor}
           secondaryColor={secondaryColor}
+          numeroDiaColor={numeroDiaColor} // <-- NOVO
           compact={!!diaB}
           mostrarMiniCalendario={false}
         />
@@ -80,6 +82,7 @@ export default function DoisDiasComercial({
             data={diaB}
             primaryColor={primaryColor}
             secondaryColor={secondaryColor}
+            numeroDiaColor={numeroDiaColor} // <-- NOVO
             compact
             mostrarMiniCalendario={false}
           />

@@ -42,6 +42,7 @@ export default function DiarioLivre({
   const bgColor = customColors.background || "#ffffff";
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondary = customColors.secondary || tema.border || "#cbd5e1";
+  const numeroDiaColor = customColors.numeroDia || "#000000"; // <-- NOVO
 
   const diaKey = data.toISOString().split("T")[0];
 
@@ -99,7 +100,10 @@ export default function DiarioLivre({
                 </span>
               )}
             </div>
-            <span className="text-5xl font-extralight tracking-tighter font-serif text-black leading-none min-w-[2.8rem]">
+            <span
+              className="text-5xl font-extralight tracking-tighter font-serif leading-none min-w-[2.8rem]"
+              style={{ color: numeroDiaColor }} // <-- ALTERADO: usa cor personalizada
+            >
               {String(data.getDate()).padStart(2, "0")}
             </span>
           </div>

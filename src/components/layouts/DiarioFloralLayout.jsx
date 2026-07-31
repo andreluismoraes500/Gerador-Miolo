@@ -45,9 +45,12 @@ export default function DiarioFloralLayout({
   const comemorativa = getComemorativa ? getComemorativa(data) : null;
 
   const bgColor = customColors.background || "#ffffff";
-  const primaryColor = customColors.primary || tema.colors?.primary || "#3a6a86";
+  const primaryColor =
+    customColors.primary || tema.colors?.primary || "#3a6a86";
   const badgeColor = customColors.badge || tema.colors?.badge || "#e3c184";
-  const lineColor = customColors.secondary || tema.colors?.secondary || "#dfe7ea";
+  const lineColor =
+    customColors.secondary || tema.colors?.secondary || "#dfe7ea";
+  const numeroDiaColor = customColors.numeroDia || "#1e293b"; // <-- NOVO
 
   const palette = tema.floralPalette || undefined;
 
@@ -63,8 +66,12 @@ export default function DiarioFloralLayout({
       className="printable-page text-gray-900 flex flex-col justify-between box-border select-none border-0 shadow-none rounded-none relative overflow-hidden"
       style={{ backgroundColor: bgColor, fontFamily }}
     >
-      {backgroundSrc && <Background src={backgroundSrc} opacity={backgroundOpacity} />}
-      {watermarkSrc && <Watermark src={watermarkSrc} opacity={watermarkOpacity} />}
+      {backgroundSrc && (
+        <Background src={backgroundSrc} opacity={backgroundOpacity} />
+      )}
+      {watermarkSrc && (
+        <Watermark src={watermarkSrc} opacity={watermarkOpacity} />
+      )}
 
       {/* Ilustrações florais nos cantos — atrás de todo o conteúdo */}
       <FloralCorner position="top-left" size={185} palette={palette} />
@@ -104,7 +111,12 @@ export default function DiarioFloralLayout({
               backgroundColor: badgeColor,
             }}
           >
-            <span className="text-2xl font-semibold text-gray-800">{numeroDia}</span>
+            <span
+              className="text-2xl font-semibold"
+              style={{ color: numeroDiaColor }} // <-- ALTERADO: cor personalizada
+            >
+              {numeroDia}
+            </span>
           </div>
         </div>
 
