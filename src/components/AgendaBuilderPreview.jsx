@@ -7,23 +7,23 @@
 //   concatenados em UM ÚNICO `.print-container`, para que o navegador gere
 //   um PDF/impressão contínua com paginação e margens espelhadas corretas
 //   do início ao fim — sem precisar de html2canvas ou libs de PDF.
-//
-// Os templates são carregados sob demanda (ver src/templates/index.js):
-// assim que os módulos escolhidos mudam, disparamos o download de cada um
-// em paralelo e só renderizamos de verdade quando todos estiverem prontos
-// — inclusive no momento da impressão, pra nunca gerar uma página em branco.
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { TEMPLATE_MANIFEST } from "../templates/manifest";
 import { preloadTemplates, getCachedTemplate } from "../templates";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 import PlannerMensalLayout from "./layouts/PlannerMensalLayout";
+import { usePdfReadySignal } from "../hooks/usePdfReadySignal";
 
 // Templates que geram os dias do ANO INTEIRO (miolo diário completo).
 // Quando um destes estiver na Montagem junto com o "Planner Mensal", os dois
 // são mesclados automaticamente: o planner de cada mês passa a sair logo
 // antes dos dias daquele mês, em vez de sair todo de uma vez no início.
-const ANNUAL_DAY_TEMPLATES = new Set(["anualCompleto", "anualLivre", "anualComercialDuplo"]);
+const ANNUAL_DAY_TEMPLATES = new Set([
+  "anualCompleto",
+  "anualLivre",
+  "anualComercialDuplo",
+]);
 
 // Cada template, quando chamado com printing=true, sempre retorna:
 //   <div className="print-container">{ ...um ou mais .page-break... }</div>
@@ -88,8 +88,6 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
   const validModules = modules.filter((m) => TEMPLATE_MANIFEST[m.templateKey]);
   const neededKeys = [...new Set(validModules.map((m) => m.templateKey))];
 
-  // Reavalia quais templates já estão em cache toda vez que a lista de
-  // módulos muda, e dispara o download dos que ainda faltam.
   const [loadedDefs, setLoadedDefs] = useState(() => {
     const initial = {};
     neededKeys.forEach((key) => {
@@ -100,6 +98,7 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
   });
   const [loadError, setLoadError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -114,19 +113,21 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
         setLoadedDefs(next);
       })
       .catch((err) => {
-        // Mesmo cuidado do AgendaPreview: sem .catch() aqui, uma falha no
-        // import dinâmico de qualquer um dos módulos (ex.: chunk invalidado
-        // pelo Vite) virava uma promise rejeitada sem tratamento, e a tela
-        // ficava travada em "Carregando módulos da agenda..." pra sempre.
         if (!cancelled) setLoadError(err);
       });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [neededKeys.join(","), retryCount]);
 
   const allLoaded = neededKeys.every((key) => loadedDefs[key]);
+
+  // 🔥 SINAL DE PDF PRONTO: espera o DOM estabilizar (todos os módulos e
+  // suas ~centenas de .page-break já montados) antes de liberar o sinal.
+  usePdfReadySignal(containerRef, {
+    printing,
+    ready: Boolean(printing && allLoaded && validModules.length > 0),
+  });
 
   if (validModules.length === 0) {
     return (
@@ -140,8 +141,6 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
     );
   }
 
-  // Ainda baixando algum módulo — evita renderizar impressão pela metade ou
-  // piscar layout incompleto na tela.
   if (loadError) {
     return (
       <div className="max-w-[210mm] w-full mx-auto p-16 text-center text-[#8a8272] print:hidden flex flex-col items-center gap-2">
@@ -167,23 +166,22 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
 
   // ── Impressão: achata tudo em um único print-container ──
   if (printing) {
-    const temPlannerMensal = validModules.some((m) => m.templateKey === "plannerMensal");
-    const modulosAnuais = validModules.filter((m) => ANNUAL_DAY_TEMPLATES.has(m.templateKey));
-    // Só faz sentido mesclar mês-a-mês quando o Planner Mensal está
-    // acompanhado de pelo menos um miolo diário anual.
+    const temPlannerMensal = validModules.some(
+      (m) => m.templateKey === "plannerMensal",
+    );
+    const modulosAnuais = validModules.filter((m) =>
+      ANNUAL_DAY_TEMPLATES.has(m.templateKey),
+    );
     const usarMesclagemMensal = temPlannerMensal && modulosAnuais.length > 0;
     const anoBase = parseInt(selectedDate.split("-")[0], 10);
 
     let jaMesclado = false;
     const allPages = validModules.flatMap((mod) => {
       const ehModuloEspecial =
-        mod.templateKey === "plannerMensal" || ANNUAL_DAY_TEMPLATES.has(mod.templateKey);
+        mod.templateKey === "plannerMensal" ||
+        ANNUAL_DAY_TEMPLATES.has(mod.templateKey);
 
       if (usarMesclagemMensal && ehModuloEspecial) {
-        // Insere o bloco mesclado (Planner Jan + dias Jan + Planner Fev + ...)
-        // uma única vez, na posição do primeiro módulo especial encontrado.
-        // As demais ocorrências de módulos especiais são ignoradas aqui,
-        // pois já fazem parte do bloco mesclado.
         if (jaMesclado) return [];
         jaMesclado = true;
 
@@ -191,7 +189,11 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
         for (let mes = 0; mes < 12; mes += 1) {
           paginasMescladas.push(
             <div key={`planner-${mod.uid}-mes${mes}`} className="page-break">
-              <PlannerMensalLayout ano={anoBase} mes={mes} {...baseLayoutProps} />
+              <PlannerMensalLayout
+                ano={anoBase}
+                mes={mes}
+                {...baseLayoutProps}
+              />
             </div>,
           );
           modulosAnuais.forEach((modAnual) => {
@@ -201,7 +203,9 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
               printing: true,
               apenasMes: mes,
             });
-            paginasMescladas.push(...extractPrintPages(renderizado, `${modAnual.uid}-mes${mes}`));
+            paginasMescladas.push(
+              ...extractPrintPages(renderizado, `${modAnual.uid}-mes${mes}`),
+            );
           });
         }
         return paginasMescladas;
@@ -212,12 +216,16 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
       return extractPrintPages(rendered, mod.uid);
     });
 
-    return <div className="print-container">{allPages}</div>;
+    return (
+      <div ref={containerRef} className="print-container">
+        {allPages}
+      </div>
+    );
   }
 
   // ── Tela: cada módulo como um cartão rotulado, na ordem escolhida ──
   return (
-    <div className="flex flex-col gap-8 w-full items-center">
+    <div ref={containerRef} className="flex flex-col gap-8 w-full items-center">
       {validModules.map((mod, idx) => {
         const def = loadedDefs[mod.templateKey];
         return (
@@ -226,7 +234,9 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] bg-[#EFE4C8] border border-[#DEC98B] rounded-full w-5 h-5 flex items-center justify-center shrink-0">
                 {idx + 1}
               </span>
-              <span className="text-xs font-semibold text-[#24344D]">{def.nome}</span>
+              <span className="text-xs font-semibold text-[#24344D]">
+                {def.nome}
+              </span>
             </div>
             <div className="agenda-preview-container">
               {def.layout({ ...baseLayoutProps, printing: false })}

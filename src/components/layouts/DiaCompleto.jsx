@@ -1,5 +1,4 @@
 // src/components/layouts/DiaCompleto.jsx
-
 import { FaPix, FaCalendarDays } from "react-icons/fa6";
 import { GiMoneyStack } from "react-icons/gi";
 import { CiCreditCard2 } from "react-icons/ci";
@@ -18,6 +17,7 @@ import Watermark from "../Watermark";
 import Background from "../Background";
 import { useBusinessProfileContext } from "../../context/BusinessProfileContext";
 import EditableField from "../EditableField";
+import { useAgendaConfig } from "../../context/AgendaConfigContext";
 
 export default function DiaCompleto({
   data,
@@ -43,9 +43,7 @@ export default function DiaCompleto({
   try {
     const context = useBusinessProfileContext();
     contextProfile = context?.profile;
-  } catch (e) {
-    // Contexto não disponível
-  }
+  } catch (e) {}
 
   const perfil = propBusinessProfile ||
     contextProfile ||
@@ -57,6 +55,16 @@ export default function DiaCompleto({
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
   const numeroDiaColor = customColors.numeroDia || "#000000";
+
+  // Obtém a cor dos horários do contexto (aplicada também aos textos da tabela)
+  const {
+    horaColor,
+    colunaHora,
+    colunaCliente,
+    colunaServico,
+    colunaValor,
+    colunaStatus,
+  } = useAgendaConfig();
 
   const horarioCfg = perfil.horario || {};
   const HORARIOS = gerarHorarios(
@@ -141,7 +149,6 @@ export default function DiaCompleto({
                 </span>
               )}
             </div>
-            {/* NÚMERO DO DIA COM COR PERSONALIZÁVEL */}
             <span
               className="text-5xl font-extralight tracking-tighter font-serif leading-none min-w-11.25"
               style={{ color: numeroDiaColor }}
@@ -161,74 +168,97 @@ export default function DiaCompleto({
               >
                 <th
                   className={`${mostrarHoraFim ? "w-[9%]" : "w-[12%]"} pb-2 text-black border-r ${tema.border} pr-1`}
-                  style={{ borderRightColor: secondaryColor }}
+                  style={{
+                    borderRightColor: secondaryColor,
+                    color: horaColor, // aplica a cor dos horários ao cabeçalho
+                  }}
                 >
-                  Hora
+                  {colunaHora}
                 </th>
                 {mostrarHoraFim && (
                   <th
                     className={`w-[9%] pb-2 text-black border-r ${tema.border} pr-1`}
-                    style={{ borderRightColor: secondaryColor }}
+                    style={{
+                      borderRightColor: secondaryColor,
+                      color: horaColor,
+                    }}
                   >
                     Até
                   </th>
                 )}
                 <th
                   className={`${mostrarHoraFim ? "w-[28%]" : "w-[30%]"} pb-2 text-black border-r ${tema.border} px-2`}
-                  style={{ borderRightColor: secondaryColor }}
+                  style={{
+                    borderRightColor: secondaryColor,
+                    color: horaColor,
+                  }}
                 >
-                  {clienteLabel}
+                  {colunaCliente}
                 </th>
                 <th
                   className={`${mostrarHoraFim ? "w-[23%]" : "w-[25%]"} pb-2 text-black border-r ${tema.border} px-2`}
-                  style={{ borderRightColor: secondaryColor }}
+                  style={{
+                    borderRightColor: secondaryColor,
+                    color: horaColor,
+                  }}
                 >
-                  {servicoLabel}
+                  {colunaServico}
                 </th>
-                {/* COLUNA VALOR */}
                 <th
                   className={`w-[10%] pb-2 text-black border-r ${tema.border} text-center`}
-                  style={{ borderRightColor: secondaryColor }}
+                  style={{
+                    borderRightColor: secondaryColor,
+                    color: horaColor,
+                  }}
                 >
-                  <span className="text-[7px] font-bold tracking-tight text-gray-500 uppercase">
-                    Valor
+                  <span className="text-[7px] font-bold tracking-tight uppercase">
+                    {colunaValor}
                   </span>
                 </th>
                 <th
                   className={`w-[8%] pb-2 text-center border-r ${tema.border} font-normal`}
-                  style={{ borderRightColor: secondaryColor }}
+                  style={{
+                    borderRightColor: secondaryColor,
+                    color: horaColor,
+                  }}
                 >
                   <div className="flex flex-col items-center justify-center">
                     <GiMoneyStack
                       className={`w-4 h-4 mb-0.5`}
                       style={{ color: primaryColor }}
                     />
-                    <span className="text-[7px] text-gray-500 font-bold tracking-tight">
+                    <span className="text-[7px] font-bold tracking-tight">
                       DINHEIRO
                     </span>
                   </div>
                 </th>
                 <th
                   className={`w-[8%] pb-2 text-center border-r ${tema.border} font-normal`}
-                  style={{ borderRightColor: secondaryColor }}
+                  style={{
+                    borderRightColor: secondaryColor,
+                    color: horaColor,
+                  }}
                 >
                   <div className="flex flex-col items-center justify-center">
                     <CiCreditCard2
                       className={`w-4 h-4 font-bold mb-0.5`}
                       style={{ color: primaryColor }}
                     />
-                    <span className="text-[7px] text-gray-500 font-bold tracking-tight">
+                    <span className="text-[7px] font-bold tracking-tight">
                       CARTÃO
                     </span>
                   </div>
                 </th>
-                <th className="w-[8%] pb-2 text-center font-normal">
+                <th
+                  className="w-[8%] pb-2 text-center font-normal"
+                  style={{ color: horaColor }}
+                >
                   <div className="flex flex-col items-center justify-center">
                     <FaPix
                       className={`w-3.5 h-3.5 mb-0.5`}
                       style={{ color: primaryColor }}
                     />
-                    <span className="text-[7px] text-gray-500 font-bold tracking-tight">
+                    <span className="text-[7px] font-bold tracking-tight">
                       PIX
                     </span>
                   </div>
@@ -247,14 +277,20 @@ export default function DiaCompleto({
                 >
                   <td
                     className={`font-mono text-black font-bold text-[11px] align-middle border-r ${tema.border} pr-1`}
-                    style={{ borderRightColor: secondaryColor }}
+                    style={{
+                      borderRightColor: secondaryColor,
+                      color: horaColor,
+                    }}
                   >
                     {hora}
                   </td>
                   {mostrarHoraFim && (
                     <td
                       className={`font-mono text-gray-500 text-[10px] align-middle border-r ${tema.border} pr-1`}
-                      style={{ borderRightColor: secondaryColor }}
+                      style={{
+                        borderRightColor: secondaryColor,
+                        color: horaColor,
+                      }}
                     >
                       {somarMinutos(hora, horarioCfg.intervalo || 30)}
                     </td>
@@ -266,7 +302,8 @@ export default function DiaCompleto({
                     <EditableField
                       fieldKey={`${data.toISOString().split("T")[0]}-${hora}-cliente`}
                       className="w-full border-gray-300 text-sm"
-                      placeholder={``}
+                      style={{ color: horaColor }} // aplica a cor ao texto do campo
+                      placeholder=""
                     />
                   </td>
                   <td
@@ -276,7 +313,8 @@ export default function DiaCompleto({
                     <EditableField
                       fieldKey={`${data.toISOString().split("T")[0]}-${hora}-servico`}
                       className="w-full border-gray-300 text-sm"
-                      placeholder={``}
+                      style={{ color: horaColor }}
+                      placeholder=""
                     />
                   </td>
                   <td
@@ -286,6 +324,7 @@ export default function DiaCompleto({
                     <EditableField
                       fieldKey={`${data.toISOString().split("T")[0]}-${hora}-valor`}
                       className="w-full text-sm text-right"
+                      style={{ color: horaColor }} // valor com a mesma cor dos horários
                       placeholder=""
                     />
                   </td>

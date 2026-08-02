@@ -1,8 +1,4 @@
 // src/components/ConfigBar.jsx
-//
-// Barra de configuração. Aparência é lida diretamente do AgendaConfigContext,
-// reduzindo o número de props recebidos de ~25 para 8.
-
 import { useState } from "react";
 import {
   MdUpload,
@@ -35,7 +31,6 @@ const FONT_OPTIONS = [
   { value: "Nunito", label: "Nunito" },
 ];
 
-// PALETAS PRÉ-DEFINIDAS PARA OS DIAS DO CALENDÁRIO
 const PALETAS_DIAS = [
   {
     id: "classica",
@@ -128,24 +123,19 @@ const PALETAS_DIAS = [
 ];
 
 export default function ConfigBar({
-  // template / data
   template,
   setTemplate,
   selectedDate,
   setSelectedDate,
-  // handlers vindos de useAgendaSettings
   applyThemeColors,
   handleLogoUpload,
   handleRemoveLogo,
   handleWatermarkUpload,
   handleRemoveWatermark,
-  // perfil de negócio
   businessProfileId,
   setBusinessProfile,
-  // modo montagem (esconde o seletor de Modelo, que não se aplica aqui)
   builderMode = false,
 }) {
-  // Aparência lida diretamente do contexto
   const {
     colorTheme,
     primaryColor,
@@ -171,7 +161,6 @@ export default function ConfigBar({
     setCapaEstilo,
     capaFrase,
     setCapaFrase,
-    // CORES DOS DIAS DO CALENDÁRIO
     domingoColor,
     setDomingoColor,
     sabadoColor,
@@ -182,9 +171,21 @@ export default function ConfigBar({
     setFeriadoColor,
     comemorativaColor,
     setComemorativaColor,
-    // COR DO NÚMERO DO DIA
     numeroDiaColor,
     setNumeroDiaColor,
+    // NOVOS:
+    horaColor,
+    setHoraColor,
+    colunaHora,
+    setColunaHora,
+    colunaCliente,
+    setColunaCliente,
+    colunaServico,
+    setColunaServico,
+    colunaValor,
+    setColunaValor,
+    colunaStatus,
+    setColunaStatus,
   } = useAgendaConfig();
 
   const { inputType, inputValue, handleDateChange } = useDateInput(
@@ -204,7 +205,6 @@ export default function ConfigBar({
     toast(`${label} selecionado`, { icon });
   };
 
-  // Função para aplicar uma paleta pré-definida
   const aplicarPaleta = (paleta) => {
     setDomingoColor(paleta.cores.domingo);
     setSabadoColor(paleta.cores.sabado);
@@ -289,7 +289,7 @@ export default function ConfigBar({
             </div>
           </div>
 
-          {/* Cores personalizadas - incluindo Número do dia */}
+          {/* Cores personalizadas - incluindo Número do dia e Hora */}
           <div className="flex items-center gap-3">
             <Label icon={MdColorLens}>Cores:</Label>
             <div className="flex items-center gap-2">
@@ -310,6 +310,11 @@ export default function ConfigBar({
                   onChange: setNumeroDiaColor,
                   title: "Número do dia",
                 },
+                {
+                  value: horaColor,
+                  onChange: setHoraColor,
+                  title: "Horários",
+                },
               ].map(({ value, onChange, title }) => (
                 <input
                   key={title}
@@ -323,11 +328,52 @@ export default function ConfigBar({
             </div>
           </div>
 
+          {/* Rótulos das colunas */}
+          <div className="flex items-center gap-2">
+            <Label>Rótulos:</Label>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <input
+                type="text"
+                value={colunaHora}
+                onChange={(e) => setColunaHora(e.target.value)}
+                placeholder="Hora"
+                className={`${inputCls} w-14`}
+              />
+              <input
+                type="text"
+                value={colunaCliente}
+                onChange={(e) => setColunaCliente(e.target.value)}
+                placeholder="Cliente"
+                className={`${inputCls} w-16`}
+              />
+              <input
+                type="text"
+                value={colunaServico}
+                onChange={(e) => setColunaServico(e.target.value)}
+                placeholder="Serviço"
+                className={`${inputCls} w-16`}
+              />
+              <input
+                type="text"
+                value={colunaValor}
+                onChange={(e) => setColunaValor(e.target.value)}
+                placeholder="Valor"
+                className={`${inputCls} w-14`}
+              />
+              <input
+                type="text"
+                value={colunaStatus}
+                onChange={(e) => setColunaStatus(e.target.value)}
+                placeholder="Status"
+                className={`${inputCls} w-14`}
+              />
+            </div>
+          </div>
+
           {/* Cores dos dias do calendário com paletas pré-definidas */}
           <div className="flex items-center gap-3">
             <Label icon={MdPalette}>Dias:</Label>
             <div className="flex items-center gap-1.5 flex-wrap">
-              {/* Botões das paletas pré-definidas */}
               {PALETAS_DIAS.map((paleta) => (
                 <button
                   key={paleta.id}

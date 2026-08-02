@@ -29,6 +29,7 @@ export default function DiaComercial({
   const bgColor = customColors.background || "#ffffff";
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
+  const numeroDiaColor = customColors.numeroDia || "#000000"; // <-- NOVO
 
   return (
     <div
@@ -46,6 +47,7 @@ export default function DiaComercial({
         data={data}
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
+        numeroDiaColor={numeroDiaColor} // <-- NOVO: passando a cor
         logo={logo}
         compact={false}
         posicaoMiniCalendario="direita"

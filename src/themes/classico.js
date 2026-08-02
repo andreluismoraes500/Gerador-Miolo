@@ -1,3 +1,4 @@
+// src/themes/classico.js
 export default {
   nome: "Clássico",
   border: "border-slate-300",
@@ -10,9 +11,20 @@ export default {
   cardBg: "bg-white",
   accent: "text-slate-700",
   button: "bg-slate-800 hover:bg-slate-700 text-white",
+
   colors: {
     primary: "#475569",
     secondary: "#cbd5e1",
     background: "#f8fafc",
+    numeroDia: "#1e293b",
+    hora: "#1e293b",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Compromisso",
+    valor: "Valor",
+    status: "Status",
   },
 };

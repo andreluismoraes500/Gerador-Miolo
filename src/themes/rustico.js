@@ -14,5 +14,6 @@ export default {
     primary: "#b45309",
     secondary: "#fcd34d",
     background: "#fffbeb",
+    numeroDia: "#1e293b",
   },
 };

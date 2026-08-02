@@ -1,18 +1,11 @@
 // src/hooks/useAgendaSettings.js
-//
-// Hook responsável pelas configurações da agenda que ainda não vivem em contexto:
-// template, data, perfil de negócio, nome personalizado/pagamento e ações de UI
-// (upload de logo/watermark, impressão, etc.).
-//
-// Estado de aparência (cores, tema, fonte, capa, rodapé, logo, marca d'água) foi
-// movido para AgendaConfigContext — consumido via useAgendaConfig().
-
 import { useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { TEMAS } from "../themes";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 import { usePersistedState } from "./usePersistedState";
 import { useBusinessProfile } from "./useBusinessProfile";
+import { getBusinessProfile } from "../config/businessProfiles";
 
 function formatLocalDate(year, month, day) {
   const pad = (n) => String(n).padStart(2, "0");
@@ -27,7 +20,6 @@ const DATA_INICIAL = formatLocalDate(
 );
 
 export function useAgendaSettings() {
-  // --- estado local da sessão ---
   const [template, setTemplate] = usePersistedState(
     "agenda-template",
     "diario",
@@ -43,7 +35,6 @@ export function useAgendaSettings() {
   const [printing, setPrinting] = useState(false);
   const [showConfig, setShowConfig] = useState(true);
 
-  // --- aparência (contexto) ---
   const {
     logo,
     setLogo,
@@ -56,9 +47,16 @@ export function useAgendaSettings() {
     setWatermarkSrc,
     setBackgroundSrc,
     removeBackground,
+    setNumeroDiaColor,
+    setHoraColor,
+    setTableTextColor,
+    setColunaHora,
+    setColunaCliente,
+    setColunaServico,
+    setColunaValor,
+    setColunaStatus,
   } = useAgendaConfig();
 
-  // --- perfil de negócio ---
   const {
     profile: businessProfile,
     profileId: businessProfileId,
@@ -67,15 +65,27 @@ export function useAgendaSettings() {
     getThemeId,
   } = useBusinessProfile();
 
-  // ── handlers ────────────────────────────────────────────────
-
   const handleSetBusinessProfile = useCallback(
     (newProfileId) => {
       const success = _setBusinessProfileId(newProfileId);
       if (success) {
-        applyProfileColors(setPrimaryColor, setSecondaryColor, setBgColor);
+        const newProfile = getBusinessProfile(newProfileId);
+        applyProfileColors(
+          setPrimaryColor,
+          setSecondaryColor,
+          setBgColor,
+          setNumeroDiaColor,
+          setHoraColor,
+          setTableTextColor,
+          setColunaHora,
+          setColunaCliente,
+          setColunaServico,
+          setColunaValor,
+          setColunaStatus,
+          newProfile,
+        );
         setColorTheme(getThemeId());
-        toast.success(`Perfil alterado`);
+        toast.success(`Perfil alterado para ${newProfile.nome}`);
       }
     },
     [
@@ -84,6 +94,14 @@ export function useAgendaSettings() {
       setPrimaryColor,
       setSecondaryColor,
       setBgColor,
+      setNumeroDiaColor,
+      setHoraColor,
+      setTableTextColor,
+      setColunaHora,
+      setColunaCliente,
+      setColunaServico,
+      setColunaValor,
+      setColunaStatus,
       setColorTheme,
       getThemeId,
     ],
@@ -96,14 +114,40 @@ export function useAgendaSettings() {
         setPrimaryColor(theme.colors.primary);
         setSecondaryColor(theme.colors.secondary);
         setBgColor(theme.colors.background);
+        setNumeroDiaColor(theme.colors.numeroDia || "#1e293b");
+        setHoraColor(theme.colors.hora || "#000000");
+        setTableTextColor(theme.colors.tableText || "#1e293b");
+        if (theme.labels) {
+          setColunaHora(theme.labels.hora || "Hora");
+          setColunaCliente(theme.labels.cliente || "Cliente");
+          setColunaServico(theme.labels.servico || "Serviço");
+          setColunaValor(theme.labels.valor || "Valor");
+          setColunaStatus(theme.labels.status || "Status");
+        }
       } else {
         setPrimaryColor("#1e293b");
         setSecondaryColor("#94a3b8");
         setBgColor("#f8fafc");
+        setNumeroDiaColor("#1e293b");
+        setHoraColor("#000000");
+        setTableTextColor("#1e293b");
       }
       setColorTheme(themeId);
     },
-    [setPrimaryColor, setSecondaryColor, setBgColor, setColorTheme],
+    [
+      setPrimaryColor,
+      setSecondaryColor,
+      setBgColor,
+      setNumeroDiaColor,
+      setHoraColor,
+      setTableTextColor,
+      setColunaHora,
+      setColunaCliente,
+      setColunaServico,
+      setColunaValor,
+      setColunaStatus,
+      setColorTheme,
+    ],
   );
 
   const handlePrint = useCallback(() => {
@@ -171,28 +215,23 @@ export function useAgendaSettings() {
     toast("Fundo removido", { icon: "🗑️" });
   }, [removeBackground]);
 
-  // ── derivados ────────────────────────────────────────────────
   const footerName =
     customName && customName.trim() !== ""
       ? customName
       : "Lucas Cassiano de Moraes";
 
   return {
-    // template / data
     template,
     setTemplate,
     selectedDate,
     setSelectedDate,
-    // nome do rodapé
     customName,
     setCustomName,
     footerName,
-    // ui
     printing,
     setPrinting,
     showConfig,
     setShowConfig,
-    // handlers de arquivo
     handlePrint,
     handleLogoUpload,
     handleRemoveLogo,
@@ -200,9 +239,7 @@ export function useAgendaSettings() {
     handleRemoveWatermark,
     handleBackgroundUpload,
     handleRemoveBackground,
-    // tema
     applyThemeColors,
-    // perfil de negócio
     businessProfile,
     businessProfileId,
     setBusinessProfile: handleSetBusinessProfile,

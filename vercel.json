@@ -1,5 +1,22 @@
 {
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/generate.js": {
+      "maxDuration": 10
+    },
+    "api/status/[id].js": {
+      "maxDuration": 10
+    },
+    "api/result/[id].js": {
+      "maxDuration": 10
+    },
+    "api/state/[id].js": {
+      "maxDuration": 10
+    }
+  }
 }

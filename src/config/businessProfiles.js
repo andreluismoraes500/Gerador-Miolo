@@ -1,7 +1,7 @@
 // src/config/businessProfiles.js
 
 // ============================================
-// PERFIL BASE
+// PERFIL BASE (padrão)
 // ============================================
 const BASE_PROFILE = {
   id: "default",
@@ -14,6 +14,16 @@ const BASE_PROFILE = {
     primary: "#475569",
     secondary: "#cbd5e1",
     background: "#f8fafc",
+    numeroDia: "#1e293b",
+    hora: "#1e293b", // cor para horários e textos da tabela
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Compromisso",
+    valor: "Valor",
+    status: "Status",
   },
 
   campos: {
@@ -64,6 +74,16 @@ const ADVOGADO_PROFILE = {
     primary: "#44403c",
     secondary: "#d6d3d1",
     background: "#f5f5f4",
+    numeroDia: "#1e293b",
+    hora: "#1e293b",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Processo / Ação",
+    valor: "Honorários",
+    status: "Status do Processo",
   },
 
   campos: {
@@ -100,6 +120,16 @@ const MEDICO_PROFILE = {
     primary: "#0369a1",
     secondary: "#bae6fd",
     background: "#f0f9ff",
+    numeroDia: "#1e293b",
+    hora: "#0c4a6e",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Paciente",
+    servico: "Procedimento / Consulta",
+    valor: "Valor da Consulta",
+    status: "Status do Paciente",
   },
 
   campos: {
@@ -136,6 +166,16 @@ const MANICURE_PROFILE = {
     primary: "#db2777",
     secondary: "#fbcfe8",
     background: "#fdf2f8",
+    numeroDia: "#1e293b",
+    hora: "#831843",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Serviço",
+    valor: "Valor",
+    status: "Status",
   },
 
   campos: {
@@ -172,6 +212,16 @@ const PERSONAL_TRAINER_PROFILE = {
     primary: "#dc2626",
     secondary: "#fca5a5",
     background: "#fef2f2",
+    numeroDia: "#1e293b",
+    hora: "#7f1d1d",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Aluno",
+    servico: "Treino / Atividade",
+    valor: "Valor da Sessão",
+    status: "Progresso",
   },
 
   campos: {
@@ -187,7 +237,7 @@ const PERSONAL_TRAINER_PROFILE = {
     servico: "Ex: Treino A - Superiores",
     extra: "3x12 supino, 4x10 remada",
     valor: "R$ 0,00",
-    status: "Iniciante / Intermediário",
+    status: "Iniciante / Intermediário / Avançado",
   },
 
   keywords: ["treino", "academia", "fitness", "musculação"],
@@ -208,6 +258,16 @@ const PSICOLOGO_PROFILE = {
     primary: "#7c3aed",
     secondary: "#c4b5fd",
     background: "#f5f3ff",
+    numeroDia: "#1e293b",
+    hora: "#4c1d95",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Paciente",
+    servico: "Sessão / Abordagem",
+    valor: "Valor da Sessão",
+    status: "Evolução",
   },
 
   campos: {
@@ -244,6 +304,16 @@ const FOTOGRAFO_PROFILE = {
     primary: "#1a1a2e",
     secondary: "#e2e8f0",
     background: "#fafafa",
+    numeroDia: "#1e293b",
+    hora: "#0f172a",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Tipo de Ensaio",
+    valor: "Valor do Pacote",
+    status: "Status",
   },
 
   campos: {
@@ -280,6 +350,16 @@ const CONSULTOR_PROFILE = {
     primary: "#0f766e",
     secondary: "#ccfbf1",
     background: "#f0fdfa",
+    numeroDia: "#1e293b",
+    hora: "#134e4a",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Projeto / Consultoria",
+    valor: "Valor do Projeto",
+    status: "Status",
   },
 
   campos: {
@@ -316,6 +396,16 @@ const PROFESSOR_PROFILE = {
     primary: "#b45309",
     secondary: "#fde68a",
     background: "#fffbeb",
+    numeroDia: "#1e293b",
+    hora: "#78350f",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Aluno",
+    servico: "Disciplina / Aula",
+    valor: "Valor da Hora",
+    status: "Status",
   },
 
   campos: {
@@ -352,6 +442,16 @@ const DENTISTA_PROFILE = {
     primary: "#0e7490",
     secondary: "#a5f3fc",
     background: "#ecfeff",
+    numeroDia: "#1e293b",
+    hora: "#164e63",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Paciente",
+    servico: "Procedimento",
+    valor: "Valor do Procedimento",
+    status: "Status do Tratamento",
   },
 
   campos: {
@@ -388,6 +488,16 @@ const NUTRICIONISTA_PROFILE = {
     primary: "#15803d",
     secondary: "#bbf7d0",
     background: "#f0fdf4",
+    numeroDia: "#1e293b",
+    hora: "#14532d",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Paciente",
+    servico: "Tipo de Consulta",
+    valor: "Valor da Consulta",
+    status: "Evolução",
   },
 
   campos: {
@@ -424,6 +534,16 @@ const BARBEIRO_PROFILE = {
     primary: "#1c1917",
     secondary: "#d6d3d1",
     background: "#fafaf9",
+    numeroDia: "#1e293b",
+    hora: "#292524",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Serviço",
+    valor: "Valor",
+    status: "Status",
   },
 
   campos: {
@@ -460,6 +580,16 @@ const TATUADOR_PROFILE = {
     primary: "#18181b",
     secondary: "#a1a1aa",
     background: "#f4f4f5",
+    numeroDia: "#1e293b",
+    hora: "#09090b",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Estilo / Tema da Tattoo",
+    valor: "Valor da Sessão",
+    status: "Status",
   },
 
   campos: {
@@ -496,6 +626,16 @@ const DESIGNER_SOBRANCELHAS_PROFILE = {
     primary: "#9d174d",
     secondary: "#fbcfe8",
     background: "#fdf2f8",
+    numeroDia: "#1e293b",
+    hora: "#831843",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Serviço",
+    valor: "Valor",
+    status: "Status",
   },
 
   campos: {
@@ -532,6 +672,16 @@ const CORRETOR_IMOVEIS_PROFILE = {
     primary: "#78350f",
     secondary: "#fde68a",
     background: "#fffbeb",
+    numeroDia: "#1e293b",
+    hora: "#451a03",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Cliente",
+    servico: "Tipo de Imóvel / Visita",
+    valor: "Valor do Imóvel",
+    status: "Status da Negociação",
   },
 
   campos: {
@@ -568,6 +718,16 @@ const VETERINARIO_PROFILE = {
     primary: "#0d9488",
     secondary: "#99f6e4",
     background: "#f0fdfa",
+    numeroDia: "#1e293b",
+    hora: "#115e59",
+  },
+
+  labels: {
+    hora: "Hora",
+    cliente: "Tutor / Pet",
+    servico: "Procedimento",
+    valor: "Valor da Consulta",
+    status: "Status do Atendimento",
   },
 
   campos: {
@@ -593,7 +753,6 @@ const VETERINARIO_PROFILE = {
 // EXPORTAÇÕES
 // ============================================
 
-// Mapeamento de todos os perfis disponíveis
 export const BUSINESS_PROFILES = {
   default: BASE_PROFILE,
   advogado: ADVOGADO_PROFILE,
@@ -613,12 +772,10 @@ export const BUSINESS_PROFILES = {
   veterinario: VETERINARIO_PROFILE,
 };
 
-// Função para obter um perfil pelo ID
 export function getBusinessProfile(id) {
   return BUSINESS_PROFILES[id] || BUSINESS_PROFILES.default;
 }
 
-// Função para obter as opções de perfil (para selects)
 export function getBusinessProfileOptions() {
   return Object.values(BUSINESS_PROFILES).map((profile) => ({
     id: profile.id,
@@ -629,7 +786,6 @@ export function getBusinessProfileOptions() {
   }));
 }
 
-// Função para buscar perfil por palavra-chave
 export function getBusinessProfileByKeyword(keyword) {
   const lowerKeyword = keyword.toLowerCase();
   return (
@@ -639,7 +795,6 @@ export function getBusinessProfileByKeyword(keyword) {
   );
 }
 
-// Para compatibilidade com o código existente que usa BUSINESS_PROFILES_LEGACY
 export const BUSINESS_PROFILES_LEGACY = Object.fromEntries(
   Object.entries(BUSINESS_PROFILES).map(([key, profile]) => [
     key,
@@ -653,5 +808,4 @@ export const BUSINESS_PROFILES_LEGACY = Object.fromEntries(
   ]),
 );
 
-// Exportação padrão
 export default BUSINESS_PROFILES;

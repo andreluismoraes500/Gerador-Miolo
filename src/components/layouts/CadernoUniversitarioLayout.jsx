@@ -54,7 +54,7 @@ function PageShell({
   backgroundSrc,
   backgroundOpacity,
   footerName,
-  footerhidden = false,
+  footerHidden = false,
   footerType,
   colorTheme,
   customColors = {},

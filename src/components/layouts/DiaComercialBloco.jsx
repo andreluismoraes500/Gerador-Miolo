@@ -22,6 +22,7 @@ export default function DiaComercialBloco({
   diaSecundario, // opcional: outro dia da mesma folha, para destacar no mini calendário
   primaryColor = "#000000",
   secondaryColor = "#cbd5e1",
+  numeroDiaColor = "#000000", // <-- NOVO: cor do número do dia
   compact = false,
   linhas, // opcional: força a quantidade de linhas
   logo,
@@ -74,7 +75,10 @@ export default function DiaComercialBloco({
                 compact ? "text-[9px]" : "text-[11px]"
               }`}
             >
-              {data.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
+              {data.toLocaleDateString("pt-BR", {
+                month: "long",
+                year: "numeric",
+              })}
             </p>
           </div>
         </div>
@@ -84,19 +88,22 @@ export default function DiaComercialBloco({
             <div className="flex flex-col justify-end text-[8px] uppercase tracking-wider font-semibold text-gray-400 space-y-1 mb-0.5">
               {feriado && (
                 <span className="text-black border border-black px-1.5 py-0.5 rounded-sm flex items-center gap-1 bg-gray-50">
-                  <MdStarBorder className="w-3 h-3 text-amber-500" /> {feriado.nome}
+                  <MdStarBorder className="w-3 h-3 text-amber-500" />{" "}
+                  {feriado.nome}
                 </span>
               )}
               {comemorativa && !feriado && (
                 <span className="italic font-medium flex items-center justify-end gap-1 text-gray-500">
-                  <MdPushPin className="w-2.5 h-2.5 text-gray-400" /> {comemorativa}
+                  <MdPushPin className="w-2.5 h-2.5 text-gray-400" />{" "}
+                  {comemorativa}
                 </span>
               )}
             </div>
             <span
-              className={`font-extralight tracking-tighter font-serif text-black leading-none ${
+              className={`font-extralight tracking-tighter font-serif leading-none ${
                 compact ? "text-2xl min-w-[1.6rem]" : "text-5xl min-w-[2.8rem]"
               }`}
+              style={{ color: numeroDiaColor }} // <-- ALTERADO: usa a cor personalizada
             >
               {String(data.getDate()).padStart(2, "0")}
             </span>

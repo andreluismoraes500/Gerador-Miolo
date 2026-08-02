@@ -1,5 +1,4 @@
 // src/context/AgendaConfigContext.jsx
-
 import { createContext, useContext, useCallback, useMemo } from "react";
 import { usePersistedState } from "../hooks/usePersistedState";
 
@@ -64,10 +63,44 @@ export function AgendaConfigProvider({ children }) {
     "#b45309",
   );
 
-  // --- COR DO NÚMERO DO DIA (01, 02, 03...) ---
+  // --- COR DO NÚMERO DO DIA ---
   const [numeroDiaColor, setNumeroDiaColor] = usePersistedState(
     "agenda-numeroDiaColor",
     "#000000",
+  );
+
+  // --- COR DOS HORÁRIOS ---
+  const [horaColor, setHoraColor] = usePersistedState(
+    "agenda-horaColor",
+    "#000000",
+  );
+
+  // --- COR DO TEXTO DA TABELA (campos editáveis) ---
+  const [tableTextColor, setTableTextColor] = usePersistedState(
+    "agenda-tableTextColor",
+    "#1e293b",
+  );
+
+  // --- RÓTULOS DAS COLUNAS ---
+  const [colunaHora, setColunaHora] = usePersistedState(
+    "agenda-colunaHora",
+    "Hora",
+  );
+  const [colunaCliente, setColunaCliente] = usePersistedState(
+    "agenda-colunaCliente",
+    "Cliente",
+  );
+  const [colunaServico, setColunaServico] = usePersistedState(
+    "agenda-colunaServico",
+    "Serviço",
+  );
+  const [colunaValor, setColunaValor] = usePersistedState(
+    "agenda-colunaValor",
+    "Valor",
+  );
+  const [colunaStatus, setColunaStatus] = usePersistedState(
+    "agenda-colunaStatus",
+    "Status",
   );
 
   // --- conteúdo da capa ---
@@ -109,6 +142,8 @@ export function AgendaConfigProvider({ children }) {
       feriado: feriadoColor,
       comemorativa: comemorativaColor,
       numeroDia: numeroDiaColor,
+      hora: horaColor,
+      tableText: tableTextColor,
     }),
     [
       primaryColor,
@@ -120,16 +155,16 @@ export function AgendaConfigProvider({ children }) {
       feriadoColor,
       comemorativaColor,
       numeroDiaColor,
+      horaColor,
+      tableTextColor,
     ],
   );
 
   const value = useMemo(
     () => ({
-      // logo
       logo,
       setLogo,
       removeLogo,
-      // tema / cores
       colorTheme,
       setColorTheme,
       primaryColor,
@@ -138,7 +173,6 @@ export function AgendaConfigProvider({ children }) {
       setSecondaryColor,
       bgColor,
       setBgColor,
-      // CORES DOS DIAS DO CALENDÁRIO
       domingoColor,
       setDomingoColor,
       sabadoColor,
@@ -149,33 +183,41 @@ export function AgendaConfigProvider({ children }) {
       setFeriadoColor,
       comemorativaColor,
       setComemorativaColor,
-      // COR DO NÚMERO DO DIA
       numeroDiaColor,
       setNumeroDiaColor,
+      horaColor,
+      setHoraColor,
+      tableTextColor,
+      setTableTextColor,
+      colunaHora,
+      setColunaHora,
+      colunaCliente,
+      setColunaCliente,
+      colunaServico,
+      setColunaServico,
+      colunaValor,
+      setColunaValor,
+      colunaStatus,
+      setColunaStatus,
       customColors,
-      // fonte
       fontFamily,
       setFontFamily,
-      // marca d'água
       watermarkSrc,
       setWatermarkSrc,
       watermarkOpacity,
       setWatermarkOpacity,
       removeWatermark,
-      // background
       backgroundSrc,
       setBackgroundSrc,
       backgroundOpacity,
       setBackgroundOpacity,
       removeBackground,
-      // capa
       capaNome,
       setCapaNome,
       capaEstilo,
       setCapaEstilo,
       capaFrase,
       setCapaFrase,
-      // rodapé
       footerType,
       setFooterType,
       footerHidden,
@@ -205,6 +247,20 @@ export function AgendaConfigProvider({ children }) {
       setComemorativaColor,
       numeroDiaColor,
       setNumeroDiaColor,
+      horaColor,
+      setHoraColor,
+      tableTextColor,
+      setTableTextColor,
+      colunaHora,
+      setColunaHora,
+      colunaCliente,
+      setColunaCliente,
+      colunaServico,
+      setColunaServico,
+      colunaValor,
+      setColunaValor,
+      colunaStatus,
+      setColunaStatus,
       customColors,
       fontFamily,
       setFontFamily,
