@@ -48,7 +48,6 @@ export default function Footer({
   return (
     <div className="w-full mt-4 pt-2 border-t border-gray-300 flex justify-between items-center text-[9px] tracking-widest uppercase font-mono print:mt-2">
       <p className="text-gray-400">
-        Desenho de Miolo por:{" "}
         <span className={`font-semibold`} style={{ color: styleColor }}>
           {displayName}
         </span>
