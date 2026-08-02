@@ -20,6 +20,11 @@
 // comporta exatamente como no navegador do usuário.
 
 const PREFIX = "agenda-";
+// O Talonário guarda algumas poucas configurações em localStorage sob um
+// namespace próprio (ex: "talonario-accentColors"). restoreAgendaState
+// escreve no localStorage real da aba do Puppeteer, então precisa
+// reconhecer os dois namespaces como seguros para gravar.
+const KNOWN_PREFIXES = ["agenda-", "talonario-"];
 
 export function captureAgendaState() {
   const snapshot = {};
@@ -36,10 +41,28 @@ export function captureAgendaState() {
   return snapshot;
 }
 
+// Versão genérica: captura só as chaves de localStorage sob um prefixo
+// específico (usada pelo Talonário, que tem seu próprio namespace).
+export function captureLocalStoragePrefixed(prefix) {
+  const snapshot = {};
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith(prefix)) continue;
+    const raw = localStorage.getItem(key);
+    try {
+      snapshot[key] = JSON.parse(raw);
+    } catch {
+      snapshot[key] = raw;
+    }
+  }
+  return snapshot;
+}
+
 export function restoreAgendaState(snapshot) {
   if (!snapshot || typeof snapshot !== "object") return;
   Object.entries(snapshot).forEach(([key, value]) => {
-    if (!key.startsWith(PREFIX)) return; // segurança: nunca grava fora do namespace
+    // segurança: nunca grava fora dos namespaces conhecidos do app
+    if (!KNOWN_PREFIXES.some((p) => key.startsWith(p))) return;
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (err) {

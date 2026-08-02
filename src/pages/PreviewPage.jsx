@@ -192,7 +192,7 @@ export default function PreviewPage() {
               className="bg-[#2F6B45] hover:bg-[#275A3B] text-[#FBF8F1] text-sm font-semibold py-2.5 px-5 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#1B4D2F] hover:shadow-[0_1px_0_0_#1B4D2F] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
             >
               <MdPrint className="w-4 h-4" />
-              Baixar PDF (backend)
+              Baixar PDF
             </button>
 
             <button

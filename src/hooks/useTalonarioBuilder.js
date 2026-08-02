@@ -9,6 +9,24 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 import { usePersistedState } from "./usePersistedState";
 
+// Quando este hook é montado numa aba controlada pelo Puppeteer (geração
+// de PDF pelo backend), main.jsx já rodou hydrateFromServer() ANTES do
+// React montar e populou window.__TALONARIO_HYDRATE__ com o "retrato" de
+// configuração que o usuário tinha na tela dele (ver
+// src/utils/talonarioStateSnapshot.js). Cada useState relevante abaixo
+// usa esse valor como estado inicial quando disponível — para qualquer
+// usuário normal, window.__TALONARIO_HYDRATE__ não existe e o valor
+// padrão de sempre é usado normalmente.
+function hydrated(key, fallback) {
+  if (typeof window !== "undefined" && window.__TALONARIO_HYDRATE__) {
+    const h = window.__TALONARIO_HYDRATE__;
+    if (h && Object.prototype.hasOwnProperty.call(h, key)) {
+      return h[key];
+    }
+  }
+  return fallback;
+}
+
 // Paleta padrão de cada aba — usada como ponto de partida e como opção de
 // "restaurar cor padrão" nas configurações.
 export const TAL_ACCENTS = {
@@ -138,7 +156,7 @@ export const BINGO_LAYOUTS = {
 };
 
 export function useTalonarioBuilder() {
-  const [activeTab, setActiveTab] = useState("pedido");
+  const [activeTab, setActiveTab] = useState(() => hydrated("activeTab", "pedido"));
 
   // ---------------- Cores (configuráveis por aba) ----------------
   // Guardadas no localStorage para não se perder entre visitas. Cada aba
@@ -168,26 +186,28 @@ export function useTalonarioBuilder() {
   );
 
   // ---------------- Pedido de Venda ----------------
-  const [pedido, setPedido] = useState({
-    empresa: "",
-    slogan: "",
-    numStart: 1,
-    numEnd: 50,
-    prefix: "",
-    digits: 4,
-    linhas: 12,
-    rodape: "",
-    numerar: true, // <-- NOVO: controla se deve numerar
-    campos: {
-      nome: true,
-      endereco: true,
-      tel: true,
-      municipio: true,
-      cnpj: true,
-      insc: true,
-      email: true,
-    },
-  });
+  const [pedido, setPedido] = useState(() =>
+    hydrated("pedido", {
+      empresa: "",
+      slogan: "",
+      numStart: 1,
+      numEnd: 50,
+      prefix: "",
+      digits: 4,
+      linhas: 12,
+      rodape: "",
+      numerar: true, // <-- NOVO: controla se deve numerar
+      campos: {
+        nome: true,
+        endereco: true,
+        tel: true,
+        municipio: true,
+        cnpj: true,
+        insc: true,
+        email: true,
+      },
+    }),
+  );
   const setPedidoField = useCallback((key, value) => {
     setPedido((p) => ({ ...p, [key]: value }));
   }, []);
@@ -199,129 +219,145 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Receituário ----------------
-  const [receituario, setReceituario] = useState({
-    clinica: "",
-    profissional: "",
-    registro: "",
-    especialidade: "",
-    endereco: "",
-    telefone: "",
-    email: "",
-    linhas: 9,
-    numerar: false,
-    numStart: 1,
-    numEnd: 50,
-  });
+  const [receituario, setReceituario] = useState(() =>
+    hydrated("receituario", {
+      clinica: "",
+      profissional: "",
+      registro: "",
+      especialidade: "",
+      endereco: "",
+      telefone: "",
+      email: "",
+      linhas: 9,
+      numerar: false,
+      numStart: 1,
+      numEnd: 50,
+    }),
+  );
   const setReceituarioField = useCallback((key, value) => {
     setReceituario((r) => ({ ...r, [key]: value }));
   }, []);
 
   // ---------------- Receita culinária ----------------
-  const [receita, setReceita] = useState({
-    titulo: "",
-    categoria: "",
-    dificuldade: "Fácil",
-    porcoes: "",
-    tempoPreparo: "",
-    tempoCoccao: "",
-    autor: "",
-    linhasIngredientes: 6,
-    linhasPreparo: 11,
-  });
+  const [receita, setReceita] = useState(() =>
+    hydrated("receita", {
+      titulo: "",
+      categoria: "",
+      dificuldade: "Fácil",
+      porcoes: "",
+      tempoPreparo: "",
+      tempoCoccao: "",
+      autor: "",
+      linhasIngredientes: 6,
+      linhasPreparo: 11,
+    }),
+  );
   const setReceitaField = useCallback((key, value) => {
     setReceita((r) => ({ ...r, [key]: value }));
   }, []);
 
   // ---------------- Ordem de Serviço ----------------
-  const [ordemServico, setOrdemServico] = useState({
-    empresa: "",
-    slogan: "",
-    numStart: 1,
-    numEnd: 50,
-    prefix: "OS-",
-    digits: 4,
-    prazo: "",
-    garantia: "90 dias",
-    rodape: "",
-    numerar: true, // <-- NOVO
-  });
+  const [ordemServico, setOrdemServico] = useState(() =>
+    hydrated("ordemServico", {
+      empresa: "",
+      slogan: "",
+      numStart: 1,
+      numEnd: 50,
+      prefix: "OS-",
+      digits: 4,
+      prazo: "",
+      garantia: "90 dias",
+      rodape: "",
+      numerar: true, // <-- NOVO
+    }),
+  );
   const setOrdemServicoField = useCallback((key, value) => {
     setOrdemServico((o) => ({ ...o, [key]: value }));
   }, []);
 
   // ---------------- Recibo de Pagamento ----------------
-  const [recibo, setRecibo] = useState({
-    empresa: "",
-    slogan: "",
-    numStart: 1,
-    numEnd: 50,
-    prefix: "REC-",
-    digits: 4,
-    referenteA: "",
-    rodape: "",
-    numerar: true, // <-- NOVO
-  });
+  const [recibo, setRecibo] = useState(() =>
+    hydrated("recibo", {
+      empresa: "",
+      slogan: "",
+      numStart: 1,
+      numEnd: 50,
+      prefix: "REC-",
+      digits: 4,
+      referenteA: "",
+      rodape: "",
+      numerar: true, // <-- NOVO
+    }),
+  );
   const setReciboField = useCallback((key, value) => {
     setRecibo((r) => ({ ...r, [key]: value }));
   }, []);
 
   // ---------------- Comandas ----------------
-  const [comanda, setComanda] = useState({
-    empresa: "",
-    slogan: "",
-    numStart: 1,
-    numEnd: 100,
-    prefix: "",
-    digits: 3,
-    linhas: 10,
-    rodape: "",
-    numerar: true, // <-- NOVO
-  });
+  const [comanda, setComanda] = useState(() =>
+    hydrated("comanda", {
+      empresa: "",
+      slogan: "",
+      numStart: 1,
+      numEnd: 100,
+      prefix: "",
+      digits: 3,
+      linhas: 10,
+      rodape: "",
+      numerar: true, // <-- NOVO
+    }),
+  );
   const setComandaField = useCallback((key, value) => {
     setComanda((c) => ({ ...c, [key]: value }));
   }, []);
 
   // ---------------- Reserva / Agendamento ----------------
-  const [reserva, setReserva] = useState({
-    empresa: "",
-    slogan: "",
-    numStart: 1,
-    numEnd: 50,
-    prefix: "",
-    digits: 3,
-    politica: "",
-    rodape: "",
-    numerar: true, // <-- NOVO
-  });
+  const [reserva, setReserva] = useState(() =>
+    hydrated("reserva", {
+      empresa: "",
+      slogan: "",
+      numStart: 1,
+      numEnd: 50,
+      prefix: "",
+      digits: 3,
+      politica: "",
+      rodape: "",
+      numerar: true, // <-- NOVO
+    }),
+  );
   const setReservaField = useCallback((key, value) => {
     setReserva((r) => ({ ...r, [key]: value }));
   }, []);
 
   // ---------------- Vale-Presente / Voucher ----------------
-  const [valePresente, setValePresente] = useState({
-    empresa: "",
-    slogan: "",
-    numStart: 1,
-    numEnd: 50,
-    prefix: "VP-",
-    digits: 4,
-    validade: "",
-    mensagemPadrao: "",
-    numerar: true, // <-- NOVO
-  });
+  const [valePresente, setValePresente] = useState(() =>
+    hydrated("valePresente", {
+      empresa: "",
+      slogan: "",
+      numStart: 1,
+      numEnd: 50,
+      prefix: "VP-",
+      digits: 4,
+      validade: "",
+      mensagemPadrao: "",
+      numerar: true, // <-- NOVO
+    }),
+  );
   const setValePresenteField = useCallback((key, value) => {
     setValePresente((v) => ({ ...v, [key]: value }));
   }, []);
 
   // ---------------- Bingo ----------------
-  const [bingo, setBingo] = useState({
-    titulo: "Noite de Bingo",
-    subtitulo: "",
-    quantidade: 4,
-    freeSpace: true,
-    porPagina: 4,
-    numerar: true, // <-- NOVO
-  });
+  const [bingo, setBingo] = useState(() =>
+    hydrated("bingo", {
+      titulo: "Noite de Bingo",
+      subtitulo: "",
+      quantidade: 4,
+      freeSpace: true,
+      porPagina: 4,
+      numerar: true, // <-- NOVO
+    }),
+  );
   const setBingoField = useCallback((key, value) => {
     setBingo((b) => ({ ...b, [key]: value }));
   }, []);
@@ -332,7 +368,7 @@ export function useTalonarioBuilder() {
   }, [bingo.quantidade]);
 
   const [bingoCards, setBingoCards] = useState(() =>
-    generateBingoCards(4, true),
+    hydrated("bingoCards", generateBingoCards(4, true)),
   );
 
   // Ajusta a quantidade de cartelas geradas sem re-sortear as que já
@@ -355,17 +391,19 @@ export function useTalonarioBuilder() {
   }, [bingoQty, bingo.freeSpace]);
 
   // ---------------- Logos ----------------
-  const [logos, setLogos] = useState({
-    pedido: null,
-    receituario: null,
-    receita: null,
-    bingo: null,
-    ordemServico: null,
-    recibo: null,
-    comanda: null,
-    reserva: null,
-    valePresente: null,
-  });
+  const [logos, setLogos] = useState(() =>
+    hydrated("logos", {
+      pedido: null,
+      receituario: null,
+      receita: null,
+      bingo: null,
+      ordemServico: null,
+      recibo: null,
+      comanda: null,
+      reserva: null,
+      valePresente: null,
+    }),
+  );
 
   const handleLogoUpload = useCallback(async (who, file) => {
     if (!file) return;
@@ -382,13 +420,15 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Marca d'água ----------------
-  const [watermark, setWatermark] = useState({
-    on: false,
-    type: "text",
-    text: "AMOSTRA",
-    opacity: 12,
-    size: 220,
-  });
+  const [watermark, setWatermark] = useState(() =>
+    hydrated("watermark", {
+      on: false,
+      type: "text",
+      text: "AMOSTRA",
+      opacity: 12,
+      size: 220,
+    }),
+  );
   const setWatermarkField = useCallback((key, value) => {
     setWatermark((w) => ({ ...w, [key]: value }));
   }, []);
@@ -667,6 +707,12 @@ export function useTalonarioBuilder() {
 
   useEffect(() => {
     if (!printBatch) return;
+    // No modo backend (Puppeteer gerando PDF via fila), window.__PDF_HEADLESS__
+    // foi setado por hydrateFromServer(). Não chamamos window.print() (não
+    // existe diálogo de impressão real ali) nem limpamos o printBatch — o
+    // conteúdo precisa continuar no DOM até o Puppeteer terminar de gerar
+    // o PDF (ver usePdfReadySignal em TalonarioPage.jsx).
+    if (typeof window !== "undefined" && window.__PDF_HEADLESS__) return;
     printTimeoutRef.current = setTimeout(() => {
       window.print();
       setPrintBatch(null);

@@ -6,6 +6,8 @@
 // destaque de cada aba. A numeração automática e a marca d'água são
 // geradas em lote na hora de imprimir.
 
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import {
   MdReceiptLong,
   MdMedicalServices,
@@ -17,6 +19,7 @@ import {
   MdRoomService,
   MdEventAvailable,
   MdCardGiftcard,
+  MdCloudDownload,
 } from "react-icons/md";
 import {
   useTalonarioBuilder,
@@ -47,6 +50,8 @@ import {
   ColorPanel,
   UploadBox,
 } from "../components/talonario/TalonarioPanels";
+import { usePdfReadySignal } from "../hooks/usePdfReadySignal";
+import { captureTalonarioState } from "../utils/talonarioStateSnapshot";
 import "../styles/talonario.css";
 
 // Agrupa a lista de cartelas em blocos do tamanho escolhido (cartelas por
@@ -72,6 +77,147 @@ const TABS = [
 export default function TalonarioPage() {
   const t = useTalonarioBuilder();
   const accent = t.accents;
+
+  const printBatchRef = useRef(null);
+  const [downloading, setDownloading] = useState(false);
+
+  // ============================================================
+  // Modo backend (Puppeteer): quando esta aba é aberta pela fila de
+  // geração de PDF (?printing=true&stateKey=...), hydrateFromServer() já
+  // rodou ANTES do React montar e populou window.__TALONARIO_HYDRATE__
+  // (ver src/hooks/useTalonarioBuilder.js) — então activeTab e todos os
+  // campos já nascem com os valores que o usuário tinha na tela dele.
+  // Só falta disparar a geração do lote de impressão, uma vez.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("printing") !== "true" || !params.get("stateKey")) return;
+    t.handlePrint();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const isHeadless =
+    typeof window !== "undefined" && window.__PDF_HEADLESS__ === true;
+
+  // Sinaliza para o Puppeteer que o lote (.tal-print-page) terminou de
+  // ser montado no DOM — mesma lógica usada nas agendas, só que
+  // observando as páginas do talão em vez de .page-break.
+  usePdfReadySignal(printBatchRef, {
+    printing: isHeadless,
+    ready: Boolean(t.printBatch),
+    pageSelector: ".tal-print-page",
+  });
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function gerarTalonarioPDFViaBackend() {
+    if (downloading) return;
+    setDownloading(true);
+    const toastId = toast.loading("Entrando na fila...");
+    try {
+      const state = captureTalonarioState(t);
+      const tabLabel =
+        TABS.find((tb) => tb.id === t.activeTab)?.label || t.activeTab;
+
+      const enqueueRes = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: "talonario",
+          template: t.activeTab, // reaproveita o mesmo campo para nome do arquivo
+          selectedDate: new Date().toISOString().slice(0, 10),
+          state,
+        }),
+      });
+
+      if (!enqueueRes.ok) {
+        let errorMsg = "Erro ao enfileirar a geração do PDF";
+        try {
+          const errorData = await enqueueRes.json();
+          errorMsg = errorData.error || errorMsg;
+        } catch (_) {
+          errorMsg = enqueueRes.statusText || errorMsg;
+        }
+        toast.error(errorMsg, { id: toastId });
+        return;
+      }
+
+      const { jobId } = await enqueueRes.json();
+
+      const startedAt = Date.now();
+      const TIMEOUT_MS = 6 * 60 * 1000;
+
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        if (Date.now() - startedAt > TIMEOUT_MS) {
+          toast.error("Demorou demais para gerar o PDF. Tente novamente.", {
+            id: toastId,
+          });
+          return;
+        }
+
+        const statusRes = await fetch(`/api/status/${jobId}`);
+        if (!statusRes.ok) {
+          toast.error("Não foi possível consultar o status do PDF.", {
+            id: toastId,
+          });
+          return;
+        }
+        const statusData = await statusRes.json();
+
+        if (statusData.status === "waiting" || statusData.status === "delayed") {
+          toast.loading(
+            statusData.position
+              ? `Na fila — posição ${statusData.position}...`
+              : "Na fila...",
+            { id: toastId },
+          );
+        } else if (statusData.status === "active") {
+          toast.loading("Gerando seu PDF...", { id: toastId });
+        } else if (statusData.status === "completed") {
+          break;
+        } else if (statusData.status === "failed") {
+          toast.error(statusData.error || "Falha ao gerar o PDF", {
+            id: toastId,
+          });
+          return;
+        }
+
+        await sleep(1500);
+      }
+
+      const resultRes = await fetch(`/api/result/${jobId}`);
+      if (!resultRes.ok) {
+        let errorMsg = "Erro ao baixar o PDF gerado";
+        try {
+          const errorData = await resultRes.json();
+          errorMsg = errorData.error || errorMsg;
+        } catch (_) {
+          errorMsg = resultRes.statusText || errorMsg;
+        }
+        toast.error(errorMsg, { id: toastId });
+        return;
+      }
+
+      const blob = await resultRes.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `talao-${tabLabel.toLowerCase().replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success("PDF baixado com sucesso!", { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro de conexão com o servidor.", { id: toastId });
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   const cssVars = {
     "--tal-accent": accent.accent,
@@ -413,6 +559,24 @@ export default function TalonarioPage() {
               Na janela de impressão, escolha <b>"Salvar como PDF"</b> para
               baixar o arquivo pronto.
             </p>
+
+            <button
+              onClick={gerarTalonarioPDFViaBackend}
+              disabled={downloading}
+              className="w-full font-semibold text-[13.5px] rounded-xl py-2.5 mt-2.5 flex items-center justify-center gap-2 border transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{
+                borderColor: "var(--tal-accent)",
+                color: "var(--tal-accent-dark)",
+                background: "var(--tal-accent-light)",
+              }}
+            >
+              <MdCloudDownload />
+              {downloading ? "Gerando..." : "Baixar PDF"}
+            </button>
+            <p className="text-[11px] text-[#8a9694] text-center mt-2 leading-relaxed">
+              Gera o PDF no servidor e baixa direto — útil em celulares ou
+              quando a impressão do navegador não funciona bem.
+            </p>
           </div>
         </div>
 
@@ -575,7 +739,7 @@ export default function TalonarioPage() {
 
       {/* ---------- lote de impressão (só aparece no @media print) ---------- */}
       {t.printBatch && (
-        <div className="hidden print:block">
+        <div className="hidden print:block" ref={printBatchRef}>
           {t.printBatch.tab === "pedido" &&
             t.printBatch.items.map((n) => (
               <div key={n} className="tal-print-page">

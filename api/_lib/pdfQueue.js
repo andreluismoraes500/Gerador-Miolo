@@ -18,6 +18,7 @@ export const stateByJobId = new Map();
 
 async function processJob(data, job) {
   const {
+    kind = "agenda",
     template,
     selectedDate,
     customName,
@@ -27,22 +28,37 @@ async function processJob(data, job) {
     filename,
   } = data;
 
-  const previewUrl = new URL("/preview", FRONTEND_URL);
-  previewUrl.searchParams.set("template", template);
-  previewUrl.searchParams.set("selectedDate", selectedDate);
-  previewUrl.searchParams.set("customName", customName || "");
-  previewUrl.searchParams.set("footerType", footerType || "default");
-  previewUrl.searchParams.set(
-    "businessProfileId",
-    businessProfileId || "default",
-  );
-  previewUrl.searchParams.set("builderMode", builderMode ? "true" : "false");
+  // Agenda usa /preview; Talonário usa /talonario — cada um com sua
+  // própria página e sua própria lógica de "pronto para imprimir" (ver
+  // usePdfReadySignal em PreviewPage.jsx / TalonarioPage.jsx).
+  const basePath = kind === "talonario" ? "/talonario" : "/preview";
+  const previewUrl = new URL(basePath, FRONTEND_URL);
+
+  if (kind === "talonario") {
+    // O Talonário não precisa desses parâmetros de agenda — só do
+    // stateKey, que já traz activeTab/pedido/receituario/etc. via
+    // window.__TALONARIO_HYDRATE__ (ver hydrateFromServer.js).
+  } else {
+    previewUrl.searchParams.set("template", template);
+    previewUrl.searchParams.set("selectedDate", selectedDate);
+    previewUrl.searchParams.set("customName", customName || "");
+    previewUrl.searchParams.set("footerType", footerType || "default");
+    previewUrl.searchParams.set(
+      "businessProfileId",
+      businessProfileId || "default",
+    );
+    previewUrl.searchParams.set(
+      "builderMode",
+      builderMode ? "true" : "false",
+    );
+  }
+
   previewUrl.searchParams.set("stateKey", job.id);
   previewUrl.searchParams.set("printing", "true");
   previewUrl.searchParams.set("_t", Date.now().toString());
 
   console.log(
-    `[pdfQueue] Job ${job.id} — gerando "${filename}" a partir de ${previewUrl.toString()}`,
+    `[pdfQueue] Job ${job.id} (${kind}) — gerando "${filename}" a partir de ${previewUrl.toString()}`,
   );
 
   try {
@@ -64,9 +80,14 @@ export const pdfQueue = getPdfQueue(processJob);
 
 // Wrapper que registra o "retrato" do estado ANTES de enfileirar, para
 // que ele já esteja disponível em /api/state/:id mesmo enquanto o job
-// ainda está "waiting" na fila.
+// ainda está "waiting" na fila. Guarda também o "kind", para
+// hydrateFromServer.js saber como aplicar o estado (localStorage para
+// agenda, window.__TALONARIO_HYDRATE__ para talonário).
 export function enqueuePdfJob(data) {
   const job = pdfQueue.add(data);
-  stateByJobId.set(job.id, data.state || {});
+  stateByJobId.set(job.id, {
+    kind: data.kind || "agenda",
+    state: data.state || {},
+  });
   return job;
 }

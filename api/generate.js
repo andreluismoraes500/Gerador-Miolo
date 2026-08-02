@@ -72,7 +72,20 @@ const ALLOWED_TEMPLATES = [
   "semData",
 ];
 
-// Tamanho máximo aceito para o "retrato" do localStorage (logo, marca
+// Abas válidas do Talonário (usadas quando kind === "talonario")
+const TALONARIO_TABS = [
+  "pedido",
+  "receituario",
+  "receita",
+  "bingo",
+  "ordemServico",
+  "recibo",
+  "comanda",
+  "reserva",
+  "valePresente",
+];
+
+// Tamanho máximo aceito para o "retrato" de estado enviado (logo, marca
 // d'água e fundo em base64 podem ser grandes). 15MB é generoso o
 // suficiente para imagens normais sem deixar o endpoint aberto a abuso.
 const MAX_STATE_BYTES = 15 * 1024 * 1024;
@@ -87,6 +100,7 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST");
 
   const {
+    kind = "agenda",
     template,
     selectedDate,
     customName = "",
@@ -96,14 +110,22 @@ export default async function handler(req, res) {
     state = {},
   } = req.body || {};
 
+  if (!["agenda", "talonario"].includes(kind)) {
+    return res.status(400).json({ error: "kind inválido" });
+  }
+
   if (!template || !selectedDate) {
     return res
       .status(400)
       .json({ error: "template e selectedDate são obrigatórios" });
   }
 
-  if (!ALLOWED_TEMPLATES.includes(template)) {
+  if (kind === "agenda" && !ALLOWED_TEMPLATES.includes(template)) {
     return res.status(400).json({ error: "Template inválido" });
+  }
+
+  if (kind === "talonario" && !TALONARIO_TABS.includes(template)) {
+    return res.status(400).json({ error: "Aba de talonário inválida" });
   }
 
   const stateSize = Buffer.byteLength(JSON.stringify(state || {}), "utf8");
@@ -116,10 +138,14 @@ export default async function handler(req, res) {
 
   const safeTemplate = sanitizeFilename(template);
   const safeDate = sanitizeFilename(selectedDate);
-  const filename = `agenda-${safeTemplate}-${safeDate}.pdf`;
+  const filename =
+    kind === "talonario"
+      ? `talao-${safeTemplate}-${safeDate}.pdf`
+      : `agenda-${safeTemplate}-${safeDate}.pdf`;
 
   try {
     const job = enqueuePdfJob({
+      kind,
       template,
       selectedDate,
       customName,
@@ -127,10 +153,12 @@ export default async function handler(req, res) {
       businessProfileId,
       builderMode: Boolean(builderMode),
       filename,
-      // "Foto" completa do localStorage do usuário (ver
-      // src/utils/agendaStateSnapshot.js) — é isso que faz o PDF do
-      // backend sair IDÊNTICO ao que a pessoa vê/imprime no navegador,
-      // incluindo Montagem Completa, logo, cores, combo escolhido etc.
+      // "Foto" do estado do usuário — no caso de agenda, é o localStorage
+      // (template, Montagem Completa, logo, cores etc. — ver
+      // src/utils/agendaStateSnapshot.js); no caso de talonário, é o
+      // retrato do próprio hook useTalonarioBuilder (ver
+      // src/utils/talonarioStateSnapshot.js). É isso que faz o PDF do
+      // backend sair IDÊNTICO ao que a pessoa vê/imprime no navegador.
       state,
     });
 

@@ -21,7 +21,10 @@ const STABLE_MS = 400; // tempo sem mutações para considerar "estável"
 const MAX_WAIT_MS = 45000; // teto de segurança (não trava para sempre)
 const POLL_MS = 100;
 
-export function usePdfReadySignal(containerRef, { printing, ready }) {
+export function usePdfReadySignal(
+  containerRef,
+  { printing, ready, pageSelector = ".page-break" },
+) {
   useEffect(() => {
     if (!printing || !ready) return;
     if (!containerRef.current) return;
@@ -68,7 +71,7 @@ export function usePdfReadySignal(containerRef, { printing, ready }) {
           requestAnimationFrame(() => {
             if (!containerRef.current) return;
             const pageBreaks =
-              containerRef.current.querySelectorAll(".page-break");
+              containerRef.current.querySelectorAll(pageSelector);
             const count = pageBreaks.length;
             window.__PDF_READY__ = true;
             window.__PDF_PAGE_COUNT__ = count;
