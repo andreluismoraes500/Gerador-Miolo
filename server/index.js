@@ -67,3 +67,17 @@ app.listen(PORT, () => {
     `   Fila de PDF em memória, processando neste mesmo processo (sem Redis, sem worker separado).`,
   );
 });
+
+// Rede de segurança: como este mesmo processo serve a API E gera os PDFs
+// (Puppeteer/Chromium), um erro raro que escape do try/catch da fila
+// (ex: um crash nativo do Chromium por falta de memória) não deveria
+// derrubar o servidor inteiro — isso é o que causa os 502 Bad Gateway
+// prolongados em produção (o serviço fica fora do ar até o host
+// reiniciar o container). Aqui só registramos o erro e seguimos rodando;
+// o job em questão já terá sido marcado como "failed" pela fila.
+process.on("unhandledRejection", (reason) => {
+  console.error("[server] unhandledRejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("[server] uncaughtException:", err);
+});

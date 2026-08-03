@@ -17,7 +17,25 @@ let browserPromise = null;
 async function launchBrowser() {
   return puppeteer.launch({
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      // ESSENCIAL em containers (Render, Railway, Docker em geral): por
+      // padrão o /dev/shm vem limitado a ~64MB nesses ambientes, e o
+      // Chromium usa memória compartilhada pesadamente pra renderizar —
+      // sem essa flag ele estoura e derruba o processo inteiro (sintoma:
+      // funciona liso local, mas em produção as requisições começam a
+      // voltar 502 porque o servidor caiu e está reiniciando). Com a
+      // flag, o Chromium usa /tmp em vez de /dev/shm.
+      "--disable-dev-shm-usage",
+      // Não há GPU disponível nesses containers; desabilitar evita o
+      // Chromium gastar tempo/memória tentando inicializar aceleração
+      // gráfica que não existe.
+      "--disable-gpu",
+      // Reduz uso de memória evitando processos "zygote" extras — ajuda
+      // em planos com pouca RAM (ex: Render free tier, 512MB).
+      "--no-zygote",
+    ],
   });
 }
 

@@ -92,6 +92,29 @@ sobe o Express servindo tudo:
 Isso é tudo — não precisa configurar Redis, worker separado, nem dividir
 front-end e backend em serviços diferentes.
 
+### 502 Bad Gateway em `/api/status/:id` (funciona local, quebra no Render/Railway/Docker)
+
+Sintoma: tudo funciona liso no seu computador, mas em produção, depois de
+pedir um PDF, o polling de status começa a voltar `502 Bad Gateway`. Isso
+não é erro de código — é o processo Node caindo (por isso o proxy do
+host não acha ninguém pra responder) e depois voltando sozinho.
+
+Causa quase sempre: o Chromium do Puppeteer usa `/dev/shm` (memória
+compartilhada) pesadamente pra renderizar, e containers (Render, Docker
+em geral) limitam `/dev/shm` a uns 64MB por padrão — bem pouco pro
+Chromium, que trava o processo inteiro. Isso já está corrigido em
+`api/_lib/renderer.js` (flag `--disable-dev-shm-usage`, entre outras).
+
+Se mesmo assim continuar acontecendo depois de atualizar esse arquivo,
+o próximo suspeito é **memória insuficiente do plano** — o Chromium
+sozinho já usa bastante RAM, e o plano gratuito do Render (512MB) pode
+não sobrar espaço nenhum pra ele depois do Node e do build do
+front-end. Nesse caso, os logs do serviço no painel do Render vão
+mostrar algo como "Out of memory" ou o processo reiniciando sozinho logo
+depois do `[renderer]` começar a gerar um PDF. Solução: subir de plano
+(mais RAM) ou mover só o Puppeteer para um host com mais memória
+disponível.
+
 ### E se eu ainda quiser usar a Vercel para alguma coisa?
 
 Dá para usar a Vercel só para o front-end estático, mas nesse caso o
