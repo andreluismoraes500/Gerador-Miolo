@@ -188,3 +188,34 @@
   overflow: visible !important;
   display: inline-block !important;
 }
+
+.printable-page {
+  position: relative;
+}
+
+.printable-page {
+  isolation: isolate;
+}
+
+.printable-page > [aria-hidden="true"] {
+  z-index: 0;
+}
+
+.printable-page > *:not([aria-hidden="true"]) {
+  position: relative;
+  z-index: 1;
+}
+
+
+.printable-page {
+  isolation: isolate;
+}
+
+.printable-page > [aria-hidden="true"] {
+  z-index: 0;
+}
+
+.printable-page > *:not([aria-hidden="true"]) {
+  position: relative;
+  z-index: 1;
+}
