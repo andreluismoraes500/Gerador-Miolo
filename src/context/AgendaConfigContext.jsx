@@ -81,6 +81,18 @@ export function AgendaConfigProvider({ children }) {
     "#1e293b",
   );
 
+  // --- COR DO MÊS/ANO NO CABEÇALHO ---
+  const [mesColor, setMesColor] = usePersistedState(
+    "agenda-mesColor",
+    "#9ca3af",
+  );
+
+  // --- COR DO NOME DO DIA DA SEMANA ---
+  const [diaSemanaColor, setDiaSemanaColor] = usePersistedState(
+    "agenda-diaSemanaColor",
+    "#000000",
+  );
+
   // --- RÓTULOS DAS COLUNAS ---
   const [colunaHora, setColunaHora] = usePersistedState(
     "agenda-colunaHora",
@@ -144,6 +156,8 @@ export function AgendaConfigProvider({ children }) {
       numeroDia: numeroDiaColor,
       hora: horaColor,
       tableText: tableTextColor,
+      mes: mesColor,
+      diaSemana: diaSemanaColor,
     }),
     [
       primaryColor,
@@ -157,6 +171,8 @@ export function AgendaConfigProvider({ children }) {
       numeroDiaColor,
       horaColor,
       tableTextColor,
+      mesColor,
+      diaSemanaColor,
     ],
   );
 
@@ -189,6 +205,10 @@ export function AgendaConfigProvider({ children }) {
       setHoraColor,
       tableTextColor,
       setTableTextColor,
+      mesColor,
+      setMesColor,
+      diaSemanaColor,
+      setDiaSemanaColor,
       colunaHora,
       setColunaHora,
       colunaCliente,
@@ -251,6 +271,10 @@ export function AgendaConfigProvider({ children }) {
       setHoraColor,
       tableTextColor,
       setTableTextColor,
+      mesColor,
+      setMesColor,
+      diaSemanaColor,
+      setDiaSemanaColor,
       colunaHora,
       setColunaHora,
       colunaCliente,

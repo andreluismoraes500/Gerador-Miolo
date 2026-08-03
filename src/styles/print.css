@@ -8,6 +8,29 @@
 
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ */
+/* Fundo de página / marca d'água (Background.jsx e Watermark.jsx)     */
+/* ------------------------------------------------------------------ */
+/* São position:absolute sem z-index. Um elemento absolute se posiciona */
+/* em relação ao ancestral posicionado mais próximo — sem isso o fundo  */
+/* vazava para fora da página (cobrindo até a tela inteira do          */
+/* navegador). E, sem contexto de empilhamento, elementos absolute      */
+/* pintam ACIMA de elementos estáticos mesmo vindo antes no HTML, por   */
+/* isso o fundo em intensidade alta cobria botões, linhas e dias.       */
+.printable-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.printable-page > [aria-hidden="true"] {
+  z-index: 0;
+}
+
+.printable-page > *:not([aria-hidden="true"]) {
+  position: relative;
+  z-index: 1;
+}
+
 @media print {
   @page {
     size: A4 portrait;
@@ -187,35 +210,4 @@
   font-family: "Shippori Mincho", "Noto Serif JP", serif;
   overflow: visible !important;
   display: inline-block !important;
-}
-
-.printable-page {
-  position: relative;
-}
-
-.printable-page {
-  isolation: isolate;
-}
-
-.printable-page > [aria-hidden="true"] {
-  z-index: 0;
-}
-
-.printable-page > *:not([aria-hidden="true"]) {
-  position: relative;
-  z-index: 1;
-}
-
-
-.printable-page {
-  isolation: isolate;
-}
-
-.printable-page > [aria-hidden="true"] {
-  z-index: 0;
-}
-
-.printable-page > *:not([aria-hidden="true"]) {
-  position: relative;
-  z-index: 1;
 }

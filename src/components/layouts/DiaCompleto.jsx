@@ -55,6 +55,9 @@ export default function DiaCompleto({
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondaryColor = customColors.secondary || tema.border || "#cbd5e1";
   const numeroDiaColor = customColors.numeroDia || "#000000";
+  const mesColor = customColors.mes || "#9ca3af";
+  const diaSemanaColor = customColors.diaSemana || primaryColor;
+  const diaKey = data.toISOString().split("T")[0];
 
   // Obtém a cor dos horários do contexto (aplicada também aos textos da tabela)
   const {
@@ -112,13 +115,16 @@ export default function DiaCompleto({
                       {perfil.icon} {perfil.nome}
                     </span>
                   )}
-                  <h2 style={{ color: primaryColor }}>
+                  <h2 style={{ color: diaSemanaColor }}>
                     {data.toLocaleDateString("pt-BR", {
                       weekday: "long",
                     })}
                   </h2>
                 </div>
-                <p className="text-[11px] uppercase tracking-wide text-gray-400 font-sans font-semibold">
+                <p
+                  className="text-[11px] uppercase tracking-wide font-sans font-semibold"
+                  style={{ color: mesColor }}
+                >
                   {data.toLocaleDateString("pt-BR", {
                     month: "long",
                     year: "numeric",
@@ -128,24 +134,20 @@ export default function DiaCompleto({
             </div>
           </div>
 
-          <div className="flex items-baseline gap-4 text-right">
-            <div className="flex flex-col justify-end text-[9px] uppercase tracking-wider font-semibold text-gray-400 space-y-1 mb-1">
+          <div className="flex items-start gap-4 text-right">
+            <div className="flex flex-col items-end justify-start text-[9px] uppercase tracking-wider font-semibold text-gray-400 space-y-1 mb-1 max-w-[46mm]">
               {feriado && (
-                <span className="text-black border border-black px-1.5 py-0.5 rounded-sm flex items-center gap-1 bg-gray-50 max-w-[46mm] whitespace-nowrap overflow-hidden text-ellipsis">
+                <span className="text-black border border-black px-1.5 py-0.5 rounded-sm flex items-center gap-1 bg-gray-50 whitespace-normal leading-tight text-right">
                   <MdStarBorder className="w-3 h-3 text-amber-500 shrink-0" />{" "}
-                  <span className="overflow-hidden text-ellipsis">
-                    {feriado.nome}
-                  </span>
+                  <span>{feriado.nome}</span>
                 </span>
               )}
               {comemorativa && !feriado && (
                 <span
-                  className={`italic font-medium flex items-center justify-end gap-1 text-gray-500 max-w-[46mm] whitespace-nowrap overflow-hidden text-ellipsis ${tema.bodyFont}`}
+                  className={`italic font-medium flex items-center justify-end gap-1 text-gray-500 whitespace-normal leading-tight text-right ${tema.bodyFont}`}
                 >
                   <MdPushPin className="w-2.5 h-2.5 text-gray-400 shrink-0" />{" "}
-                  <span className="overflow-hidden text-ellipsis">
-                    {comemorativa}
-                  </span>
+                  <span>{comemorativa}</span>
                 </span>
               )}
             </div>
@@ -300,7 +302,7 @@ export default function DiaCompleto({
                     style={{ borderRightColor: secondaryColor }}
                   >
                     <EditableField
-                      fieldKey={`${data.toISOString().split("T")[0]}-${hora}-cliente`}
+                      fieldKey={`${diaKey}-${hora}-cliente`}
                       className="w-full border-gray-300 text-sm"
                       style={{ color: horaColor }} // aplica a cor ao texto do campo
                       placeholder=""
@@ -311,7 +313,7 @@ export default function DiaCompleto({
                     style={{ borderRightColor: secondaryColor }}
                   >
                     <EditableField
-                      fieldKey={`${data.toISOString().split("T")[0]}-${hora}-servico`}
+                      fieldKey={`${diaKey}-${hora}-servico`}
                       className="w-full border-gray-300 text-sm"
                       style={{ color: horaColor }}
                       placeholder=""
@@ -322,7 +324,7 @@ export default function DiaCompleto({
                     style={{ borderRightColor: secondaryColor }}
                   >
                     <EditableField
-                      fieldKey={`${data.toISOString().split("T")[0]}-${hora}-valor`}
+                      fieldKey={`${diaKey}-${hora}-valor`}
                       className="w-full text-sm text-right"
                       style={{ color: horaColor }} // valor com a mesma cor dos horários
                       placeholder=""
@@ -356,6 +358,51 @@ export default function DiaCompleto({
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Resumo do dia */}
+        <div
+          className="flex items-center justify-end gap-6 border-t-2 pt-2 mt-2 shrink-0 print:pt-1.5 print:mt-1.5"
+          style={{ borderTopColor: primaryColor }}
+        >
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[8px] uppercase tracking-widest font-bold text-gray-500">
+              Total Entrada
+            </span>
+            <EditableField
+              fieldKey={`${diaKey}-total-entrada`}
+              className="w-16 text-[11px] text-right border-b"
+              style={{ borderColor: secondaryColor, color: horaColor }}
+              placeholder="R$ 0,00"
+            />
+          </div>
+
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[8px] uppercase tracking-widest font-bold text-gray-500">
+              Total Saída
+            </span>
+            <EditableField
+              fieldKey={`${diaKey}-total-saida`}
+              className="w-16 text-[11px] text-right border-b"
+              style={{ borderColor: secondaryColor, color: horaColor }}
+              placeholder="R$ 0,00"
+            />
+          </div>
+
+          <div className="flex items-baseline gap-1.5">
+            <span
+              className="text-[8.5px] uppercase tracking-widest font-extrabold"
+              style={{ color: primaryColor }}
+            >
+              Total do Dia
+            </span>
+            <EditableField
+              fieldKey={`${diaKey}-total-dia`}
+              className="w-20 text-[13px] text-right font-bold border-b-2"
+              style={{ borderColor: primaryColor, color: primaryColor }}
+              placeholder="R$ 0,00"
+            />
+          </div>
         </div>
       </div>
       <Footer

@@ -51,6 +51,8 @@ export default function DiarioFloralLayout({
   const lineColor =
     customColors.secondary || tema.colors?.secondary || "#dfe7ea";
   const numeroDiaColor = customColors.numeroDia || "#1e293b"; // <-- NOVO
+  const mesColor = customColors.mes || primaryColor;
+  const diaSemanaColor = customColors.diaSemana || "#9ca3af";
 
   const palette = tema.floralPalette || undefined;
 
@@ -83,11 +85,14 @@ export default function DiarioFloralLayout({
           <div className="flex flex-col items-end text-right pt-0.5">
             <span
               className="text-4xl leading-none capitalize"
-              style={{ fontFamily: cursiveFont, color: primaryColor }}
+              style={{ fontFamily: cursiveFont, color: mesColor }}
             >
               {mesNome}
             </span>
-            <span className="text-[10px] tracking-[0.2em] uppercase text-gray-400 mt-1">
+            <span
+              className="text-[10px] tracking-[0.2em] uppercase mt-1"
+              style={{ color: diaSemanaColor }}
+            >
               {diaSemana}
             </span>
             {feriado && (

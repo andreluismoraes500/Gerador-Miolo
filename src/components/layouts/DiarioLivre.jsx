@@ -43,6 +43,8 @@ export default function DiarioLivre({
   const primaryColor = customColors.primary || tema.text || "#000000";
   const secondary = customColors.secondary || tema.border || "#cbd5e1";
   const numeroDiaColor = customColors.numeroDia || "#000000"; // <-- NOVO
+  const mesColor = customColors.mes || "#9ca3af";
+  const diaSemanaColor = customColors.diaSemana || primaryColor;
 
   const diaKey = data.toISOString().split("T")[0];
 
@@ -72,10 +74,13 @@ export default function DiarioLivre({
                 style={{ color: primaryColor }}
               />
               <div className="space-y-0.5">
-                <h2 className="capitalize" style={{ color: primaryColor }}>
+                <h2 className="capitalize" style={{ color: diaSemanaColor }}>
                   {data.toLocaleDateString("pt-BR", { weekday: "long" })}
                 </h2>
-                <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
+                <p
+                  className="text-[11px] uppercase tracking-wide font-semibold"
+                  style={{ color: mesColor }}
+                >
                   {data.toLocaleDateString("pt-BR", {
                     month: "long",
                     year: "numeric",

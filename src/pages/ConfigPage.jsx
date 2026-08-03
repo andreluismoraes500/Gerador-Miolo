@@ -204,6 +204,10 @@ export default function ConfigPage() {
     setNumeroDiaColor,
     horaColor,
     setHoraColor,
+    mesColor,
+    setMesColor,
+    diaSemanaColor,
+    setDiaSemanaColor,
     colunaHora,
     setColunaHora,
     colunaCliente,
@@ -302,6 +306,16 @@ export default function ConfigPage() {
                 value: horaColor,
                 onChange: setHoraColor,
                 title: "Horários",
+              },
+              {
+                value: diaSemanaColor,
+                onChange: setDiaSemanaColor,
+                title: "Nome do dia",
+              },
+              {
+                value: mesColor,
+                onChange: setMesColor,
+                title: "Mês/Ano",
               },
             ].map(({ value, onChange, title }) => (
               <div key={title} className="flex flex-col items-center gap-1.5">
