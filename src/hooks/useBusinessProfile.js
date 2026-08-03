@@ -7,8 +7,14 @@ import {
 import { usePersistedState } from "./usePersistedState";
 
 export function useBusinessProfile(initialProfileId = "default") {
+  // IMPORTANTE: a chave precisa começar com "agenda-" — é esse prefixo que
+  // captureAgendaState() (src/utils/agendaStateSnapshot.js) usa para tirar
+  // a "foto" do localStorage enviada ao backend na hora de gerar o PDF.
+  // Antes a chave era "business-profile-id" (sem o prefixo), então o
+  // perfil de negócio escolhido (ex: Advogado) NUNCA chegava ao Puppeteer,
+  // que sempre renderizava com o perfil padrão ("Geral").
   const [profileId, setProfileId] = usePersistedState(
-    "business-profile-id",
+    "agenda-business-profile-id",
     initialProfileId,
   );
 
@@ -43,6 +49,8 @@ export function useBusinessProfile(initialProfileId = "default") {
       setColunaValor,
       setColunaStatus,
       profileOverride = null,
+      setMes = null,
+      setDiaSemana = null,
     ) => {
       const targetProfile = profileOverride || profile;
       if (!targetProfile) return;
@@ -54,6 +62,18 @@ export function useBusinessProfile(initialProfileId = "default") {
         setNumeroDia(targetProfile.colors.numeroDia || "#1e293b");
         setHora(targetProfile.colors.hora || "#000000");
         setTableText(targetProfile.colors.tableText || "#1e293b");
+        // Nome do dia da semana acompanha a cor primária do tema (mesmo
+        // padrão que já era usado nos cabeçalhos antes de existir uma cor
+        // dedicada); mês/ano usa a secundária, que já é pensada para ser
+        // um tom mais discreto/claro em cada perfil.
+        if (setDiaSemana) {
+          setDiaSemana(
+            targetProfile.colors.diaSemana || targetProfile.colors.primary,
+          );
+        }
+        if (setMes) {
+          setMes(targetProfile.colors.mes || targetProfile.colors.secondary);
+        }
       }
       if (targetProfile.labels) {
         setColunaHora(targetProfile.labels.hora || "Hora");

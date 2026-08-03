@@ -50,6 +50,8 @@ export function useAgendaSettings() {
     setNumeroDiaColor,
     setHoraColor,
     setTableTextColor,
+    setMesColor,
+    setDiaSemanaColor,
     setColunaHora,
     setColunaCliente,
     setColunaServico,
@@ -83,6 +85,8 @@ export function useAgendaSettings() {
           setColunaValor,
           setColunaStatus,
           newProfile,
+          setMesColor,
+          setDiaSemanaColor,
         );
         setColorTheme(getThemeId());
         toast.success(`Perfil alterado para ${newProfile.nome}`);

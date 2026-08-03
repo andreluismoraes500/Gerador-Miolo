@@ -39,7 +39,7 @@ export default function Footer({
             color: customColors.primary || temaBase.accent || "#9ca3af",
           }}
         >
-          {displayName}
+          Desenho de Miolo por: {displayName}
         </p>
       </div>
     );

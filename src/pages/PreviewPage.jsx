@@ -122,7 +122,7 @@ export default function PreviewPage() {
           return;
         }
 
-        await sleep(1500);
+        await sleep(700);
       }
 
       const resultRes = await fetch(`/api/result/${jobId}`);

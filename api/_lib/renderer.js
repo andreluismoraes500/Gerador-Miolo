@@ -70,8 +70,14 @@ export async function generatePDFFromUrl(previewUrl) {
       deviceScaleFactor: 1,
     });
 
+    // "domcontentloaded" é suficiente aqui: quem realmente garante que a
+    // página terminou de montar é o waitForFunction(__PDF_READY__) logo
+    // abaixo. Esperar também por "networkidle0" era redundante e podia
+    // adicionar 1-3s de espera extra (precisa de 500ms sem NENHUMA
+    // requisição de rede, o que atrasa à toa quando há qualquer polling
+    // em segundo plano).
     await page.goto(previewUrl, {
-      waitUntil: "networkidle0",
+      waitUntil: "domcontentloaded",
       timeout: 180000,
     });
 
@@ -99,7 +105,7 @@ export async function generatePDFFromUrl(previewUrl) {
       );
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     const pdfBuffer = await page.pdf({
       format: "A4",
