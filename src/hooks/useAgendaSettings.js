@@ -121,6 +121,10 @@ export function useAgendaSettings() {
         setNumeroDiaColor(theme.colors.numeroDia || "#1e293b");
         setHoraColor(theme.colors.hora || "#000000");
         setTableTextColor(theme.colors.tableText || "#1e293b");
+        // Nome do dia da semana acompanha a primária, mês/ano acompanha a
+        // secundária — mesmo padrão usado ao trocar de perfil de negócio.
+        setDiaSemanaColor(theme.colors.diaSemana || theme.colors.primary);
+        setMesColor(theme.colors.mes || theme.colors.secondary);
         if (theme.labels) {
           setColunaHora(theme.labels.hora || "Hora");
           setColunaCliente(theme.labels.cliente || "Cliente");
@@ -135,6 +139,8 @@ export function useAgendaSettings() {
         setNumeroDiaColor("#1e293b");
         setHoraColor("#000000");
         setTableTextColor("#1e293b");
+        setDiaSemanaColor("#1e293b");
+        setMesColor("#94a3b8");
       }
       setColorTheme(themeId);
     },
@@ -145,6 +151,8 @@ export function useAgendaSettings() {
       setNumeroDiaColor,
       setHoraColor,
       setTableTextColor,
+      setMesColor,
+      setDiaSemanaColor,
       setColunaHora,
       setColunaCliente,
       setColunaServico,

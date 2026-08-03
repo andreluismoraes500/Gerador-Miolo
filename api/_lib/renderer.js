@@ -89,8 +89,17 @@ export async function generatePDFFromUrl(previewUrl) {
     // foram montadas.
     await page.waitForFunction(() => window.__PDF_READY__ === true, {
       timeout: 150000,
-      polling: 200,
+      polling: 100,
     });
+
+    // Fontes (Google Fonts) carregam em paralelo ao React e não disparam
+    // mutação no DOM, então o MutationObserver de usePdfReadySignal não as
+    // "vê". Esperar document.fonts.ready explicitamente garante que o PDF
+    // sempre saia com a fonte certa, sem precisar de uma folga arbitrária
+    // grande "no escuro" depois.
+    await page
+      .evaluate(() => document.fonts && document.fonts.ready)
+      .catch(() => {});
 
     const pageCount = await page.evaluate(
       () => window.__PDF_PAGE_COUNT__ || 0,
@@ -105,7 +114,7 @@ export async function generatePDFFromUrl(previewUrl) {
       );
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 80));
 
     const pdfBuffer = await page.pdf({
       format: "A4",
