@@ -373,7 +373,7 @@ export default function DiaCompleto({
               fieldKey={`${diaKey}-total-entrada`}
               className="w-16 text-[11px] text-right border-b"
               style={{ borderColor: secondaryColor, color: horaColor }}
-              placeholder="R$ "
+              placeholder=" "
             />
           </div>
 
@@ -385,7 +385,7 @@ export default function DiaCompleto({
               fieldKey={`${diaKey}-total-saida`}
               className="w-16 text-[11px] text-right border-b"
               style={{ borderColor: secondaryColor, color: horaColor }}
-              placeholder="R$ "
+              placeholder=" "
             />
           </div>
 
@@ -400,7 +400,7 @@ export default function DiaCompleto({
               fieldKey={`${diaKey}-total-dia`}
               className="w-20 text-[13px] text-right font-bold border-b-2"
               style={{ borderColor: primaryColor, color: primaryColor }}
-              placeholder="R$ "
+              placeholder=" "
             />
           </div>
         </div>
