@@ -1,13 +1,9 @@
 // vercel-pdf-service/api/generate-pdf.js
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer";
 
-// Chave secreta - use a mesma no .env do Render
-const API_SECRET =
-  process.env.API_SECRET || "sua-chave-secreta-aqui-mude-em-producao";
+const API_SECRET = process.env.API_SECRET || "sua-chave-secreta-aqui";
 
 export default async function handler(req, res) {
-  // ✅ CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key");
@@ -17,35 +13,31 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // 🔐 Validação da chave de API
   const apiKey = req.headers["x-api-key"];
   if (!apiKey || apiKey !== API_SECRET) {
-    return res.status(401).json({ error: "Chave API inválida" });
+    return res.status(401).json({ error: "Invalid API key" });
   }
 
   const { url, html, options = {} } = req.body;
 
   if (!url && !html) {
-    return res
-      .status(400)
-      .json({ error: "É necessário enviar 'url' ou 'html'" });
+    return res.status(400).json({ error: "url or html required" });
   }
-
-  console.log(`[PDF Service] Processando: ${url ? "URL" : "HTML"}`);
 
   let browser = null;
   let page = null;
 
   try {
-    // 🚀 Configuração otimizada para serverless
-    const executablePath = await chromium.executablePath();
-
+    // Usa o puppeteer normal (que baixa o Chromium)
     browser = await puppeteer.launch({
       args: [
-        ...chromium.args,
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
         "--disable-extensions",
         "--disable-background-networking",
         "--disable-default-apps",
@@ -57,21 +49,19 @@ export default async function handler(req, res) {
         "--metrics-recording-only",
         "--js-flags=--max-old-space-size=256",
       ],
-      defaultViewport: chromium.defaultViewport,
-      executablePath,
+      defaultViewport: {
+        width: 1280,
+        height: 800,
+      },
       headless: "new",
+      ignoreHTTPSErrors: true,
     });
 
     page = await browser.newPage();
-
-    // ⏱️ Timeouts
     page.setDefaultTimeout(30000);
     page.setDefaultNavigationTimeout(30000);
-
-    // 🖨️ Emular impressão
     await page.emulateMediaType("print");
 
-    // 🎯 Carregar conteúdo
     if (url) {
       await page.goto(url, {
         waitUntil: "networkidle0",
@@ -84,19 +74,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // 🔥 Aguardar sinal de pronto
-    try {
-      await page.waitForFunction(() => window.__PDF_READY__ === true, {
-        timeout: 15000,
-        polling: 100,
-      });
-    } catch (signalError) {
-      console.warn(
-        "[PDF Service] Sinal __PDF_READY__ não recebido, prosseguindo mesmo assim.",
-      );
-    }
-
-    // 📄 Gerar PDF
     const pdfBuffer = await page.pdf({
       format: options.format || "A4",
       printBackground: true,
@@ -109,7 +86,6 @@ export default async function handler(req, res) {
       `[PDF Service] PDF gerado: ${(pdfBuffer.length / 1024).toFixed(0)} KB`,
     );
 
-    // 🔄 Retornar como buffer
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=document.pdf");
     res.status(200).send(Buffer.from(pdfBuffer));
@@ -118,9 +94,9 @@ export default async function handler(req, res) {
     return res.status(500).json({
       error: "Falha ao gerar PDF",
       details: error.message,
+      stack: error.stack,
     });
   } finally {
-    // 🧹 Limpeza essencial
     if (page) await page.close().catch(() => {});
     if (browser) await browser.close().catch(() => {});
   }
