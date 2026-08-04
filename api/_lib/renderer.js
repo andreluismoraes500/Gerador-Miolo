@@ -106,7 +106,7 @@ async function launchBrowser() {
   }
 
   return puppeteerFull.launch({
-    headless: true,
+    headless: "new",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -164,18 +164,14 @@ export async function generatePDFFromUrl(previewUrl) {
     await page.setRequestInterception(true);
     page.on("request", (req) => {
       const url = req.url();
-      const resourceType = req.resourceType();
-
-      // Permite apenas: documento HTML, Google Fonts (CSS e fontes), e scripts básicos (React)
-      // Bloqueia imagens, mídia, outros estilos, analytics, etc.
+      const type = req.resourceType();
+      // Só permite CSS, JS e fontes do Google – bloqueia o resto
       if (
-        resourceType === "image" ||
-        resourceType === "media" ||
-        resourceType === "font" ||
-        resourceType === "stylesheet" ||
-        resourceType === "script"
+        type === "image" ||
+        type === "media" ||
+        type === "font" ||
+        type === "stylesheet"
       ) {
-        // Permite Google Fonts (necessárias para o layout)
         if (
           url.includes("fonts.googleapis.com") ||
           url.includes("fonts.gstatic.com")
