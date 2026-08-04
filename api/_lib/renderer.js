@@ -40,7 +40,7 @@ const IS_PRODUCTION =
 let browserInstance = null;
 let browserPromise = null;
 let idleCloseTimer = null;
-const IDLE_CLOSE_MS = 30 * 1000; // fecha depois de 30s sem nenhum job
+const IDLE_CLOSE_MS = 5 * 60 * 1000; // ALTERADO: 5 minutos (antes era 30s)
 
 function cancelIdleClose() {
   if (idleCloseTimer) {
@@ -59,7 +59,10 @@ function scheduleIdleClose() {
       try {
         await toClose.close();
       } catch (err) {
-        console.error("[renderer] Erro ao fechar Chromium ocioso:", err.message);
+        console.error(
+          "[renderer] Erro ao fechar Chromium ocioso:",
+          err.message,
+        );
       }
     }
   }, IDLE_CLOSE_MS);
@@ -157,6 +160,35 @@ export async function generatePDFFromUrl(previewUrl) {
   const page = await browser.newPage();
 
   try {
+    // --- INTERCEPTAÇÃO DE REQUISIÇÕES: bloqueia recursos não essenciais ---
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      const url = req.url();
+      const resourceType = req.resourceType();
+
+      // Permite apenas: documento HTML, Google Fonts (CSS e fontes), e scripts básicos (React)
+      // Bloqueia imagens, mídia, outros estilos, analytics, etc.
+      if (
+        resourceType === "image" ||
+        resourceType === "media" ||
+        resourceType === "font" ||
+        resourceType === "stylesheet" ||
+        resourceType === "script"
+      ) {
+        // Permite Google Fonts (necessárias para o layout)
+        if (
+          url.includes("fonts.googleapis.com") ||
+          url.includes("fonts.gstatic.com")
+        ) {
+          req.continue();
+        } else {
+          req.abort();
+        }
+      } else {
+        req.continue();
+      }
+    });
+
     page.setDefaultTimeout(180000);
     page.setDefaultNavigationTimeout(180000);
 
@@ -208,9 +240,7 @@ export async function generatePDFFromUrl(previewUrl) {
       .evaluate(() => document.fonts && document.fonts.ready)
       .catch(() => {});
 
-    const pageCount = await page.evaluate(
-      () => window.__PDF_PAGE_COUNT__ || 0,
-    );
+    const pageCount = await page.evaluate(() => window.__PDF_PAGE_COUNT__ || 0);
     console.log(`[renderer] Páginas renderizadas: ${pageCount}`);
 
     if (pageCount < 1) {
@@ -236,8 +266,8 @@ export async function generatePDFFromUrl(previewUrl) {
     await page.close();
     // Não fecha o browser imediatamente (evita reabrir a cada PDF em
     // sequência), mas agenda o fechamento se ninguém pedir outro PDF nos
-    // próximos 30s — devolve a memória do Chromium pro sistema entre uma
-    // geração e outra, essencial em planos com pouca RAM.
+    // próximos 5 minutos — devolve a memória do Chromium pro sistema entre
+    // uma geração e outra, essencial em planos com pouca RAM.
     scheduleIdleClose();
   }
 }

@@ -41,7 +41,11 @@ http
     );
   });
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+// ALTERADO: usa INTERNAL_FRONTEND_URL se disponível (para comunicação interna no Render)
+const FRONTEND_URL =
+  process.env.INTERNAL_FRONTEND_URL ||
+  process.env.FRONTEND_URL ||
+  "http://localhost:5173";
 
 // Concorrência configurável por variável de ambiente. Cada job ativo é um
 // Chromium inteiro na memória — comece com 1 (fila FIFO real, sem disputa
