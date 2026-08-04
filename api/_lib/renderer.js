@@ -10,9 +10,41 @@ import puppeteer from "puppeteer";
 
 // Reutiliza o browser entre jobs (evita o custo de abrir/fechar um
 // Chromium inteiro a cada PDF) — seguro porque o worker processa um job
-// de cada vez (concurrency: 1).
+// de cada vez (concurrency: 1). MAS em planos com pouca RAM (ex: Render
+// free, 512MB), manter o Chromium sempre aberto (mesmo parado, sem gerar
+// nada) já consome uns 100-150MB só de base — o suficiente pra faltar
+// memória na hora que uma geração de PDF precisa de um pico. Por isso
+// fechamos o browser sozinho depois de um tempo sem uso: perde-se ~1-2s
+// de "cold start" no PDF seguinte, mas devolve memória pro sistema
+// operacional entre uma geração e outra.
 let browserInstance = null;
 let browserPromise = null;
+let idleCloseTimer = null;
+const IDLE_CLOSE_MS = 30 * 1000; // fecha depois de 30s sem nenhum job
+
+function cancelIdleClose() {
+  if (idleCloseTimer) {
+    clearTimeout(idleCloseTimer);
+    idleCloseTimer = null;
+  }
+}
+
+function scheduleIdleClose() {
+  cancelIdleClose();
+  idleCloseTimer = setTimeout(async () => {
+    if (browserInstance) {
+      console.log("[renderer] Fechando Chromium ocioso para liberar memória.");
+      const toClose = browserInstance;
+      browserInstance = null;
+      try {
+        await toClose.close();
+      } catch (err) {
+        console.error("[renderer] Erro ao fechar Chromium ocioso:", err.message);
+      }
+    }
+  }, IDLE_CLOSE_MS);
+  idleCloseTimer.unref?.();
+}
 
 async function launchBrowser() {
   return puppeteer.launch({
@@ -35,11 +67,26 @@ async function launchBrowser() {
       // Reduz uso de memória evitando processos "zygote" extras — ajuda
       // em planos com pouca RAM (ex: Render free tier, 512MB).
       "--no-zygote",
+      // Corta processos/recursos que este app nunca usa e que só
+      // consomem RAM à toa em segundo plano.
+      "--disable-extensions",
+      "--disable-background-networking",
+      "--disable-default-apps",
+      "--disable-sync",
+      "--disable-translate",
+      "--disable-software-rasterizer",
+      "--mute-audio",
+      "--no-first-run",
+      "--metrics-recording-only",
+      // Limita o heap de JS do Chromium — as páginas geradas aqui são
+      // HTML/CSS de agenda, não precisam de um heap grande.
+      "--js-flags=--max-old-space-size=128",
     ],
   });
 }
 
 async function getBrowser() {
+  cancelIdleClose();
   if (browserInstance && !browserInstance.connected) {
     browserInstance = null;
   }
@@ -52,6 +99,7 @@ async function getBrowser() {
       browserPromise = null;
       browser.on("disconnected", () => {
         browserInstance = null;
+        cancelIdleClose();
       });
       return browser;
     })
@@ -145,6 +193,10 @@ export async function generatePDFFromUrl(previewUrl) {
     return Buffer.from(pdfBuffer);
   } finally {
     await page.close();
-    // Mantém o browser aberto para reuso no próximo job da fila.
+    // Não fecha o browser imediatamente (evita reabrir a cada PDF em
+    // sequência), mas agenda o fechamento se ninguém pedir outro PDF nos
+    // próximos 30s — devolve a memória do Chromium pro sistema entre uma
+    // geração e outra, essencial em planos com pouca RAM.
+    scheduleIdleClose();
   }
 }
