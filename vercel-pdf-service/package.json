@@ -1,0 +1,16 @@
+{
+  "name": "vercel-pdf-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^131.0.1",
+    "puppeteer-core": "^25.4.0"
+  },
+  "devDependencies": {
+    "vercel": "^37.0.0"
+  }
+}
