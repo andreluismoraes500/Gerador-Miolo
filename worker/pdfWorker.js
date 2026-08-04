@@ -7,21 +7,39 @@
 // devolve só metadados pequenos ({ fileKey, filename, size }) como
 // resultado do job — nunca o PDF em Base64.
 //
-// Em produção no Render, este arquivo roda como um "Background Worker"
-// separado do "Web Service" da API (ver render.yaml), ambos apontando
-// para o mesmo REDIS_URL. Rode quantas instâncias quiser: todas competem
-// pelos mesmos jobs da fila, permitindo escalar horizontalmente sem
-// nenhuma mudança de código.
+// Em produção no Render, este arquivo roda como um Web Service separado
+// da API (ver render.yaml) — cadastrado como "Web Service" e não
+// "Background Worker" para poder usar o free tier do Render (Background
+// Worker não tem plano gratuito). Ambos apontam para o mesmo REDIS_URL.
 //
 // Comandos:
 //   - Local: npm run worker
-//   - Produção (Render Background Worker): node worker/pdfWorker.js
+//   - Produção (Render Web Service "worker"): node worker/pdfWorker.js
 import "dotenv/config";
+import http from "node:http";
 import { Worker } from "bullmq";
 import { getConnection, QUEUE_NAME } from "../api/_lib/queue.js";
 import { generatePDFFromUrl, closeBrowser } from "../api/_lib/renderer.js";
 import { savePdf } from "../api/_lib/storage.js";
 import { deleteState, getState } from "../api/_lib/stateStore.js";
+
+// ── Health-check HTTP ────────────────────────────────────────────────────
+// O worker continua sendo um processo separado da API — nunca executa
+// nenhuma rota da aplicação. Este servidor HTTP existe SÓ para satisfazer
+// a checagem de porta aberta do Render quando este processo é cadastrado
+// como "Web Service" (necessário para usar o free tier, já que Background
+// Worker no Render é sempre pago). Responde só um 200 OK simples.
+const HEALTH_PORT = process.env.PORT || 10000;
+http
+  .createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("pdf-worker ok\n");
+  })
+  .listen(HEALTH_PORT, () => {
+    console.log(
+      `[worker] Health-check HTTP em http://localhost:${HEALTH_PORT}`,
+    );
+  });
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
