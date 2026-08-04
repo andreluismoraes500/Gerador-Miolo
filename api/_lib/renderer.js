@@ -101,7 +101,7 @@ async function launchBrowser() {
       args: [...chromium.args, ...EXTRA_MEMORY_FLAGS],
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+      headless: "new",
     });
   }
 
