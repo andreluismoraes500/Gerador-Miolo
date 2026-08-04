@@ -111,9 +111,17 @@ sozinho já usa bastante RAM, e o plano gratuito do Render (512MB) pode
 não sobrar espaço nenhum pra ele depois do Node e do build do
 front-end. Nesse caso, os logs do serviço no painel do Render vão
 mostrar algo como "Out of memory" ou o processo reiniciando sozinho logo
-depois do `[renderer]` começar a gerar um PDF. Solução: subir de plano
-(mais RAM) ou mover só o Puppeteer para um host com mais memória
-disponível.
+depois do `[renderer]` começar a gerar um PDF.
+
+**Se aparecer "Ran out of memory (used over 512MB)":** o projeto já usa
+automaticamente, em produção, um Chromium bem mais enxuto
+(`puppeteer-core` + `@sparticuz/chromium`, a mesma técnica usada em AWS
+Lambda) em vez do Chromium completo do pacote `puppeteer` — não precisa
+configurar nada, a troca acontece sozinha porque o Render já define a
+env var `RENDER=true` em todo serviço. Local continua usando o
+`puppeteer` completo normalmente. Se ainda faltar memória mesmo assim, o
+plano gratuito genuinamente pode não ser suficiente — nesse caso, subir
+de plano (mais RAM) é o caminho mais simples e confiável.
 
 ### E se eu ainda quiser usar a Vercel para alguma coisa?
 

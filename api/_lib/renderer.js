@@ -1,22 +1,42 @@
 // api/_lib/renderer.js
 //
-// Usado exclusivamente pelo worker (worker/pdfWorker.js), que roda como
-// processo Node.js persistente FORA da Vercel. Por isso usamos o pacote
-// `puppeteer` completo (baixa e gerencia seu próprio Chromium) em vez de
-// `puppeteer-core` + `@sparticuz/chromium` (que só fazem sentido dentro
-// de uma função serverless/Lambda, ambiente que este arquivo não roda
-// mais desde que a geração de PDF virou um job de fila).
-import puppeteer from "puppeteer";
+// Roda dentro do mesmo processo Node persistente que serve a API
+// (server/index.js) — local, ou em produção (Render, Railway, Fly.io).
+//
+// Dois "motores" diferentes dependendo do ambiente:
+//
+//   - LOCAL (seu computador): usa `puppeteer` completo, que já vem com
+//     um Chromium de verdade pronto pra rodar em qualquer SO (Windows,
+//     Mac, Linux). É pesado, mas no seu computador isso não é problema.
+//
+//   - PRODUÇÃO (Render/Railway/qualquer host Linux, detectado
+//     automaticamente pela env var RENDER, ou por NODE_ENV=production):
+//     usa `puppeteer-core` + `@sparticuz/chromium` — um Chromium
+//     ENXUTO, feito originalmente pra rodar em AWS Lambda, otimizado
+//     especificamente pra ambientes com pouquíssima memória (bem menor
+//     e mais econômico que o Chromium completo). É a mesma técnica usada
+//     por praticamente todo serviço de "gerar PDF" que roda em host com
+//     512MB-1GB de RAM — o Chromium completo (`puppeteer`) simplesmente
+//     não cabe confortavelmente nesses planos junto com Node+Express.
+//
+// Não precisa configurar nada: a troca é automática pela env var RENDER
+// (o próprio Render já define isso sozinho em todo serviço).
+import puppeteerFull from "puppeteer";
+import puppeteerCore from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
+
+const IS_PRODUCTION =
+  process.env.RENDER === "true" || process.env.NODE_ENV === "production";
 
 // Reutiliza o browser entre jobs (evita o custo de abrir/fechar um
 // Chromium inteiro a cada PDF) — seguro porque o worker processa um job
 // de cada vez (concurrency: 1). MAS em planos com pouca RAM (ex: Render
 // free, 512MB), manter o Chromium sempre aberto (mesmo parado, sem gerar
-// nada) já consome uns 100-150MB só de base — o suficiente pra faltar
-// memória na hora que uma geração de PDF precisa de um pico. Por isso
-// fechamos o browser sozinho depois de um tempo sem uso: perde-se ~1-2s
-// de "cold start" no PDF seguinte, mas devolve memória pro sistema
-// operacional entre uma geração e outra.
+// nada) já consome memória de base — o suficiente pra faltar espaço na
+// hora que uma geração de PDF precisa de um pico. Por isso fechamos o
+// browser sozinho depois de um tempo sem uso: perde-se ~1-2s de "cold
+// start" no PDF seguinte, mas devolve memória pro sistema operacional
+// entre uma geração e outra.
 let browserInstance = null;
 let browserPromise = null;
 let idleCloseTimer = null;
@@ -46,41 +66,50 @@ function scheduleIdleClose() {
   idleCloseTimer.unref?.();
 }
 
+// Flags extras de economia de memória, além das que cada motor já traz
+// por padrão. Cortam processos/recursos que este app nunca usa (sync,
+// extensões, tradução automática, etc.) e limitam o heap de JS interno
+// do Chromium — as páginas geradas aqui são HTML/CSS de agenda, não
+// precisam de um heap grande.
+const EXTRA_MEMORY_FLAGS = [
+  "--disable-extensions",
+  "--disable-background-networking",
+  "--disable-default-apps",
+  "--disable-sync",
+  "--disable-translate",
+  "--disable-software-rasterizer",
+  "--mute-audio",
+  "--no-first-run",
+  "--metrics-recording-only",
+  "--js-flags=--max-old-space-size=128",
+];
+
 async function launchBrowser() {
-  return puppeteer.launch({
+  console.log(
+    `[renderer] Iniciando Chromium (${IS_PRODUCTION ? "leve/sparticuz — produção" : "completo/puppeteer — local"})...`,
+  );
+
+  if (IS_PRODUCTION) {
+    // @sparticuz/chromium já vem com o conjunto de flags recomendado
+    // para ambientes com pouca memória (inclui --disable-dev-shm-usage,
+    // --single-process, --no-zygote — combinação testada especificamente
+    // para não faltar RAM em containers pequenos).
+    return puppeteerCore.launch({
+      args: [...chromium.args, ...EXTRA_MEMORY_FLAGS],
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+  }
+
+  return puppeteerFull.launch({
     headless: true,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
-      // ESSENCIAL em containers (Render, Railway, Docker em geral): por
-      // padrão o /dev/shm vem limitado a ~64MB nesses ambientes, e o
-      // Chromium usa memória compartilhada pesadamente pra renderizar —
-      // sem essa flag ele estoura e derruba o processo inteiro (sintoma:
-      // funciona liso local, mas em produção as requisições começam a
-      // voltar 502 porque o servidor caiu e está reiniciando). Com a
-      // flag, o Chromium usa /tmp em vez de /dev/shm.
       "--disable-dev-shm-usage",
-      // Não há GPU disponível nesses containers; desabilitar evita o
-      // Chromium gastar tempo/memória tentando inicializar aceleração
-      // gráfica que não existe.
       "--disable-gpu",
-      // Reduz uso de memória evitando processos "zygote" extras — ajuda
-      // em planos com pouca RAM (ex: Render free tier, 512MB).
-      "--no-zygote",
-      // Corta processos/recursos que este app nunca usa e que só
-      // consomem RAM à toa em segundo plano.
-      "--disable-extensions",
-      "--disable-background-networking",
-      "--disable-default-apps",
-      "--disable-sync",
-      "--disable-translate",
-      "--disable-software-rasterizer",
-      "--mute-audio",
-      "--no-first-run",
-      "--metrics-recording-only",
-      // Limita o heap de JS do Chromium — as páginas geradas aqui são
-      // HTML/CSS de agenda, não precisam de um heap grande.
-      "--js-flags=--max-old-space-size=128",
+      ...EXTRA_MEMORY_FLAGS,
     ],
   });
 }
