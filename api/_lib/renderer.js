@@ -1,26 +1,3 @@
-// api/_lib/renderer.js
-//
-// Roda dentro do mesmo processo Node persistente que serve a API
-// (server/index.js) — local, ou em produção (Render, Railway, Fly.io).
-//
-// Dois "motores" diferentes dependendo do ambiente:
-//
-//   - LOCAL (seu computador): usa `puppeteer` completo, que já vem com
-//     um Chromium de verdade pronto pra rodar em qualquer SO (Windows,
-//     Mac, Linux). É pesado, mas no seu computador isso não é problema.
-//
-//   - PRODUÇÃO (Render/Railway/qualquer host Linux, detectado
-//     automaticamente pela env var RENDER, ou por NODE_ENV=production):
-//     usa `puppeteer-core` + `@sparticuz/chromium` — um Chromium
-//     ENXUTO, feito originalmente pra rodar em AWS Lambda, otimizado
-//     especificamente pra ambientes com pouquíssima memória (bem menor
-//     e mais econômico que o Chromium completo). É a mesma técnica usada
-//     por praticamente todo serviço de "gerar PDF" que roda em host com
-//     512MB-1GB de RAM — o Chromium completo (`puppeteer`) simplesmente
-//     não cabe confortavelmente nesses planos junto com Node+Express.
-//
-// Não precisa configurar nada: a troca é automática pela env var RENDER
-// (o próprio Render já define isso sozinho em todo serviço).
 import puppeteerFull from "puppeteer";
 import puppeteerCore from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
@@ -28,19 +5,10 @@ import chromium from "@sparticuz/chromium";
 const IS_PRODUCTION =
   process.env.RENDER === "true" || process.env.NODE_ENV === "production";
 
-// Reutiliza o browser entre jobs (evita o custo de abrir/fechar um
-// Chromium inteiro a cada PDF) — seguro porque o worker processa um job
-// de cada vez (concurrency: 1). MAS em planos com pouca RAM (ex: Render
-// free, 512MB), manter o Chromium sempre aberto (mesmo parado, sem gerar
-// nada) já consome memória de base — o suficiente pra faltar espaço na
-// hora que uma geração de PDF precisa de um pico. Por isso fechamos o
-// browser sozinho depois de um tempo sem uso: perde-se ~1-2s de "cold
-// start" no PDF seguinte, mas devolve memória pro sistema operacional
-// entre uma geração e outra.
 let browserInstance = null;
 let browserPromise = null;
 let idleCloseTimer = null;
-const IDLE_CLOSE_MS = 5 * 60 * 1000; // ALTERADO: 5 minutos (antes era 30s)
+const IDLE_CLOSE_MS = 5 * 60 * 1000; // 5 minutos (evita recriação frequente)
 
 function cancelIdleClose() {
   if (idleCloseTimer) {
@@ -53,27 +21,19 @@ function scheduleIdleClose() {
   cancelIdleClose();
   idleCloseTimer = setTimeout(async () => {
     if (browserInstance) {
-      console.log("[renderer] Fechando Chromium ocioso para liberar memória.");
+      console.log("[renderer] Fechando Chromium ocioso.");
       const toClose = browserInstance;
       browserInstance = null;
       try {
         await toClose.close();
       } catch (err) {
-        console.error(
-          "[renderer] Erro ao fechar Chromium ocioso:",
-          err.message,
-        );
+        console.error("[renderer] Erro ao fechar Chromium:", err.message);
       }
     }
   }, IDLE_CLOSE_MS);
   idleCloseTimer.unref?.();
 }
 
-// Flags extras de economia de memória, além das que cada motor já traz
-// por padrão. Cortam processos/recursos que este app nunca usa (sync,
-// extensões, tradução automática, etc.) e limitam o heap de JS interno
-// do Chromium — as páginas geradas aqui são HTML/CSS de agenda, não
-// precisam de um heap grande.
 const EXTRA_MEMORY_FLAGS = [
   "--disable-extensions",
   "--disable-background-networking",
@@ -84,24 +44,22 @@ const EXTRA_MEMORY_FLAGS = [
   "--mute-audio",
   "--no-first-run",
   "--metrics-recording-only",
-  "--js-flags=--max-old-space-size=128",
+  "--js-flags=--max-old-space-size=256", // Aumenta o heap do JS
 ];
 
 async function launchBrowser() {
   console.log(
-    `[renderer] Iniciando Chromium (${IS_PRODUCTION ? "leve/sparticuz — produção" : "completo/puppeteer — local"})...`,
+    `[renderer] Iniciando Chromium (${IS_PRODUCTION ? "leve/sparticuz" : "completo"})...`,
   );
 
   if (IS_PRODUCTION) {
-    // @sparticuz/chromium já vem com o conjunto de flags recomendado
-    // para ambientes com pouca memória (inclui --disable-dev-shm-usage,
-    // --single-process, --no-zygote — combinação testada especificamente
-    // para não faltar RAM em containers pequenos).
+    // Usa o Chromium otimizado para lambda (compatível com Render)
+    const executablePath = await chromium.executablePath();
     return puppeteerCore.launch({
       args: [...chromium.args, ...EXTRA_MEMORY_FLAGS],
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: "new",
+      executablePath,
+      headless: "new", // ESSENCIAL: mais rápido e econômico
     });
   }
 
@@ -143,9 +101,6 @@ async function getBrowser() {
   return browserPromise;
 }
 
-// Usado no encerramento gracioso do worker (SIGTERM/SIGINT) para não
-// deixar um processo Chromium órfão consumindo memória depois que o
-// processo Node principal já terminou.
 export async function closeBrowser() {
   cancelIdleClose();
   if (browserInstance) {
@@ -160,18 +115,16 @@ export async function generatePDFFromUrl(previewUrl) {
   const page = await browser.newPage();
 
   try {
-    // --- INTERCEPTAÇÃO DE REQUISIÇÕES: bloqueia recursos não essenciais ---
+    page.setDefaultTimeout(300000); // 5 min
+    page.setDefaultNavigationTimeout(300000);
+
+    // Bloqueia recursos desnecessários (imagens, mídia, etc.)
     await page.setRequestInterception(true);
     page.on("request", (req) => {
       const url = req.url();
       const type = req.resourceType();
-      // Só permite CSS, JS e fontes do Google – bloqueia o resto
-      if (
-        type === "image" ||
-        type === "media" ||
-        type === "font" ||
-        type === "stylesheet"
-      ) {
+      // Permite apenas Google Fonts e recursos críticos
+      if (["image", "media", "font", "stylesheet"].includes(type)) {
         if (
           url.includes("fonts.googleapis.com") ||
           url.includes("fonts.gstatic.com")
@@ -185,68 +138,44 @@ export async function generatePDFFromUrl(previewUrl) {
       }
     });
 
-    page.setDefaultTimeout(180000);
-    page.setDefaultNavigationTimeout(180000);
-
     page.on("pageerror", (err) => {
-      console.error("[renderer] Erro de runtime na página:", err.message);
+      console.error("[renderer] Erro de runtime:", err.message);
     });
     page.on("console", (msg) => {
       if (msg.type() === "error") {
-        console.error("[renderer] console.error na página:", msg.text());
+        console.error("[renderer] console.error:", msg.text());
       }
     });
 
     await page.emulateMediaType("print");
-
     await page.setViewport({
-      width: 794, // 210mm em pixels (96dpi)
-      height: 1123, // 297mm
+      width: 794,
+      height: 1123,
       deviceScaleFactor: 1,
     });
 
-    // "domcontentloaded" é suficiente aqui: quem realmente garante que a
-    // página terminou de montar é o waitForFunction(__PDF_READY__) logo
-    // abaixo. Esperar também por "networkidle0" era redundante e podia
-    // adicionar 1-3s de espera extra (precisa de 500ms sem NENHUMA
-    // requisição de rede, o que atrasa à toa quando há qualquer polling
-    // em segundo plano).
     await page.goto(previewUrl, {
       waitUntil: "domcontentloaded",
-      timeout: 180000,
+      timeout: 300000,
     });
 
-    // Espera pela renderização real do React: aguarda até que o
-    // front-end defina window.__PDF_READY__ = true (ver
-    // src/hooks/usePdfReadySignal.js), o que só acontece depois que o
-    // DOM parou de mudar por um período — ou seja, todas as páginas do
-    // template (ou de todos os módulos, no modo Montagem Completa) já
-    // foram montadas.
+    // Aguarda o sinal de pronto (__PDF_READY__)
     await page.waitForFunction(() => window.__PDF_READY__ === true, {
-      timeout: 150000,
+      timeout: 240000,
       polling: 100,
     });
 
-    // Fontes (Google Fonts) carregam em paralelo ao React e não disparam
-    // mutação no DOM, então o MutationObserver de usePdfReadySignal não as
-    // "vê". Esperar document.fonts.ready explicitamente garante que o PDF
-    // sempre saia com a fonte certa, sem precisar de uma folga arbitrária
-    // grande "no escuro" depois.
-    await page
-      .evaluate(() => document.fonts && document.fonts.ready)
-      .catch(() => {});
+    // Aguarda fontes carregarem
+    await page.evaluate(() => document.fonts?.ready).catch(() => {});
 
     const pageCount = await page.evaluate(() => window.__PDF_PAGE_COUNT__ || 0);
     console.log(`[renderer] Páginas renderizadas: ${pageCount}`);
 
     if (pageCount < 1) {
-      throw new Error(
-        `PDF incompleto: apenas ${pageCount} página(s) renderizada(s). ` +
-          "Verifique se o template/módulos selecionados realmente geram " +
-          "conteúdo para os parâmetros enviados.",
-      );
+      throw new Error(`PDF incompleto: apenas ${pageCount} página(s).`);
     }
 
+    // Pequena pausa para garantir renderização
     await new Promise((resolve) => setTimeout(resolve, 80));
 
     const pdfBuffer = await page.pdf({
@@ -254,16 +183,12 @@ export async function generatePDFFromUrl(previewUrl) {
       printBackground: true,
       margin: { top: 0, bottom: 0, left: 0, right: 0 },
       displayHeaderFooter: false,
-      timeout: 150000,
+      timeout: 300000,
     });
 
     return Buffer.from(pdfBuffer);
   } finally {
     await page.close();
-    // Não fecha o browser imediatamente (evita reabrir a cada PDF em
-    // sequência), mas agenda o fechamento se ninguém pedir outro PDF nos
-    // próximos 5 minutos — devolve a memória do Chromium pro sistema entre
-    // uma geração e outra, essencial em planos com pouca RAM.
     scheduleIdleClose();
   }
 }
