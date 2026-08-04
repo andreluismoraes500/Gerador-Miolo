@@ -38,6 +38,15 @@ export default function PreviewPage() {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  // Backoff progressivo do polling de status: começa rápido (o job costuma
+  // sair da fila rapidinho) e vai espaçando, para não bater
+  // /api/status/:id centenas de vezes por segundo enquanto o PDF (que pode
+  // levar minutos em templates grandes) ainda está sendo gerado.
+  const POLL_INTERVALS_MS = [1000, 1000, 2000, 2000, 3000, 5000];
+  function pollDelay(attempt) {
+    return POLL_INTERVALS_MS[Math.min(attempt, POLL_INTERVALS_MS.length - 1)];
+  }
+
   async function gerarPDFViaBackend() {
     const toastId = toast.loading("Entrando na fila...");
     try {
@@ -84,6 +93,7 @@ export default function PreviewPage() {
       const startedAt = Date.now();
       const TIMEOUT_MS = 6 * 60 * 1000; // 6 minutos
       let lastStatus = null;
+      let attempt = 0;
 
       // eslint-disable-next-line no-constant-condition
       while (true) {
@@ -122,12 +132,13 @@ export default function PreviewPage() {
           return;
         }
 
-        await sleep(700);
+        await sleep(pollDelay(attempt));
+        attempt += 1;
       }
 
       const resultRes = await fetch(`/api/result/${jobId}`);
       if (!resultRes.ok) {
-        let errorMsg = "Erro ao baixar o PDF gerado";
+        let errorMsg = "Erro ao buscar o link de download do PDF";
         try {
           const errorData = await resultRes.json();
           errorMsg = errorData.error || errorMsg;
@@ -138,15 +149,16 @@ export default function PreviewPage() {
         return;
       }
 
-      const blob = await resultRes.blob();
-      const url = URL.createObjectURL(blob);
+      // O backend não devolve mais o PDF em si: devolve uma URL de
+      // download (Object Storage com URL assinada, ou streaming local via
+      // /files/:fileKey). O navegador baixa direto dessa URL.
+      const { downloadUrl } = await resultRes.json();
       const a = document.createElement("a");
-      a.href = url;
+      a.href = downloadUrl;
       a.download = `agenda-${template}-${selectedDate}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
       toast.success("PDF baixado com sucesso!", { id: toastId });
     } catch (err) {

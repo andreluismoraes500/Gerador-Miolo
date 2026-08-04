@@ -111,6 +111,12 @@ export default function TalonarioPage() {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  // Backoff progressivo — mesma estratégia do PreviewPage.jsx.
+  const POLL_INTERVALS_MS = [1000, 1000, 2000, 2000, 3000, 5000];
+  function pollDelay(attempt) {
+    return POLL_INTERVALS_MS[Math.min(attempt, POLL_INTERVALS_MS.length - 1)];
+  }
+
   async function gerarTalonarioPDFViaBackend() {
     if (downloading) return;
     setDownloading(true);
@@ -147,6 +153,7 @@ export default function TalonarioPage() {
 
       const startedAt = Date.now();
       const TIMEOUT_MS = 6 * 60 * 1000;
+      let attempt = 0;
 
       // eslint-disable-next-line no-constant-condition
       while (true) {
@@ -184,12 +191,13 @@ export default function TalonarioPage() {
           return;
         }
 
-        await sleep(1500);
+        await sleep(pollDelay(attempt));
+        attempt += 1;
       }
 
       const resultRes = await fetch(`/api/result/${jobId}`);
       if (!resultRes.ok) {
-        let errorMsg = "Erro ao baixar o PDF gerado";
+        let errorMsg = "Erro ao buscar o link de download do PDF";
         try {
           const errorData = await resultRes.json();
           errorMsg = errorData.error || errorMsg;
@@ -200,15 +208,13 @@ export default function TalonarioPage() {
         return;
       }
 
-      const blob = await resultRes.blob();
-      const url = URL.createObjectURL(blob);
+      const { downloadUrl } = await resultRes.json();
       const a = document.createElement("a");
-      a.href = url;
+      a.href = downloadUrl;
       a.download = `talao-${tabLabel.toLowerCase().replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
       toast.success("PDF baixado com sucesso!", { id: toastId });
     } catch (err) {

@@ -1,27 +1,39 @@
 // worker/pdfWorker.js
 //
-// Este é um PROCESSO NODE.JS PERSISTENTE — diferente de api/generate.js
-// (que é uma função serverless da Vercel, que só roda enquanto atende uma
-// requisição), este arquivo fica rodando continuamente, consumindo a fila
-// Redis e processando um job de PDF de cada vez (concurrency: 1 = FIFO
-// real: quem pediu primeiro, sai primeiro; ninguém disputa o mesmo
-// Chromium ao mesmo tempo).
+// Processo Node.js PERSISTENTE e SEPARADO da API HTTP. Fica rodando
+// continuamente, consumindo a fila BullMQ/Redis e processando jobs de
+// geração de PDF: abre o Chromium (Puppeteer), renderiza, salva o
+// resultado no storage (Object Storage ou disco — ver _lib/storage.js) e
+// devolve só metadados pequenos ({ fileKey, filename, size }) como
+// resultado do job — nunca o PDF em Base64.
 //
-// IMPORTANTE: a Vercel NÃO executa processos persistentes — funções
-// serverless têm tempo de vida limitado à requisição. Por isso este
-// worker precisa rodar em outro lugar:
-//   - Localmente, para testar: `npm run worker`
-//   - Em produção: um serviço "always-on" — Railway, Render, Fly.io, um
-//     VPS com pm2/systemd, etc. Ver SETUP.md para o passo a passo.
+// Em produção no Render, este arquivo roda como um "Background Worker"
+// separado do "Web Service" da API (ver render.yaml), ambos apontando
+// para o mesmo REDIS_URL. Rode quantas instâncias quiser: todas competem
+// pelos mesmos jobs da fila, permitindo escalar horizontalmente sem
+// nenhuma mudança de código.
+//
+// Comandos:
+//   - Local: npm run worker
+//   - Produção (Render Background Worker): node worker/pdfWorker.js
 import "dotenv/config";
 import { Worker } from "bullmq";
 import { getConnection, QUEUE_NAME } from "../api/_lib/queue.js";
-import { generatePDFFromUrl } from "../api/_lib/renderer.js";
+import { generatePDFFromUrl, closeBrowser } from "../api/_lib/renderer.js";
+import { savePdf } from "../api/_lib/storage.js";
+import { deleteState, getState } from "../api/_lib/stateStore.js";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
+// Concorrência configurável por variável de ambiente. Cada job ativo é um
+// Chromium inteiro na memória — comece com 1 (fila FIFO real, sem disputa
+// de CPU/memória entre PDFs) e só suba com cuidado, monitorando o
+// consumo de memória do plano do Render.
+const CONCURRENCY = Number(process.env.PDF_WORKER_CONCURRENCY || 1);
+
 async function processJob(job) {
   const {
+    kind = "agenda",
     template,
     selectedDate,
     customName,
@@ -31,49 +43,78 @@ async function processJob(job) {
     filename,
   } = job.data;
 
-  const previewUrl = new URL("/preview", FRONTEND_URL);
-  previewUrl.searchParams.set("template", template);
-  previewUrl.searchParams.set("selectedDate", selectedDate);
-  previewUrl.searchParams.set("customName", customName || "");
-  previewUrl.searchParams.set("footerType", footerType || "default");
-  previewUrl.searchParams.set(
-    "businessProfileId",
-    businessProfileId || "default",
-  );
-  previewUrl.searchParams.set("builderMode", builderMode ? "true" : "false");
-  // A aba que o Puppeteer abre vai usar essa chave para buscar em
-  // GET /api/state/:jobId o retrato do localStorage do usuário (logo,
+  // Garante que o "retrato" de estado (logo, cores, módulos etc. — ver
+  // stateStore.js) ainda existe antes de abrir o Chromium. Se não
+  // existir mais (expirou, ou algo apagou antes da hora), falha cedo com
+  // uma mensagem clara em vez de deixar o Puppeteer renderizar uma aba
+  // "vazia" sem as personalizações do usuário.
+  const stored = await getState(job.id);
+  if (!stored) {
+    throw new Error(
+      "Estado do job expirou ou não foi encontrado antes do processamento " +
+        "(ver STATE_TTL em api/_lib/stateStore.js).",
+    );
+  }
+
+  const basePath = kind === "talonario" ? "/talonario" : "/preview";
+  const previewUrl = new URL(basePath, FRONTEND_URL);
+
+  if (kind !== "talonario") {
+    previewUrl.searchParams.set("template", template);
+    previewUrl.searchParams.set("selectedDate", selectedDate);
+    previewUrl.searchParams.set("customName", customName || "");
+    previewUrl.searchParams.set("footerType", footerType || "default");
+    previewUrl.searchParams.set(
+      "businessProfileId",
+      businessProfileId || "default",
+    );
+    previewUrl.searchParams.set("builderMode", builderMode ? "true" : "false");
+  }
+
+  // A aba que o Puppeteer abre usa essa chave para buscar em
+  // GET /api/state/:jobId o retrato de configuração do usuário (logo,
   // cores, módulos escolhidos etc.) — ver src/bootstrap/hydrateFromServer.js
   previewUrl.searchParams.set("stateKey", String(job.id));
   previewUrl.searchParams.set("printing", "true");
   previewUrl.searchParams.set("_t", Date.now().toString());
 
   console.log(
-    `[worker] Job ${job.id} — gerando "${filename}" a partir de ${previewUrl.toString()}`,
+    `[worker] Job ${job.id} (${kind}) — gerando "${filename}" a partir de ${previewUrl.toString()}`,
   );
 
-  const pdfBuffer = await generatePDFFromUrl(previewUrl.toString());
+  try {
+    const pdfBuffer = await generatePDFFromUrl(previewUrl.toString());
 
-  console.log(
-    `[worker] Job ${job.id} concluído — ${(pdfBuffer.length / 1024).toFixed(0)}KB`,
-  );
+    console.log(
+      `[worker] Job ${job.id} renderizado — ${(pdfBuffer.length / 1024).toFixed(0)}KB, salvando no storage...`,
+    );
 
-  return {
-    pdfBase64: pdfBuffer.toString("base64"),
-    filename,
-    size: pdfBuffer.length,
-  };
+    // Aqui é o ponto central da refatoração: o PDF vai direto para o
+    // storage, e SÓ os metadados pequenos voltam como resultado do job —
+    // nunca o Buffer/Base64 do PDF em si atravessa o Redis.
+    const { fileKey, size } = await savePdf(pdfBuffer, filename);
+
+    console.log(`[worker] Job ${job.id} concluído — fileKey=${fileKey}`);
+
+    return { fileKey, filename, size };
+  } finally {
+    // O retrato de estado só é necessário durante o processamento deste
+    // job específico — libera o espaço no Redis assim que possível, sem
+    // esperar o TTL de 30min.
+    await deleteState(job.id).catch(() => {});
+  }
 }
 
 const worker = new Worker(QUEUE_NAME, processJob, {
   connection: getConnection(),
-  // concurrency: 1 é o que garante a fila FIFO de verdade — só um PDF é
-  // gerado por vez, então várias pessoas pedindo ao mesmo tempo não
-  // disputam CPU/memória do mesmo Chromium. Se precisar de mais
-  // throughput no futuro, suba esse número COM CUIDADO — cada job aberto
-  // é um Chromium inteiro na memória.
-  concurrency: 1,
-  lockDuration: 5 * 60 * 1000, // 5min — templates grandes (300+ páginas) podem demorar
+  concurrency: CONCURRENCY,
+  // Templates grandes (Montagem Completa, centenas de páginas) podem
+  // demorar — lockDuration generoso evita que o BullMQ considere o job
+  // "travado" e o reenfileire para outro worker enquanto este ainda está
+  // trabalhando nele.
+  lockDuration: 5 * 60 * 1000, // 5min
+  stalledInterval: 30 * 1000,
+  maxStalledCount: 1,
 });
 
 worker.on("completed", (job) => {
@@ -81,14 +122,55 @@ worker.on("completed", (job) => {
 });
 
 worker.on("failed", (job, err) => {
-  console.error(`[worker] ❌ Job ${job?.id} falhou:`, err.message);
+  console.error(
+    `[worker] ❌ Job ${job?.id} falhou (tentativa ${job?.attemptsMade}/${job?.opts?.attempts}):`,
+    err.message,
+  );
 });
 
 worker.on("error", (err) => {
+  // Erros de conexão com o Redis, entre outros — não derruba o processo,
+  // o BullMQ tenta reconectar sozinho.
   console.error("[worker] Erro na conexão/worker:", err.message);
 });
 
+worker.on("stalled", (jobId) => {
+  console.warn(`[worker] ⚠️ Job ${jobId} ficou travado e será reprocessado.`);
+});
+
 console.log(
-  `🚀 Worker de geração de PDF rodando (fila "${QUEUE_NAME}", FIFO, concurrency=1).\n` +
+  `🚀 Worker de geração de PDF rodando (fila "${QUEUE_NAME}", concurrency=${CONCURRENCY}).\n` +
     `   FRONTEND_URL: ${FRONTEND_URL}`,
 );
+
+// ── Encerramento gracioso ────────────────────────────────────────────────
+// Ao receber SIGTERM/SIGINT (é assim que o Render pede para o processo
+// parar antes de um deploy/restart), para de aceitar jobs novos, espera o
+// job atual terminar e fecha o Chromium — evita PDFs pela metade e
+// processos Chromium órfãos consumindo memória.
+let shuttingDown = false;
+async function gracefulShutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`[worker] Recebido ${signal}, encerrando graciosamente...`);
+  try {
+    await worker.close();
+  } catch (err) {
+    console.error("[worker] Erro ao fechar o worker:", err.message);
+  }
+  try {
+    await closeBrowser();
+  } catch (err) {
+    console.error("[worker] Erro ao fechar o Chromium:", err.message);
+  }
+  process.exit(0);
+}
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+process.on("unhandledRejection", (reason) => {
+  console.error("[worker] unhandledRejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("[worker] uncaughtException:", err);
+});

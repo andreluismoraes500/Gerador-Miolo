@@ -1,20 +1,23 @@
 // api/generate.js
 //
-// Este endpoint NÃO gera mais o PDF diretamente. Ele só valida o pedido e
-// coloca um job na fila (BullMQ + Redis). Quem realmente abre o Chromium e
-// gera o PDF é o worker (worker/pdfWorker.js), que processa a fila em
-// regime FIFO (um por vez), para que vários usuários pedindo PDF ao mesmo
-// tempo não disputem CPU/memória do mesmo Chromium e derrubem uns aos
-// outros.
+// Este endpoint NÃO gera o PDF diretamente. Ele só valida o pedido, salva
+// o "retrato" de configuração no Redis (ver stateStore.js) e cria um job
+// no BullMQ. Quem realmente abre o Chromium e gera o PDF é o worker
+// (worker/pdfWorker.js) — um processo Node.js separado, que pode inclusive
+// rodar em outra instância/serviço do Render (Background Worker),
+// consumindo a mesma fila Redis. Isso é o que permite escalar
+// horizontalmente: suba quantos workers quiser, todos competem pelos
+// mesmos jobs, e a API HTTP nunca fica bloqueada esperando um PDF.
 //
 // Fluxo:
 //   1. POST /api/generate           → valida e enfileira, devolve { jobId }
-//   2. GET  /api/status/:jobId      → posição na fila / progresso
-//   3. GET  /api/result/:jobId      → PDF pronto (quando status = completed)
+//   2. GET  /api/status/:jobId      → status do job na fila
+//   3. GET  /api/result/:jobId      → { downloadUrl } quando completed
 //
-// O front-end (src/pages/PreviewPage.jsx) já implementa esse fluxo de
-// polling automaticamente.
-import { enqueuePdfJob, pdfQueue } from "./_lib/pdfQueue.js";
+// O front-end (src/pages/PreviewPage.jsx / TalonarioPage.jsx) já
+// implementa esse fluxo de polling automaticamente.
+import { getQueue, QUEUE_NAME, DEFAULT_JOB_OPTIONS } from "./_lib/queue.js";
+import { setState } from "./_lib/stateStore.js";
 
 function sanitizeFilename(filename) {
   return String(filename || "")
@@ -144,30 +147,40 @@ export default async function handler(req, res) {
       : `agenda-${safeTemplate}-${safeDate}.pdf`;
 
   try {
-    const job = enqueuePdfJob({
-      kind,
-      template,
-      selectedDate,
-      customName,
-      footerType,
-      businessProfileId,
-      builderMode: Boolean(builderMode),
-      filename,
-      // "Foto" do estado do usuário — no caso de agenda, é o localStorage
-      // (template, Montagem Completa, logo, cores etc. — ver
-      // src/utils/agendaStateSnapshot.js); no caso de talonário, é o
-      // retrato do próprio hook useTalonarioBuilder (ver
-      // src/utils/talonarioStateSnapshot.js). É isso que faz o PDF do
-      // backend sair IDÊNTICO ao que a pessoa vê/imprime no navegador.
-      state,
-    });
+    const queue = getQueue();
 
-    const position = pdfQueue.getPosition(job.id);
+    // Cria o job primeiro (job.id vem do BullMQ) e só então grava o
+    // "retrato" de estado no Redis com essa mesma chave — assim
+    // GET /api/state/:id já encontra o retrato assim que o job existe,
+    // mesmo que ele ainda esteja "waiting" na fila.
+    const job = await queue.add(
+      "generate-pdf",
+      {
+        kind,
+        template,
+        selectedDate,
+        customName,
+        footerType,
+        businessProfileId,
+        builderMode: Boolean(builderMode),
+        filename,
+      },
+      DEFAULT_JOB_OPTIONS,
+    );
+
+    // "Foto" do estado do usuário — no caso de agenda, é o localStorage
+    // (template, Montagem Completa, logo, cores etc. — ver
+    // src/utils/agendaStateSnapshot.js); no caso de talonário, é o
+    // retrato do próprio hook useTalonarioBuilder (ver
+    // src/utils/talonarioStateSnapshot.js). É isso que faz o PDF do
+    // backend sair IDÊNTICO ao que a pessoa vê/imprime no navegador.
+    // Fica em uma chave Redis própria (não dentro do job do BullMQ) para
+    // não inflar o job com imagens grandes — ver stateStore.js.
+    await setState(job.id, { kind, state: state || {} });
 
     return res.status(202).json({
       jobId: job.id,
-      status: job.status,
-      position,
+      status: "waiting",
       filename,
     });
   } catch (error) {

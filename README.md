@@ -43,15 +43,3 @@ Gerador de miolos personalizáveis para agendas, com múltiplos layouts e temas 
 ---
 
 ## 📦 Instalação e Execução
-
-```bash
-# Clone o repositório
-git clone https://github.com/seu-usuario/miolos-de-agenda.git
-cd miolos-de-agenda
-
-# Instale as dependências
-npm install
-
-# Rode o servidor de desenvolvimento
-npm run dev
-```

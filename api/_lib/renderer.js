@@ -140,6 +140,18 @@ async function getBrowser() {
   return browserPromise;
 }
 
+// Usado no encerramento gracioso do worker (SIGTERM/SIGINT) para não
+// deixar um processo Chromium órfão consumindo memória depois que o
+// processo Node principal já terminou.
+export async function closeBrowser() {
+  cancelIdleClose();
+  if (browserInstance) {
+    const toClose = browserInstance;
+    browserInstance = null;
+    await toClose.close().catch(() => {});
+  }
+}
+
 export async function generatePDFFromUrl(previewUrl) {
   const browser = await getBrowser();
   const page = await browser.newPage();

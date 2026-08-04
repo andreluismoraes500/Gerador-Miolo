@@ -47,3 +47,16 @@ export const JOB_RETENTION = {
   removeOnComplete: { age: 60 * 60, count: 500 }, // 1h ou até 500 jobs
   removeOnFail: { age: 60 * 60, count: 500 },
 };
+
+// Opções padrão de todo job de geração de PDF: tentativas automáticas com
+// backoff exponencial (jobs falham por motivos transitórios — Chromium
+// travou, timeout de rede — e quase sempre funcionam na 2ª/3ª tentativa),
+// mais a retenção acima.
+export const DEFAULT_JOB_OPTIONS = {
+  attempts: Number(process.env.PDF_JOB_ATTEMPTS || 3),
+  backoff: {
+    type: "exponential",
+    delay: Number(process.env.PDF_JOB_BACKOFF_MS || 5000),
+  },
+  ...JOB_RETENTION,
+};

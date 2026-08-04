@@ -1,0 +1,72 @@
+services:
+  # API + front-end (React buildado + Express). NÃO executa Puppeteer —
+  # só valida requisições, enfileira jobs no BullMQ/Redis e consulta
+  # status/resultado.
+  - type: web
+    name: gerador-miolo-api
+    runtime: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: node server/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: gerador-miolo-redis
+          property: connectionString
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: gerador-miolo-api
+          property: host
+      - key: PUBLIC_API_URL
+        fromService:
+          type: web
+          name: gerador-miolo-api
+          property: host
+      - key: STORAGE_DIR
+        value: /tmp/pdf-storage
+      # Se for usar Object Storage (recomendado — ver .env.example),
+      # defina aqui: STORAGE_ENDPOINT, STORAGE_BUCKET, STORAGE_ACCESS_KEY,
+      # STORAGE_SECRET_KEY (marque como "secret" no dashboard do Render).
+
+  # Worker: processo separado, always-on, que consome a fila BullMQ e
+  # executa Puppeteer/Chromium. Escale o número de instâncias (ou
+  # PDF_WORKER_CONCURRENCY) conforme a necessidade — todas competem pelos
+  # mesmos jobs.
+  - type: worker
+    name: gerador-miolo-worker
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: node worker/pdfWorker.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: gerador-miolo-redis
+          property: connectionString
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: gerador-miolo-api
+          property: host
+      - key: PDF_WORKER_CONCURRENCY
+        value: "1"
+      - key: PDF_JOB_ATTEMPTS
+        value: "3"
+      - key: PDF_JOB_BACKOFF_MS
+        value: "5000"
+      - key: STORAGE_DIR
+        value: /tmp/pdf-storage
+      # Mesmas variáveis de Object Storage do serviço "web", se for usar
+      # (o Worker é quem efetivamente grava o PDF no storage).
+
+keyvalues:
+  - name: gerador-miolo-redis
+    plan: starter
+    ipAllowList: []
