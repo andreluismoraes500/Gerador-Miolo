@@ -6,8 +6,12 @@ import { generatePDFFromUrl, closeBrowser } from "../api/_lib/renderer.js";
 import { savePdf } from "../api/_lib/storage.js";
 import { deleteState, getState } from "../api/_lib/stateStore.js";
 
-// Health-check para o Render (porta aberta)
-const HEALTH_PORT = process.env.PORT || 10000;
+// Health-check para o Render (porta aberta).
+// IMPORTANTE: usa WORKER_PORT (não PORT) — API e Worker rodam como
+// processos separados mas compartilham o mesmo .env localmente; se os
+// dois lessem a mesma variável PORT, o segundo a subir crasharia com
+// EADDRINUSE.
+const HEALTH_PORT = process.env.WORKER_PORT || 10001;
 http
   .createServer((req, res) => {
     res.writeHead(200, { "Content-Type": "text/plain" });
