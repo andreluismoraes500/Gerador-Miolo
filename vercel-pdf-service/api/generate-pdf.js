@@ -1,6 +1,5 @@
 // vercel-pdf-service/api/generate-pdf.js
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer";
 
 const API_SECRET = process.env.API_SECRET || "sua-chave-secreta-aqui";
 
@@ -32,14 +31,13 @@ export default async function handler(req, res) {
   let page = null;
 
   try {
-    // 🔥 OBTÉM O CAMINHO DO CHROMIUM OTIMIZADO PARA SERVERLESS
-    const executablePath = await chromium.executablePath();
-
-    console.log(`[PDF Service] Executable path: ${executablePath}`);
-
+    // 🔥 USANDO PUPPETEER COMPLETO - BAIXA O CHROMIUM DURANTE O BUILD
     browser = await puppeteer.launch({
       args: [
-        ...chromium.args,
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
         "--disable-extensions",
         "--disable-background-networking",
         "--disable-default-apps",
@@ -50,16 +48,11 @@ export default async function handler(req, res) {
         "--no-first-run",
         "--metrics-recording-only",
         "--js-flags=--max-old-space-size=256",
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
       ],
       defaultViewport: {
         width: 1280,
         height: 800,
       },
-      executablePath,
       headless: "new",
       ignoreHTTPSErrors: true,
     });
@@ -79,16 +72,6 @@ export default async function handler(req, res) {
         waitUntil: "networkidle0",
         timeout: 25000,
       });
-    }
-
-    // Aguarda o sinal de pronto (opcional - seu app usa window.__PDF_READY__)
-    try {
-      await page.waitForFunction(() => window.__PDF_READY__ === true, {
-        timeout: 15000,
-        polling: 100,
-      });
-    } catch (signalError) {
-      console.warn("Signal __PDF_READY__ not received, proceeding anyway.");
     }
 
     const pdfBuffer = await page.pdf({
