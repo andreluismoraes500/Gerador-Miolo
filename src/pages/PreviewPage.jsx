@@ -1,11 +1,9 @@
 // src/pages/PreviewPage.jsx
 import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
-import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import AgendaPreview from "../components/AgendaPreview";
 import AgendaBuilderPreview from "../components/AgendaBuilderPreview";
-import { captureAgendaState } from "../utils/agendaStateSnapshot";
 
 export default function PreviewPage() {
   const { settings, builder } = useOutletContext();
@@ -19,7 +17,6 @@ export default function PreviewPage() {
     printing: printingFromSettings,
     businessProfile,
     businessProfileId,
-    footerType,
     handlePrint,
   } = settings;
   const { builderMode, modules } = builder;
@@ -33,127 +30,6 @@ export default function PreviewPage() {
     const params = new URLSearchParams(location.search);
     setPrinting(params.get("printing") === "true" || printingFromSettings);
   }, [location.search, printingFromSettings]);
-
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  async function gerarPDFViaBackend() {
-    const toastId = toast.loading("Entrando na fila...");
-    try {
-      // Tira uma "foto" de tudo que está no localStorage (template, combo
-      // da Montagem Completa, logo, cores, marca d'água, rodapé etc.) e
-      // manda para o backend. É isso que garante que o PDF gerado pelo
-      // servidor saia IDÊNTICO ao que você está vendo aqui na tela — sem
-      // isso o Puppeteer abre uma aba em branco, sem nenhuma das suas
-      // personalizações.
-      const state = captureAgendaState();
-
-      const enqueueRes = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          template,
-          selectedDate,
-          customName,
-          footerType,
-          businessProfileId,
-          builderMode,
-          state,
-        }),
-      });
-
-      if (!enqueueRes.ok) {
-        let errorMsg = "Erro ao enfileirar a geração do PDF";
-        try {
-          const errorData = await enqueueRes.json();
-          errorMsg = errorData.error || errorMsg;
-        } catch (_) {
-          errorMsg = enqueueRes.statusText || errorMsg;
-        }
-        toast.error(errorMsg, { id: toastId });
-        return;
-      }
-
-      const { jobId } = await enqueueRes.json();
-
-      // Faz polling do status até o worker terminar de processar este job
-      // (a fila é FIFO: se houver gente na sua frente, o toast mostra a
-      // posição). Timeout generoso porque templates grandes (montagem
-      // completa, combos com centenas de páginas) podem demorar.
-      const startedAt = Date.now();
-      const TIMEOUT_MS = 6 * 60 * 1000; // 6 minutos
-      let lastStatus = null;
-
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        if (Date.now() - startedAt > TIMEOUT_MS) {
-          toast.error("Demorou demais para gerar o PDF. Tente novamente.", {
-            id: toastId,
-          });
-          return;
-        }
-
-        const statusRes = await fetch(`/api/status/${jobId}`);
-        if (!statusRes.ok) {
-          toast.error("Não foi possível consultar o status do PDF.", {
-            id: toastId,
-          });
-          return;
-        }
-        const statusData = await statusRes.json();
-        lastStatus = statusData.status;
-
-        if (lastStatus === "waiting" || lastStatus === "delayed") {
-          toast.loading(
-            statusData.position
-              ? `Na fila — posição ${statusData.position}...`
-              : "Na fila...",
-            { id: toastId },
-          );
-        } else if (lastStatus === "active") {
-          toast.loading("Gerando seu PDF...", { id: toastId });
-        } else if (lastStatus === "completed") {
-          break;
-        } else if (lastStatus === "failed") {
-          toast.error(statusData.error || "Falha ao gerar o PDF", {
-            id: toastId,
-          });
-          return;
-        }
-
-        await sleep(700);
-      }
-
-      const resultRes = await fetch(`/api/result/${jobId}`);
-      if (!resultRes.ok) {
-        let errorMsg = "Erro ao baixar o PDF gerado";
-        try {
-          const errorData = await resultRes.json();
-          errorMsg = errorData.error || errorMsg;
-        } catch (_) {
-          errorMsg = resultRes.statusText || errorMsg;
-        }
-        toast.error(errorMsg, { id: toastId });
-        return;
-      }
-
-      const blob = await resultRes.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `agenda-${template}-${selectedDate}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast.success("PDF baixado com sucesso!", { id: toastId });
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro de conexão com o servidor.", { id: toastId });
-    }
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -188,19 +64,11 @@ export default function PreviewPage() {
             </button>
 
             <button
-              onClick={gerarPDFViaBackend}
-              className="bg-[#2F6B45] hover:bg-[#275A3B] text-[#FBF8F1] text-sm font-semibold py-2.5 px-5 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#1B4D2F] hover:shadow-[0_1px_0_0_#1B4D2F] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
-            >
-              <MdPrint className="w-4 h-4" />
-              Baixar PDF
-            </button>
-
-            <button
               onClick={handlePrint}
               className="bg-[#8B2E3F] hover:bg-[#7A2837] text-[#FBF8F1] text-sm font-semibold py-2.5 px-5 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#5E1F2B] hover:shadow-[0_1px_0_0_#5E1F2B] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
             >
               <MdPrint className="w-4 h-4" />
-              Imprimir (navegador)
+              Baixar PDF (imprimir → salvar como PDF)
             </button>
           </div>
         </div>

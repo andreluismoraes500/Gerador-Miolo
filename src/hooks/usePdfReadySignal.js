@@ -17,7 +17,7 @@
 
 import { useEffect } from "react";
 
-const STABLE_MS = 400; // tempo sem mutações para considerar "estável"
+const STABLE_MS = 50; // tempo sem mutações para considerar "estável"
 const MAX_WAIT_MS = 45000; // teto de segurança (não trava para sempre)
 const POLL_MS = 100;
 
