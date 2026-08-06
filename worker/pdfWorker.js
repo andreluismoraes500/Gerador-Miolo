@@ -1,27 +1,37 @@
-// worker/pdfWorker.js
-//
-// Este é um PROCESSO NODE.JS PERSISTENTE — diferente de api/generate.js
-// (que é uma função serverless da Vercel, que só roda enquanto atende uma
-// requisição), este arquivo fica rodando continuamente, consumindo a fila
-// Redis e processando um job de PDF de cada vez (concurrency: 1 = FIFO
-// real: quem pediu primeiro, sai primeiro; ninguém disputa o mesmo
-// Chromium ao mesmo tempo).
-//
-// IMPORTANTE: a Vercel NÃO executa processos persistentes — funções
-// serverless têm tempo de vida limitado à requisição. Por isso este
-// worker precisa rodar em outro lugar:
-//   - Localmente, para testar: `npm run worker`
-//   - Em produção: um serviço "always-on" — Railway, Render, Fly.io, um
-//     VPS com pm2/systemd, etc. Ver SETUP.md para o passo a passo.
 import "dotenv/config";
+import http from "node:http";
 import { Worker } from "bullmq";
 import { getConnection, QUEUE_NAME } from "../api/_lib/queue.js";
-import { generatePDFFromUrl } from "../api/_lib/renderer.js";
+import { generatePDFFromUrl, closeBrowser } from "../api/_lib/renderer.js";
+import { savePdf } from "../api/_lib/storage.js";
+import { deleteState, getState } from "../api/_lib/stateStore.js";
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+// Health-check para o Render (porta aberta).
+// IMPORTANTE: usa WORKER_PORT (não PORT) — API e Worker rodam como
+// processos separados mas compartilham o mesmo .env localmente; se os
+// dois lessem a mesma variável PORT, o segundo a subir crasharia com
+// EADDRINUSE.
+const HEALTH_PORT = process.env.WORKER_PORT || 10001;
+http
+  .createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("pdf-worker ok\n");
+  })
+  .listen(HEALTH_PORT, () => {
+    console.log(`[worker] Health-check em http://localhost:${HEALTH_PORT}`);
+  });
+
+// Usa URL interna se disponível, senão a pública
+const FRONTEND_URL =
+  process.env.INTERNAL_FRONTEND_URL ||
+  process.env.FRONTEND_URL ||
+  "http://localhost:5173";
+
+const CONCURRENCY = Number(process.env.PDF_WORKER_CONCURRENCY || 1);
 
 async function processJob(job) {
   const {
+    kind = "agenda",
     template,
     selectedDate,
     customName,
@@ -31,53 +41,73 @@ async function processJob(job) {
     filename,
   } = job.data;
 
-  const previewUrl = new URL("/preview", FRONTEND_URL);
-  previewUrl.searchParams.set("template", template);
-  previewUrl.searchParams.set("selectedDate", selectedDate);
-  previewUrl.searchParams.set("customName", customName || "");
-  previewUrl.searchParams.set("footerType", footerType || "default");
-  previewUrl.searchParams.set(
-    "businessProfileId",
-    businessProfileId || "default",
-  );
-  previewUrl.searchParams.set("builderMode", builderMode ? "true" : "false");
-  // A aba que o Puppeteer abre vai usar essa chave para buscar em
-  // GET /api/state/:jobId o retrato do localStorage do usuário (logo,
-  // cores, módulos escolhidos etc.) — ver src/bootstrap/hydrateFromServer.js
+  // Verifica se o estado ainda existe
+  const stored = await getState(job.id);
+  if (!stored) {
+    throw new Error("Estado do job expirou ou não foi encontrado.");
+  }
+
+  const basePath = kind === "talonario" ? "/talonario" : "/preview";
+  const previewUrl = new URL(basePath, FRONTEND_URL);
+
+  if (kind !== "talonario") {
+    previewUrl.searchParams.set("template", template);
+    previewUrl.searchParams.set("selectedDate", selectedDate);
+    previewUrl.searchParams.set("customName", customName || "");
+    previewUrl.searchParams.set("footerType", footerType || "default");
+    previewUrl.searchParams.set(
+      "businessProfileId",
+      businessProfileId || "default",
+    );
+    previewUrl.searchParams.set("builderMode", builderMode ? "true" : "false");
+  }
+
   previewUrl.searchParams.set("stateKey", String(job.id));
   previewUrl.searchParams.set("printing", "true");
   previewUrl.searchParams.set("_t", Date.now().toString());
 
   console.log(
-    `[worker] Job ${job.id} — gerando "${filename}" a partir de ${previewUrl.toString()}`,
+    `[worker] Job ${job.id} (${kind}) — gerando "${filename}" a partir de ${previewUrl.toString()}`,
   );
 
-  const pdfBuffer = await generatePDFFromUrl(previewUrl.toString());
-
-  console.log(
-    `[worker] Job ${job.id} concluído — ${(pdfBuffer.length / 1024).toFixed(0)}KB`,
+  // Timeout de segurança para o job (10 min)
+  const TIMEOUT = 10 * 60 * 1000;
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Job timeout após 10 minutos")), TIMEOUT),
   );
 
-  return {
-    pdfBase64: pdfBuffer.toString("base64"),
-    filename,
-    size: pdfBuffer.length,
-  };
+  try {
+    const pdfBuffer = await Promise.race([
+      generatePDFFromUrl(previewUrl.toString()),
+      timeoutPromise,
+    ]);
+
+    console.log(
+      `[worker] Job ${job.id} renderizado — ${(pdfBuffer.length / 1024).toFixed(
+        0,
+      )}KB, salvando...`,
+    );
+
+    const { fileKey, size } = await savePdf(pdfBuffer, filename);
+
+    console.log(`[worker] Job ${job.id} concluído — fileKey=${fileKey}`);
+
+    return { fileKey, filename, size };
+  } finally {
+    await deleteState(job.id).catch(() => {});
+  }
 }
 
 const worker = new Worker(QUEUE_NAME, processJob, {
   connection: getConnection(),
-  // concurrency: 1 é o que garante a fila FIFO de verdade — só um PDF é
-  // gerado por vez, então várias pessoas pedindo ao mesmo tempo não
-  // disputam CPU/memória do mesmo Chromium. Se precisar de mais
-  // throughput no futuro, suba esse número COM CUIDADO — cada job aberto
-  // é um Chromium inteiro na memória.
-  concurrency: 1,
-  lockDuration: 5 * 60 * 1000, // 5min — templates grandes (300+ páginas) podem demorar
+  concurrency: CONCURRENCY,
+  lockDuration: 10 * 60 * 1000, // 10 min
+  stalledInterval: 30 * 1000,
+  maxStalledCount: 1,
 });
 
 worker.on("completed", (job) => {
-  console.log(`[worker] ✅ Job ${job.id} finalizado com sucesso.`);
+  console.log(`[worker] ✅ Job ${job.id} finalizado.`);
 });
 
 worker.on("failed", (job, err) => {
@@ -85,10 +115,41 @@ worker.on("failed", (job, err) => {
 });
 
 worker.on("error", (err) => {
-  console.error("[worker] Erro na conexão/worker:", err.message);
+  console.error("[worker] Erro no worker:", err.message);
+});
+
+worker.on("stalled", (jobId) => {
+  console.warn(`[worker] ⚠️ Job ${jobId} ficou travado.`);
 });
 
 console.log(
-  `🚀 Worker de geração de PDF rodando (fila "${QUEUE_NAME}", FIFO, concurrency=1).\n` +
-    `   FRONTEND_URL: ${FRONTEND_URL}`,
+  `🚀 Worker rodando (fila "${QUEUE_NAME}", concurrency=${CONCURRENCY}).\n   FRONTEND_URL: ${FRONTEND_URL}`,
 );
+
+// Graceful shutdown
+let shuttingDown = false;
+async function gracefulShutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`[worker] ${signal} recebido, encerrando...`);
+  try {
+    await worker.close();
+  } catch (err) {
+    console.error("[worker] Erro ao fechar worker:", err.message);
+  }
+  try {
+    await closeBrowser();
+  } catch (err) {
+    console.error("[worker] Erro ao fechar Chromium:", err.message);
+  }
+  process.exit(0);
+}
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+process.on("unhandledRejection", (reason) => {
+  console.error("[worker] unhandledRejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("[worker] uncaughtException:", err);
+});

@@ -1,0 +1,12 @@
+{
+  "name": "vercel-pdf-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "puppeteer": "^25.4.0"
+  },
+  "devDependencies": {
+    "vercel": "^58.5.1"
+  }
+}
