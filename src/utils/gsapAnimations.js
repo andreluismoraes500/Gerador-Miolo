@@ -11,6 +11,15 @@ import gsap from "gsap";
 // com o visual editorial/papel do restante da UI.
 export const EASE = "power3.out";
 
+// Se uma tween "from opacity 0" for morta no meio (cleanup do React/StrictMode,
+// troca de rota, aba em segundo plano), o elemento ficaria preso invisível.
+// Estas opções limpam os estilos inline ao terminar OU ao ser interrompida.
+const safeClear = (targets) => ({
+  clearProps: "opacity,transform",
+  onInterrupt: () => gsap.set(targets, { clearProps: "opacity,transform" }),
+});
+
+
 /**
  * Anima a entrada do cabeçalho/topo da página (usado uma vez, no mount).
  */
@@ -19,7 +28,7 @@ export function animateHeaderIn(el) {
   gsap.fromTo(
     el,
     { y: -16, opacity: 0 },
-    { y: 0, opacity: 1, duration: 0.6, ease: EASE },
+    { y: 0, opacity: 1, duration: 0.6, ease: EASE, ...safeClear(el) },
   );
 }
 
@@ -32,7 +41,7 @@ export function animatePageIn(el) {
   return gsap.fromTo(
     el,
     { opacity: 0, y: 14 },
-    { opacity: 1, y: 0, duration: 0.45, ease: EASE },
+    { opacity: 1, y: 0, duration: 0.45, ease: EASE, ...safeClear(el) },
   );
 }
 
@@ -54,6 +63,7 @@ export function staggerIn(elements, { delay = 0, stagger = 0.06 } = {}) {
       ease: EASE,
       delay,
       stagger,
+      ...safeClear(targets),
     },
   );
 }
