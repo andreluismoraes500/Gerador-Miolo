@@ -31,7 +31,7 @@ import { useAgendaData } from "../../context/AgendaDataContext";
 // identidade visual do restante da agenda/caderno).
 // ─────────────────────────────────────────────────────────────────────────
 
-const PALETA_INFANTIL = [
+export const PALETA_INFANTIL = [
   { bg: "#fff1f2", ink: "#e11d48" }, // rosa
   { bg: "#fff7ed", ink: "#ea580c" }, // laranja
   { bg: "#fefce8", ink: "#ca8a04" }, // amarelo
@@ -164,7 +164,7 @@ export const LETTERING_PALAVRAS = [
 // Utilitários visuais
 // ─────────────────────────────────────────────────────────────────────────
 
-function useVisual(colorTheme, customColors = {}, fontFamily) {
+export function useVisual(colorTheme, customColors = {}, fontFamily) {
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   return {
     tema,
@@ -175,9 +175,9 @@ function useVisual(colorTheme, customColors = {}, fontFamily) {
   };
 }
 
-const FONTE_INFANTIL = "'Fredoka', 'Baloo 2', sans-serif";
+export const FONTE_INFANTIL = "'Fredoka', 'Baloo 2', sans-serif";
 
-function PageShell({
+export function PageShell({
   children,
   fontFamily,
   watermarkSrc,
