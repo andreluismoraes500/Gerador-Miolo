@@ -10,14 +10,18 @@ import {
   FONTE_INFANTIL,
   PALETA_INFANTIL,
 } from "../CaligrafiaLayout";
+import { ADV_CURSIVA, PONTOS_CURSIVA, CAUDA_CURSIVA } from "./pontosCursiva";
 
 export { PageShell, useVisual, FONTE_INFANTIL, PALETA_INFANTIL };
 
-// Playwrite BR = caligrafia escolar brasileira (Google Fonts). As métricas
-// abaixo foram medidas na própria fonte (unidades de em):
-//   altura-x = 0,50 · ascendente/maiúscula ≈ 1,15 · descendente ≈ 0,65
-export const FONTE_CURSIVA = "'Playwrite BR', 'Dancing Script', cursive";
-export const METRICAS_CURSIVA = { topo: 1.15, meio: 0.5, desc: 0.65 };
+// Playwrite CL = cursiva escolar de verdade (Google Fonts): maiúsculas e minúsculas
+// cursivas, upright e arredondadas, com todos os acentos do português. Métricas
+// medidas na própria fonte (unidades de em):
+//   altura-x = 0,52 · ascendente/maiúscula ≈ 1,15 · descendente ≈ 0,65
+// O traçado pontilhado das letras usa a linha central pré-calculada em
+// pontosCursiva.js (gerada a partir desta mesma fonte).
+export const FONTE_CURSIVA = "'Playwrite CL', 'Dancing Script', cursive";
+export const METRICAS_CURSIVA = { topo: 1.15, meio: 0.52, desc: 0.65 };
 
 // Fredoka: dígitos gordinhos e arredondados — ótimos para traçar.
 export const METRICAS_DIGITO = { topo: 0.7, meio: 0.35, desc: 0.05 };
@@ -25,18 +29,8 @@ export const METRICAS_DIGITO = { topo: 0.7, meio: 0.35, desc: 0.05 };
 // Largura útil da página A4 (210 − 22 − 12 de margens espelhadas).
 export const LARGURA = 176;
 
-// Largura de avanço (em) de cada glifo da Playwrite BR — para calcular
-// quantas letras cabem por linha sem precisar medir no navegador.
-export const ADV = {
-  A: 1.2, B: 1.126, C: 0.949, D: 1.244, E: 0.854, F: 1.141, G: 1.145,
-  H: 1.268, I: 0.649, J: 0.733, K: 1.091, L: 0.951, M: 1.612, N: 1.201,
-  O: 1.138, P: 0.965, Q: 1.272, R: 1.15, S: 1.094, T: 0.884, U: 1.183,
-  V: 1.143, W: 1.592, X: 1.179, Y: 1.144, Z: 0.949,
-  a: 0.622, b: 0.614, c: 0.522, d: 0.628, e: 0.444, f: 0.438, g: 0.623,
-  h: 0.676, i: 0.3, j: 0.316, k: 0.564, l: 0.394, m: 0.989, n: 0.671,
-  o: 0.589, p: 0.635, q: 0.647, r: 0.568, s: 0.55, t: 0.388, u: 0.646,
-  v: 0.604, w: 0.888, x: 0.665, y: 0.665, z: 0.465,
-};
+// Largura de avanço (em) de cada glifo — para calcular quantas letras cabem por linha.
+export const ADV = ADV_CURSIVA;
 
 export function larguraTexto(texto, fs) {
   let em = 0;
@@ -58,7 +52,19 @@ const COR_SECAO = [
 // PAUTA
 // ─────────────────────────────────────────────────────────────────────────
 
-// modo: "pontos" | "tracejado" | "solido" | "fantasma"
+// Caminho SVG com um ponto (segmento de comprimento zero + cap arredondado) por coordenada.
+function caminhoPontos(letra, cx, base, fs) {
+  const v = PONTOS_CURSIVA[letra];
+  const ox = cx - (ADV_CURSIVA[letra] * fs) / 2;
+  let d = "";
+  for (let k = 0; k < v.length; k += 2) {
+    d += `M${(ox + (v[k] * fs) / 1000).toFixed(2)} ${(base + (v[k + 1] * fs) / 1000).toFixed(2)}h0`;
+  }
+  return d;
+}
+
+// modo: "pontos" (tubo cinza + pontinhos no centro do traço) | "tracejado" (só
+// pontinhos finos, sem tubo — um degrau mais difícil) | "solido" | "fantasma"
 function Glifo({ t, x, y, fs, modo, cor, fonte, peso }) {
   const base = {
     x,
@@ -68,18 +74,51 @@ function Glifo({ t, x, y, fs, modo, cor, fonte, peso }) {
     fontSize: fs,
     fontWeight: peso,
   };
-  if (modo === "solido")
+  if (modo === "solido") {
+    const cauda = fonte === FONTE_CURSIVA ? CAUDA_CURSIVA[t] : null;
     return (
-      <text {...base} fill={cor}>
-        {t}
-      </text>
+      <g>
+        <text {...base} fill={cor}>
+          {t}
+        </text>
+        {cauda && (
+          <path
+            d={cauda}
+            transform={`translate(${x - (ADV_CURSIVA[t] * fs) / 2} ${y}) scale(${fs / 1000})`}
+            fill="none"
+            stroke={cor}
+            strokeWidth="85"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        )}
+      </g>
     );
+  }
   if (modo === "fantasma")
     return (
       <text {...base} fill="#cbd5e1">
         {t}
       </text>
     );
+
+  // Letra isolada da fonte cursiva → linha central pontilhada (não depende da fonte carregada)
+  if (fonte === FONTE_CURSIVA && PONTOS_CURSIVA[t]) {
+    const d = caminhoPontos(t, x, y, fs);
+    const k = fs / 12.5;
+    if (modo === "tracejado")
+      return (
+        <path d={d} fill="none" stroke="#334155" strokeWidth={0.36 * k} strokeLinecap="round" />
+      );
+    return (
+      <g>
+        <path d={d} fill="none" stroke="#e5e9f1" strokeWidth={1.7 * k} strokeLinecap="round" />
+        <path d={d} fill="none" stroke="#111827" strokeWidth={0.42 * k} strokeLinecap="round" />
+      </g>
+    );
+  }
+
+  // Textos (palavras, frases, dígitos): contorno pontilhado sobre "tubo" cinza
   const tubo = modo === "tracejado" ? "#eef2f7" : "#e2e6ee";
   const escala = Math.min(1, fs / 12.5);
   const larguraTubo = Math.max(0.6, (modo === "tracejado" ? 1.6 : 1.3) * escala);
@@ -95,13 +134,7 @@ function Glifo({ t, x, y, fs, modo, cor, fonte, peso }) {
         {t}
       </text>
       {modo === "tracejado" ? (
-        <text
-          {...base}
-          fill="none"
-          stroke="#374151"
-          strokeWidth="0.18"
-          strokeDasharray="0.8 0.6"
-        >
+        <text {...base} fill="none" stroke="#374151" strokeWidth="0.18" strokeDasharray="0.8 0.6">
           {t}
         </text>
       ) : (

@@ -23,8 +23,8 @@ import {
 } from "./base";
 
 const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const FS = 12.5; // mm — tamanho do corpo da letra na pauta
-const ALTURA_LINHA = 25; // mm
+const FS = 12; // mm — tamanho do corpo da letra na pauta
+const ALTURA_LINHA = 23.5; // mm
 
 // Lista de páginas: A, a, B, b, ...
 export const PAGINAS_ALFABETO_CURSIVO = [...ALFABETO].flatMap((letra) => [
@@ -71,19 +71,19 @@ export function CaligrafiaAlfabetoCursivoPage({ item, ...rest }) {
       />
 
       <Secao n={1}>Cubra os tracejados.</Secao>
-      <div className="flex flex-col gap-1.5 shrink-0">
+      <div className="flex flex-col gap-1 shrink-0">
         {linhaTraco("pontos")}
         {linhaTraco("pontos")}
       </div>
 
       <Secao n={2}>Cubra os tracejados.</Secao>
-      <div className="flex flex-col gap-1.5 shrink-0">
+      <div className="flex flex-col gap-1 shrink-0">
         {linhaTraco("tracejado")}
         {linhaTraco("tracejado")}
       </div>
 
       <Secao n={3}>Copie a letra {letra} {tipo}.</Secao>
-      <div className="flex flex-col gap-1.5 shrink-0">
+      <div className="flex flex-col gap-1 shrink-0">
         {linhaCopia}
         {linhaCopia}
         {linhaCopia}
