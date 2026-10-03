@@ -11,6 +11,8 @@ import {
   PALETA_INFANTIL,
 } from "../CaligrafiaLayout";
 import { ADV_CURSIVA, PONTOS_CURSIVA, CAUDA_CURSIVA } from "./pontosCursiva";
+import { CONTORNOS_CURSIVA } from "./contornosCursiva";
+import "./fonte-cursiva.css";
 
 export { PageShell, useVisual, FONTE_INFANTIL, PALETA_INFANTIL };
 
@@ -75,24 +77,31 @@ function Glifo({ t, x, y, fs, modo, cor, fonte, peso }) {
     fontWeight: peso,
   };
   if (modo === "solido") {
-    const cauda = fonte === FONTE_CURSIVA ? CAUDA_CURSIVA[t] : null;
+    // Letra isolada da fonte cursiva: desenha o contorno embutido (não depende da fonte carregar)
+    const contorno = fonte === FONTE_CURSIVA ? CONTORNOS_CURSIVA[t] : null;
+    if (contorno) {
+      const cauda = CAUDA_CURSIVA[t];
+      const tr = `translate(${x - (ADV_CURSIVA[t] * fs) / 2} ${y}) scale(${fs / 1000})`;
+      return (
+        <g transform={tr}>
+          <path d={contorno} fill={cor} />
+          {cauda && (
+            <path
+              d={cauda}
+              fill="none"
+              stroke={cor}
+              strokeWidth="85"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          )}
+        </g>
+      );
+    }
     return (
-      <g>
-        <text {...base} fill={cor}>
-          {t}
-        </text>
-        {cauda && (
-          <path
-            d={cauda}
-            transform={`translate(${x - (ADV_CURSIVA[t] * fs) / 2} ${y}) scale(${fs / 1000})`}
-            fill="none"
-            stroke={cor}
-            strokeWidth="85"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        )}
-      </g>
+      <text {...base} fill={cor}>
+        {t}
+      </text>
     );
   }
   if (modo === "fantasma")
