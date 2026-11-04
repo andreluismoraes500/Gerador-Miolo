@@ -1,4 +1,5 @@
 // src/components/layouts/DiaCompleto.jsx
+import { useContext } from "react";
 import { FaPix, FaCalendarDays } from "react-icons/fa6";
 import { GiMoneyStack } from "react-icons/gi";
 import { CiCreditCard2 } from "react-icons/ci";
@@ -7,15 +8,14 @@ import {
   getFeriado,
   getComemorativa,
   gerarHorarios,
-  somarMinutos,
-} from "../../utils/agendaUtils";
+  somarMinutos, formatLocalDate } from "../../utils/agendaUtils";
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
 import { getBusinessProfile } from "../../config/businessProfiles";
 import Watermark from "../Watermark";
 import Background from "../Background";
-import { useBusinessProfileContext } from "../../context/BusinessProfileContext";
+import { BusinessProfileContext } from "../../context/BusinessProfileContext";
 import EditableField from "../EditableField";
 import { useAgendaConfig } from "../../context/AgendaConfigContext";
 
@@ -39,11 +39,7 @@ export default function DiaCompleto({
   const comemorativa = getComemorativa(data);
   const tema = TEMAS[colorTheme] || TEMAS.classico;
 
-  let contextProfile = null;
-  try {
-    const context = useBusinessProfileContext();
-    contextProfile = context?.profile;
-  } catch (e) {}
+  const contextProfile = useContext(BusinessProfileContext)?.profile ?? null;
 
   const perfil = propBusinessProfile ||
     contextProfile ||
@@ -57,7 +53,7 @@ export default function DiaCompleto({
   const numeroDiaColor = customColors.numeroDia || "#000000";
   const mesColor = customColors.mes || "#9ca3af";
   const diaSemanaColor = customColors.diaSemana || primaryColor;
-  const diaKey = data.toISOString().split("T")[0];
+  const diaKey = formatLocalDate(data);
 
   // Obtém a cor dos horários do contexto (aplicada também aos textos da tabela)
   const {

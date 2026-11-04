@@ -3,7 +3,7 @@
 import { createContext, useContext, useMemo } from "react";
 import { useBusinessProfile } from "../hooks/useBusinessProfile";
 
-const BusinessProfileContext = createContext(null);
+export const BusinessProfileContext = createContext(null);
 
 export function BusinessProfileProvider({
   children,

@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // Acesso ao localStorage à prova de falhas. Em navegadores com storage
-// bloqueado (modo privado, cookies desativados, WebView do Instagram/WhatsApp),
-// ou com a cota cheia (logo/fundo em base64), getItem/setItem LANÇAM exceção.
-// Como isso rodava dentro dos Providers (fora de qualquer ErrorBoundary), a
-// exceção derrubava o app inteiro na primeira visita.
+// bloqueado (modo privado, WebView do Instagram/WhatsApp) ou com a cota cheia
+// (logo/fundo em base64), getItem/setItem LANÇAM exceção. Como isso roda dentro
+// dos Providers (fora de qualquer ErrorBoundary), a exceção derrubaria o app.
 function safeGet(key) {
   try {
     return localStorage.getItem(key);
@@ -21,6 +20,13 @@ function safeSet(key, value) {
   }
 }
 
+const SAVE_DELAY_MS = 400;
+
+/**
+ * useState persistido em localStorage. A gravação é agrupada (debounce) para
+ * não serializar o estado a cada tecla em campos editáveis; ao sair da aba ou
+ * desmontar, o último valor pendente é gravado imediatamente.
+ */
 export function usePersistedState(key, initialValue) {
   const [state, setState] = useState(() => {
     const stored = safeGet(key);
@@ -32,13 +38,27 @@ export function usePersistedState(key, initialValue) {
     }
   });
 
+  const pending = useRef(null);
+
   useEffect(() => {
     if (state === undefined) return;
-    try {
-      safeSet(key, JSON.stringify(state));
-    } catch {
-      /* JSON.stringify falhou (valor circular etc.) */
-    }
+    const flush = () => {
+      try {
+        safeSet(key, JSON.stringify(state));
+      } catch {
+        /* JSON.stringify falhou (valor circular etc.) */
+      }
+      pending.current = null;
+    };
+    pending.current = flush;
+    const timer = setTimeout(flush, SAVE_DELAY_MS);
+    const onHide = () => pending.current?.();
+    window.addEventListener("pagehide", onHide);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("pagehide", onHide);
+      pending.current?.();
+    };
   }, [key, state]);
 
   return [state, setState];

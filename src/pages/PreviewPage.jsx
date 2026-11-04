@@ -1,7 +1,6 @@
 // src/pages/PreviewPage.jsx
 import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
-import { useEffect, useState } from "react";
 import AgendaPreview from "../components/AgendaPreview";
 import AgendaBuilderPreview from "../components/AgendaBuilderPreview";
 
@@ -24,12 +23,7 @@ export default function PreviewPage() {
   // Lê o parâmetro 'printing' da URL
   const searchParams = new URLSearchParams(location.search);
   const forcePrint = searchParams.get("printing") === "true";
-  const [printing, setPrinting] = useState(forcePrint || printingFromSettings);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setPrinting(params.get("printing") === "true" || printingFromSettings);
-  }, [location.search, printingFromSettings]);
+  const printing = forcePrint || printingFromSettings;
 
   return (
     <div className="flex flex-col gap-6">

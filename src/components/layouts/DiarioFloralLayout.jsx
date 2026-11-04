@@ -9,7 +9,7 @@
 // esta página é deliberadamente livre: só linhas, para quem quer
 // escrever sem estrutura de compromissos.
 
-import { getFeriado, getComemorativa } from "../../utils/agendaUtils";
+import { getFeriado, getComemorativa, formatLocalDate } from "../../utils/agendaUtils";
 import { getVersiculoAleatorio } from "../../utils/versiculos";
 import FloralCorner from "../FloralCorner";
 import Watermark from "../Watermark";
@@ -56,7 +56,7 @@ export default function DiarioFloralLayout({
 
   const palette = tema.floralPalette || undefined;
 
-  const diaKey = data.toISOString().split("T")[0];
+  const diaKey = formatLocalDate(data);
   const versiculo = getVersiculoAleatorio();
 
   const mesNome = data.toLocaleDateString("pt-BR", { month: "long" });

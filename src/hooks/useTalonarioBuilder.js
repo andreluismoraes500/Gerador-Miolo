@@ -9,24 +9,6 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 import { usePersistedState } from "./usePersistedState";
 
-// Quando este hook é montado numa aba controlada pelo Puppeteer (geração
-// de PDF pelo backend), main.jsx já rodou hydrateFromServer() ANTES do
-// React montar e populou window.__TALONARIO_HYDRATE__ com o "retrato" de
-// configuração que o usuário tinha na tela dele (ver
-// src/utils/talonarioStateSnapshot.js). Cada useState relevante abaixo
-// usa esse valor como estado inicial quando disponível — para qualquer
-// usuário normal, window.__TALONARIO_HYDRATE__ não existe e o valor
-// padrão de sempre é usado normalmente.
-function hydrated(key, fallback) {
-  if (typeof window !== "undefined" && window.__TALONARIO_HYDRATE__) {
-    const h = window.__TALONARIO_HYDRATE__;
-    if (h && Object.prototype.hasOwnProperty.call(h, key)) {
-      return h[key];
-    }
-  }
-  return fallback;
-}
-
 // Paleta padrão de cada aba — usada como ponto de partida e como opção de
 // "restaurar cor padrão" nas configurações.
 export const TAL_ACCENTS = {
@@ -125,7 +107,7 @@ function shuffled(arr) {
   return a;
 }
 
-function generateBingoCard(freeSpace) {
+export function generateBingoCard(freeSpace) {
   const columns = {};
   for (const letter of BINGO_LETTERS) {
     const [min, max] = BINGO_RANGES[letter];
@@ -156,7 +138,7 @@ export const BINGO_LAYOUTS = {
 };
 
 export function useTalonarioBuilder() {
-  const [activeTab, setActiveTab] = useState(() => hydrated("activeTab", "pedido"));
+  const [activeTab, setActiveTab] = useState(() => "pedido");
 
   // ---------------- Cores (configuráveis por aba) ----------------
   // Guardadas no localStorage para não se perder entre visitas. Cada aba
@@ -186,8 +168,7 @@ export function useTalonarioBuilder() {
   );
 
   // ---------------- Pedido de Venda ----------------
-  const [pedido, setPedido] = useState(() =>
-    hydrated("pedido", {
+  const [pedido, setPedido] = useState(() => ({
       empresa: "",
       slogan: "",
       numStart: 1,
@@ -219,8 +200,7 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Receituário ----------------
-  const [receituario, setReceituario] = useState(() =>
-    hydrated("receituario", {
+  const [receituario, setReceituario] = useState(() => ({
       clinica: "",
       profissional: "",
       registro: "",
@@ -239,8 +219,7 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Receita culinária ----------------
-  const [receita, setReceita] = useState(() =>
-    hydrated("receita", {
+  const [receita, setReceita] = useState(() => ({
       titulo: "",
       categoria: "",
       dificuldade: "Fácil",
@@ -257,8 +236,7 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Ordem de Serviço ----------------
-  const [ordemServico, setOrdemServico] = useState(() =>
-    hydrated("ordemServico", {
+  const [ordemServico, setOrdemServico] = useState(() => ({
       empresa: "",
       slogan: "",
       numStart: 1,
@@ -276,8 +254,7 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Recibo de Pagamento ----------------
-  const [recibo, setRecibo] = useState(() =>
-    hydrated("recibo", {
+  const [recibo, setRecibo] = useState(() => ({
       empresa: "",
       slogan: "",
       numStart: 1,
@@ -294,8 +271,7 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Comandas ----------------
-  const [comanda, setComanda] = useState(() =>
-    hydrated("comanda", {
+  const [comanda, setComanda] = useState(() => ({
       empresa: "",
       slogan: "",
       numStart: 1,
@@ -312,8 +288,7 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Reserva / Agendamento ----------------
-  const [reserva, setReserva] = useState(() =>
-    hydrated("reserva", {
+  const [reserva, setReserva] = useState(() => ({
       empresa: "",
       slogan: "",
       numStart: 1,
@@ -330,8 +305,7 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Vale-Presente / Voucher ----------------
-  const [valePresente, setValePresente] = useState(() =>
-    hydrated("valePresente", {
+  const [valePresente, setValePresente] = useState(() => ({
       empresa: "",
       slogan: "",
       numStart: 1,
@@ -348,8 +322,7 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Bingo ----------------
-  const [bingo, setBingo] = useState(() =>
-    hydrated("bingo", {
+  const [bingo, setBingo] = useState(() => ({
       titulo: "Noite de Bingo",
       subtitulo: "",
       quantidade: 4,
@@ -368,7 +341,7 @@ export function useTalonarioBuilder() {
   }, [bingo.quantidade]);
 
   const [bingoCards, setBingoCards] = useState(() =>
-    hydrated("bingoCards", generateBingoCards(4, true)),
+    generateBingoCards(4, true),
   );
 
   // Ajusta a quantidade de cartelas geradas sem re-sortear as que já
@@ -391,8 +364,7 @@ export function useTalonarioBuilder() {
   }, [bingoQty, bingo.freeSpace]);
 
   // ---------------- Logos ----------------
-  const [logos, setLogos] = useState(() =>
-    hydrated("logos", {
+  const [logos, setLogos] = useState(() => ({
       pedido: null,
       receituario: null,
       receita: null,
@@ -420,8 +392,7 @@ export function useTalonarioBuilder() {
   }, []);
 
   // ---------------- Marca d'água ----------------
-  const [watermark, setWatermark] = useState(() =>
-    hydrated("watermark", {
+  const [watermark, setWatermark] = useState(() => ({
       on: false,
       type: "text",
       text: "AMOSTRA",

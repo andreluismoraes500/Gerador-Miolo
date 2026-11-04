@@ -1,4 +1,5 @@
 // src/hooks/useAgendaSettings.js
+import { DEFAULT_FOOTER_NAME } from "../config/appInfo";
 import { useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { TEMAS } from "../themes";
@@ -230,7 +231,7 @@ export function useAgendaSettings() {
   const footerName =
     customName && customName.trim() !== ""
       ? customName
-      : "Lucas Cassiano de Moraes";
+      : DEFAULT_FOOTER_NAME;
 
   return {
     template,

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { DEFAULT_FOOTER_NAME } from "../config/appInfo";
 import { TEMAS } from "../themes";
 import { BUSINESS_PROFILES } from "../config/businessProfiles";
 import { getVersiculoAleatorio } from "../utils/versiculos";
@@ -15,7 +16,7 @@ export default function Footer({
   const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.default;
 
   const displayName =
-    name && name.trim() !== "" ? name : "Lucas Cassiano de Moraes";
+    name && name.trim() !== "" ? name : DEFAULT_FOOTER_NAME;
 
   const versiculo = useMemo(() => getVersiculoAleatorio(), []);
 

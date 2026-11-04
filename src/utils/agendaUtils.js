@@ -167,3 +167,11 @@ export function gerarDiasDoAno(ano) {
   }
   return dias;
 }
+
+/** Chave de data local (YYYY-MM-DD), sem deslocamento de fuso como em toISOString(). */
+export function formatLocalDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}

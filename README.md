@@ -43,3 +43,19 @@ Gerador de miolos personalizáveis para agendas, com múltiplos layouts e temas 
 ---
 
 ## 📦 Instalação e Execução
+
+---
+
+## 🛠️ Desenvolvimento
+
+```bash
+npm install
+npm run dev      # servidor local em http://localhost:5173
+npm run lint     # ESLint (config na raiz)
+npm test         # Vitest (utilitários de agenda e geração de bingo)
+npm run build    # build de produção em dist/
+```
+
+- Projeto 100% front-end: o PDF é gerado pelo navegador (`window.print()` → "Salvar como PDF").
+- Copie `.env.example` para `.env` para configurar a chave PIX (`VITE_PIX_KEY`) e o QR Code em `public/pix.png` é opcional (sem ele, só a chave PIX é exibida).
+- Chaves de data de campos editáveis usam a data **local** (`formatLocalDate`), evitando deslocamento de fuso.

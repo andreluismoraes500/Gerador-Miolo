@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useCallback, useMemo } from "react";
 import { usePersistedState } from "../hooks/usePersistedState";
 
 const AgendaDataContext = createContext();
@@ -6,16 +6,20 @@ const AgendaDataContext = createContext();
 export function AgendaDataProvider({ children }) {
   const [editData, setEditData] = usePersistedState("agenda-edit-data", {});
 
-  const setField = (key, value) => {
-    setEditData((prev) => ({ ...prev, [key]: value }));
-  };
+  const setField = useCallback(
+    (key, value) => setEditData((prev) => ({ ...prev, [key]: value })),
+    [setEditData],
+  );
 
-  const getField = (key) => {
-    return editData[key] || "";
-  };
+  const getField = useCallback((key) => editData[key] || "", [editData]);
+
+  const value = useMemo(
+    () => ({ editData, setField, getField }),
+    [editData, setField, getField],
+  );
 
   return (
-    <AgendaDataContext.Provider value={{ editData, setField, getField }}>
+    <AgendaDataContext.Provider value={value}>
       {children}
     </AgendaDataContext.Provider>
   );
