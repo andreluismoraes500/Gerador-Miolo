@@ -1,4 +1,5 @@
 // src/pages/ConfigPage.jsx
+import { DEFAULT_FOOTER_NAME } from "../config/appInfo";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import {
   MdUpload,
@@ -552,7 +553,7 @@ export default function ConfigPage() {
                 <p className="text-xs text-[#8B6A1F] mt-2 flex items-center gap-2">
                   <span>ℹ️</span>
                   Deixe em branco para usar o nome padrão:{" "}
-                  <strong>Lucas Cassiano de Moraes</strong>
+                  <strong>{DEFAULT_FOOTER_NAME}</strong>
                 </p>
               )}
             </div>

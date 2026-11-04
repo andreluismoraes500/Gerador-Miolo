@@ -12,7 +12,7 @@
 
 import { MdStarBorder, MdPushPin } from "react-icons/md";
 import { FaCalendarDays } from "react-icons/fa6";
-import { getFeriado, getComemorativa } from "../../utils/agendaUtils";
+import { getFeriado, getComemorativa, formatLocalDate } from "../../utils/agendaUtils";
 import EditableField from "../EditableField";
 import Logo from "../Logo";
 import MiniCalendario from "../MiniCalendario";
@@ -31,7 +31,7 @@ export default function DiaComercialBloco({
 }) {
   const feriado = getFeriado(data);
   const comemorativa = getComemorativa(data);
-  const diaKey = data.toISOString().split("T")[0];
+  const diaKey = formatLocalDate(data);
 
   // Quantidade de linhas: menos no modo compacto (2 dias/página),
   // mais no modo cheio (1 dia/página). Como as linhas usam flex-1, elas

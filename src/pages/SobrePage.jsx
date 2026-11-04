@@ -4,7 +4,8 @@
 // Miolos de Agenda realmente faz. Da folha em branco até o PDF pronto pra
 // imprimir, com um pouco de teatro (GSAP) pelo caminho.
 
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { CREATOR_NAME } from "../config/appInfo";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -25,11 +26,12 @@ import { staggerIn, popHover } from "../utils/gsapAnimations";
 import { TEMPLATE_KEYS } from "../templates/manifest";
 import { BUSINESS_PROFILES } from "../config/businessProfiles";
 import { TEMAS } from "../themes";
-import pixQrCode from "../assets/pix.png";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const CHAVE_PIX = "eb076378-eef6-4504-8b12-713f19d1c510";
+const CHAVE_PIX =
+  import.meta.env.VITE_PIX_KEY || "eb076378-eef6-4504-8b12-713f19d1c510";
+const PIX_QR_SRC = `${import.meta.env.BASE_URL}pix.png`;
 
 function FeatureCard({ icon: Icon, title, children }) {
   const cardRef = useRef(null);
@@ -91,6 +93,7 @@ export default function SobrePage() {
   const stepsWrapRef = useRef(null);
   const stepLineRef = useRef(null);
   const stepNodeRefs = useRef([]);
+  const [qrOk, setQrOk] = useState(true); // QR em public/pix.png é opcional
   const pixCardRef = useRef(null);
   const pixButtonRef = useRef(null);
   const copyIconRef = useRef(null);
@@ -512,13 +515,16 @@ export default function SobrePage() {
         ref={pixCardRef}
         className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-sm"
       >
-        <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-xl overflow-hidden border border-[#D8CBA8] shrink-0 bg-white flex items-center justify-center">
-          <img
-            src={pixQrCode}
-            alt="QR Code para apoiar via PIX"
-            className="w-full h-full object-contain"
-          />
-        </div>
+        {qrOk && (
+          <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-xl overflow-hidden border border-[#D8CBA8] shrink-0 bg-white flex items-center justify-center">
+            <img
+              src={PIX_QR_SRC}
+              onError={() => setQrOk(false)}
+              alt="QR Code para apoiar via PIX"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        )}
         <div className="flex-1 text-center sm:text-left flex flex-col gap-2">
           <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] font-semibold text-[#8B6A1F] justify-center sm:justify-start">
             <MdFavorite className="w-3 h-3" />
@@ -576,7 +582,7 @@ export default function SobrePage() {
           <MdArrowForward className="w-4 h-4" />
         </button>
         <p className="text-[11px] text-[#8B96A8] mt-1">
-          Miolos de Agenda — idealizado por André Luis de Moraes.
+          Miolos de Agenda — idealizado por {CREATOR_NAME}.
         </p>
       </div>
     </div>

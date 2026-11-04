@@ -22,6 +22,7 @@ import {
 import {
   useTalonarioBuilder,
   BINGO_LAYOUTS,
+  generateBingoCard,
 } from "../hooks/useTalonarioBuilder";
 import {
   PedidoCard,

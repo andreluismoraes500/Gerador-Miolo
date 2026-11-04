@@ -5,8 +5,7 @@ import { MdStarBorder, MdPushPin } from "react-icons/md";
 import {
   getFeriado,
   getComemorativa,
-  gerarHorarios,
-} from "../../utils/agendaUtils";
+  gerarHorarios, formatLocalDate } from "../../utils/agendaUtils";
 import Footer from "../Footer";
 import { TEMAS } from "../../themes";
 import Logo from "../Logo";
@@ -46,7 +45,7 @@ export default function DiarioLivre({
   const mesColor = customColors.mes || "#9ca3af";
   const diaSemanaColor = customColors.diaSemana || primaryColor;
 
-  const diaKey = data.toISOString().split("T")[0];
+  const diaKey = formatLocalDate(data);
 
   return (
     <div
