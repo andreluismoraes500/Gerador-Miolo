@@ -17,7 +17,10 @@ import {
   MdChecklistRtl,
   MdSchool,
 } from "react-icons/md";
-import { TEMPLATE_MANIFEST } from "../templates/manifest";
+import {
+  TEMPLATE_MANIFEST,
+  getTemplatesPorCategoria,
+} from "../templates/manifest";
 import { BUILDER_PRESETS } from "../hooks/useAgendaBuilder";
 
 // Templates que geram várias páginas sozinhos — vale avisar o usuário.
@@ -84,10 +87,7 @@ export default function BuilderPanel({ builder }) {
     setDragOverIdx(null);
   };
 
-  const templateOptions = Object.entries(TEMPLATE_MANIFEST).map(([key, t]) => ({
-    key,
-    nome: t.nome,
-  }));
+  const templateGroups = getTemplatesPorCategoria();
 
   const temPlannerMensal = modules.some((m) => m.templateKey === "plannerMensal");
   const temAnual = modules.some((m) => ANNUAL_DAY_TEMPLATES.has(m.templateKey));
@@ -149,11 +149,15 @@ export default function BuilderPanel({ builder }) {
             onChange={(e) => setSelectedToAdd(e.target.value)}
             className="border border-[#D8CBA8] rounded-lg px-3 py-1.5 text-xs bg-[#FBF8F1] font-medium focus:ring-2 focus:ring-[#B8933D]/40 focus:border-[#B8933D] focus:outline-none transition"
           >
-            {templateOptions.map((opt) => (
-              <option key={opt.key} value={opt.key}>
-                {opt.nome}
-                {MULTI_PAGE_TEMPLATES.has(opt.key) ? " (várias páginas)" : ""}
-              </option>
+            {templateGroups.map((g) => (
+              <optgroup key={g.id} label={g.nome}>
+                {g.itens.map((opt) => (
+                  <option key={opt.key} value={opt.key}>
+                    {opt.nome}
+                    {MULTI_PAGE_TEMPLATES.has(opt.key) ? " (várias páginas)" : ""}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
           <button
