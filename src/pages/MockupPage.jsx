@@ -17,7 +17,7 @@ import BlocoStage, { FORMATOS_BLOCO, PAPELAO } from "../components/mockup/BlocoS
 import MockupStage, { CENAS, STAGE_H, STAGE_W } from "../components/mockup/MockupStage";
 import { METAIS, TIPOS_ANELADOS, TIPOS_ENCADERNACAO } from "../components/mockup/bindings";
 import { usePersistedState } from "../hooks/usePersistedState";
-import { TAMANHOS, MATERIAIS } from "../components/mockup3d/opcoes";
+import { TAMANHOS, MATERIAIS, DISPOSICOES, PRODUTOS, FAIXA_ARGOLAS, MODELOS_PRONTOS } from "../components/mockup3d/opcoes";
 import "../styles/mockup.css";
 
 // three.js só é baixado quando a pessoa abre o mockup 3D.
@@ -73,6 +73,15 @@ export default function MockupPage() {
   const [visual, setVisual] = usePersistedState("mockup-visual", "3d");
   const [tamanho, setTamanho] = usePersistedState("mockup-tamanho", "a5");
   const [mat, setMat] = usePersistedState("mockup-material", "carton");
+  const [disp, setDisp] = usePersistedState("mockup-disp", "esquerda");
+  const [aneisAuto, setAneisAuto] = usePersistedState("mockup-aneis-auto", true);
+  const [aneisN, setAneisN] = usePersistedState("mockup-aneis-n", 20);
+  const [elastico, setElastico] = usePersistedState("mockup-elastico", false);
+  const [corElastico, setCorElastico] = usePersistedState("mockup-cor-elastico", "#111111");
+  const [fita, setFita] = usePersistedState("mockup-fita", false);
+  const [corFita, setCorFita] = usePersistedState("mockup-cor-fita", "#b3262e");
+  const [caneta, setCaneta] = usePersistedState("mockup-caneta", false);
+  const [cantos, setCantos] = usePersistedState("mockup-cantos", false);
   const [girar, setGirar] = useState(false);
   const [gravando, setGravando] = useState(false);
   const m3dRef = useRef(null);
@@ -83,6 +92,16 @@ export default function MockupPage() {
   const [gerando, setGerando] = useState(false);
   const [baixando, setBaixando] = useState(false);
 
+  const vis = produto === "calendario" || produto === "kit" ? "3d" : visual;
+  const faixa = FAIXA_ARGOLAS[tipo];
+  const aneisUsados = faixa ? Math.min(faixa.max, Math.max(faixa.min, aneisN)) : null;
+  const aneisProp = faixa && !aneisAuto ? aneisUsados : null;
+  const setters = {
+    produto: setProduto, tipo: setTipo, disp: setDisp, mat: setMat, metal: setMetal, tamanho: setTamanho,
+    view: setView, aneisAuto: setAneisAuto, aneisN: setAneisN, elastico: setElastico, fita: setFita,
+    caneta: setCaneta, cantos: setCantos,
+  };
+  const aplicarModelo = (m) => Object.entries(m.set).forEach(([k, v]) => setters[k]?.(v));
   const anelado = TIPOS_ANELADOS.includes(tipo);
   const temMetal = anelado || tipo === "grampo" || tipo === "costura";
 
@@ -120,7 +139,7 @@ export default function MockupPage() {
     cfg.footerType,
   ];
   useEffect(() => {
-    if (produto !== "agenda" || origem !== "agenda") return;
+    if (produto === "bloco" || origem !== "agenda") return;
     const t = setTimeout(capturar, 350);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -215,7 +234,7 @@ export default function MockupPage() {
     try {
       const blob = await api.gravar(6);
       const url = URL.createObjectURL(blob);
-      baixar(url, `mockup-${produto === "bloco" ? "bloco" : "agenda"}.webm`);
+      baixar(url, `mockup-${produto}.webm`);
       setTimeout(() => URL.revokeObjectURL(url), 2000);
       toast.success("Vídeo baixado!", { id: t });
     } catch (e) {
@@ -236,17 +255,27 @@ export default function MockupPage() {
 
       <div className="mk-grid">
         <aside className="mk-controles">
-          <Bloco titulo="Produto">
-            <div className="mk-seg">
-              <button type="button" className={produto === "agenda" ? "is-on" : ""} onClick={() => setProduto("agenda")}>
-                Agenda
-              </button>
-              <button type="button" className={produto === "bloco" ? "is-on" : ""} onClick={() => setProduto("bloco")}>
-                Bloco
-              </button>
+          <Bloco titulo="Modelos prontos">
+            <div className="mk-modelos">
+              {MODELOS_PRONTOS.map((m) => (
+                <button key={m.id} type="button" onClick={() => aplicarModelo(m)}>
+                  {m.nome}
+                </button>
+              ))}
             </div>
           </Bloco>
 
+          <Bloco titulo="Produto">
+            <div className="mk-seg mk-seg--4">
+              {Object.entries(PRODUTOS).map(([id, nome]) => (
+                <button key={id} type="button" className={produto === id ? "is-on" : ""} onClick={() => setProduto(id)}>
+                  {nome}
+                </button>
+              ))}
+            </div>
+          </Bloco>
+
+          {produto !== "calendario" && produto !== "kit" && (
           <Bloco titulo="Visual">
             <div className="mk-seg">
               <button type="button" className={visual === "3d" ? "is-on" : ""} onClick={() => setVisual("3d")}>
@@ -257,8 +286,9 @@ export default function MockupPage() {
               </button>
             </div>
           </Bloco>
+          )}
 
-          {visual === "3d" && produto === "agenda" && (
+          {vis === "3d" && produto !== "bloco" && (
             <>
               <Bloco titulo="Tamanho">
                 <div className="mk-seg">
@@ -278,6 +308,70 @@ export default function MockupPage() {
                   ))}
                 </div>
               </Bloco>
+              {(produto === "agenda" || produto === "calendario") && faixa && (
+                <Bloco titulo={tipo === "argolas" ? "Quantidade de argolas" : "Quantidade de anéis"}>
+                  <label className="mk-linha">
+                    Automático
+                    <input type="checkbox" checked={aneisAuto} onChange={(e) => setAneisAuto(e.target.checked)} />
+                  </label>
+                  {!aneisAuto && (
+                    <label className="mk-linha">
+                      {aneisUsados} {tipo === "argolas" ? "argolas" : "anéis"}
+                      <input type="range" min={faixa.min} max={faixa.max} value={aneisUsados} onChange={(e) => setAneisN(Number(e.target.value))} />
+                    </label>
+                  )}
+                </Bloco>
+              )}
+              {produto === "agenda" && (
+                <>
+                  <Bloco titulo="Posição da encadernação">
+                    <div className="mk-seg">
+                      {Object.entries(DISPOSICOES).map(([id, nome]) => (
+                        <button key={id} type="button" className={disp === id ? "is-on" : ""} onClick={() => setDisp(id)}>
+                          {nome}
+                        </button>
+                      ))}
+                    </div>
+                  </Bloco>
+                  <Bloco titulo="Extras">
+                    <label className="mk-linha">
+                      Cantos arredondados
+                      <input type="checkbox" checked={cantos} onChange={(e) => setCantos(e.target.checked)} />
+                    </label>
+                    <label className="mk-linha">
+                      Elástico
+                      <span className="mk-par">
+                        {elastico && <input type="color" value={corElastico} onChange={(e) => setCorElastico(e.target.value)} />}
+                        <input type="checkbox" checked={elastico} onChange={(e) => setElastico(e.target.checked)} />
+                      </span>
+                    </label>
+                    <label className="mk-linha">
+                      Fita marcadora
+                      <span className="mk-par">
+                        {fita && <input type="color" value={corFita} onChange={(e) => setCorFita(e.target.value)} />}
+                        <input type="checkbox" checked={fita} onChange={(e) => setFita(e.target.checked)} />
+                      </span>
+                    </label>
+                    <label className="mk-linha">
+                      Porta-caneta com caneta
+                      <input type="checkbox" checked={caneta} onChange={(e) => setCaneta(e.target.checked)} />
+                    </label>
+                  </Bloco>
+                </>
+              )}
+              {(produto === "kit" || produto === "calendario") && (
+                <Bloco titulo={produto === "kit" ? "Arte da folha do bloco" : "Arte do calendário (opcional)"}>
+                  <label className="mk-upload">
+                    <MdImage /> {folhaBloco ? "Trocar arte" : "Enviar arte"}
+                    <input type="file" accept="image/*" hidden onChange={(e) => subir(e.target.files?.[0], setFolhaBloco)} />
+                  </label>
+                  {folhaBloco && (
+                    <button type="button" className="mk-link" onClick={() => setFolhaBloco(null)}>
+                      remover
+                    </button>
+                  )}
+                </Bloco>
+              )}
             </>
           )}
 
@@ -335,11 +429,11 @@ export default function MockupPage() {
             </>
           )}
 
-          {produto === "agenda" && (
+          {produto !== "bloco" && (
           <>
           <Bloco titulo="Encadernação / furo">
             <div className="mk-tipos">
-              {TIPOS_ENCADERNACAO.map((t) => (
+              {TIPOS_ENCADERNACAO.filter((t) => (produto === "calendario" ? ["wireo", "espiral"].includes(t.id) : produto === "kit" ? t.id !== "bloco" : true)).map((t) => (
                 <button
                   key={t.id}
                   type="button"
@@ -371,6 +465,7 @@ export default function MockupPage() {
             </Bloco>
           )}
 
+          {produto === "agenda" && (
           <Bloco titulo="Visualização">
             <div className="mk-seg">
               <button type="button" className={view === "fechada" ? "is-on" : ""} onClick={() => setView("fechada")}>
@@ -381,6 +476,7 @@ export default function MockupPage() {
               </button>
             </div>
           </Bloco>
+          )}
 
           <Bloco titulo="Capa">
             <div className="mk-seg">
@@ -411,7 +507,7 @@ export default function MockupPage() {
             </label>
           </Bloco>
 
-          {view === "aberta" && (
+          {produto === "agenda" && view === "aberta" && (
             <Bloco titulo="Página interna (lado direito)">
               <label className="mk-upload">
                 <MdImage /> {miolo ? "Trocar imagem do miolo" : "Enviar imagem do miolo"}
@@ -447,7 +543,7 @@ export default function MockupPage() {
 
         <main className="mk-palco">
           <div className="mk-moldura">
-            {visual === "3d" ? (
+            {vis === "3d" ? (
               <Suspense fallback={<div className="mk3d-host mk3d-carregando">Carregando 3D…</div>}>
                 <Mockup3D
                   ref={m3dRef}
@@ -469,6 +565,14 @@ export default function MockupPage() {
                   corCola={corCola}
                   destacando={destacando}
                   girar={girar}
+                  disp={disp}
+                  aneis={aneisProp}
+                  elastico={elastico}
+                  corElastico={corElastico}
+                  fita={fita}
+                  corFita={corFita}
+                  caneta={caneta}
+                  cantos={cantos}
                 />
               </Suspense>
             ) : produto === "bloco" ? (
@@ -499,7 +603,7 @@ export default function MockupPage() {
             )}
             {gerando && <div className="mk-gerando">Gerando capa…</div>}
           </div>
-          {visual === "3d" && (
+          {vis === "3d" && (
             <div className="mk-vistas">
               <span>Arraste para girar · role para aproximar</span>
               <button type="button" onClick={() => m3dRef.current?.preset("tres")}>3/4</button>
@@ -512,7 +616,7 @@ export default function MockupPage() {
           )}
           <div className="mk-acoes">
             <span className="mk-legenda">{produto === "bloco" ? `Bloco ${FORMATOS_BLOCO[formato]?.nome.toLowerCase()} · colado ${lado === "topo" ? "no topo" : "na lateral"}` : `${tipoAtual?.nome} · ${tipoAtual?.desc}`}</span>
-            {visual === "3d" ? (
+            {vis === "3d" ? (
               <>
                 <button type="button" className="mk-btn mk-btn--sec" onClick={gravarVideo} disabled={gravando}>
                   {gravando ? "Gravando…" : "Vídeo"}
@@ -539,7 +643,7 @@ export default function MockupPage() {
       </div>
 
       {/* Capa real, fora da tela, apenas para ser capturada em imagem. */}
-      {produto === "agenda" && origem === "agenda" && (
+      {produto !== "bloco" && origem === "agenda" && (
         <div className="mk-offscreen" aria-hidden="true">
           <div ref={capaRef} style={{ width: "210mm", height: "297mm" }}>
             <CapaLayout

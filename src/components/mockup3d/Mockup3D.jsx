@@ -176,9 +176,10 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
   const chave = JSON.stringify([
     props.produto, props.tipo, props.metal, props.mat, props.view, props.corCapa,
     props.tamanho, props.formato, props.lado, props.espessura, props.papelao,
-    props.corCola, props.destacando,
+    props.corCola, props.destacando, props.disp, props.aneis, props.elastico,
+    props.corElastico, props.fita, props.corFita, props.caneta, props.cantos,
   ]);
-  const chaveFit = `${props.produto}|${props.view}|${props.tamanho}|${props.formato}|${props.tipo === "bloco"}|${props.destacando}`;
+  const chaveFit = `${props.produto}|${props.view}|${props.tamanho}|${props.formato}|${props.tipo === "bloco"}|${props.destacando}|${props.disp}`;
 
   useEffect(() => {
     const s = S.current;
@@ -206,7 +207,7 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
       const aspect = s.camera.aspect || 1;
       const fov = (s.camera.fov * Math.PI) / 180;
       const dist = (r / Math.sin(fov / 2)) * (aspect < 1.1 ? 1.2 / Math.min(aspect, 1.1) * 0.9 : 0.9);
-      s.controls.target.set(0, 0.05, 0);
+      s.controls.target.set(0, m.userData.cy ?? 0.05, 0);
       s.camera.position.copy(dir.multiplyScalar(dist));
       s.controls.update();
     }

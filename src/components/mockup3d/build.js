@@ -22,28 +22,48 @@ function canvasTex(w, h, draw, srgb = true) {
   return t;
 }
 
-export function texturaPautado(ctx3, { cor = "#b9c4d6", margem = true } = {}) {
-  return ctx3.track(
-    canvasTex(512, 724, (g, w, h) => {
-      g.fillStyle = "#fffdf8";
-      g.fillRect(0, 0, w, h);
-      g.strokeStyle = cor;
-      g.lineWidth = 1.4;
-      for (let y = 110; y < h - 40; y += 30) {
-        g.beginPath();
-        g.moveTo(36, y);
-        g.lineTo(w - 36, y);
-        g.stroke();
-      }
-      if (margem) {
-        g.strokeStyle = "#e8a5a5";
-        g.beginPath();
-        g.moveTo(64, 40);
-        g.lineTo(64, h - 40);
-        g.stroke();
-      }
-    }),
-  );
+function girarCanvas(src, deg) {
+  const r = ((deg % 360) + 360) % 360;
+  if (!r) return src;
+  const w0 = src.naturalWidth || src.width;
+  const h0 = src.naturalHeight || src.height;
+  const troca = r === 90 || r === 270;
+  const c = document.createElement("canvas");
+  c.width = troca ? h0 : w0;
+  c.height = troca ? w0 : h0;
+  const x = c.getContext("2d");
+  x.translate(c.width / 2, c.height / 2);
+  x.rotate((deg * Math.PI) / 180);
+  x.drawImage(src, -w0 / 2, -h0 / 2);
+  return c;
+}
+
+export function texturaPautado(ctx3, { cor = "#b9c4d6", margem = true, giro = 0 } = {}) {
+  const c = document.createElement("canvas");
+  c.width = 512;
+  c.height = 724;
+  const g = c.getContext("2d");
+  g.fillStyle = "#fffdf8";
+  g.fillRect(0, 0, c.width, c.height);
+  g.strokeStyle = cor;
+  g.lineWidth = 1.4;
+  for (let y = 110; y < c.height - 40; y += 30) {
+    g.beginPath();
+    g.moveTo(36, y);
+    g.lineTo(c.width - 36, y);
+    g.stroke();
+  }
+  if (margem) {
+    g.strokeStyle = "#e8a5a5";
+    g.beginPath();
+    g.moveTo(64, 40);
+    g.lineTo(64, c.height - 40);
+    g.stroke();
+  }
+  const t = new THREE.CanvasTexture(girarCanvas(c, giro));
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return ctx3.track(t);
 }
 
 function texturaBordaPaginas(ctx3) {
@@ -104,23 +124,35 @@ function texturaGrao(ctx3, tipo) {
   );
 }
 
-export function carregarTextura(ctx3, src, aspect) {
+export function carregarTextura(ctx3, src, aspect, giro = 0) {
   if (!src) return null;
-  const t = new THREE.TextureLoader().load(src, (tex) => {
-    const im = tex.image;
-    if (!aspect || !im?.width) return;
-    const ia = im.width / im.height; // "object-fit: cover"
-    if (ia > aspect) {
-      tex.repeat.x = aspect / ia;
-      tex.offset.x = (1 - tex.repeat.x) / 2;
-    } else {
-      tex.repeat.y = ia / aspect;
-      tex.offset.y = (1 - tex.repeat.y) / 2;
-    }
-    tex.needsUpdate = true;
-  });
+  const branco = document.createElement("canvas");
+  branco.width = branco.height = 2;
+  branco.getContext("2d").fillStyle = "#fff";
+  branco.getContext("2d").fillRect(0, 0, 2, 2);
+  const t = new THREE.CanvasTexture(branco);
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 8;
+  const im = new Image();
+  im.onload = () => {
+    const fonte = girarCanvas(im, giro);
+    t.image = fonte;
+    const fw = fonte.naturalWidth || fonte.width;
+    const fh = fonte.naturalHeight || fonte.height;
+    if (aspect && fw) {
+      const ia = fw / fh; // "object-fit: cover"
+      if (ia > aspect) {
+        t.repeat.x = aspect / ia;
+        t.offset.x = (1 - t.repeat.x) / 2;
+      } else {
+        t.repeat.y = ia / aspect;
+        t.offset.y = (1 - t.repeat.y) / 2;
+      }
+    }
+    t.dispose(); // o tamanho mudou: força realocar a textura na GPU
+    t.needsUpdate = true;
+  };
+  im.src = src;
   return ctx3.track(t);
 }
 
@@ -197,23 +229,140 @@ function elipseCurva(cx, cy, a, b, passoGrau = 8) {
   return new THREE.CatmullRomCurve3(pts, true);
 }
 
-function zsDoRing(H, passo, margem = 0.17) {
-  const n = Math.max(3, Math.floor((H - margem * 2) / passo) + 1);
-  const total = (n - 1) * passo;
-  return Array.from({ length: n }, (_, i) => -total / 2 + i * passo);
+
+// Placa plana (capa/miolo) com os cantos do lado da borda externa arredondados.
+// UV: tampas mapeadas em planta (x,z); laterais em (x+z, y).
+function placa(W, H, T, { raio = 0, matCap, matLado }) {
+  const r = Math.min(raio, W / 2.5, H / 2.5);
+  const s = new THREE.Shape();
+  s.moveTo(-W / 2, -H / 2);
+  if (r > 0) {
+    s.lineTo(W / 2 - r, -H / 2);
+    s.quadraticCurveTo(W / 2, -H / 2, W / 2, -H / 2 + r);
+    s.lineTo(W / 2, H / 2 - r);
+    s.quadraticCurveTo(W / 2, H / 2, W / 2 - r, H / 2);
+  } else {
+    s.lineTo(W / 2, -H / 2);
+    s.lineTo(W / 2, H / 2);
+  }
+  s.lineTo(-W / 2, H / 2);
+  s.closePath();
+  const geo = new THREE.ExtrudeGeometry(s, { depth: T, bevelEnabled: false, curveSegments: 10 });
+  geo.rotateX(-Math.PI / 2);
+  geo.translate(0, -T / 2, 0);
+  const pos = geo.attributes.position;
+  const nor = geo.attributes.normal;
+  const uv = new Float32Array(pos.count * 2);
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const z = pos.getZ(i);
+    if (Math.abs(nor.getY(i)) > 0.5) {
+      uv[i * 2] = (x + W / 2) / W;
+      uv[i * 2 + 1] = (H / 2 - z) / H;
+    } else {
+      uv[i * 2] = (x + z) * 0.7;
+      uv[i * 2 + 1] = (y + T / 2) / T;
+    }
+  }
+  geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  const m = new THREE.Mesh(geo, [matCap, matLado]);
+  m.castShadow = true;
+  m.receiveShadow = true;
+  return m;
+}
+
+// Dimensões do modelo conforme a disposição da encadernação.
+// O modelo é sempre construído com a lombada à esquerda (-x) e depois girado.
+function orientar(o) {
+  const b = TAMANHOS[o.tamanho] || TAMANHOS.a5;
+  const disp = o.disp || "esquerda";
+  if (disp === "topo") return { W: b.h, H: b.w, rotY: -Math.PI / 2, giro: -90 };
+  if (disp === "direita") return { W: b.w, H: b.h, rotY: Math.PI, giro: 180 };
+  return { W: b.w, H: b.h, rotY: 0, giro: 0 };
+}
+
+function finalizar(g, { rotY, W, H, T }) {
+  const out = new THREE.Group();
+  out.add(g);
+  out.rotation.y = rotY;
+  const gira90 = Math.abs(Math.abs(rotY) - Math.PI / 2) < 0.01;
+  out.userData.w = gira90 ? H : W;
+  out.userData.h = gira90 ? W : H;
+  out.userData.t = T;
+  return out;
+}
+
+// Anéis enrolados (wire-o = argolas fechadas; espiral = hélice contínua).
+// n = quantidade (null = automático pelo tamanho).
+function aneisEnrolados(g, { tipo, metalMat, H, n, cx, cy, a, b, furosX, yFuro }) {
+  if (tipo === "wireo") {
+    const margem = 0.17;
+    const total = H - margem * 2;
+    const k = Math.max(2, n || Math.floor(total / 0.085) + 1);
+    const geo = new THREE.TubeGeometry(elipseCurva(cx, cy, a, b), 56, 0.0085, 8, true);
+    for (let i = 0; i < k; i++) {
+      const z = -total / 2 + (i * total) / (k - 1);
+      const r = new THREE.Mesh(geo, metalMat);
+      r.position.z = z;
+      r.castShadow = true;
+      g.add(r);
+      furosX.forEach((fx) => g.add(furo(fx, yFuro, z)));
+    }
+  } else {
+    const turns = Math.max(3, n || Math.floor((H - 0.3) / 0.09));
+    const pitch = (H - 0.3) / turns;
+    const total = turns * pitch;
+    const N = turns * 28;
+    const pts = [];
+    for (let i = 0; i <= N; i++) {
+      const t = i / 28;
+      const ang = t * Math.PI * 2;
+      pts.push(new THREE.Vector3(cx + a * Math.cos(ang), cy + b * Math.sin(ang), -total / 2 + t * pitch));
+    }
+    g.add(tubo(new THREE.CatmullRomCurve3(pts), N * 2, 0.0095, metalMat));
+    for (let i = 0; i < turns; i++) {
+      furosX.forEach((fx) => g.add(furo(fx, yFuro, -total / 2 + i * pitch)));
+    }
+  }
+}
+
+function zsArgolas(H, n) {
+  const k = Math.max(2, Math.min(8, n || 3));
+  const sp = (H * 0.64) / (k - 1);
+  return Array.from({ length: k }, (_, i) => -H * 0.32 + i * sp);
+}
+
+function caneta(cor, metalMat) {
+  const g = new THREE.Group();
+  const corpo = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.024, 0.024, 1.05, 24).rotateX(Math.PI / 2),
+    new THREE.MeshPhysicalMaterial({ color: cor, roughness: 0.3, clearcoat: 0.8 }),
+  );
+  const ponta = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.2, 24).rotateX(Math.PI / 2), metalMat);
+  ponta.position.z = 0.625;
+  const fundo = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.05, 24).rotateX(Math.PI / 2), metalMat);
+  fundo.position.z = -0.54;
+  const clipe = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.012, 0.42), metalMat);
+  clipe.position.set(0, 0.03, -0.3);
+  [corpo, ponta, fundo, clipe].forEach((m) => {
+    m.castShadow = true;
+    g.add(m);
+  });
+  return g;
 }
 
 // ---------------------------------------------------------------- caderno FECHADO
 
 export function construirFechado(ctx3, o) {
-  const { tipo, metal, mat, corCapa, capaSrc, tamanho } = o;
-  const { w: W, h: H } = TAMANHOS[tamanho] || TAMANHOS.a5;
+  const { tipo, metal, mat, corCapa, capaSrc } = o;
+  const { W, H, rotY, giro } = orientar(o);
   const duro = tipo === "argolas" || tipo === "brochura" || tipo === "costura";
   const c = duro ? 0.026 : 0.012;
-  const T = tipo === "grampo" ? 0.07 : 0.2;
+  const T = o.Tov ?? (tipo === "grampo" ? 0.07 : 0.2);
   const g = new THREE.Group();
 
-  const mapCapa = carregarTextura(ctx3, capaSrc, W / H);
+  const mapCapa = carregarTextura(ctx3, capaSrc, W / H, giro);
   const capa = matCapa(ctx3, { cor: corCapa, mat, map: mapCapa });
   const capaCor = matCapa(ctx3, { cor: corCapa, mat, map: null });
   // lados/lombada acompanham a cor predominante da arte da capa
@@ -233,64 +382,50 @@ export function construirFechado(ctx3, o) {
   const pagTopo = matPapel();
 
   const over = duro ? 0.025 : 0.005;
-  // contracapa e capa
-  const back = caixa(W, c, H, mats6({ topo: capaCor, lados: capaCor }));
+  const rad = o.cantos ? 0.11 : 0;
+
+  let back;
+  let front;
+  if (rad) {
+    back = placa(W, H, c, { raio: rad, matCap: capaCor, matLado: capaCor });
+    front = placa(W, H, c, { raio: rad, matCap: capa, matLado: capaCor });
+  } else {
+    back = caixa(W, c, H, mats6({ topo: capaCor, lados: capaCor }));
+    front = caixa(W, c, H, mats6({ topo: capa, lados: capaCor, base: capaCor }));
+  }
   back.position.y = c / 2;
-  const front = caixa(W, c, H, mats6({ topo: capa, lados: capaCor, base: capaCor }));
   front.position.y = c + T + c / 2;
   g.add(back, front);
 
-  // bloco de folhas
   const pw = W - (duro ? over * 2 : 0.04);
   const ph = H - over * 2;
-  const pages = caixa(pw, T, ph, mats6({ topo: pagTopo, lados: bordaPag }));
+  const pages = rad
+    ? placa(pw, ph, T, { raio: rad * 0.8, matCap: pagTopo, matLado: bordaPag })
+    : caixa(pw, T, ph, mats6({ topo: pagTopo, lados: bordaPag }));
   pages.position.set(duro ? 0.005 : 0.0, c + T / 2, 0);
   g.add(pages);
 
-  const yTop = c + T + c; // topo da capa
-  const yMid = (c + T + c) / 2;
+  const yTop = c + T + c;
+  const yMid = yTop / 2;
   const metalMat = matMetal(metal);
 
   if (tipo === "wireo" || tipo === "espiral") {
-    const bR = yMid + 0.032; // meia-altura do anel (acima/abaixo do bloco)
+    const bR = yMid + 0.032;
     const a = tipo === "wireo" ? 0.062 : 0.052;
     const xc = -W / 2 + 0.008;
     const s = Math.sqrt(Math.max(0.05, 1 - Math.pow((yTop - yMid) / bR, 2)));
-    const hx = xc + a * s;
-    // recua folhas e capas para o anel passar "pelos furos"
-    if (tipo === "wireo") {
-      const passo = 0.085;
-      const zs = zsDoRing(H, passo);
-      const geo = new THREE.TubeGeometry(elipseCurva(xc, yMid, a, bR), 56, 0.0085, 8, true);
-      for (const z of zs) {
-        const r = new THREE.Mesh(geo, metalMat);
-        r.position.z = z;
-        r.castShadow = true;
-        g.add(r);
-        g.add(furo(hx, yTop + 0.0007, z));
-      }
-    } else {
-      const turns = Math.floor((H - 0.3) / 0.09);
-      const pts = [];
-      const pitch = 0.09;
-      const total = turns * pitch;
-      const N = turns * 28;
-      for (let i = 0; i <= N; i++) {
-        const t = i / 28; // voltas
-        const ang = t * Math.PI * 2;
-        pts.push(new THREE.Vector3(xc + a * Math.cos(ang), yMid + bR * Math.sin(ang), -total / 2 + t * pitch));
-      }
-      g.add(tubo(new THREE.CatmullRomCurve3(pts), N * 2, 0.0095, metalMat));
-      for (let i = 0; i < turns; i++) g.add(furo(hx, yTop + 0.0007, -total / 2 + (i + 0.0) * pitch));
-    }
+    aneisEnrolados(g, {
+      tipo, metalMat, H, n: o.aneis,
+      cx: xc, cy: yMid, a, b: bR,
+      furosX: [xc + a * s], yFuro: yTop + 0.0007,
+    });
   }
 
   if (tipo === "argolas") {
-    // lombada grossa + rebites
     const sp = caixa(0.07, T + c * 2 + 0.006, H + 0.004, matCor(corCapa, 0.6));
     sp.position.set(-W / 2 + 0.035, yMid + 0.003, 0);
     g.add(sp);
-    for (const z of [-H * 0.3, 0, H * 0.3]) {
+    for (const z of zsArgolas(H, o.aneis)) {
       const riv = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.008, 20), metalMat);
       riv.position.set(-W / 2 + 0.035, yTop + 0.009, z);
       riv.castShadow = true;
@@ -308,7 +443,6 @@ export function construirFechado(ctx3, o) {
     const geo = new THREE.CylinderGeometry(r, r, H, 28, 1, false, Math.PI, Math.PI);
     const lomb = new THREE.Mesh(geo, matCor(corCapa, 0.6));
     lomb.rotation.x = Math.PI / 2;
-    lomb.rotation.z = 0;
     lomb.position.set(-W / 2, yMid, 0);
     lomb.castShadow = true;
     g.add(lomb);
@@ -322,9 +456,9 @@ export function construirFechado(ctx3, o) {
       fio.metalness = 0;
       fio.roughness = 0.9;
       for (let z = -H / 2 + 0.2; z < H / 2 - 0.15; z += 0.28) {
-        const s = caixa(0.05, 0.003, 0.012, fio, { sombra: false });
-        s.position.set(-W / 2 + 0.03, yTop + 0.0015, z);
-        g.add(s);
+        const s2 = caixa(0.05, 0.003, 0.012, fio, { sombra: false });
+        s2.position.set(-W / 2 + 0.03, yTop + 0.0015, z);
+        g.add(s2);
       }
     }
   }
@@ -340,30 +474,71 @@ export function construirFechado(ctx3, o) {
     }
   }
 
-  g.userData.w = W;
-  g.userData.h = H;
-  g.userData.t = T + c * 2;
-  return g;
+  // ---------- extras ----------
+  if (o.elastico) {
+    const mE = matCor(o.corElastico || "#111111", 0.6);
+    const ex = W / 2 - 0.2;
+    const topo = caixa(0.024, 0.004, H + 0.008, mE, { sombra: false });
+    topo.position.set(ex, yTop + 0.002, 0);
+    const baixo = caixa(0.024, 0.004, H + 0.008, mE, { sombra: false });
+    baixo.position.set(ex, -0.0005, 0);
+    g.add(topo, baixo);
+    for (const sz of [-1, 1]) {
+      const ponta = caixa(0.024, yTop + 0.008, 0.004, mE, { sombra: false });
+      ponta.position.set(ex, yTop / 2, sz * (H / 2 + 0.002));
+      g.add(ponta);
+    }
+    const mpl = caixa(0.03, 0.002, 0.07, metalMat, { sombra: false });
+    mpl.position.set(ex, yTop + 0.005, -H * 0.18);
+    g.add(mpl);
+  }
+
+  if (o.fita) {
+    const mF = matCor(o.corFita || "#b3262e", 0.45);
+    const comp = 0.34;
+    const queda = Math.atan2(c + 0.006 - 0.002, comp);
+    const fita = caixa(0.026, 0.003, comp, mF, { sombra: false });
+    fita.position.set(W * 0.08, (c + 0.006 + 0.002) / 2, H / 2 + comp / 2 - 0.06);
+    fita.rotation.x = queda;
+    g.add(fita);
+  }
+
+  if (o.caneta) {
+    const zr = -H / 2 + 0.42;
+    const cxp = W / 2 + 0.004;
+    const anel = new THREE.Mesh(new THREE.TorusGeometry(0.036, 0.0075, 10, 28), matCor(corCapa, 0.5));
+    anel.position.set(cxp, yMid, zr);
+    anel.castShadow = true;
+    g.add(anel);
+    const ancora = caixa(0.09, 0.004, 0.04, matCor(corCapa, 0.5), { sombra: false });
+    ancora.position.set(W / 2 - 0.04, yTop + 0.002, zr);
+    g.add(ancora);
+    const cn = caneta("#1b2430", metalMat);
+    cn.position.set(cxp, yMid, zr + 0.18);
+    g.add(cn);
+  }
+
+  return finalizar(g, { rotY, W, H, T: T + c * 2 });
 }
 
 // ---------------------------------------------------------------- caderno ABERTO
 
 export function construirAberto(ctx3, o) {
-  const { tipo, metal, mat, corCapa, miolosrc, tamanho } = o;
-  const { w: W, h: H } = TAMANHOS[tamanho] || TAMANHOS.a5;
+  const { tipo, metal, mat, corCapa, miolosrc } = o;
+  const { W, H, rotY, giro } = orientar(o);
   const duro = tipo === "argolas" || tipo === "brochura" || tipo === "costura";
   const c = duro ? 0.026 : 0.012;
   const T = tipo === "grampo" ? 0.07 : 0.2;
-  const tl = T / 2; // espessura de cada lado
+  const tl = T / 2;
   const g = new THREE.Group();
   const pw = W - 0.03;
   const ph = H - (duro ? 0.05 : 0.02);
 
   const capaCor = matCapa(ctx3, { cor: corCapa, mat, map: null });
   const bordaPag = new THREE.MeshStandardMaterial({ map: texturaBordaPaginas(ctx3), roughness: 0.95 });
-  const mapMiolo = carregarTextura(ctx3, miolosrc, pw / ph);
-  const matDir = matPapel(mapMiolo || texturaPautado(ctx3));
-  const matEsq = matPapel(texturaPautado(ctx3));
+  const mapMiolo = carregarTextura(ctx3, miolosrc, pw / ph, giro);
+  const matDir = matPapel(mapMiolo || texturaPautado(ctx3, { giro }));
+  const matEsq = matPapel(texturaPautado(ctx3, { giro }));
 
   const base = caixa(W * 2 + 0.02, c, H + (duro ? 0.05 : 0.01), mats6({ topo: capaCor, lados: capaCor }));
   base.position.y = c / 2;
@@ -376,7 +551,6 @@ export function construirAberto(ctx3, o) {
   g.add(esq, dir);
 
   const yTop = c + tl;
-  // sombra da dobra
   const gut = new THREE.Mesh(
     new THREE.PlaneGeometry(0.34, ph),
     new THREE.MeshBasicMaterial({ map: texturaGutter(ctx3), transparent: true, depthWrite: false }),
@@ -389,40 +563,17 @@ export function construirAberto(ctx3, o) {
 
   if (tipo === "wireo" || tipo === "espiral") {
     const a = tipo === "wireo" ? 0.06 : 0.05;
-    const bR = 0.06;
-    if (tipo === "wireo") {
-      const geo = new THREE.TubeGeometry(elipseCurva(0, yTop - 0.005, a, bR), 56, 0.0085, 8, true);
-      for (const z of zsDoRing(H, 0.085)) {
-        const r = new THREE.Mesh(geo, metalMat);
-        r.position.z = z;
-        r.castShadow = true;
-        g.add(r);
-        g.add(furo(-a, yTop + 0.0007, z), furo(a, yTop + 0.0007, z));
-      }
-    } else {
-      const turns = Math.floor((H - 0.3) / 0.09);
-      const pitch = 0.09;
-      const total = turns * pitch;
-      const N = turns * 28;
-      const pts = [];
-      for (let i = 0; i <= N; i++) {
-        const t = i / 28;
-        const ang = t * Math.PI * 2;
-        pts.push(new THREE.Vector3(a * Math.cos(ang), yTop - 0.005 + bR * Math.sin(ang), -total / 2 + t * pitch));
-      }
-      g.add(tubo(new THREE.CatmullRomCurve3(pts), N * 2, 0.0095, metalMat));
-      for (let i = 0; i < turns; i++) {
-        const z = -total / 2 + i * pitch;
-        g.add(furo(-a, yTop + 0.0007, z), furo(a, yTop + 0.0007, z));
-      }
-    }
+    aneisEnrolados(g, {
+      tipo, metalMat, H, n: o.aneis,
+      cx: 0, cy: yTop - 0.005, a, b: 0.06,
+      furosX: [-a, a], yFuro: yTop + 0.0007,
+    });
   }
 
   if (tipo === "argolas") {
-    const x0 = -W * 0.5 - 0.02 + 0.0;
-    const placa = caixa(0.07, 0.012, H - 0.06, metalMat);
-    placa.position.set(-0.18, yTop + 0.006, 0);
-    g.add(placa);
+    const placaM = caixa(0.07, 0.012, H - 0.06, metalMat);
+    placaM.position.set(-0.18, yTop + 0.006, 0);
+    g.add(placaM);
     const geo = new THREE.TubeGeometry(
       new THREE.CatmullRomCurve3(
         Array.from({ length: 33 }, (_, i) => {
@@ -430,18 +581,14 @@ export function construirAberto(ctx3, o) {
           return new THREE.Vector3(-0.18 + 0.12 * Math.cos(r), yTop + 0.012 + (T + 0.03) * Math.sin(r), 0);
         }),
       ),
-      40,
-      0.0125,
-      8,
-      false,
+      40, 0.0125, 8, false,
     );
-    for (const z of [-H * 0.3, 0, H * 0.3]) {
+    for (const z of zsArgolas(H, o.aneis)) {
       const r = new THREE.Mesh(geo, metalMat);
       r.position.z = z;
       r.castShadow = true;
       g.add(r);
     }
-    void x0;
   }
 
   if (tipo === "costura") {
@@ -461,10 +608,7 @@ export function construirAberto(ctx3, o) {
     }
   }
 
-  g.userData.w = W * 2;
-  g.userData.h = H;
-  g.userData.t = c + tl;
-  return g;
+  return finalizar(g, { rotY, W: W * 2, H, T: c + tl });
 }
 
 // ---------------------------------------------------------------- BLOCO (pad)
@@ -531,9 +675,86 @@ export function construirBloco(ctx3, o) {
   return g;
 }
 
+// ---------------------------------------------------------------- CALENDÁRIO DE MESA
+
+export function construirCalendario(ctx3, o) {
+  const tipo = o.tipo === "espiral" ? "espiral" : "wireo";
+  const art = o.folhaSrc || o.capaSrc;
+  const book = construirFechado(ctx3, {
+    ...o, tipo, disp: "topo", Tov: 0.05, capaSrc: art, view: "fechada",
+    elastico: false, fita: false, caneta: false,
+  });
+  const al = 1.22; // ~70° de inclinação
+  const stand = new THREE.Group();
+  stand.add(book);
+  stand.rotation.x = al;
+  stand.updateMatrixWorld(true);
+  const bb = new THREE.Box3().setFromObject(stand);
+  stand.position.y = -bb.min.y;
+
+  const out = new THREE.Group();
+  out.add(stand);
+
+  // pé de apoio (cavalete) preso à parte de trás do painel
+  const Wd = book.userData.w;
+  const Lp = book.userData.h;
+  const u = new THREE.Vector3(0, Math.sin(al), -Math.cos(al));
+  const nrm = new THREE.Vector3(0, Math.cos(al), Math.sin(al));
+  const C = new THREE.Vector3(0, stand.position.y, 0);
+  const A = C.clone().add(u.clone().multiplyScalar(Lp * (0.8 - 0.5))).add(nrm.clone().multiplyScalar(-0.06));
+  const F = new THREE.Vector3(0, 0.01, A.z - Lp * 0.42);
+  const d = F.clone().sub(A);
+  const leg = caixa(Wd * 0.88, 0.02, d.length(), matCor(o.corCapa, 0.7));
+  leg.position.copy(A.clone().add(F).multiplyScalar(0.5));
+  leg.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.clone().normalize());
+  out.add(leg);
+
+  out.userData.w = Wd;
+  out.userData.h = Lp * 0.85;
+  out.userData.cy = (Lp * Math.sin(al)) / 2;
+  out.userData.t = 0.1;
+  return out;
+}
+
+// ---------------------------------------------------------------- KIT (agenda + bloco + caneta)
+
+export function construirKit(ctx3, o) {
+  const tipoK = o.tipo === "bloco" ? "espiral" : o.tipo;
+  const out = new THREE.Group();
+  const ag = construirFechado(ctx3, { ...o, tipo: tipoK, view: "fechada", disp: "esquerda" });
+  const aw = ag.userData.w;
+  const ah = ag.userData.h;
+  ag.position.set(-0.5, 0, 0);
+  ag.rotation.y = 0.1;
+  const pad = construirBloco(ctx3, {
+    formato: "pequeno", lado: "topo", espessura: 2, folhaSrc: o.folhaSrc,
+    papelao: o.papelao, corCola: o.corCola, destacando: false,
+  });
+  pad.position.set(aw / 2 + 0.55, 0, 0.3);
+  pad.rotation.y = -0.12;
+  const cn = caneta(o.corCapa && o.corCapa !== "#ffffff" ? o.corCapa : "#1b2430", matMetal(o.metal));
+  cn.position.set(aw / 2 + 0.2, 0.026, ah / 2 - 0.15);
+  cn.rotation.y = 1.25;
+  out.add(ag, pad, cn);
+  const bb = new THREE.Box3().setFromObject(out);
+  const cx = (bb.min.x + bb.max.x) / 2;
+  out.children.forEach((ch) => (ch.position.x -= cx));
+  out.userData.w = bb.max.x - bb.min.x;
+  out.userData.h = Math.max(ah, bb.max.z - bb.min.z);
+  out.userData.t = 0.2;
+  return out;
+}
+
 export function construir(ctx3, o) {
+  if (o.produto === "kit") return construirKit(ctx3, o);
+  if (o.produto === "calendario") return construirCalendario(ctx3, o);
   if (o.produto === "bloco" || o.tipo === "bloco") {
-    return construirBloco(ctx3, o.produto === "bloco" ? o : { ...o, formato: "retrato", lado: "topo", espessura: 3, folhaSrc: o.capaSrc, papelao: "kraft", corCola: "#c0392b", destacando: false });
+    return construirBloco(
+      ctx3,
+      o.produto === "bloco"
+        ? o
+        : { ...o, formato: "retrato", lado: "topo", espessura: 3, folhaSrc: o.capaSrc, papelao: "kraft", corCola: "#c0392b", destacando: false },
+    );
   }
   return o.view === "aberta" ? construirAberto(ctx3, o) : construirFechado(ctx3, o);
 }

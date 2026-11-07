@@ -56,3 +56,10 @@
 .mk-vistas button { border: 1.5px solid #cbbf9d; background: #fff; border-radius: 999px; padding: 5px 13px; font-size: 12.5px; font-weight: 600; color: #475569; cursor: pointer; }
 .mk-vistas button:hover { border-color: #b8933d; }
 .mk-vistas button.is-on { background: #1e293b; color: #fff; border-color: #1e293b; }
+
+/* ---- modelos prontos / extras ---- */
+.mk-modelos { display: flex; flex-wrap: wrap; gap: 7px; }
+.mk-modelos button { border: 1.5px solid #e5dcc3; background: #fff; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; transition: .15s; }
+.mk-modelos button:hover { border-color: #b8933d; background: #fbf4e0; color: #1e293b; }
+.mk-seg--4 button { font-size: 11.5px; padding: 7px 2px; }
+.mk-par { display: inline-flex; align-items: center; gap: 8px; }
