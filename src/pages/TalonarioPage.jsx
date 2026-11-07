@@ -54,6 +54,8 @@ import "../styles/talonario.css";
 
 // Agrupa a lista de cartelas em blocos do tamanho escolhido (cartelas por
 // folha), para renderizar uma <div className="tal-print-page"> por bloco.
+import BackgroundPanel from "../components/talonario/BackgroundPanel";
+
 function chunk(arr, size) {
   const out = [];
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
@@ -408,6 +410,14 @@ export default function TalonarioPage() {
             setField={t.setWatermarkField}
             activeTab={t.activeTab}
             hasLogo={!!t.logos[uploadKey]}
+          />
+
+          <BackgroundPanel
+            activeTab={t.activeTab}
+            background={t.background}
+            onUpload={t.handleBackgroundUpload}
+            onClear={t.clearBackground}
+            setField={t.setBackgroundField}
           />
 
           <div className="bg-[#FFFEFB] pt-4 pb-1 mt-6 border-t border-[#eee]">

@@ -456,13 +456,69 @@ export function useTalonarioBuilder() {
     activeTab,
   ]);
 
+  // ---------------- Fundo (por aba) ----------------
+  const [backgrounds, setBackgrounds] = usePersistedState(
+    "talonario-backgrounds",
+    {},
+  );
+  const background = useMemo(
+    () => ({
+      src: null,
+      opacity: 18,
+      fit: "cover",
+      ...(backgrounds[activeTab] || {}),
+    }),
+    [backgrounds, activeTab],
+  );
+  const setBackgroundField = useCallback(
+    (key, value) => {
+      setBackgrounds((b) => ({
+        ...b,
+        [activeTab]: { ...(b[activeTab] || {}), [key]: value },
+      }));
+    },
+    [activeTab, setBackgrounds],
+  );
+  const handleBackgroundUpload = useCallback(
+    async (file) => {
+      if (!file) return;
+      try {
+        const src = await fileToDataUrl(file);
+        setBackgrounds((b) => ({
+          ...b,
+          [activeTab]: { ...(b[activeTab] || {}), src },
+        }));
+      } catch {
+        toast.error("Não foi possível carregar essa imagem.");
+      }
+    },
+    [activeTab, setBackgrounds],
+  );
+  const clearBackground = useCallback(() => {
+    setBackgrounds((b) => ({
+      ...b,
+      [activeTab]: { ...(b[activeTab] || {}), src: null },
+    }));
+  }, [activeTab, setBackgrounds]);
+
   const watermarkStyle = useMemo(() => {
-    if (!watermark.on || !wmTileUrl) return null;
+    const tile =
+      watermark.on && wmTileUrl
+        ? {
+            backgroundImage: `url(${wmTileUrl})`,
+            backgroundSize: `${watermark.size}px ${watermark.size}px`,
+          }
+        : {};
+    if (!background.src && !tile.backgroundImage) return null;
     return {
-      backgroundImage: `url(${wmTileUrl})`,
-      backgroundSize: `${watermark.size}px ${watermark.size}px`,
+      ...tile,
+      ...(background.src && {
+        bgSrc: background.src,
+        bgOpacity: background.opacity / 100,
+        bgFit: background.fit,
+      }),
     };
-  }, [watermark.on, wmTileUrl, watermark.size]);
+  }, [watermark.on, wmTileUrl, watermark.size, background]);
 
   // ---------------- numeração ----------------
   const pedidoRange = useMemo(() => {
@@ -744,6 +800,11 @@ export function useTalonarioBuilder() {
     watermark,
     setWatermarkField,
     watermarkStyle,
+
+    background,
+    setBackgroundField,
+    handleBackgroundUpload,
+    clearBackground,
 
     printBatch,
     handlePrint,
