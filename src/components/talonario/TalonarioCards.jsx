@@ -15,11 +15,30 @@ function pad(n, digits) {
 
 function WatermarkLayer({ style }) {
   if (!style) return null;
+  const { bgSrc, bgOpacity, bgFit, ...tile } = style;
+  const temTile = !!tile.backgroundImage;
   return (
-    <div
-      className="absolute inset-0 pointer-events-none z-1 bg-repeat"
-      style={style}
-    />
+    <>
+      {bgSrc && (
+        <div
+          className="absolute inset-0 pointer-events-none z-1"
+          style={{
+            backgroundImage: `url(${bgSrc})`,
+            backgroundSize: bgFit === "repeat" ? "180px auto" : bgFit,
+            backgroundRepeat: bgFit === "repeat" ? "repeat" : "no-repeat",
+            backgroundPosition: "center",
+            opacity: bgOpacity,
+            mixBlendMode: "multiply",
+          }}
+        />
+      )}
+      {temTile && (
+        <div
+          className="absolute inset-0 pointer-events-none z-1 bg-repeat"
+          style={tile}
+        />
+      )}
+    </>
   );
 }
 

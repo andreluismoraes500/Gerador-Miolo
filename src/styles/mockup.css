@@ -1,0 +1,49 @@
+/* src/styles/mockup.css — página de Mockup (paleta creme / marinho / dourado) */
+.mk-page { max-width: 1280px; margin: 0 auto; padding: 28px 20px 60px; color: #1e293b; }
+.mk-head h1 { font-family: "Cormorant Garamond", serif; font-size: 2.3rem; font-weight: 700; margin: 0; }
+.mk-head p { margin: 4px 0 22px; color: #64748b; }
+.mk-grid { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .mk-grid { grid-template-columns: 1fr; } }
+
+.mk-controles { background: #fffdf8; border: 1px solid #e8dfc8; border-radius: 16px; padding: 6px 18px 18px; box-shadow: 0 6px 24px #1e293b0d; }
+.mk-bloco { padding: 14px 0 4px; border-bottom: 1px solid #f0e9d6; }
+.mk-bloco:last-child { border-bottom: 0; }
+.mk-bloco__titulo { font-family: "Cormorant Garamond", serif; font-size: 1.1rem; font-weight: 700; margin: 0 0 10px; color: #1e293b; }
+
+.mk-tipos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mk-tipo { text-align: left; background: #fff; border: 1.5px solid #e5dcc3; border-radius: 10px; padding: 9px 10px; cursor: pointer; transition: .15s; display: flex; flex-direction: column; gap: 2px; }
+.mk-tipo b { font-size: 13px; }
+.mk-tipo span { font-size: 10.5px; color: #7a8594; line-height: 1.25; }
+.mk-tipo:hover { border-color: #c9a24b; }
+.mk-tipo.is-on { border-color: #b8933d; background: #fbf4e0; box-shadow: 0 0 0 2px #c9a24b33; }
+
+.mk-chips { display: flex; flex-wrap: wrap; gap: 9px; }
+.mk-chip { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1.5px #cbbf9d; cursor: pointer; }
+.mk-chip.is-on { box-shadow: 0 0 0 2.5px #1e293b; }
+
+.mk-seg { display: flex; background: #f1ecdd; border-radius: 10px; padding: 3px; gap: 3px; }
+.mk-seg button { flex: 1; border: 0; background: transparent; border-radius: 8px; padding: 7px 4px; font-size: 12.5px; font-weight: 600; color: #64748b; cursor: pointer; }
+.mk-seg button.is-on { background: #fff; color: #1e293b; box-shadow: 0 1px 5px #0002; }
+
+.mk-upload { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 10px; border: 1.5px dashed #cbbf9d; border-radius: 10px; font-size: 12.5px; cursor: pointer; color: #475569; }
+.mk-upload:hover { border-color: #b8933d; background: #fbf4e0; }
+.mk-link { display: inline-flex; align-items: center; gap: 5px; background: none; border: 0; margin-top: 10px; font-size: 12.5px; color: #8a6a1f; text-decoration: underline; cursor: pointer; }
+.mk-linha { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-size: 12.5px; color: #475569; }
+.mk-linha input[type="color"] { width: 38px; height: 26px; border: 0; padding: 0; background: none; cursor: pointer; }
+
+.mk-palco { min-width: 0; }
+.mk-moldura { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid #e8dfc8; box-shadow: 0 14px 40px #1e293b22; background: #fff; }
+.mk-gerando { position: absolute; top: 12px; right: 12px; background: #1e293bcc; color: #fff; font-size: 12px; padding: 5px 11px; border-radius: 999px; }
+.mk-acoes { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+.mk-legenda { flex: 1; font-size: 13px; color: #64748b; }
+.mk-btn { display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 12px; padding: 11px 20px; font-family: "Cormorant Garamond", serif; font-size: 16px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #1e293b, #334155); cursor: pointer; box-shadow: 0 4px 14px #1e293b44; transition: transform .15s; }
+.mk-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.mk-btn:disabled { opacity: .6; cursor: wait; }
+.mk-btn--sec { background: #fff; color: #1e293b; border: 1.5px solid #cbbf9d; box-shadow: none; }
+
+/* capa real fora da tela (apenas para captura) */
+.mk-offscreen { position: fixed; left: -99999px; top: 0; pointer-events: none; }
+@media print { .mk-page { display: none; } }
+
+/* a CapaLayout só ganha A4 completo no print.css; na captura forçamos aqui */
+.mk-offscreen .printable-page { width: 210mm; height: 297mm; }
