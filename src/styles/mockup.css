@@ -47,3 +47,12 @@
 
 /* a CapaLayout só ganha A4 completo no print.css; na captura forçamos aqui */
 .mk-offscreen .printable-page { width: 210mm; height: 297mm; }
+
+/* ---- 3D ---- */
+.mk3d-host { width: 100%; aspect-ratio: 6 / 5; background: #efe7d3; }
+.mk3d-carregando { display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 14px; }
+.mk-vistas { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.mk-vistas span { flex: 1; font-size: 12px; color: #8a94a3; min-width: 160px; }
+.mk-vistas button { border: 1.5px solid #cbbf9d; background: #fff; border-radius: 999px; padding: 5px 13px; font-size: 12.5px; font-weight: 600; color: #475569; cursor: pointer; }
+.mk-vistas button:hover { border-color: #b8933d; }
+.mk-vistas button.is-on { background: #1e293b; color: #fff; border-color: #1e293b; }

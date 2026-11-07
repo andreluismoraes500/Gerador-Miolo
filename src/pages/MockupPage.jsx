@@ -7,7 +7,7 @@
 // Dependência nova: html-to-image  →  npm i html-to-image
 // (só é usada para "fotografar" a CapaLayout em PNG antes de colocá-la no SVG).
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { MdDownload, MdImage, MdRefresh } from "react-icons/md";
 import { toPng } from "html-to-image";
@@ -17,7 +17,11 @@ import BlocoStage, { FORMATOS_BLOCO, PAPELAO } from "../components/mockup/BlocoS
 import MockupStage, { CENAS, STAGE_H, STAGE_W } from "../components/mockup/MockupStage";
 import { METAIS, TIPOS_ANELADOS, TIPOS_ENCADERNACAO } from "../components/mockup/bindings";
 import { usePersistedState } from "../hooks/usePersistedState";
+import { TAMANHOS, MATERIAIS } from "../components/mockup3d/opcoes";
 import "../styles/mockup.css";
+
+// three.js só é baixado quando a pessoa abre o mockup 3D.
+const Mockup3D = lazy(() => import("../components/mockup3d/Mockup3D"));
 
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -66,6 +70,12 @@ export default function MockupPage() {
   const [corCola, setCorCola] = usePersistedState("mockup-bl-cola", "#c0392b");
   const [destacando, setDestacando] = usePersistedState("mockup-bl-destacando", true);
   const [folhaBloco, setFolhaBloco] = useState(null);
+  const [visual, setVisual] = usePersistedState("mockup-visual", "3d");
+  const [tamanho, setTamanho] = usePersistedState("mockup-tamanho", "a5");
+  const [mat, setMat] = usePersistedState("mockup-material", "carton");
+  const [girar, setGirar] = useState(false);
+  const [gravando, setGravando] = useState(false);
+  const m3dRef = useRef(null);
 
   const [capaUpload, setCapaUpload] = useState(null);
   const [miolo, setMiolo] = useState(null);
@@ -177,6 +187,44 @@ export default function MockupPage() {
     }
   };
 
+  const baixar3d = async (formatoArq) => {
+    const api = m3dRef.current;
+    if (!api) return;
+    setBaixando(true);
+    try {
+      const blob = await api.capturar({ tipo: formatoArq, largura: 2400 });
+      if (!blob) throw new Error("vazio");
+      const url = URL.createObjectURL(blob);
+      const nome = produto === "bloco" ? `bloco-${formato}` : `agenda-${tipo}-${view}`;
+      baixar(url, `mockup-${nome}.${formatoArq}`);
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+      toast.success("Mockup baixado!");
+    } catch (e) {
+      console.error("[Mockup3D] export:", e);
+      toast.error("Falha ao gerar a imagem.");
+    } finally {
+      setBaixando(false);
+    }
+  };
+
+  const gravarVideo = async () => {
+    const api = m3dRef.current;
+    if (!api || gravando) return;
+    setGravando(true);
+    const t = toast.loading("Gravando vídeo giratório (6 s)…");
+    try {
+      const blob = await api.gravar(6);
+      const url = URL.createObjectURL(blob);
+      baixar(url, `mockup-${produto === "bloco" ? "bloco" : "agenda"}.webm`);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      toast.success("Vídeo baixado!", { id: t });
+    } catch (e) {
+      toast.error(e.message || "Não foi possível gravar o vídeo.", { id: t });
+    } finally {
+      setGravando(false);
+    }
+  };
+
   const tipoAtual = TIPOS_ENCADERNACAO.find((t) => t.id === tipo);
 
   return (
@@ -198,6 +246,40 @@ export default function MockupPage() {
               </button>
             </div>
           </Bloco>
+
+          <Bloco titulo="Visual">
+            <div className="mk-seg">
+              <button type="button" className={visual === "3d" ? "is-on" : ""} onClick={() => setVisual("3d")}>
+                3D interativo
+              </button>
+              <button type="button" className={visual === "2d" ? "is-on" : ""} onClick={() => setVisual("2d")}>
+                2D clássico
+              </button>
+            </div>
+          </Bloco>
+
+          {visual === "3d" && produto === "agenda" && (
+            <>
+              <Bloco titulo="Tamanho">
+                <div className="mk-seg">
+                  {Object.entries(TAMANHOS).map(([id, t]) => (
+                    <button key={id} type="button" className={tamanho === id ? "is-on" : ""} onClick={() => setTamanho(id)}>
+                      {t.nome}
+                    </button>
+                  ))}
+                </div>
+              </Bloco>
+              <Bloco titulo="Material da capa">
+                <div className="mk-tipos">
+                  {Object.entries(MATERIAIS).map(([id, m]) => (
+                    <button key={id} type="button" className={`mk-tipo ${mat === id ? "is-on" : ""}`} onClick={() => setMat(id)}>
+                      <b>{m.nome}</b>
+                    </button>
+                  ))}
+                </div>
+              </Bloco>
+            </>
+          )}
 
           {produto === "bloco" && (
             <>
@@ -365,7 +447,31 @@ export default function MockupPage() {
 
         <main className="mk-palco">
           <div className="mk-moldura">
-            {produto === "bloco" ? (
+            {visual === "3d" ? (
+              <Suspense fallback={<div className="mk3d-host mk3d-carregando">Carregando 3D…</div>}>
+                <Mockup3D
+                  ref={m3dRef}
+                  produto={produto}
+                  tipo={tipo}
+                  metal={metal}
+                  mat={mat}
+                  cena={cena}
+                  view={view}
+                  tamanho={tamanho}
+                  corCapa={corCapa}
+                  capaSrc={capaSrc}
+                  miolosrc={miolo}
+                  formato={formato}
+                  lado={lado}
+                  espessura={espessura}
+                  folhaSrc={folhaBloco}
+                  papelao={papelao}
+                  corCola={corCola}
+                  destacando={destacando}
+                  girar={girar}
+                />
+              </Suspense>
+            ) : produto === "bloco" ? (
               <BlocoStage
                 ref={svgRef}
                 cena={cena}
@@ -393,14 +499,41 @@ export default function MockupPage() {
             )}
             {gerando && <div className="mk-gerando">Gerando capa…</div>}
           </div>
+          {visual === "3d" && (
+            <div className="mk-vistas">
+              <span>Arraste para girar · role para aproximar</span>
+              <button type="button" onClick={() => m3dRef.current?.preset("tres")}>3/4</button>
+              <button type="button" onClick={() => m3dRef.current?.preset("topo")}>Topo</button>
+              <button type="button" onClick={() => m3dRef.current?.preset("rasante")}>Rasante</button>
+              <button type="button" className={girar ? "is-on" : ""} onClick={() => setGirar((g) => !g)}>
+                {girar ? "Parar giro" : "Girar"}
+              </button>
+            </div>
+          )}
           <div className="mk-acoes">
             <span className="mk-legenda">{produto === "bloco" ? `Bloco ${FORMATOS_BLOCO[formato]?.nome.toLowerCase()} · colado ${lado === "topo" ? "no topo" : "na lateral"}` : `${tipoAtual?.nome} · ${tipoAtual?.desc}`}</span>
-            <button type="button" className="mk-btn mk-btn--sec" onClick={baixarSvg}>
-              SVG
-            </button>
-            <button type="button" className="mk-btn" onClick={baixarPng} disabled={baixando}>
-              <MdDownload /> {baixando ? "Gerando…" : "Baixar PNG"}
-            </button>
+            {visual === "3d" ? (
+              <>
+                <button type="button" className="mk-btn mk-btn--sec" onClick={gravarVideo} disabled={gravando}>
+                  {gravando ? "Gravando…" : "Vídeo"}
+                </button>
+                <button type="button" className="mk-btn mk-btn--sec" onClick={() => baixar3d("jpg")} disabled={baixando}>
+                  JPG
+                </button>
+                <button type="button" className="mk-btn" onClick={() => baixar3d("png")} disabled={baixando}>
+                  <MdDownload /> {baixando ? "Gerando…" : "Baixar PNG"}
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="button" className="mk-btn mk-btn--sec" onClick={baixarSvg}>
+                  SVG
+                </button>
+                <button type="button" className="mk-btn" onClick={baixarPng} disabled={baixando}>
+                  <MdDownload /> {baixando ? "Gerando…" : "Baixar PNG"}
+                </button>
+              </>
+            )}
           </div>
         </main>
       </div>
