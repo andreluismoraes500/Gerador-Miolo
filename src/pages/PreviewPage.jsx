@@ -2,6 +2,8 @@
 import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
 import { LadosImpressao, PartiturasOpcoes } from "../components/OpcoesImpressao";
+import { PainelStickers, StickerPortais } from "../components/StickersEditor";
+import { stickersDados, stickersUi } from "../lib/stickers";
 import AgendaPreview from "../components/AgendaPreview";
 import AgendaBuilderPreview from "../components/AgendaBuilderPreview";
 
@@ -24,7 +26,9 @@ export default function PreviewPage() {
   // Lê o parâmetro 'printing' da URL
   const searchParams = new URLSearchParams(location.search);
   const forcePrint = searchParams.get("printing") === "true";
-  const printing = forcePrint || printingFromSettings;
+  const { editando } = stickersUi.useStore();
+  const { itens: stickersItens } = stickersDados.useStore();
+  const printing = forcePrint || printingFromSettings || editando;
 
   return (
     <div className="flex flex-col gap-6">
@@ -70,13 +74,15 @@ export default function PreviewPage() {
       </div>
 
       <div className="max-w-6xl mx-auto w-full px-5 sm:px-6 flex flex-col gap-3 print:hidden">
-        <div className="flex flex-col gap-1 max-w-sm">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F]">Sem impressora frente e verso?</span>
+        <PainelStickers />
+        <div className="flex flex-col gap-1 max-w-2xl">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F]">Papel e lados da folha</span>
           <LadosImpressao />
         </div>
         {((builderMode && modules.some((m) => m.templateKey === "partituras")) || (!builderMode && template === "partituras")) && <PartiturasOpcoes />}
       </div>
 
+      <StickerPortais ativo={printing && (editando || stickersItens.length > 0)} />
       <div className="max-w-6xl mx-auto w-full px-5 sm:px-6 pb-12 flex justify-center print:p-0 print:max-w-none">
         {builderMode ? (
           <AgendaBuilderPreview

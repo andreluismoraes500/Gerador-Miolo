@@ -65,6 +65,7 @@
   }
 
   .page-break {
+    position: relative !important;
     display: block !important;
 
     width: 210mm !important;
@@ -143,10 +144,36 @@
     padding-right: 22mm !important;
   }
 
-  body[data-lados-impressao] .page-break:first-child,
-  body[data-lados-impressao] .page-break {
-    page-break-before: always !important;
-    break-before: page !important;
+  /* Várias páginas por folha / A5 / A6: a folha é quem quebra a página */
+  .folha {
+    position: relative !important;
+    overflow: hidden !important;
+    break-after: page !important;
+    page-break-after: always !important;
+    break-inside: avoid !important;
+  }
+
+  .folha:last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  .folha .celula {
+    position: absolute !important;
+    overflow: hidden !important;
+  }
+
+  body .folha .celula .page-break {
+    break-before: auto !important;
+    page-break-before: auto !important;
+    transform-origin: 0 0 !important;
+  }
+
+  .folha .guia {
+    position: absolute;
+    z-index: 60;
+    border: 0 dashed #9ca3af;
+    pointer-events: none;
   }
 
   /* Visualização unitária */
@@ -233,4 +260,59 @@
   font-family: "Shippori Mincho", "Noto Serif JP", serif;
   overflow: visible !important;
   display: inline-block !important;
+}
+
+/* ---- Stickers ---- */
+.sticker-host {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* Edição na tela: mostra as páginas da impressão como folhas A4 */
+body.sticker-editando .print-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+body.sticker-editando .print-container .page-break {
+  position: relative;
+  display: block;
+  width: 210mm;
+  height: 297mm;
+  flex: none;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+body.sticker-editando .print-container .printable-page {
+  width: 210mm !important;
+  height: 297mm !important;
+  max-width: 210mm !important;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  padding-top: 15mm;
+  padding-bottom: 12mm;
+}
+body.sticker-editando .print-container .page-break:nth-child(odd) .printable-page {
+  padding-left: 22mm;
+  padding-right: 12mm;
+}
+body.sticker-editando .print-container .page-break:nth-child(even) .printable-page {
+  padding-left: 12mm;
+  padding-right: 22mm;
+}
+body.sticker-editando .sticker-host::after {
+  content: attr(data-pagina);
+  position: absolute;
+  top: 3mm;
+  right: 4mm;
+  font: 600 9px sans-serif;
+  color: #94a3b8;
 }

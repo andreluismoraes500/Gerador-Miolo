@@ -2,10 +2,10 @@
 // (ex.: dentro de `layout()` dos templates) e assinar dentro deles via hook.
 import { useSyncExternalStore } from "react";
 
-export function criarStore(chave, inicial) {
+export function criarStore(chave, inicial, persistir = true) {
   let valor = inicial;
   try {
-    const bruto = localStorage.getItem(chave);
+    const bruto = persistir ? localStorage.getItem(chave) : null;
     if (bruto) valor = { ...inicial, ...JSON.parse(bruto) };
   } catch {
     /* sem storage: segue com o padrão */
@@ -15,7 +15,7 @@ export function criarStore(chave, inicial) {
   const set = (parcial) => {
     valor = { ...valor, ...parcial };
     try {
-      localStorage.setItem(chave, JSON.stringify(valor));
+      if (persistir) localStorage.setItem(chave, JSON.stringify(valor));
     } catch {
       /* ignora */
     }
