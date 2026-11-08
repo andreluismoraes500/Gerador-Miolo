@@ -1,6 +1,7 @@
 // Impressão em folha única (sem impressora frente e verso).
 // Páginas ímpares = frente; pares = verso (mesma lógica da margem espelhada).
 import { criarStore } from "./storeSimples";
+import { cssFonte, fonteCfg } from "./configFonte";
 
 export const LADOS = [
   { id: "ambos", nome: "Frente e verso (tudo)" },
@@ -31,7 +32,7 @@ export const FORMATOS = [
   },
 ];
 
-export const impressao = criarStore("impressao-lados", { lados: "ambos", formato: "a4" });
+export const impressao = criarStore("impressao-lados", { lados: "ambos", formato: "a4", compensar: true });
 
 // Posição de cada página nas folhas. Cada folha é { lado, cells: [indicePágina|null] }.
 // Nas folhas múltiplas, frente e verso são montados para que, depois de virar
@@ -60,7 +61,7 @@ function montarFolhas(n, f) {
 
 // Prepara o DOM para a impressão (A4/A5/A6, N por folha, só frente/verso).
 // Devolve uma função que desfaz tudo.
-export function prepararImpressao({ lados = "ambos", formato = "a4" } = {}) {
+export function prepararImpressao({ lados = "ambos", formato = "a4", compensar = true } = {}) {
   const cont = document.querySelector(".print-container");
   const limpar = () => delete document.body.dataset.ladosImpressao;
   document.body.dataset.ladosImpressao = lados;
@@ -94,8 +95,14 @@ export function prepararImpressao({ lados = "ambos", formato = "a4" } = {}) {
   const originais = [...cont.children];
   const estilosOrig = new Map(paginas.map((el) => [el, el.getAttribute("style")]));
 
+  // Ao reduzir a página (A5/A6/várias por folha) o texto encolhe junto. Para manter
+  // a leitura confortável, compensamos o tamanho das letras (A5 ≈ +25%, A6 ≈ +42%).
+  const z = Math.min(sx, sy);
+  const reforco = compensar && z < 1 ? 1 + (1 - z) * 0.85 : 1;
+  const fonteExtra = reforco > 1 ? cssFonte(Math.round((fonteCfg.get().escala / 100) * reforco * 100), ".folha .printable-page") : "";
   const pagina = document.createElement("style");
-  pagina.textContent = `@media print { @page { size: ${fw}mm ${fh}mm; margin: 0; } html, body, #root, .print-container { width: ${fw}mm !important; min-width: ${fw}mm !important; max-width: none !important; height: auto !important; margin: 0 !important; padding: 0 !important; } .folha { margin: 0 !important; } }`;
+  const semCal = formato === "4up" ? "@media print { .mini-cal { display: none !important; } }\n" : "";
+  pagina.textContent = `${fonteExtra}\n${semCal}`+`@media print { @page { size: ${fw}mm ${fh}mm; margin: 0; } html, body, #root, .print-container { width: ${fw}mm !important; min-width: ${fw}mm !important; max-width: none !important; height: auto !important; margin: 0 !important; padding: 0 !important; } .folha { margin: 0 !important; } }`;
   document.head.appendChild(pagina);
 
   const novas = folhas.map((fo) => {

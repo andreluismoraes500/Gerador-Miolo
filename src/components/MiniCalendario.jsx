@@ -43,22 +43,31 @@ export default function MiniCalendario({
       ? diaSecundario.getDate()
       : null;
 
-  const cellSize = compact ? "h-[9px] w-[9px] text-[6px]" : "h-[11px] w-[11px] text-[7px]";
-  const boxWidth = compact ? "w-[27mm]" : "w-[32mm]";
+  const cellSize = compact ? "h-[10px] w-[10px] text-[6.5px]" : "h-[15px] w-[15px] text-[9px]";
+  const boxWidth = compact ? "w-[29mm]" : "w-[44mm]";
+  const nomeMes = data.toLocaleDateString("pt-BR", { month: "long" });
 
   return (
     <div
-      className={`shrink-0 select-none rounded-md border bg-white ${boxWidth} ${
-        compact ? "p-1" : "p-1.5"
+      className={`mini-cal shrink-0 select-none rounded-lg border bg-white ${boxWidth} ${
+        compact ? "p-1" : "p-2"
       }`}
       style={{
         borderColor: secondaryColor,
         boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
       }}
     >
+      <p
+        className={`text-center capitalize font-bold leading-none ${
+          compact ? "text-[7px] mb-[2px]" : "text-[10px] mb-1.5"
+        }`}
+        style={{ color: primaryColor }}
+      >
+        {nomeMes} <span className="font-normal opacity-60">{ano}</span>
+      </p>
       <div
         className={`grid grid-cols-7 border-b mb-[2px] ${
-          compact ? "gap-x-0 pb-[1px]" : "gap-x-[1px] pb-[2px]"
+          compact ? "gap-x-0 pb-[1px]" : "gap-x-[2px] pb-[3px]"
         }`}
         style={{ borderBottomColor: secondaryColor }}
       >
@@ -74,8 +83,8 @@ export default function MiniCalendario({
       </div>
 
       <div
-        className={`grid grid-cols-7 gap-y-[1px] ${
-          compact ? "gap-x-0" : "gap-x-[1px]"
+        className={`grid grid-cols-7 gap-y-[2px] ${
+          compact ? "gap-x-0" : "gap-x-[2px]"
         }`}
       >
         {semanas.map((semana, si) =>
@@ -87,11 +96,11 @@ export default function MiniCalendario({
             const ehFeriado = !!getFeriado(dataCell);
             const ehComemorativa = !ehFeriado && !!getComemorativa(dataCell);
 
-            let estilo = { color: "#374151" };
+            let estilo = { color: di === 0 || di === 6 ? "#9ca3af" : "#374151" };
             let classe = `flex items-center justify-center leading-none ${cellSize}`;
 
             if (emFoco) {
-              classe += " font-bold rounded-[1px]";
+              classe += " font-bold rounded-full";
               estilo = { backgroundColor: primaryColor, color: "#ffffff" };
             } else if (ehFeriado) {
               classe += " font-bold";

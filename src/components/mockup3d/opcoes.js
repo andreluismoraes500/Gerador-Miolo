@@ -121,3 +121,12 @@ export const SACOLA_TAMANHOS = {
 };
 
 export const PRODUTOS_GRAFICOS = ["quadro", "botton", "caneca", "cartoes", "caixa", "sacola"];
+
+export const MIOLOS = [
+  { id: "pautado", nome: "Pautado" },
+  { id: "pontilhado", nome: "Pontilhado" },
+  { id: "quadriculado", nome: "Quadriculado" },
+  { id: "semanal", nome: "Semanal" },
+  { id: "partitura", nome: "Partitura" },
+  { id: "branco", nome: "Em branco" },
+];

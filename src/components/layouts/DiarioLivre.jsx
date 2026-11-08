@@ -69,15 +69,15 @@ export default function DiarioLivre({
             <Logo src={logo} />
             <div className="flex items-center gap-3.5">
               <FaCalendarDays
-                className="w-5 h-5 mb-1"
+                className="w-6 h-6 mb-1"
                 style={{ color: primaryColor }}
               />
               <div className="space-y-0.5">
-                <h2 className="capitalize" style={{ color: diaSemanaColor }}>
+                <h2 className="capitalize text-2xl font-semibold" style={{ color: diaSemanaColor }}>
                   {data.toLocaleDateString("pt-BR", { weekday: "long" })}
                 </h2>
                 <p
-                  className="text-[11px] uppercase tracking-wide font-semibold"
+                  className="text-[13px] uppercase tracking-wide font-semibold"
                   style={{ color: mesColor }}
                 >
                   {data.toLocaleDateString("pt-BR", {
@@ -114,11 +114,11 @@ export default function DiarioLivre({
         </div>
 
         {/* Tabela de horários */}
-        <div className="flex-1 overflow-hidden min-h-0">
+        <div className="tab-horarios flex-1 overflow-hidden min-h-0">
           <table className="w-full table-fixed text-[11.5px] border-collapse">
             <thead>
               <tr
-                className="border-b-2 text-gray-500 text-[8.5px] uppercase tracking-widest text-left font-bold"
+                className="border-b-2 text-gray-500 text-[10px] uppercase tracking-widest text-left font-bold"
                 style={{ borderBottomColor: primaryColor }}
               >
                 <th
@@ -146,7 +146,7 @@ export default function DiarioLivre({
                   style={{ borderBottomColor: secondary }}
                 >
                   <td
-                    className="font-mono font-bold text-[12px] align-middle border-r pr-1"
+                    className="font-mono font-bold text-[13px] align-middle border-r pr-1"
                     style={{ borderRightColor: secondary, color: horaColor }}
                   >
                     {hora}
@@ -177,7 +177,7 @@ export default function DiarioLivre({
         {/* Notas do Dia */}
         <div className="mt-4 shrink-0 print:mt-2">
           <p
-            className="text-[8.5px] uppercase tracking-widest font-bold mb-1.5"
+            className="text-[10px] uppercase tracking-widest font-bold mb-1.5"
             style={{ color: primaryColor }}
           >
             Notas do Dia

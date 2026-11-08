@@ -15,7 +15,7 @@ import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import gsap from "gsap";
 import { construir } from "./construir";
-import { CENAS } from "../mockup/MockupStage";
+import { cenaDe } from "../mockup/MockupStage";
 
 const PRESETS = {
   tres: new THREE.Vector3(0.55, 0.8, 0.75),
@@ -36,7 +36,7 @@ const DIR_PRODUTO = {
 };
 
 function texturaCena(cenaId) {
-  const c = CENAS[cenaId] || CENAS.creme;
+  const c = cenaDe(cenaId);
   const cv = document.createElement("canvas");
   cv.width = 512;
   cv.height = 512;
@@ -222,11 +222,11 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
     s.scene.background = s.fundo;
     s.piso?.dispose();
     s.piso = null;
-    if (CENAS[props.cena]?.madeira) {
+    if (cenaDe(props.cena).madeira) {
       s.piso = texturaMadeira();
       s.chao.material = new THREE.MeshStandardMaterial({ map: s.piso, roughness: 0.75 });
     } else {
-      s.chao.material = new THREE.ShadowMaterial({ opacity: props.cena === "grafite" ? 0.55 : 0.3 });
+      s.chao.material = new THREE.ShadowMaterial({ opacity: cenaDe(props.cena).escuro || props.cena === "grafite" ? 0.55 : 0.3 });
     }
     s.chao.material.needsUpdate = true;
   }, [props.cena]);

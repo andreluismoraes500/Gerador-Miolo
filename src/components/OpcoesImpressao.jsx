@@ -1,9 +1,10 @@
+import { horarioCfg } from "../lib/configHorario";
 import { FORMATOS, LADOS, DICAS_LADOS, impressao } from "../lib/configImpressao";
 import { TIPOS_PAUTA, partiturasCfg } from "../lib/configPartituras";
 
 // Escolha de quais lados imprimir (para quem não tem impressora frente e verso).
 export function LadosImpressao({ compacto = false }) {
-  const { lados, formato } = impressao.useStore();
+  const { lados, formato, compensar } = impressao.useStore();
   const f = FORMATOS.find((x) => x.id === formato) || FORMATOS[0];
   const sel = "border border-[#D8CBA8] rounded-lg px-2.5 py-2 text-xs bg-[#FBF8F1] font-medium text-[#24344D] focus:outline-none focus:ring-2 focus:ring-[#B8933D]/40";
   return (
@@ -26,6 +27,12 @@ export function LadosImpressao({ compacto = false }) {
         ))}
       </select>
       </div>
+      {!compacto && f.id !== "a4" && (
+        <label className="flex items-center gap-2 text-[11px] text-[#24344D]">
+          <input type="checkbox" checked={compensar} onChange={(e) => impressao.set({ compensar: e.target.checked })} />
+          Aumentar as letras ao reduzir a página (recomendado para leitura)
+        </label>
+      )}
       {!compacto && <p className="text-[11px] text-[#8B6A1F] max-w-md">{[f.dica, DICAS_LADOS[lados]].filter(Boolean).join(" ")}</p>}
     </div>
   );
@@ -87,6 +94,27 @@ export function PartiturasOpcoes() {
           />
         </label>
       </div>
+    </div>
+  );
+}
+
+export function HorarioOpcoes() {
+  const c = horarioCfg.useStore();
+  const num = (k, min, max) => (
+    <input type="number" min={min} max={max} value={c[k]} onChange={(e) => horarioCfg.set({ [k]: Math.max(min, Math.min(max, +e.target.value || min)) })} className="w-16 border rounded px-2 py-1 text-xs" />
+  );
+  return (
+    <div className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-wrap items-end gap-4 print:hidden text-xs text-[#24344D]">
+      <b className="w-full text-sm">🕗 Diário Hora a Hora — ajustes</b>
+      <label className="flex flex-col gap-1">Início (h){num("inicio", 0, 23)}</label>
+      <label className="flex flex-col gap-1">Fim (h){num("fim", 0, 23)}</label>
+      <label className="flex flex-col gap-1">Linhas por horário{num("linhas", 1, 4)}</label>
+      <label className="flex items-center gap-1"><input type="checkbox" checked={c.meiaHora} onChange={(e) => horarioCfg.set({ meiaHora: e.target.checked })} />Incluir meia hora</label>
+      <label className="flex flex-col gap-1">Calendário
+        <select value={c.calendario} onChange={(e) => horarioCfg.set({ calendario: e.target.value })} className="border rounded px-2 py-1">
+          <option value="grande">Grande</option><option value="pequeno">Pequeno</option><option value="nenhum">Sem calendário</option>
+        </select>
+      </label>
     </div>
   );
 }

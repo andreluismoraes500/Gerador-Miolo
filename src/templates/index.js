@@ -25,6 +25,7 @@ const LOADERS = {
   semData: () => import("./semData.jsx"),
   diario: () => import("./diario.jsx"),
   diarioLivre: () => import("./diarioLivre.jsx"),
+  diarioHorario: () => import("./diarioHorario.jsx"),
   diarioFloral: () => import("./diarioFloral.jsx"),
   floralMensal: () => import("./floralMensal.jsx"),
   floralAnual: () => import("./floralAnual.jsx"),

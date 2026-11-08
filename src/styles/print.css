@@ -5,6 +5,7 @@
    mas pesa MUITO no Puppeteer no servidor, que abre uma aba nova a cada
    PDF. Uma única URL com todas as famílias reduz isso para 1 requisição
    só, cortando vários segundos da geração do PDF. */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Work+Sans:wght@300;400;600&family=Josefin+Sans:wght@300;400;600&family=Quicksand:wght@400;600&family=Comfortaa:wght@400;600&family=Merriweather:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Crimson+Text:wght@400;600&family=DM+Serif+Display&family=Roboto+Slab:wght@300;400;600&family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=Caveat:wght@400;700&family=Patrick+Hand&family=Indie+Flower&family=Kalam:wght@300;400;700&family=Satisfy&family=Pacifico&family=Amatic+SC:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&family=Dancing+Script:wght@400;700&family=Oswald:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Raleway:wght@300;400;600&family=Nunito:wght@300;400;600&family=Shippori+Mincho:wght@400;700&family=Noto+Serif+JP:wght@400;700&family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@500;600;700&family=Great+Vibes&family=Noto+Music&family=Playwrite+CL:wght@400&display=swap");
 
 @import "tailwindcss";
@@ -316,3 +317,18 @@ body.sticker-editando .sticker-host::after {
   font: 600 9px sans-serif;
   color: #94a3b8;
 }
+
+/* Tabela de horários: as linhas dividem a altura disponível, então nada é
+   cortado mesmo com letras maiores (o conteúdo se ajusta à folha). */
+.tab-horarios { display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.tab-horarios table { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; width: 100%; }
+.tab-horarios thead { display: block; flex: none; }
+.tab-horarios thead tr { display: flex; width: 100%; }
+.tab-horarios tbody { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; }
+.tab-horarios tbody tr { display: flex; flex: 1 1 0; min-height: 0; height: auto !important; box-sizing: border-box; }
+.tab-horarios tbody td { display: flex; align-items: center; box-sizing: border-box; min-width: 0; }
+.tab-horarios tbody td > * { width: 100%; }
+.tab-horarios :is(th, td):nth-child(1) { width: 14%; flex: none; }
+.tab-horarios :is(th, td):nth-child(2) { width: 55%; flex: none; }
+.tab-horarios :is(th, td):nth-child(3) { width: 31%; flex: none; }
+.tab-horarios thead th { display: block; box-sizing: border-box; }

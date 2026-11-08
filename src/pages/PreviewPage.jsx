@@ -1,7 +1,7 @@
 // src/pages/PreviewPage.jsx
 import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
-import { LadosImpressao, PartiturasOpcoes } from "../components/OpcoesImpressao";
+import { LadosImpressao, PartiturasOpcoes, HorarioOpcoes } from "../components/OpcoesImpressao";
 import { PainelStickers, StickerPortais } from "../components/StickersEditor";
 import { stickersDados, stickersUi } from "../lib/stickers";
 import AgendaPreview from "../components/AgendaPreview";
@@ -80,6 +80,7 @@ export default function PreviewPage() {
           <LadosImpressao />
         </div>
         {((builderMode && modules.some((m) => m.templateKey === "partituras")) || (!builderMode && template === "partituras")) && <PartiturasOpcoes />}
+        {((builderMode && modules.some((m) => m.templateKey === "diarioHorario")) || (!builderMode && template === "diarioHorario")) && <HorarioOpcoes />}
       </div>
 
       <StickerPortais ativo={printing && (editando || stickersItens.length > 0)} />

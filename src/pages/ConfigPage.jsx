@@ -15,6 +15,7 @@ import {
 import { toast } from "react-hot-toast";
 import { TEMAS } from "../themes";
 import { getCapaEstiloOptions } from "../config/capaStyles.jsx";
+import { fonteCfg } from "../lib/configFonte";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 
 const FONT_OPTIONS = [
@@ -31,6 +32,26 @@ const FONT_OPTIONS = [
   { value: "Lora", label: "Lora" },
   { value: "Raleway", label: "Raleway" },
   { value: "Nunito", label: "Nunito" },
+  { value: "Poppins", label: "Poppins" },
+  { value: "Work Sans", label: "Work Sans" },
+  { value: "Josefin Sans", label: "Josefin Sans" },
+  { value: "Quicksand", label: "Quicksand (arredondada)" },
+  { value: "Comfortaa", label: "Comfortaa (arredondada)" },
+  { value: "Merriweather", label: "Merriweather (serifada)" },
+  { value: "Libre Baskerville", label: "Libre Baskerville (clássica)" },
+  { value: "Crimson Text", label: "Crimson Text (livro)" },
+  { value: "DM Serif Display", label: "DM Serif Display (títulos)" },
+  { value: "Roboto Slab", label: "Roboto Slab" },
+  { value: "Bebas Neue", label: "Bebas Neue (caixa alta)" },
+  { value: "Courier Prime", label: "Courier Prime (máquina de escrever)" },
+  { value: "Caveat", label: "Caveat (manuscrita)" },
+  { value: "Patrick Hand", label: "Patrick Hand (manuscrita)" },
+  { value: "Indie Flower", label: "Indie Flower (manuscrita)" },
+  { value: "Kalam", label: "Kalam (manuscrita)" },
+  { value: "Satisfy", label: "Satisfy (script)" },
+  { value: "Pacifico", label: "Pacifico (script)" },
+  { value: "Great Vibes", label: "Great Vibes (caligrafia)" },
+  { value: "Amatic SC", label: "Amatic SC (traço fino)" },
 ];
 
 const PALETAS_DIAS = [
@@ -164,6 +185,7 @@ export default function ConfigPage() {
     footerName,
   } = settings;
 
+  const { escala: escalaFonte } = fonteCfg.useStore();
   const {
     colorTheme,
     primaryColor,
@@ -521,6 +543,33 @@ export default function ConfigPage() {
               </option>
             ))}
           </select>
+
+          <div className="mt-4">
+            <label className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F] mb-1.5">
+              Tamanho das letras
+              <span className="text-sm normal-case tracking-normal text-[#24344D]">{escalaFonte}%</span>
+            </label>
+            <input
+              type="range"
+              min="80"
+              max="170"
+              step="5"
+              value={escalaFonte}
+              onChange={(e) => fonteCfg.set({ escala: Number(e.target.value) })}
+              className="w-full accent-[#B8933D]"
+            />
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-[11px] text-[#8B6A1F]">Vale para todas as páginas da agenda e do talonário.</span>
+              {escalaFonte !== 100 && (
+                <button type="button" onClick={() => fonteCfg.set({ escala: 100 })} className="text-[11px] underline text-[#24344D]">
+                  restaurar 100%
+                </button>
+              )}
+            </div>
+            <p className="mt-3 rounded-lg border border-[#D8CBA8] bg-[#FBF8F1] px-3 py-2" style={{ fontFamily, fontSize: `${14 * escalaFonte / 100}px` }}>
+              Aa — O rato roeu a roupa do rei de Roma. 0123456789
+            </p>
+          </div>
         </SectionCard>
 
         {/* Rodapé - Personalização do Nome */}

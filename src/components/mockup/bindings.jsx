@@ -32,6 +32,18 @@ export const FUROS = [
   { id: "cogumelo", nome: "Cogumelo" },
 ];
 
+function clarearHex(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = (v) => Math.round(v + (255 - v) * f).toString(16).padStart(2, "0");
+  return `#${ch((n >> 16) & 255)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
+}
+
+// Metal por id ou cor personalizada (#rrggbb).
+export function metalDe(metal) {
+  if (/^#[0-9a-f]{6}$/i.test(metal || "")) return { nome: "Personalizada", base: metal, luz: clarearHex(metal, 0.6) };
+  return METAIS[metal] || METAIS.prata;
+}
+
 export function formaFuro(forma, tipo) {
   if (forma && forma !== "auto") return forma;
   if (tipo === "wireo") return "quadrado";
@@ -92,7 +104,7 @@ function Tubo({ d, m, w = 3.8, luz = 1.1 }) {
 // Binding vertical no referencial local: eixo da encadernação em x=0,
 // extensão y=0..len. Fechada: capa para x>0. Aberta: páginas dos dois lados.
 export function Binding({ tipo, len, metal, aberto = false, n = null, furo = "auto" }) {
-  const m = METAIS[metal] || METAIS.prata;
+  const m = metalDe(metal);
   const forma = formaFuro(furo, tipo);
 
   if (tipo === "wireo" || tipo === "espiral" || tipo === "discos") {

@@ -66,19 +66,19 @@ export default function SemDataLayout({
             <Logo src={logo} />
             <div className="flex items-center gap-3.5">
               <FaCalendarDays
-                className="w-5 h-5 mb-1"
+                className="w-6 h-6 mb-1"
                 style={{ color: primaryColor }}
               />
               <div className="space-y-0.5">
                 <EditableField
                   fieldKey={`${chave}-dia-semana`}
-                  className="capitalize text-lg font-semibold min-w-28"
+                  className="capitalize text-2xl font-semibold min-w-28"
                   style={{ color: primaryColor }}
                   placeholder="Dia da semana"
                 />
                 <EditableField
                   fieldKey={`${chave}-mes-ano`}
-                  className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold min-w-28"
+                  className="text-[13px] uppercase tracking-wide text-gray-400 font-semibold min-w-28"
                   placeholder="Mês / Ano"
                 />
               </div>
@@ -92,13 +92,13 @@ export default function SemDataLayout({
               erro. Agora é uma linha de data com sublinhados de verdade
               (border-bottom, não texto), que fica limpa até ser preenchida. */}
           <div className="flex flex-col items-end gap-1.5">
-            <span className="text-[9px] uppercase tracking-wider font-semibold text-gray-300">
+            <span className="text-[10.5px] uppercase tracking-wider font-semibold text-gray-300">
               Data
             </span>
             <div className="flex items-baseline gap-1.5">
               <EditableField
                 fieldKey={`${chave}-data-dia`}
-                className="w-7 text-center text-lg font-serif font-light text-black leading-none pb-0.5"
+                className="w-7 text-center text-xl font-serif font-light text-black leading-none pb-0.5"
                 style={{ borderBottom: `1.5px solid ${secondary}` }}
                 placeholder=""
               />
@@ -107,7 +107,7 @@ export default function SemDataLayout({
               </span>
               <EditableField
                 fieldKey={`${chave}-data-mes`}
-                className="w-7 text-center text-lg font-serif font-light text-black leading-none pb-0.5"
+                className="w-7 text-center text-xl font-serif font-light text-black leading-none pb-0.5"
                 style={{ borderBottom: `1.5px solid ${secondary}` }}
                 placeholder=""
               />
@@ -116,7 +116,7 @@ export default function SemDataLayout({
               </span>
               <EditableField
                 fieldKey={`${chave}-data-ano`}
-                className="w-12 text-center text-lg font-serif font-light text-black leading-none pb-0.5"
+                className="w-12 text-center text-xl font-serif font-light text-black leading-none pb-0.5"
                 style={{ borderBottom: `1.5px solid ${secondary}` }}
                 placeholder=""
               />
@@ -125,11 +125,11 @@ export default function SemDataLayout({
         </div>
 
         {/* ── Tabela de horários ────────────────────────────────── */}
-        <div className="flex-1 overflow-hidden min-h-0">
+        <div className="tab-horarios flex-1 overflow-hidden min-h-0">
           <table className="w-full table-fixed text-[11.5px] border-collapse">
             <thead>
               <tr
-                className="border-b-2 text-gray-500 text-[8.5px] uppercase tracking-widest text-left font-bold"
+                className="border-b-2 text-gray-500 text-[10px] uppercase tracking-widest text-left font-bold"
                 style={{ borderBottomColor: primaryColor }}
               >
                 <th
@@ -155,7 +155,7 @@ export default function SemDataLayout({
                   style={{ borderBottomColor: secondary }}
                 >
                   <td
-                    className="font-mono text-black font-bold text-[12px] align-middle border-r pr-1"
+                    className="font-mono text-black font-bold text-[13px] align-middle border-r pr-1"
                     style={{ borderRightColor: secondary }}
                   >
                     {hora}
@@ -186,7 +186,7 @@ export default function SemDataLayout({
         {/* ── Bloco de Notas do Dia ─────────────────────────────── */}
         <div className="mt-4 shrink-0 print:mt-2">
           <p
-            className="text-[8.5px] uppercase tracking-widest font-bold mb-1.5"
+            className="text-[10px] uppercase tracking-widest font-bold mb-1.5"
             style={{ color: primaryColor }}
           >
             Notas do Dia
