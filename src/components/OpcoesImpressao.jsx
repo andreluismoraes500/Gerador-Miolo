@@ -1,23 +1,32 @@
-import { LADOS, DICAS_LADOS, impressao } from "../lib/configImpressao";
+import { FORMATOS, LADOS, DICAS_LADOS, impressao } from "../lib/configImpressao";
 import { TIPOS_PAUTA, partiturasCfg } from "../lib/configPartituras";
 
 // Escolha de quais lados imprimir (para quem não tem impressora frente e verso).
 export function LadosImpressao({ compacto = false }) {
-  const { lados } = impressao.useStore();
+  const { lados, formato } = impressao.useStore();
+  const f = FORMATOS.find((x) => x.id === formato) || FORMATOS[0];
+  const sel = "border border-[#D8CBA8] rounded-lg px-2.5 py-2 text-xs bg-[#FBF8F1] font-medium text-[#24344D] focus:outline-none focus:ring-2 focus:ring-[#B8933D]/40";
   return (
-    <div className={compacto ? "flex flex-col" : "flex flex-col gap-1"}>
+    <div className={compacto ? "flex gap-2" : "flex flex-col gap-1"}>
+      <div className={compacto ? "contents" : "flex flex-wrap gap-2"}>
+      <select value={formato} onChange={(e) => impressao.set({ formato: e.target.value })} aria-label="Formato do papel" title={f.dica || "Tamanho do papel e páginas por folha"} className={sel}>
+        {FORMATOS.map((x) => (
+          <option key={x.id} value={x.id}>{x.nome}</option>
+        ))}
+      </select>
       <select
         value={lados}
         onChange={(e) => impressao.set({ lados: e.target.value })}
         aria-label="Lados da folha"
         title={DICAS_LADOS[lados]}
-        className="border border-[#D8CBA8] rounded-lg px-2.5 py-2 text-xs bg-[#FBF8F1] font-medium text-[#24344D] focus:outline-none focus:ring-2 focus:ring-[#B8933D]/40"
+        className={sel}
       >
         {LADOS.map((l) => (
           <option key={l.id} value={l.id}>{l.nome}</option>
         ))}
       </select>
-      {!compacto && <p className="text-[11px] text-[#8B6A1F] max-w-xs">{DICAS_LADOS[lados]}</p>}
+      </div>
+      {!compacto && <p className="text-[11px] text-[#8B6A1F] max-w-md">{[f.dica, DICAS_LADOS[lados]].filter(Boolean).join(" ")}</p>}
     </div>
   );
 }
