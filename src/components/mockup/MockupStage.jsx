@@ -10,6 +10,7 @@ import {
   MockupDefs,
   TIPOS_ANELADOS,
   caminhoArredondado,
+  caminhoCantos,
 } from "./bindings";
 
 export const STAGE_W = 1200;
@@ -23,10 +24,13 @@ export const CENAS = {
   rosa: { nome: "Rosa", a: "#fbe9ec", b: "#f1c6cf" },
   madeira: { nome: "Madeira", a: "#b98a5a", b: "#8a5f37", madeira: true },
   branco: { nome: "Branco", a: "#ffffff", b: "#f1f1f1" },
+  concreto: { nome: "Concreto", a: "#c9cbcd", b: "#9fa3a8" },
+  verde: { nome: "Verde", a: "#e1ece1", b: "#b9d1bb" },
 };
 
 export function Cena({ cena }) {
   const c = CENAS[cena] || CENAS.creme;
+  const escuro = cena === "grafite";
   return (
     <g>
       <defs>
@@ -36,17 +40,16 @@ export function Cena({ cena }) {
         </radialGradient>
       </defs>
       <rect width={STAGE_W} height={STAGE_H} fill="url(#mk-cena)" />
-      {c.madeira &&
-        Array.from({ length: 26 }).map((_, i) => (
-          <path
-            key={i}
-            d={`M0 ${i * 40 + 8} C300 ${i * 40 - 6} 700 ${i * 40 + 22} ${STAGE_W} ${i * 40 + 4}`}
-            stroke="#5a3a1c"
-            strokeOpacity={i % 3 === 0 ? 0.22 : 0.1}
-            strokeWidth={i % 4 === 0 ? 2.4 : 1.2}
-            fill="none"
-          />
-        ))}
+      {c.madeira && (
+        <>
+          <rect width={STAGE_W} height={STAGE_H} filter="url(#mk-madeira-fx)" opacity="0.55" />
+          {Array.from({ length: 9 }).map((_, i) => (
+            <line key={i} x1="0" x2={STAGE_W} y1={i * 125 + 20} y2={i * 125 + 20} stroke="#2b1708" strokeOpacity="0.35" strokeWidth="2" />
+          ))}
+        </>
+      )}
+      <rect width={STAGE_W} height={STAGE_H} fill="url(#mk-janela)" opacity={escuro ? 0.35 : 0.9} />
+      <rect width={STAGE_W} height={STAGE_H} fill="url(#mk-vinheta)" />
       <rect width={STAGE_W} height={STAGE_H} filter="url(#mk-grao)" />
     </g>
   );
@@ -99,8 +102,8 @@ function Pagina({ x, y, w, h, src, rl, rr, id, lado }) {
   );
 }
 
-// Espessura (páginas empilhadas) à direita e embaixo.
-function Espessura({ x, y, w, h, camadas, rr }) {
+// Espessura (páginas empilhadas) em direção à borda externa e à base.
+function Espessura({ x, y, w, h, camadas, rl, rr, dir = 1 }) {
   return (
     <g>
       {Array.from({ length: camadas }).map((_, i) => {
@@ -108,7 +111,7 @@ function Espessura({ x, y, w, h, camadas, rr }) {
         return (
           <path
             key={i}
-            d={caminhoArredondado(x + k * 1.6, y + k * 1.6, w, h, 2, rr)}
+            d={caminhoArredondado(x + dir * k * 1.6, y + k * 1.6, w, h, rl, rr)}
             fill={i % 2 ? "#ece6d8" : "#fbf8f0"}
             stroke="#cfc6b0"
             strokeWidth="0.6"
@@ -119,34 +122,110 @@ function Espessura({ x, y, w, h, camadas, rr }) {
   );
 }
 
+function Textura({ mat, d, id }) {
+  if (mat === "couro")
+    return (
+      <g clipPath={`url(#${id})`}>
+        <rect width={STAGE_W} height={STAGE_H} filter="url(#mk-couro)" opacity="0.8" />
+      </g>
+    );
+  if (mat === "linho")
+    return (
+      <g clipPath={`url(#${id})`}>
+        <rect width={STAGE_W} height={STAGE_H} fill="url(#mk-linho)" />
+      </g>
+    );
+  return null;
+}
+
 const MockupStage = forwardRef(function MockupStage(
-  { tipo, metal, cena, view, capaSrc, miolosrc, corCapa = "#1e293b", brilho = true },
+  {
+    tipo, metal, cena, view, capaSrc, miolosrc, corCapa = "#1e293b", brilho = true,
+    mat = "carton", disp = "esquerda", aneis = null, furo = "auto", cantos = false,
+    elastico = false, corElastico = "#111111", elasticoLarg = 6, elasticoPos = 22,
+    passante = false, corPassante = "#111111", fita = false, corFita = "#b3262e",
+  },
   ref,
 ) {
-  const anelado = TIPOS_ANELADOS.includes(tipo);
   const bloco = tipo === "bloco";
+  const PX = 3.65; // px por mm (A5 ≈ 148 mm ↔ 540 px)
 
   // ---------- CAPA FECHADA ----------
   const cw = 540;
   const ch = 764;
   const cx0 = (STAGE_W - cw) / 2;
   const cy0 = (STAGE_H - ch) / 2;
-  const rrCapa = tipo === "brochura" || tipo === "costura" ? 12 : 8;
+  const duro = tipo === "brochura" || tipo === "costura" || tipo === "argolas";
+  const R = cantos ? 34 : duro ? 12 : 8;
+  const r0 = 4;
+  const raios =
+    disp === "direita" ? [R, r0, r0, R] : disp === "topo" ? [r0, r0, R, R] : [r0, R, R, r0];
+  const dCapa = caminhoCantos(cx0, cy0, cw, ch, raios);
+  const rl = disp === "direita" ? R : r0;
+  const rr = disp === "direita" ? r0 : R;
+
+  // referencial local da encadernação (eixo em x=0, comprimento = len)
+  const topo = disp === "topo";
+  const len = topo ? cw : ch;
+  const largura = topo ? ch : cw;
+  const tf =
+    disp === "direita"
+      ? `translate(${cx0 + cw} ${cy0 + ch}) rotate(180)`
+      : topo
+        ? `translate(${cx0 + cw} ${cy0}) rotate(90)`
+        : `translate(${cx0} ${cy0})`;
+
+  const renderElastico = () => {
+    if (!elastico || bloco) return null;
+    const L = elasticoLarg * PX;
+    const ex = largura - elasticoPos * PX - L / 2;
+    const pz = len * 0.26;
+    return (
+      <g transform={tf}>
+        <rect x={ex + 3} y={-6} width={L} height={len + 12} fill="#000" opacity="0.35" filter="url(#mk-sombra-leve)" />
+        <rect x={ex} y={-4} width={L} height={len + 8} fill={corElastico} />
+        {Array.from({ length: Math.floor(len / 5) }).map((_, i) => (
+          <line key={i} x1={ex} x2={ex + L} y1={i * 5 + 2} y2={i * 5 + 2} stroke="#000" strokeOpacity="0.18" strokeWidth="0.8" />
+        ))}
+        <rect x={ex} y={-4} width={L} height={len + 8} fill="url(#mk-elast)" />
+        {passante && (
+          <g>
+            <rect x={ex - 7} y={pz + 3} width={L + 14} height="30" rx="3" fill="#000" opacity="0.4" filter="url(#mk-sombra-leve)" />
+            <rect x={ex - 6} y={pz} width={L + 12} height="28" rx="3" fill={corPassante} />
+            <rect x={ex - 6} y={pz} width={L + 12} height="28" rx="3" fill="url(#mk-elast)" opacity="0.8" />
+            <rect x={ex - 6} y={pz} width={L + 12} height="9" rx="3" fill="#fff" opacity="0.14" />
+            <line x1={ex - 3} x2={ex - 3} y1={pz + 3} y2={pz + 25} stroke="#fff" strokeOpacity="0.4" strokeDasharray="2 3" />
+            <line x1={ex + L + 3} x2={ex + L + 3} y1={pz + 3} y2={pz + 25} stroke="#fff" strokeOpacity="0.4" strokeDasharray="2 3" />
+          </g>
+        )}
+      </g>
+    );
+  };
+
+  const renderFita = () => {
+    if (!fita || bloco) return null;
+    const x = cx0 + cw * 0.58;
+    const y = cy0 + ch - 4;
+    return (
+      <g>
+        <path d={`M${x + 3} ${y + 3} h22 v92 l-11 -13 l-11 13 Z`} fill="#000" opacity="0.35" filter="url(#mk-sombra-leve)" />
+        <path d={`M${x} ${y} h22 v92 l-11 -13 l-11 13 Z`} fill={corFita} />
+        <path d={`M${x} ${y} h8 v88 l-8 9 Z`} fill="#fff" opacity="0.14" />
+        <path d={`M${x + 22} ${y} h-5 v82 l5 11 Z`} fill="#000" opacity="0.18" />
+      </g>
+    );
+  };
 
   const renderFechada = () => (
     <g>
-      {/* sombra projetada */}
-      <path
-        d={caminhoArredondado(cx0 + 16, cy0 + 26, cw, ch, 8, 10)}
-        fill="#000"
-        opacity="0.38"
-        filter="url(#mk-sombra)"
-      />
-      <Espessura x={cx0} y={cy0} w={cw} h={ch} camadas={bloco ? 6 : 3} rr={rrCapa} />
+      {/* sombras: longa e suave + contato */}
+      <path d={caminhoCantos(cx0 + 22, cy0 + 34, cw, ch, raios)} fill="#000" opacity="0.34" filter="url(#mk-sombra)" />
+      <path d={caminhoCantos(cx0 + 5, cy0 + 8, cw, ch, raios)} fill="#000" opacity="0.4" filter="url(#mk-sombra-leve)" />
+      <Espessura x={cx0} y={cy0} w={cw} h={ch} camadas={bloco ? 6 : 3} rl={rl} rr={rr} dir={disp === "direita" ? -1 : 1} />
       <clipPath id="mk-clip-capa">
-        <path d={caminhoArredondado(cx0, cy0, cw, ch, 6, rrCapa)} />
+        <path d={dCapa} />
       </clipPath>
-      <path d={caminhoArredondado(cx0, cy0, cw, ch, 6, rrCapa)} fill={corCapa} />
+      <path d={dCapa} fill={corCapa} />
       {capaSrc && (
         <image
           href={capaSrc}
@@ -158,12 +237,11 @@ const MockupStage = forwardRef(function MockupStage(
           clipPath="url(#mk-clip-capa)"
         />
       )}
-      {brilho && (
-        <path
-          d={caminhoArredondado(cx0, cy0, cw, ch, 6, rrCapa)}
-          fill="url(#mk-brilho)"
-        />
-      )}
+      <Textura mat={mat} id="mk-clip-capa" />
+      {(brilho || mat === "brilho") && <path d={dCapa} fill="url(#mk-brilho)" opacity={mat === "brilho" ? 1.4 : 1} />}
+      {/* bisel */}
+      <path d={dCapa} fill="none" stroke="#fff" strokeOpacity="0.28" strokeWidth="1.4" />
+      <path d={dCapa} fill="none" stroke="#000" strokeOpacity="0.22" strokeWidth="0.8" transform="translate(0.8 0.8)" clipPath="url(#mk-clip-capa)" />
       {bloco ? (
         <g>
           <rect x={cx0} y={cy0} width={cw} height="46" fill="#000" opacity="0.14" clipPath="url(#mk-clip-capa)" />
@@ -171,14 +249,14 @@ const MockupStage = forwardRef(function MockupStage(
           <line x1={cx0} x2={cx0 + cw} y1={cy0 + 46} y2={cy0 + 46} stroke="#000" strokeOpacity="0.3" strokeDasharray="3 5" />
         </g>
       ) : (
-        <Binding
-          tipo={tipo}
-          cx={tipo === "grampo" ? cx0 + 12 : cx0}
-          y0={cy0}
-          y1={cy0 + ch}
-          metal={metal}
-        />
+        <>
+          {renderElastico()}
+          <g transform={tf}>
+            <Binding tipo={tipo} len={len} metal={metal} n={aneis} furo={furo} />
+          </g>
+        </>
       )}
+      {renderFita()}
     </g>
   );
 
@@ -194,7 +272,7 @@ const MockupStage = forwardRef(function MockupStage(
       return (
         <g>
           <path d={caminhoArredondado(bx + 14, py + 24, pw, ph, 4, 6)} fill="#000" opacity="0.35" filter="url(#mk-sombra)" />
-          <Espessura x={bx} y={py} w={pw} h={ph} camadas={8} rr={4} />
+          <Espessura x={bx} y={py} w={pw} h={ph} camadas={8} rl={4} rr={4} />
           <Pagina x={bx} y={py} w={pw} h={ph} src={miolosrc} rl={3} rr={4} id="mk-p-bloco" lado="dir" />
           <rect x={bx} y={py} width={pw} height="40" fill="#000" opacity="0.12" />
           <line x1={bx} x2={bx + pw} y1={py + 40} y2={py + 40} stroke="#000" strokeOpacity="0.28" strokeDasharray="3 5" />
@@ -203,12 +281,16 @@ const MockupStage = forwardRef(function MockupStage(
     }
     return (
       <g>
-        <path d={caminhoArredondado(gx - pw + 10, py + 24, pw * 2, ph, 6, 6)} fill="#000" opacity="0.34" filter="url(#mk-sombra)" />
-        <Espessura x={gx} y={py} w={pw} h={ph} camadas={4} rr={4} />
+        <path d={caminhoArredondado(gx - pw + 16, py + 34, pw * 2, ph, 6, 6)} fill="#000" opacity="0.34" filter="url(#mk-sombra)" />
+        <path d={caminhoArredondado(gx - pw + 4, py + 8, pw * 2, ph, 6, 6)} fill="#000" opacity="0.36" filter="url(#mk-sombra-leve)" />
+        <path d={caminhoArredondado(gx - pw - 10, py - 8, pw * 2 + 20, ph + 16, 8, 8)} fill={corCapa} />
+                <Espessura x={gx} y={py} w={pw} h={ph} camadas={4} rl={2} rr={4} />
         <Pagina x={gx - pw} y={py} w={pw} h={ph} src={null} rl={4} rr={2} id="mk-p-esq" lado="esq" />
         <Pagina x={gx} y={py} w={pw} h={ph} src={miolosrc} rl={2} rr={4} id="mk-p-dir" lado="dir" />
         <rect x={gx - 46} y={py} width="92" height={ph} fill="url(#mk-gutter)" />
-        <Binding tipo={tipo} cx={gx} y0={py} y1={py + ph} metal={metal} aberto />
+        <g transform={`translate(${gx} ${py})`}>
+          <Binding tipo={tipo} len={ph} metal={metal} aberto n={aneis} furo={furo} />
+        </g>
       </g>
     );
   };

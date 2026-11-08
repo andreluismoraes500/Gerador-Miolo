@@ -11,7 +11,7 @@ export { TAMANHOS, FORMATOS_BLOCO, MATERIAIS, METAIS3D, PAPELAO3D };
 
 // ---------------------------------------------------------------- texturas
 
-function canvasTex(w, h, draw, srgb = true) {
+export function canvasTex(w, h, draw, srgb = true) {
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
@@ -22,7 +22,7 @@ function canvasTex(w, h, draw, srgb = true) {
   return t;
 }
 
-function girarCanvas(src, deg) {
+export function girarCanvas(src, deg) {
   const r = ((deg % 360) + 360) % 360;
   if (!r) return src;
   const w0 = src.naturalWidth || src.width;
@@ -66,7 +66,7 @@ export function texturaPautado(ctx3, { cor = "#b9c4d6", margem = true, giro = 0 
   return ctx3.track(t);
 }
 
-function texturaBordaPaginas(ctx3) {
+export function texturaBordaPaginas(ctx3) {
   return ctx3.track(
     canvasTex(8, 256, (g, w, h) => {
       for (let y = 0; y < h; y++) {
@@ -158,11 +158,11 @@ export function carregarTextura(ctx3, src, aspect, giro = 0) {
 
 // ---------------------------------------------------------------- materiais
 
-function matPapel(map) {
+export function matPapel(map) {
   return new THREE.MeshStandardMaterial({ color: "#fffdf8", roughness: 0.92, map: map || null });
 }
 
-function matCapa(ctx3, { cor, mat, map }) {
+export function matCapa(ctx3, { cor, mat, map }) {
   const m = MATERIAIS[mat] || MATERIAIS.carton;
   const base = {
     color: map ? "#ffffff" : cor,
@@ -182,12 +182,12 @@ function matCapa(ctx3, { cor, mat, map }) {
   return p;
 }
 
-function matMetal(metal) {
+export function matMetal(metal) {
   const c = (METAIS3D[metal] || METAIS3D.prata).color;
   return new THREE.MeshStandardMaterial({ color: c, metalness: 1, roughness: 0.28 });
 }
 
-function matCor(cor, rough = 0.7) {
+export function matCor(cor, rough = 0.7) {
   return new THREE.MeshStandardMaterial({ color: cor, roughness: rough });
 }
 
@@ -195,7 +195,7 @@ const MAT_FURO = new THREE.MeshBasicMaterial({ color: "#14161a" });
 
 // ---------------------------------------------------------------- helpers
 
-function caixa(w, h, d, mats, { sombra = true } = {}) {
+export function caixa(w, h, d, mats, { sombra = true } = {}) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mats);
   m.castShadow = sombra;
   m.receiveShadow = true;
@@ -203,24 +203,68 @@ function caixa(w, h, d, mats, { sombra = true } = {}) {
 }
 
 // Face order da BoxGeometry: +x, -x, +y, -y, +z, -z
-function mats6({ topo, lados, base }) {
+export function mats6({ topo, lados, base }) {
   return [lados, lados, topo, base || lados, lados, lados];
 }
 
-function furo(x, y, z, r = 0.012) {
-  const m = new THREE.Mesh(new THREE.CircleGeometry(r, 16), MAT_FURO);
-  m.rotation.x = -Math.PI / 2;
+// Formas de furação (vistas de cima; origem = centro do furo).
+// cogumelo: cabeça redonda + haste aberta para a borda (-x), como na agenda de discos.
+const GEO_FURO = {};
+function geoFuro(forma, haste = 0.09) {
+  const key = `${forma}|${Math.round(haste * 1000)}`;
+  if (GEO_FURO[key]) return GEO_FURO[key];
+  const sh = new THREE.Shape();
+  if (forma === "quadrado") {
+    const h = 0.0115;
+    sh.moveTo(-h, -h); sh.lineTo(h, -h); sh.lineTo(h, h); sh.lineTo(-h, h); sh.closePath();
+  } else if (forma === "oblongo") {
+    const w = 0.009, l = 0.019;
+    sh.moveTo(-w, -l + w);
+    sh.absarc(0, -l + w, w, Math.PI, 0, false);
+    sh.lineTo(w, l - w);
+    sh.absarc(0, l - w, w, 0, Math.PI, false);
+    sh.closePath();
+  } else if (forma === "cogumelo") {
+    const R = 0.05, hs = 0.02, cx = 0;
+    const dx = Math.sqrt(R * R - hs * hs);
+    const a0 = Math.atan2(-hs, -dx);
+    const a1 = Math.atan2(hs, -dx);
+    sh.moveTo(-haste, -hs);
+    sh.lineTo(cx - dx, -hs);
+    sh.absarc(cx, 0, R, a0, a1, false);
+    sh.lineTo(-haste, hs);
+    sh.closePath();
+  } else {
+    sh.absarc(0, 0, 0.012, 0, Math.PI * 2, false);
+  }
+  const geo = new THREE.ShapeGeometry(sh, 20);
+  geo.rotateX(-Math.PI / 2);
+  GEO_FURO[key] = geo;
+  return geo;
+}
+
+// forma padrão: wire-o quadrado, espiral redondo, discos cogumelo.
+export function formaFuro(forma, tipo) {
+  if (forma && forma !== "auto") return forma;
+  if (tipo === "wireo") return "quadrado";
+  if (tipo === "discos") return "cogumelo";
+  return "redondo";
+}
+
+export function furo(x, y, z, forma = "redondo", esc = 1, haste = 0.09) {
+  const m = new THREE.Mesh(geoFuro(forma, haste / esc), MAT_FURO);
   m.position.set(x, y, z);
+  if (esc !== 1) m.scale.setScalar(esc);
   return m;
 }
 
-function tubo(curva, seg, raio, mat) {
+export function tubo(curva, seg, raio, mat) {
   const m = new THREE.Mesh(new THREE.TubeGeometry(curva, seg, raio, 8, false), mat);
   m.castShadow = true;
   return m;
 }
 
-function elipseCurva(cx, cy, a, b, passoGrau = 8) {
+export function elipseCurva(cx, cy, a, b, passoGrau = 8) {
   const pts = [];
   for (let d = 0; d <= 360; d += passoGrau) {
     const r = (d * Math.PI) / 180;
@@ -232,7 +276,7 @@ function elipseCurva(cx, cy, a, b, passoGrau = 8) {
 
 // Placa plana (capa/miolo) com os cantos do lado da borda externa arredondados.
 // UV: tampas mapeadas em planta (x,z); laterais em (x+z, y).
-function placa(W, H, T, { raio = 0, matCap, matLado }) {
+export function placa(W, H, T, { raio = 0, matCap, matLado }) {
   const r = Math.min(raio, W / 2.5, H / 2.5);
   const s = new THREE.Shape();
   s.moveTo(-W / 2, -H / 2);
@@ -295,7 +339,9 @@ function finalizar(g, { rotY, W, H, T }) {
 
 // Anéis enrolados (wire-o = argolas fechadas; espiral = hélice contínua).
 // n = quantidade (null = automático pelo tamanho).
-function aneisEnrolados(g, { tipo, metalMat, H, n, cx, cy, a, b, furosX, yFuro }) {
+function aneisEnrolados(g, { tipo, metalMat, H, n, cx, cy, a, b, furosX, yFuro, forma, bordaX = null }) {
+  const fe = forma === "cogumelo" ? 0.6 : 1;
+  const mk = (fx, z) => furo(fx, yFuro, z, forma, fe, bordaX === null ? 0.07 * fe : Math.max(0.01, fx - bordaX));
   if (tipo === "wireo") {
     const margem = 0.17;
     const total = H - margem * 2;
@@ -307,7 +353,7 @@ function aneisEnrolados(g, { tipo, metalMat, H, n, cx, cy, a, b, furosX, yFuro }
       r.position.z = z;
       r.castShadow = true;
       g.add(r);
-      furosX.forEach((fx) => g.add(furo(fx, yFuro, z)));
+      furosX.forEach((fx) => g.add(mk(fx, z)));
     }
   } else {
     const turns = Math.max(3, n || Math.floor((H - 0.3) / 0.09));
@@ -322,9 +368,30 @@ function aneisEnrolados(g, { tipo, metalMat, H, n, cx, cy, a, b, furosX, yFuro }
     }
     g.add(tubo(new THREE.CatmullRomCurve3(pts), N * 2, 0.0095, metalMat));
     for (let i = 0; i < turns; i++) {
-      furosX.forEach((fx) => g.add(furo(fx, yFuro, -total / 2 + i * pitch)));
+      furosX.forEach((fx) => g.add(mk(fx, -total / 2 + i * pitch)));
     }
   }
+}
+
+// Agenda infinita: discos de plástico/metal em furos de cogumelo.
+function zsDiscos(H, n) {
+  const total = H - 0.5;
+  const k = Math.max(3, n || Math.floor(total / 0.13) + 1);
+  const sp = total / (k - 1);
+  return { zs: Array.from({ length: k }, (_, i) => -total / 2 + i * sp), r: Math.min(0.045, sp * 0.46) };
+}
+
+function disco(metalMat, r, hAlto, yBase) {
+  const g = new THREE.Group();
+  const rim = Math.max(0.005, r * 0.14);
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.58, r * 0.58, hAlto, 20), metalMat);
+  hub.position.y = yBase + hAlto / 2;
+  const topo = new THREE.Mesh(new THREE.CylinderGeometry(r, r, rim, 28), metalMat);
+  topo.position.y = yBase + hAlto + rim / 2;
+  const base = topo.clone();
+  base.position.y = yBase - rim / 2;
+  [hub, topo, base].forEach((m) => { m.castShadow = true; g.add(m); });
+  return g;
 }
 
 function zsArgolas(H, n) {
@@ -333,7 +400,7 @@ function zsArgolas(H, n) {
   return Array.from({ length: k }, (_, i) => -H * 0.32 + i * sp);
 }
 
-function caneta(cor, metalMat) {
+export function caneta(cor, metalMat) {
   const g = new THREE.Group();
   const corpo = new THREE.Mesh(
     new THREE.CylinderGeometry(0.024, 0.024, 1.05, 24).rotateX(Math.PI / 2),
@@ -418,7 +485,21 @@ export function construirFechado(ctx3, o) {
       tipo, metalMat, H, n: o.aneis,
       cx: xc, cy: yMid, a, b: bR,
       furosX: [xc + a * s], yFuro: yTop + 0.0007,
+      forma: formaFuro(o.furo, tipo), bordaX: -W / 2,
     });
+  }
+
+  if (tipo === "discos") {
+    const { zs, r } = zsDiscos(H, o.aneis);
+    const forma = formaFuro(o.furo, tipo);
+    const esc = r / 0.045;
+    const dx = -W / 2 + 0.07 * esc;
+    for (const z of zs) {
+      g.add(furo(dx, yTop + 0.0007, z, forma, esc, 0.07 * esc));
+      const d = disco(metalMat, r * 0.82, yTop, 0);
+      d.position.set(dx - 0.012 * esc, 0, z);
+      g.add(d);
+    }
   }
 
   if (tipo === "argolas") {
@@ -477,20 +558,35 @@ export function construirFechado(ctx3, o) {
   // ---------- extras ----------
   if (o.elastico) {
     const mE = matCor(o.corElastico || "#111111", 0.6);
-    const ex = W / 2 - 0.2;
-    const topo = caixa(0.024, 0.004, H + 0.008, mE, { sombra: false });
+    const L = (o.elasticoLarg || 6) / 100;
+    const ex = W / 2 - (o.elasticoPos ?? 22) / 100;
+    const topo = caixa(L, 0.004, H + 0.008, mE, { sombra: false });
     topo.position.set(ex, yTop + 0.002, 0);
-    const baixo = caixa(0.024, 0.004, H + 0.008, mE, { sombra: false });
+    const baixo = caixa(L, 0.004, H + 0.008, mE, { sombra: false });
     baixo.position.set(ex, -0.0005, 0);
     g.add(topo, baixo);
     for (const sz of [-1, 1]) {
-      const ponta = caixa(0.024, yTop + 0.008, 0.004, mE, { sombra: false });
+      const ponta = caixa(L, yTop + 0.008, 0.004, mE, { sombra: false });
       ponta.position.set(ex, yTop / 2, sz * (H / 2 + 0.002));
       g.add(ponta);
     }
-    const mpl = caixa(0.03, 0.002, 0.07, metalMat, { sombra: false });
+    const mpl = caixa(L + 0.008, 0.002, 0.07, metalMat, { sombra: false });
     mpl.position.set(ex, yTop + 0.005, -H * 0.18);
     g.add(mpl);
+    if (o.passante) {
+      // passante: tirinha que prende o elástico na capa
+      const mP = matCor(o.corPassante || o.corElastico || "#111111", 0.55);
+      const pz = H * 0.2;
+      const lp = L + 0.03;
+      const cima = caixa(lp, 0.006, 0.09, mP, { sombra: true });
+      cima.position.set(ex, yTop + 0.007, pz);
+      g.add(cima);
+      for (const sx of [-1, 1]) {
+        const lado = caixa(0.008, 0.012, 0.09, mP, { sombra: false });
+        lado.position.set(ex + sx * (lp / 2 - 0.004), yTop + 0.002, pz);
+        g.add(lado);
+      }
+    }
   }
 
   if (o.fita) {
@@ -567,7 +663,22 @@ export function construirAberto(ctx3, o) {
       tipo, metalMat, H, n: o.aneis,
       cx: 0, cy: yTop - 0.005, a, b: 0.06,
       furosX: [-a, a], yFuro: yTop + 0.0007,
+      forma: formaFuro(o.furo, tipo),
     });
+  }
+
+  if (tipo === "discos") {
+    const { zs, r } = zsDiscos(H, o.aneis);
+    const forma = formaFuro(o.furo, tipo);
+    for (const z of zs) {
+      const esc = r / 0.045;
+      const fe = furo(-0.08 * esc, yTop + 0.0007, z, forma, esc, 0.08 * esc);
+      fe.rotation.y = Math.PI; // haste voltada ao centro
+      g.add(fe, furo(0.08 * esc, yTop + 0.0007, z, forma, esc, 0.08 * esc));
+      const d = disco(metalMat, r * 0.82, tl, c);
+      d.position.set(0, 0, z);
+      g.add(d);
+    }
   }
 
   if (tipo === "argolas") {
@@ -745,7 +856,7 @@ export function construirKit(ctx3, o) {
   return out;
 }
 
-export function construir(ctx3, o) {
+export function construirBase(ctx3, o) {
   if (o.produto === "kit") return construirKit(ctx3, o);
   if (o.produto === "calendario") return construirCalendario(ctx3, o);
   if (o.produto === "bloco" || o.tipo === "bloco") {
