@@ -3,6 +3,7 @@
 // Componente de visualização pura: recebe apenas dados de conteúdo e delega
 // aparência (cores, logo, fonte, etc.) ao contexto AgendaConfig.
 
+import { partiturasCfg } from "../lib/configPartituras";
 import React, { useEffect, useState, useRef } from "react";
 import { loadTemplate, getCachedTemplate } from "../templates";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
@@ -33,6 +34,7 @@ const AgendaPreview = React.memo(function AgendaPreview({
     capaFrase,
     setCapaFrase,
   } = useAgendaConfig();
+  partiturasCfg.useStore(); // re-renderiza ao mudar os tipos de pauta
 
   const [currentTemplate, setCurrentTemplate] = useState(() =>
     getCachedTemplate(template),

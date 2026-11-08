@@ -1,6 +1,7 @@
 // src/pages/PreviewPage.jsx
 import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
+import { LadosImpressao, PartiturasOpcoes } from "../components/OpcoesImpressao";
 import AgendaPreview from "../components/AgendaPreview";
 import AgendaBuilderPreview from "../components/AgendaBuilderPreview";
 
@@ -66,6 +67,14 @@ export default function PreviewPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto w-full px-5 sm:px-6 flex flex-col gap-3 print:hidden">
+        <div className="flex flex-col gap-1 max-w-sm">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B6A1F]">Sem impressora frente e verso?</span>
+          <LadosImpressao />
+        </div>
+        {((builderMode && modules.some((m) => m.templateKey === "partituras")) || (!builderMode && template === "partituras")) && <PartiturasOpcoes />}
       </div>
 
       <div className="max-w-6xl mx-auto w-full px-5 sm:px-6 pb-12 flex justify-center print:p-0 print:max-w-none">

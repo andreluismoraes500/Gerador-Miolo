@@ -1,4 +1,5 @@
 // src/hooks/useAgendaSettings.js
+import { impressao, prepararLados } from "../lib/configImpressao";
 import { DEFAULT_FOOTER_NAME } from "../config/appInfo";
 import { useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
@@ -166,7 +167,10 @@ export function useAgendaSettings() {
   const handlePrint = useCallback(() => {
     setPrinting(true);
     setTimeout(() => {
+      const lados = impressao.get().lados;
+      const restaurar = lados === "ambos" ? null : prepararLados(lados);
       window.print();
+      restaurar?.();
       setPrinting(false);
     }, 250);
   }, []);

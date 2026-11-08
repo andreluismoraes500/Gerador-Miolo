@@ -13,6 +13,7 @@ import Logo from "../Logo";
 import Watermark from "../Watermark";
 import Background from "../Background";
 import EditableField from "../EditableField";
+import { TIPOS_PAUTA } from "../../lib/configPartituras";
 
 const FONTE_TITULO = "'Cormorant Garamond', serif";
 const FONTE_MUSICAL = "'Noto Music', serif";
@@ -174,65 +175,93 @@ export function PartiturasCapaPage(rest) {
 // 2. PAUTA — sistema de pentagrama em branco
 // ─────────────────────────────────────────────────────────────────────────
 
-function StaffSystem({ primaryColor, height = "22mm", clef = "𝄞" }) {
-  const linhas = [0, 25, 50, 75, 100];
+function Linhas({ n, h, cor, top = "50%" }) {
   return (
-    <div className="relative w-full shrink-0" style={{ height }}>
-      <div
-        className="absolute left-0 right-0"
-        style={{ top: "50%", transform: "translateY(-50%)", height: "9mm" }}
-      >
-        {linhas.map((pct) => (
-          <div
-            key={pct}
-            className="absolute left-0 right-0 border-t"
-            style={{ top: `${pct}%`, borderColor: primaryColor, opacity: 0.75 }}
-          />
-        ))}
+    <div className="absolute left-0 right-0" style={{ top, transform: "translateY(-50%)", height: h }}>
+      {Array.from({ length: n }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute left-0 right-0 border-t"
+          style={{ top: `${(i / (n - 1)) * 100}%`, borderColor: cor, opacity: 0.75 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function Barra({ x, h, cor, top = "50%", w = "1px" }) {
+  return (
+    <div
+      className="absolute"
+      style={{ left: x, top, transform: "translateY(-50%)", width: w, height: h, backgroundColor: cor, opacity: 0.75 }}
+    />
+  );
+}
+
+function Simbolo({ children, size, left = "1mm", top = "50%", dy = "-56%", cor }) {
+  return (
+    <span
+      className="absolute select-none pointer-events-none"
+      style={{ left, top, transform: `translateY(${dy})`, fontFamily: FONTE_MUSICAL, fontSize: size, lineHeight: 1, color: cor }}
+    >
+      {children}
+    </span>
+  );
+}
+
+// Um "sistema" de cada tipo de pauta.
+function Sistema({ tipo, cor, altura }) {
+  const h = `${altura}mm`;
+  if (tipo === "piano") {
+    return (
+      <div className="relative w-full shrink-0" style={{ height: h }}>
+        <Linhas n={5} h="8mm" cor={cor} top="22%" />
+        <Linhas n={5} h="8mm" cor={cor} top="78%" />
+        <Simbolo size="14mm" top="22%" cor={cor}>𝄞</Simbolo>
+        <Simbolo size="12mm" top="78%" dy="-50%" cor={cor}>𝄢</Simbolo>
+        <Simbolo size="30mm" left="-5mm" top="50%" dy="-50%" cor={cor}>𝄔</Simbolo>
+        <Barra x="14mm" h="29mm" cor={cor} />
+        <Barra x="calc(100% - 1px)" h="29mm" cor={cor} w="1.5px" />
       </div>
-
-      <span
-        className="absolute select-none pointer-events-none"
-        style={{
-          left: "1mm",
-          top: "50%",
-          transform: "translateY(-56%)",
-          fontFamily: FONTE_MUSICAL,
-          fontSize: "16mm",
-          lineHeight: 1,
-          color: primaryColor,
-        }}
-      >
-        {clef}
-      </span>
-
-      {/* barra de compasso inicial, logo após a clave */}
-      <div
-        className="absolute"
-        style={{
-          left: "15mm",
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: "1px",
-          height: "9mm",
-          backgroundColor: primaryColor,
-          opacity: 0.75,
-        }}
-      />
-
-      {/* barra de compasso final */}
-      <div
-        className="absolute"
-        style={{
-          right: 0,
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: "1.5px",
-          height: "9mm",
-          backgroundColor: primaryColor,
-          opacity: 0.75,
-        }}
-      />
+    );
+  }
+  if (tipo === "violao") {
+    return (
+      <div className="relative w-full shrink-0" style={{ height: h }}>
+        <Linhas n={6} h="11mm" cor={cor} />
+        <span
+          className="absolute font-bold select-none"
+          style={{ left: "2mm", top: "50%", transform: "translateY(-50%)", color: cor, fontSize: "4.2mm", lineHeight: 1.05, textAlign: "center", fontFamily: "'Inter', sans-serif" }}
+        >
+          T<br />A<br />B
+        </span>
+        <Barra x="11mm" h="11mm" cor={cor} />
+        <Barra x="calc(100% - 1px)" h="11mm" cor={cor} w="1.5px" />
+      </div>
+    );
+  }
+  const clef = tipo === "fa" ? "𝄢" : tipo === "bateria" ? "𝄥" : "𝄞";
+  const tamClef = tipo === "fa" ? "11mm" : tipo === "bateria" ? "9mm" : "16mm";
+  const dy = tipo === "fa" ? "-50%" : tipo === "bateria" ? "-50%" : "-56%";
+  const extraTopo = tipo === "cifra";
+  const extraBase = tipo === "canto";
+  const topo = extraTopo ? "62%" : extraBase ? "38%" : "50%";
+  return (
+    <div className="relative w-full shrink-0" style={{ height: h }}>
+      {extraTopo && (
+        <div className="absolute left-[16mm] right-0 border-b border-dotted" style={{ top: "17%", borderColor: cor, opacity: 0.5 }}>
+          <span className="absolute -top-3 left-0 text-[7px] uppercase tracking-widest text-gray-400">cifra</span>
+        </div>
+      )}
+      <Linhas n={5} h="9mm" cor={cor} top={topo} />
+      <Simbolo size={tamClef} top={topo} dy={dy} cor={cor}>{clef}</Simbolo>
+      <Barra x="15mm" h="9mm" cor={cor} top={topo} />
+      <Barra x="calc(100% - 1px)" h="9mm" cor={cor} top={topo} w="1.5px" />
+      {extraBase && (
+        <div className="absolute left-[16mm] right-0 border-b border-dotted" style={{ top: "88%", borderColor: cor, opacity: 0.5 }}>
+          <span className="absolute -top-3 left-0 text-[7px] uppercase tracking-widest text-gray-400">letra</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -240,12 +269,13 @@ function StaffSystem({ primaryColor, height = "22mm", clef = "𝄞" }) {
 export function PartiturasPautaPage({
   pageIndex = 0,
   totalPaginas = 1,
-  numSistemas = 10,
   comCampos = false,
-  clef = "𝄞",
+  tipo = "sol",
   ...rest
 }) {
   const { primaryColor } = useVisual(rest.customColors);
+  const cfg = TIPOS_PAUTA.find((t) => t.id === tipo) || TIPOS_PAUTA[0];
+  const numSistemas = cfg.sistemas - (comCampos ? 1 : 0);
 
   return (
     <PageShell {...rest}>
@@ -253,7 +283,7 @@ export function PartiturasPautaPage({
         <div className="flex items-center gap-2">
           <Logo src={rest.logo} />
           <span className="text-[10px] uppercase tracking-widest text-gray-400">
-            Caderno de Partituras
+            Caderno de Partituras · {cfg.nome}
           </span>
         </div>
         <span className="text-[10px] text-gray-400">
@@ -263,11 +293,7 @@ export function PartiturasPautaPage({
 
       {comCampos && (
         <div className="grid grid-cols-4 gap-4 mb-4 shrink-0">
-          <CampoLabel
-            label="Título"
-            fieldKey="partituras-titulo"
-            className="col-span-2"
-          />
+          <CampoLabel label="Título" fieldKey="partituras-titulo" className="col-span-2" />
           <CampoLabel label="Compositor(a)" fieldKey="partituras-compositor" />
           <CampoLabel label="Tom / Andamento" fieldKey="partituras-tom" />
         </div>
@@ -275,7 +301,7 @@ export function PartiturasPautaPage({
 
       <div className="flex-1 flex flex-col justify-between min-h-0">
         {Array.from({ length: numSistemas }).map((_, i) => (
-          <StaffSystem key={i} primaryColor={primaryColor} clef={clef} />
+          <Sistema key={i} tipo={tipo} cor={primaryColor} altura={cfg.altura} />
         ))}
       </div>
     </PageShell>

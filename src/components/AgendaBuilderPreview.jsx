@@ -8,6 +8,7 @@
 //   um PDF/impressão contínua com paginação e margens espelhadas corretas
 //   do início ao fim — sem precisar de html2canvas ou libs de PDF.
 
+import { partiturasCfg } from "../lib/configPartituras";
 import React, { useEffect, useState, useRef } from "react";
 import { TEMPLATE_MANIFEST } from "../templates/manifest";
 import { preloadTemplates, getCachedTemplate } from "../templates";
@@ -65,6 +66,7 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
     capaFrase,
     setCapaFrase,
   } = useAgendaConfig();
+  partiturasCfg.useStore(); // re-renderiza ao mudar os tipos de pauta
 
   const baseLayoutProps = {
     footerName: customName,
