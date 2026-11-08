@@ -23,6 +23,7 @@ export const TEMPLATE_MANIFEST = {
   semData: { nome: "Agenda Sem Data (Permanente)", categoria: "agendas" },
   diario: { nome: "Diário", categoria: "agendas" },
   diarioLivre: { nome: "Diário Livre", categoria: "agendas" },
+  diarioHorario: { nome: "Diário Hora a Hora (amplo)", categoria: "agendas" },
   diarioFloral: { nome: "Agenda Floral", categoria: "floral" },
   floralMensal: { nome: "Agenda Floral (mensal)", categoria: "floral" },
   floralAnual: { nome: "Agenda Floral (anual)", categoria: "floral" },

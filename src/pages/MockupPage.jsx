@@ -15,6 +15,7 @@ import CapaLayout from "../components/layouts/CapaLayout";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 import BlocoStage, { FORMATOS_BLOCO, PAPELAO } from "../components/mockup/BlocoStage";
 import MockupStage, { CENAS, STAGE_H, STAGE_W } from "../components/mockup/MockupStage";
+import { MIOLOS } from "../components/mockup3d/opcoes";
 import { FUROS, METAIS, TIPOS_ANELADOS, TIPOS_ENCADERNACAO, formaFuro } from "../components/mockup/bindings";
 import { IconeEnc, IconeFuro } from "../components/mockup/IconesEnc";
 import { usePersistedState } from "../hooks/usePersistedState";
@@ -138,7 +139,7 @@ export default function MockupPage() {
   const [bQtd, setBQtd] = usePersistedState("mockup-b-qtd", 3);
   const [bBrilho, setBBrilho] = usePersistedState("mockup-b-brilho", true);
   // caneca
-  const [cArco, setCArco] = usePersistedState("mockup-c-arco-v2", 140);
+  const [cArco, setCArco] = usePersistedState("mockup-c-arco-v3", 340);
   const [cMat, setCMat] = usePersistedState("mockup-c-mat", "brilho");
   const [corCaneca, setCorCaneca] = usePersistedState("mockup-c-cor", "#ffffff");
   const [corInterior, setCorInterior] = usePersistedState("mockup-c-interior", "#ffffff");
@@ -160,6 +161,7 @@ export default function MockupPage() {
 
   const [capaUpload, setCapaUpload] = useState(null);
   const [miolo, setMiolo] = useState(null);
+  const [mioloTipo, setMioloTipo] = usePersistedState("mockup-miolo-tipo", "pautado");
   const [capaGerada, setCapaGerada] = useState(null);
   const [gerando, setGerando] = useState(false);
   const [baixando, setBaixando] = useState(false);
@@ -507,8 +509,12 @@ export default function MockupPage() {
                 <Bloco titulo="Caneca">
                   <div className="mk-seg">
                     <button type="button" className={cArco === 140 ? "is-on" : ""} onClick={() => setCArco(140)}>Arte na frente</button>
-                    <button type="button" className={cArco === 320 ? "is-on" : ""} onClick={() => setCArco(320)}>Envolvente</button>
+                    <button type="button" className={cArco === 340 ? "is-on" : ""} onClick={() => setCArco(340)}>Envolvente total</button>
                   </div>
+                  <label className="mk-linha mk-linha--col">
+                    <span>Largura da arte <b>{cArco}°</b></span>
+                    <input type="range" min="90" max="352" step="2" value={cArco} onChange={(e) => setCArco(Number(e.target.value))} />
+                  </label>
                   <div className="mk-seg mk-gap">
                     <button type="button" className={cMat === "brilho" ? "is-on" : ""} onClick={() => setCMat("brilho")}>Brilhante</button>
                     <button type="button" className={cMat === "fosco" ? "is-on" : ""} onClick={() => setCMat("fosco")}>Fosca</button>
@@ -658,7 +664,16 @@ export default function MockupPage() {
           </Bloco>
 
           {produto === "agenda" && view === "aberta" && (
-            <Bloco titulo="Página interna (lado direito)">
+            <Bloco titulo="Tipo de miolo (páginas abertas)">
+              <div className="mk-miolos">
+                {MIOLOS.map((m) => (
+                  <button key={m.id} type="button" className={mioloTipo === m.id ? "is-on" : ""} onClick={() => setMioloTipo(m.id)}>
+                    <i className={`mk-miolo mk-miolo--${m.id}`} />
+                    <span>{m.nome}</span>
+                  </button>
+                ))}
+              </div>
+              <p className="mk-dica">A imagem enviada abaixo substitui só a página direita.</p>
               <label className="mk-upload">
                 <MdImage /> {miolo ? "Trocar imagem do miolo" : "Enviar imagem do miolo"}
                 <input type="file" accept="image/*" hidden onChange={(e) => subir(e.target.files?.[0], setMiolo)} />
@@ -744,6 +759,10 @@ export default function MockupPage() {
                       />
                     ))}
                   </div>
+                  <label className="mk-linha">
+                    Cor personalizada
+                    <input type="color" value={/^#/.test(metal) ? metal : "#c9ced6"} onChange={(e) => setMetal(e.target.value)} />
+                  </label>
                 </Bloco>
               )}
 
@@ -839,6 +858,10 @@ export default function MockupPage() {
                 />
               ))}
             </div>
+            <label className="mk-linha">
+              Cor personalizada
+              <input type="color" value={/^#/.test(cena) ? cena : "#e8dcc2"} onChange={(e) => setCena(e.target.value)} />
+            </label>
           </Bloco>
           </Aba>
         </aside>
@@ -859,6 +882,7 @@ export default function MockupPage() {
                   corCapa={corCapa}
                   capaSrc={capaSrc}
                   miolosrc={miolo}
+                  mioloTipo={mioloTipo}
                   formato={formato}
                   lado={lado}
                   espessura={espessura}

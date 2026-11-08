@@ -38,7 +38,7 @@ export function girarCanvas(src, deg) {
   return c;
 }
 
-export function texturaPautado(ctx3, { cor = "#b9c4d6", margem = true, giro = 0 } = {}) {
+export function texturaPautado(ctx3, { tipo = "pautado", cor = "#7f90ad", margem = true, giro = 0 } = {}) {
   const c = document.createElement("canvas");
   c.width = 512;
   c.height = 724;
@@ -46,19 +46,59 @@ export function texturaPautado(ctx3, { cor = "#b9c4d6", margem = true, giro = 0 
   g.fillStyle = "#fffdf8";
   g.fillRect(0, 0, c.width, c.height);
   g.strokeStyle = cor;
-  g.lineWidth = 1.4;
-  for (let y = 110; y < c.height - 40; y += 30) {
+  g.fillStyle = cor;
+  g.lineWidth = 2.2;
+  const linha = (y, x0 = 36, x1 = c.width - 36) => {
     g.beginPath();
-    g.moveTo(36, y);
-    g.lineTo(c.width - 36, y);
+    g.moveTo(x0, y);
+    g.lineTo(x1, y);
     g.stroke();
-  }
-  if (margem) {
-    g.strokeStyle = "#e8a5a5";
-    g.beginPath();
-    g.moveTo(64, 40);
-    g.lineTo(64, c.height - 40);
-    g.stroke();
+  };
+  if (tipo === "pautado") {
+    for (let y = 110; y < c.height - 40; y += 30) linha(y);
+    if (margem) {
+      g.strokeStyle = "#e8a5a5";
+      g.beginPath();
+      g.moveTo(64, 40);
+      g.lineTo(64, c.height - 40);
+      g.stroke();
+    }
+  } else if (tipo === "pontilhado") {
+    for (let y = 70; y < c.height - 40; y += 28)
+      for (let x = 44; x < c.width - 30; x += 28) {
+        g.beginPath();
+        g.arc(x, y, 2.6, 0, Math.PI * 2);
+        g.fill();
+      }
+  } else if (tipo === "quadriculado") {
+    g.lineWidth = 1.6;
+    for (let y = 58; y < c.height - 30; y += 26) linha(y, 30, c.width - 30);
+    for (let x = 30; x <= c.width - 30; x += 26) {
+      g.beginPath();
+      g.moveTo(x, 58);
+      g.lineTo(x, 58 + Math.floor((c.height - 90) / 26) * 26);
+      g.stroke();
+    }
+  } else if (tipo === "semanal") {
+    const dias = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"];
+    const alt = (c.height - 110) / 7;
+    g.font = "bold 15px sans-serif";
+    dias.forEach((d, i) => {
+      const y = 70 + i * alt;
+      g.fillText(d, 36, y + 20);
+      linha(y);
+      for (let k = 1; k <= 2; k += 1) linha(y + (alt / 3) * k, 90, c.width - 36);
+    });
+    linha(70 + 7 * alt);
+  } else if (tipo === "partitura") {
+    for (let sis = 0; sis < 9; sis += 1) {
+      const y0 = 70 + sis * 70;
+      for (let l = 0; l < 5; l += 1) linha(y0 + l * 9, 36, c.width - 36);
+      g.beginPath();
+      g.moveTo(36, y0);
+      g.lineTo(36, y0 + 36);
+      g.stroke();
+    }
   }
   const t = new THREE.CanvasTexture(girarCanvas(c, giro));
   t.colorSpace = THREE.SRGBColorSpace;
@@ -183,7 +223,7 @@ export function matCapa(ctx3, { cor, mat, map }) {
 }
 
 export function matMetal(metal) {
-  const c = (METAIS3D[metal] || METAIS3D.prata).color;
+  const c = METAIS3D[metal]?.color || (/^#[0-9a-f]{6}$/i.test(metal || "") ? metal : METAIS3D.prata.color);
   return new THREE.MeshStandardMaterial({ color: c, metalness: 1, roughness: 0.28 });
 }
 
@@ -633,8 +673,8 @@ export function construirAberto(ctx3, o) {
   const capaCor = matCapa(ctx3, { cor: corCapa, mat, map: null });
   const bordaPag = new THREE.MeshStandardMaterial({ map: texturaBordaPaginas(ctx3), roughness: 0.95 });
   const mapMiolo = carregarTextura(ctx3, miolosrc, pw / ph, giro);
-  const matDir = matPapel(mapMiolo || texturaPautado(ctx3, { giro }));
-  const matEsq = matPapel(texturaPautado(ctx3, { giro }));
+  const matDir = matPapel(mapMiolo || texturaPautado(ctx3, { giro, tipo: o.mioloTipo }));
+  const matEsq = matPapel(texturaPautado(ctx3, { giro, tipo: o.mioloTipo }));
 
   const base = caixa(W * 2 + 0.02, c, H + (duro ? 0.05 : 0.01), mats6({ topo: capaCor, lados: capaCor }));
   base.position.y = c / 2;
@@ -731,7 +771,7 @@ export function construirBloco(ctx3, o) {
   const T = 0.05 + espessura * 0.03;
   const g = new THREE.Group();
 
-  const mapFolha = carregarTextura(ctx3, folhaSrc, W / H) || texturaPautado(ctx3);
+  const mapFolha = carregarTextura(ctx3, folhaSrc, W / H) || texturaPautado(ctx3, { tipo: o.mioloTipo });
   const bordaPag = new THREE.MeshStandardMaterial({ map: texturaBordaPaginas(ctx3), roughness: 0.95 });
   const folha = matPapel(mapFolha);
   const cor = PAPELAO3D[papelao] || papelao;

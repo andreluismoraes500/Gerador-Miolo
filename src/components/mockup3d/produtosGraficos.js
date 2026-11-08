@@ -84,7 +84,10 @@ export function construirQuadro(ctx3, o) {
   const mapArte = carregarTextura(ctx3, o.arte, aw / ah);
   const arte = new THREE.Mesh(
     new THREE.PlaneGeometry(aw, ah),
-    new THREE.MeshStandardMaterial({ color: mapArte ? "#ffffff" : "#e9e2d3", map: mapArte, roughness: 0.8 }),
+    new THREE.MeshPhysicalMaterial({
+      color: mapArte ? "#ffffff" : "#e9e2d3", map: mapArte, roughness: 0.38, clearcoat: 0.6, clearcoatRoughness: 0.12,
+      emissive: "#ffffff", emissiveMap: mapArte || null, emissiveIntensity: mapArte ? 0.32 : 0,
+    }),
   );
   arte.position.z = -fd / 2 + 0.016;
   arte.receiveShadow = true;
@@ -114,7 +117,7 @@ export function construirQuadro(ctx3, o) {
   // vidro (reflexo sutil)
   const vidro = new THREE.Mesh(
     new THREE.PlaneGeometry(w, h),
-    new THREE.MeshPhysicalMaterial({ color: "#ffffff", transparent: true, opacity: 0.07, roughness: 0, clearcoat: 1, depthWrite: false }),
+    new THREE.MeshPhysicalMaterial({ color: "#ffffff", transparent: true, opacity: 0.025, roughness: 0, clearcoat: 1, depthWrite: false }),
   );
   vidro.position.z = fd / 2 - 0.012;
   g.add(vidro);
@@ -258,7 +261,7 @@ export function construirCaneca(ctx3, o) {
   g.add(sombrear(new THREE.Mesh(new THREE.LatheGeometry(interno, 96), ceramica(corInt))));
 
   // arte envolvente (decalque) — theta 0 = frente (+z)
-  const arco = ((o.cArco || 200) * Math.PI) / 180;
+  const arco = (Math.min(352, o.cArco || 340) * Math.PI) / 180;
   const altArte = Hh * 0.84;
   const mapArte = carregarTextura(ctx3, o.arte, (arco * R) / altArte);
   const decal = new THREE.Mesh(

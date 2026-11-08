@@ -229,7 +229,7 @@ export function PedidoPanel({ pedido, setField, toggleCampo, range }) {
       <Label first>Linhas em branco na tabela</Label>
       <NumberInput
         min={4}
-        max={30}
+        max={60}
         value={pedido.linhas}
         onChange={(e) => setField("linhas", Number(e.target.value) || 12)}
       />
@@ -504,7 +504,7 @@ export function ComandaPanel({ comanda, setField, range }) {
       <Label first>Linhas de itens</Label>
       <NumberInput
         min={4}
-        max={30}
+        max={60}
         value={comanda.linhas}
         onChange={(e) => setField("linhas", Number(e.target.value) || 10)}
       />
@@ -756,7 +756,7 @@ export function ReceituarioPanel({ receituario, setField, range }) {
       <Label first>Linhas para prescrição</Label>
       <NumberInput
         min={4}
-        max={20}
+        max={40}
         value={receituario.linhas}
         onChange={(e) => setField("linhas", Number(e.target.value) || 9)}
       />
@@ -874,7 +874,7 @@ export function ReceitaPanel({ receita, setField }) {
           <Label first>Linhas p/ ingredientes</Label>
           <NumberInput
             min={3}
-            max={16}
+            max={30}
             value={receita.linhasIngredientes}
             onChange={(e) =>
               setField("linhasIngredientes", Number(e.target.value) || 6)
@@ -885,7 +885,7 @@ export function ReceitaPanel({ receita, setField }) {
           <Label first>Linhas p/ modo de preparo</Label>
           <NumberInput
             min={4}
-            max={26}
+            max={50}
             value={receita.linhasPreparo}
             onChange={(e) =>
               setField("linhasPreparo", Number(e.target.value) || 11)

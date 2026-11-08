@@ -28,9 +28,25 @@ export const CENAS = {
   verde: { nome: "Verde", a: "#e1ece1", b: "#b9d1bb" },
 };
 
+function clarear(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = (v) => Math.round(v + (255 - v) * f).toString(16).padStart(2, "0");
+  return `#${ch((n >> 16) & 255)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
+}
+
+// Aceita um id de cenário ou uma cor personalizada (#rrggbb).
+export function cenaDe(cena) {
+  if (/^#[0-9a-f]{6}$/i.test(cena || "")) {
+    const n = parseInt(cena.slice(1), 16);
+    const lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+    return { nome: "Personalizada", a: clarear(cena, 0.28), b: cena, escuro: lum < 0.35 };
+  }
+  return CENAS[cena] || CENAS.creme;
+}
+
 export function Cena({ cena }) {
-  const c = CENAS[cena] || CENAS.creme;
-  const escuro = cena === "grafite";
+  const c = cenaDe(cena);
+  const escuro = c.escuro || cena === "grafite";
   return (
     <g>
       <defs>

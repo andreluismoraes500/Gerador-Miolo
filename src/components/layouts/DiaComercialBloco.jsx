@@ -43,7 +43,7 @@ export default function DiaComercialBloco({
     <div className="flex flex-col flex-1 min-h-0">
       {/* Cabeçalho */}
       <div
-        className={`border-b-2 flex items-end justify-between w-full shrink-0 ${
+        className={`border-b-2 flex ${compact ? "items-end" : "items-center"} justify-between w-full shrink-0 ${
           compact ? "pb-1.5 mb-1.5" : "pb-3 mb-4 print:mb-2"
         }`}
         style={{ borderBottomColor: primaryColor }}
@@ -65,14 +65,14 @@ export default function DiaComercialBloco({
           />
           <div className="space-y-0.5">
             <h2
-              className={`capitalize ${compact ? "text-[13px] font-semibold" : ""}`}
+              className={`capitalize ${compact ? "text-[16px] font-semibold" : "text-2xl font-semibold leading-tight"}`}
               style={{ color: primaryColor }}
             >
               {data.toLocaleDateString("pt-BR", { weekday: "long" })}
             </h2>
             <p
               className={`uppercase tracking-wide text-gray-400 font-semibold ${
-                compact ? "text-[9px]" : "text-[11px]"
+                compact ? "text-[10px]" : "text-[12px] tracking-[0.2em]"
               }`}
             >
               {data.toLocaleDateString("pt-BR", {
@@ -101,7 +101,7 @@ export default function DiaComercialBloco({
             </div>
             <span
               className={`font-extralight tracking-tighter font-serif leading-none ${
-                compact ? "text-2xl min-w-[1.6rem]" : "text-5xl min-w-[2.8rem]"
+                compact ? "text-3xl min-w-[2rem]" : "text-6xl min-w-[3.4rem]"
               }`}
               style={{ color: numeroDiaColor }} // <-- ALTERADO: usa a cor personalizada
             >
@@ -128,11 +128,11 @@ export default function DiaComercialBloco({
           <div
             key={i}
             className="border-b border-solid flex-1 flex items-stretch"
-            style={{ borderBottomColor: secondaryColor }}
+            style={{ borderBottomColor: secondaryColor, borderBottomWidth: i === totalLinhas - 1 ? 2 : 1 }}
           >
             <EditableField
               fieldKey={`${diaKey}-l${i}`}
-              className="w-full h-full flex items-center text-[11px] px-1"
+              className="w-full h-full flex items-center text-[12px] px-1.5"
               placeholder=""
             />
           </div>

@@ -54,6 +54,7 @@ import "../styles/talonario.css";
 
 // Agrupa a lista de cartelas em blocos do tamanho escolhido (cartelas por
 // folha), para renderizar uma <div className="tal-print-page"> por bloco.
+import ExtrasPanel from "../components/talonario/ExtrasPanel";
 import BackgroundPanel from "../components/talonario/BackgroundPanel";
 
 function chunk(arr, size) {
@@ -419,6 +420,7 @@ export default function TalonarioPage() {
             onClear={t.clearBackground}
             setField={t.setBackgroundField}
           />
+        <ExtrasPanel />
 
           <div className="bg-[#FFFEFB] pt-4 pb-1 mt-6 border-t border-[#eee]">
             <button

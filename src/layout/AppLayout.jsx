@@ -6,6 +6,7 @@
 // vive aqui e é repassado às páginas via <Outlet context={...} />, então
 // nada se perde ao trocar de rota.
 
+import { cssFonte, fonteCfg } from "../lib/configFonte";
 import { LadosImpressao } from "../components/OpcoesImpressao";
 import { useEffect, useRef } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
@@ -35,6 +36,14 @@ export default function AppLayout() {
   const builder = useAgendaBuilder();
   const navigate = useNavigate();
   const location = useLocation();
+  const { escala: escalaFonte } = fonteCfg.useStore();
+
+  useEffect(() => {
+    const st = document.createElement("style");
+    st.textContent = cssFonte(escalaFonte);
+    document.head.appendChild(st);
+    return () => st.remove();
+  }, [escalaFonte]);
 
   const headerRef = useRef(null);
   const mainRef = useRef(null);

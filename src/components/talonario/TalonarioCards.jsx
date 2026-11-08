@@ -5,7 +5,28 @@
 // estado, então servem tanto para a pré-visualização quanto para o lote
 // de impressão.
 
+import { talonarioExtras } from "../../lib/configTalonario";
 import { BINGO_LETTERS } from "../../hooks/useTalonarioBuilder";
+
+// Linhas para escrever à mão (e modo "só pautado"), controlados no painel
+// "Extras" do talonário — ver lib/configTalonario.js.
+function ExtrasTalonario() {
+  const { linhasExtras, soPautado, linhasPauta, tituloExtras } = talonarioExtras.useStore();
+  const n = soPautado ? linhasPauta : linhasExtras;
+  if (!n) return null;
+  return (
+    <div className="tal-extras mt-3">
+      {!soPautado && tituloExtras && (
+        <div className="text-[9.5px] font-bold uppercase tracking-wide mb-1" style={{ color: "var(--tal-accent)" }}>
+          {tituloExtras}
+        </div>
+      )}
+      {Array.from({ length: n }).map((_, i) => (
+        <div key={i} style={{ height: "8mm", borderBottom: "1px solid var(--tal-accent)", opacity: 0.55 }} />
+      ))}
+    </div>
+  );
+}
 
 function pad(n, digits) {
   let s = String(n);
@@ -291,6 +312,7 @@ export function PedidoCard({
           ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           - - - - - -
         </div>
+        <ExtrasTalonario />
       </div>
     </div>
   );
@@ -512,6 +534,7 @@ export function OrdemServicoCard({
           ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           - - - - - -
         </div>
+        <ExtrasTalonario />
       </div>
     </div>
   );
@@ -652,6 +675,7 @@ export function ReciboCard({
           ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           - - - - -
         </div>
+        <ExtrasTalonario />
       </div>
     </div>
   );
@@ -776,6 +800,7 @@ export function ComandaCard({
         {rodape && (
           <div className="mt-3 text-[11px] text-(--tal-ink-soft)">{rodape}</div>
         )}
+        <ExtrasTalonario />
       </div>
     </div>
   );
@@ -907,6 +932,7 @@ export function ReservaCard({
             {rodape}
           </div>
         )}
+        <ExtrasTalonario />
       </div>
     </div>
   );
@@ -1005,6 +1031,7 @@ export function ValePresenteCard({
         <p className="mt-4 text-[10.5px] text-(--tal-ink-soft)">
           Válido até: {validade || "____/____/______"}
         </p>
+        <ExtrasTalonario />
       </div>
     </div>
   );
@@ -1135,6 +1162,7 @@ export function ReceituarioCard({
             {registro ? ` — ${registro}` : ""}
           </div>
         </div>
+        <ExtrasTalonario />
       </div>
     </div>
   );
@@ -1305,6 +1333,7 @@ export function ReceitaCard({
             {autor}
           </div>
         )}
+        <ExtrasTalonario />
       </div>
     </div>
   );
