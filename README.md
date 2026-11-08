@@ -6,6 +6,8 @@ Gerador de miolos personalizáveis para agendas, com múltiplos layouts e temas 
 
 ---
 
+teste
+
 ## ✨ Funcionalidades
 
 - **7 modelos de páginas**:
