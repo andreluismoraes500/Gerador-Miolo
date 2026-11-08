@@ -126,6 +126,29 @@
     padding-right: 22mm !important;
   }
 
+  /* Impressão de um lado só: a margem espelhada segue o lado de origem */
+  body[data-lados-impressao="frente"] .page-break[data-lado="verso"],
+  body[data-lados-impressao="verso"] .page-break[data-lado="frente"],
+  body[data-lados-impressao="verso-inverso"] .page-break[data-lado="frente"] {
+    display: none !important;
+  }
+
+  body[data-lados-impressao] .page-break[data-lado="frente"] .printable-page {
+    padding-left: 22mm !important;
+    padding-right: 12mm !important;
+  }
+
+  body[data-lados-impressao] .page-break[data-lado="verso"] .printable-page {
+    padding-left: 12mm !important;
+    padding-right: 22mm !important;
+  }
+
+  body[data-lados-impressao] .page-break:first-child,
+  body[data-lados-impressao] .page-break {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
   /* Visualização unitária */
 
   .agenda-preview-container:not(.is-printing) .printable-page {

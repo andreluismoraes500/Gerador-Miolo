@@ -6,6 +6,7 @@
 // vive aqui e é repassado às páginas via <Outlet context={...} />, então
 // nada se perde ao trocar de rota.
 
+import { LadosImpressao } from "../components/OpcoesImpressao";
 import { useEffect, useRef } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdAutoStories } from "react-icons/md";
@@ -136,6 +137,9 @@ export default function AppLayout() {
           {/* Ação principal — o Talonário tem seu próprio botão de impressão
               em lote (numeração/marca d'água), então o botão global de PDF
               da agenda fica escondido nessa rota para não confundir. */}
+          {location.pathname !== "/talonario" && location.pathname !== "/sobre" && (
+            <div className="hidden md:block"><LadosImpressao compacto /></div>
+          )}
           {location.pathname !== "/talonario" && location.pathname !== "/sobre" && (
             <button
               onClick={handlePrintClick}
