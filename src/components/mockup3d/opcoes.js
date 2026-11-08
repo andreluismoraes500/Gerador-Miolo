@@ -49,6 +49,12 @@ export const PRODUTOS = {
   bloco: "Bloco",
   calendario: "Calendário",
   kit: "Kit",
+  quadro: "Quadro",
+  botton: "Botton",
+  caneca: "Caneca",
+  cartoes: "Cartões",
+  caixa: "Caixa",
+  sacola: "Sacola",
 };
 
 // Faixa de quantidade de argolas por tipo (null = automático).
@@ -56,11 +62,12 @@ export const FAIXA_ARGOLAS = {
   wireo: { min: 8, max: 40, padrao: 24 },
   espiral: { min: 8, max: 40, padrao: 20 },
   argolas: { min: 2, max: 8, padrao: 3 },
+  discos: { min: 6, max: 24, padrao: 12 },
 };
 
 const BASE = {
   produto: "agenda", view: "fechada", disp: "esquerda", mat: "carton", metal: "prata",
-  tamanho: "a5", aneisAuto: true, elastico: false, fita: false, caneta: false, cantos: false,
+  tamanho: "a5", aneisAuto: true, furo: "auto", passante: false, elasticoLarg: 6, elasticoPos: 22, elastico: false, fita: false, caneta: false, cantos: false,
 };
 
 export const MODELOS_PRONTOS = [
@@ -68,8 +75,49 @@ export const MODELOS_PRONTOS = [
   { id: "wireo-topo", nome: "Wire-o no topo", set: { ...BASE, tipo: "wireo", disp: "topo", metal: "dourado" } },
   { id: "elastico", nome: "Capa dura + elástico", set: { ...BASE, tipo: "brochura", mat: "couro", cantos: true, elastico: true, fita: true } },
   { id: "executiva", nome: "Executiva com caneta", set: { ...BASE, tipo: "brochura", mat: "couro", cantos: true, elastico: true, caneta: true, metal: "dourado" } },
+  { id: "infinita", nome: "Agenda infinita (discos)", set: { ...BASE, tipo: "discos", mat: "couro", cantos: true, metal: "dourado", elastico: true } },
   { id: "fichario", nome: "Fichário 4 argolas", set: { ...BASE, tipo: "argolas", aneisAuto: false, aneisN: 4, mat: "linho" } },
   { id: "costura", nome: "Costura premium", set: { ...BASE, tipo: "costura", mat: "linho", metal: "dourado", fita: true, cantos: true } },
   { id: "calendario", nome: "Calendário de mesa", set: { ...BASE, produto: "calendario", tipo: "wireo", tamanho: "paisagem", metal: "preto" } },
   { id: "kit", nome: "Kit escritório", set: { ...BASE, produto: "kit", tipo: "wireo", metal: "dourado" } },
+  { id: "quadro", nome: "Quadro na parede", set: { ...BASE, produto: "quadro" } },
+  { id: "caneca", nome: "Caneca personalizada", set: { ...BASE, produto: "caneca" } },
+  { id: "botton", nome: "Kit de bottons", set: { ...BASE, produto: "botton" } },
+  { id: "cartoes", nome: "Cartões de visita", set: { ...BASE, produto: "cartoes" } },
+  { id: "caixa", nome: "Caixa de presente", set: { ...BASE, produto: "caixa" } },
+  { id: "sacola", nome: "Sacola de papel", set: { ...BASE, produto: "sacola" } },
 ];
+
+// ---------------------------------------------------------------- gráfica
+export const QUADRO_TAMANHOS = {
+  a4: { nome: "A4", w: 2.1, h: 2.97 },
+  a3: { nome: "A3", w: 2.97, h: 4.2 },
+  "30x40": { nome: "30×40", w: 3.0, h: 4.0 },
+};
+
+export const MOLDURAS = {
+  preto: { nome: "Preta", cor: "#1b1d22" },
+  branco: { nome: "Branca", cor: "#f4f2ee" },
+  madeira: { nome: "Madeira", cor: "#a9794a" },
+  dourado: { nome: "Dourada", cor: "#c9a24b" },
+};
+
+export const BOTTON_TAMANHOS = {
+  25: { nome: "25 mm", d: 0.25 },
+  38: { nome: "38 mm", d: 0.38 },
+  58: { nome: "58 mm", d: 0.58 },
+};
+
+export const CAIXA_TAMANHOS = {
+  p: { nome: "Pequena", w: 1.4, d: 1.4, h: 0.7 },
+  m: { nome: "Média", w: 2.0, d: 1.6, h: 0.9 },
+  g: { nome: "Grande", w: 2.8, d: 2.0, h: 1.1 },
+};
+
+export const SACOLA_TAMANHOS = {
+  p: { nome: "Pequena", w: 1.1, d: 0.4, h: 1.4 },
+  m: { nome: "Média", w: 1.5, d: 0.55, h: 1.9 },
+  g: { nome: "Grande", w: 2.0, d: 0.7, h: 2.4 },
+};
+
+export const PRODUTOS_GRAFICOS = ["quadro", "botton", "caneca", "cartoes", "caixa", "sacola"];
