@@ -1,3 +1,4 @@
+import { devocionalCfg, montarPaginas, PALETAS, FONTES_TITULO } from "../lib/configDevocional";
 import { horarioCfg } from "../lib/configHorario";
 import { FORMATOS, LADOS, DICAS_LADOS, impressao } from "../lib/configImpressao";
 import { TIPOS_PAUTA, partiturasCfg } from "../lib/configPartituras";
@@ -115,6 +116,70 @@ export function HorarioOpcoes() {
           <option value="grande">Grande</option><option value="pequeno">Pequeno</option><option value="nenhum">Sem calendário</option>
         </select>
       </label>
+    </div>
+  );
+}
+
+export function DevocionalOpcoes() {
+  const c = devocionalCfg.useStore();
+  const total = montarPaginas(c).length;
+  const num = (k, min, max, rotulo) => (
+    <label className="flex flex-col gap-1">{rotulo}
+      <input type="number" min={min} max={max} value={c[k]} onChange={(e) => devocionalCfg.set({ [k]: Math.max(min, Math.min(max, Number(e.target.value) || 0)) })} className="w-20 border rounded px-2 py-1 text-xs bg-white" />
+    </label>
+  );
+  const chk = (k, rotulo) => (
+    <label className="flex items-center gap-1"><input type="checkbox" checked={c[k]} onChange={(e) => devocionalCfg.set({ [k]: e.target.checked })} />{rotulo}</label>
+  );
+  return (
+    <div className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-col gap-3 print:hidden text-xs text-[#24344D]">
+      <div>
+        <h3 className="text-sm font-bold">🙏 Diário Devocional — monte o seu</h3>
+        <p className="text-[11px] text-[#8B6A1F]">
+          {total} páginas no total{total % 4 === 0 ? ` = ${total / 4} folhas A4 (frente e verso) em A5, 2 por lado` : ""}. Para imprimir em A5, escolha o formato A5 (ou 2 por folha) acima.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-end gap-3">
+        {num("ano", 2000, 2100, "Ano do calendário")}
+        <label className="flex flex-col gap-1">Calendários
+          <select value={c.anosCalendario} onChange={(e) => devocionalCfg.set({ anosCalendario: Number(e.target.value) })} className="border rounded px-2 py-1 bg-white">
+            <option value={0}>Nenhum</option><option value={1}>Só o ano</option><option value={2}>Ano e o seguinte</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">Cores
+          <select value={c.paleta} onChange={(e) => devocionalCfg.set({ paleta: e.target.value })} className="border rounded px-2 py-1 bg-white">
+            {Object.entries(PALETAS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">Fonte dos títulos
+          <select value={c.fonteTitulo} onChange={(e) => devocionalCfg.set({ fonteTitulo: e.target.value })} className="border rounded px-2 py-1 bg-white">
+            {FONTES_TITULO.map((f) => <option key={f.v} value={f.v}>{f.n}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">Bíblia
+          <select value={c.tradicao} onChange={(e) => devocionalCfg.set({ tradicao: e.target.value })} className="border rounded px-2 py-1 bg-white">
+            <option value="catolica">Católica (73 livros)</option><option value="protestante">Protestante (66 livros)</option>
+          </select>
+        </label>
+      </div>
+      <div className="flex flex-wrap items-end gap-3">
+        {num("devocional", 0, 200, "Devocional diário")}
+        {num("versiculos", 0, 60, "Versículos")}
+        {num("gratidao", 0, 60, "Gratidão")}
+        {num("jejum", 0, 60, "Jejum")}
+        {num("oracao", 0, 60, "Pedidos de oração")}
+        {num("anotacoesIni", 0, 20, "Anotações (início)")}
+      </div>
+      <div className="flex flex-wrap items-center gap-4">
+        {chk("dadosPessoais", "Página de dados pessoais")}
+        {chk("leitura", "Controle de leitura da Bíblia")}
+        {chk("completar4", "Completar com anotações (múltiplo de 4 = caderno)")}
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <label className="flex flex-col gap-1 flex-1 min-w-48">Frase da capa
+          <input value={c.frase} onChange={(e) => devocionalCfg.set({ frase: e.target.value })} className="border rounded px-2 py-1 bg-white" />
+        </label>
+      </div>
     </div>
   );
 }
