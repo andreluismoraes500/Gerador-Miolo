@@ -100,9 +100,9 @@ export default function AppLayout() {
         ref={headerRef}
         className="sticky top-0 z-40 bg-[#FBF8F1]/90 backdrop-blur-md border-b border-[#D8CBA8] print:hidden"
       >
-        <div className="max-w-7xl mx-auto px-5 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="max-w-7xl 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 py-2 md:py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-3 gap-y-2">
           {/* Marca */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3 shrink-0 mr-auto md:mr-0">
             <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-[#24344D] shadow-[2px_2px_0_0_#B8933D]">
               <span
                 className="text-[#F6F1E7] text-base leading-none"
@@ -125,13 +125,15 @@ export default function AppLayout() {
           </div>
 
           {/* Navegação entre páginas */}
-          <nav className="flex items-center gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner">
+          <nav aria-label="Navegação principal" className="order-last md:order-none w-full md:w-auto md:min-w-0 md:overflow-x-auto flex items-center justify-between md:justify-start gap-0.5 md:gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner">
             {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
+                title={label}
+                aria-label={label}
                 className={({ isActive }) =>
-                  `flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  `flex items-center justify-center gap-1.5 flex-1 md:flex-none px-2 sm:px-3 xl:px-4 py-2.5 md:py-2 rounded-lg text-xs font-semibold transition-all ${
                     isActive
                       ? "bg-[#24344D] text-[#F6F1E7] shadow-sm"
                       : "text-[#6B6458] hover:bg-[#EFE4C8] hover:text-[#24344D]"
@@ -139,7 +141,7 @@ export default function AppLayout() {
                 }
               >
                 <Icon className="w-4 h-4" />
-                <span className="hidden md:inline">{label}</span>
+                <span className="hidden xl:inline">{label}</span>
               </NavLink>
             ))}
           </nav>
@@ -148,7 +150,7 @@ export default function AppLayout() {
               em lote (numeração/marca d'água), então o botão global de PDF
               da agenda fica escondido nessa rota para não confundir. */}
           {location.pathname !== "/talonario" && location.pathname !== "/sobre" && location.pathname !== "/imprimir-pdf" && (
-            <div className="hidden md:block"><LadosImpressao compacto /></div>
+            <div className="hidden min-[1960px]:block"><LadosImpressao compacto /></div>
           )}
           {location.pathname !== "/talonario" && location.pathname !== "/sobre" && location.pathname !== "/imprimir-pdf" && (
             <button

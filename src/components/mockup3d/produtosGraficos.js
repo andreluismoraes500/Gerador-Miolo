@@ -81,7 +81,7 @@ export function construirQuadro(ctx3, o) {
 
   const aw = w - pm * 2;
   const ah = h - pm * 2;
-  const mapArte = carregarTextura(ctx3, o.arte, aw / ah);
+  const mapArte = carregarTextura(ctx3, o.arte, aw / ah, 0, o.ajuste);
   const arte = new THREE.Mesh(
     new THREE.PlaneGeometry(aw, ah),
     new THREE.MeshPhysicalMaterial({
@@ -213,7 +213,7 @@ function umBotton(ctx3, { d, mapArte, brilho, verso }) {
 export function construirBotton(ctx3, o) {
   const d = (BOTTON_TAMANHOS[o.bTam] || BOTTON_TAMANHOS["38"]).d;
   const qtd = o.bQtd || 3;
-  const mapArte = carregarTextura(ctx3, o.arte, 1);
+  const mapArte = carregarTextura(ctx3, o.arte, 1, 0, o.ajuste);
   const out = new THREE.Group();
   const gap = d * 0.14;
   const pos = [];
@@ -263,7 +263,7 @@ export function construirCaneca(ctx3, o) {
   // arte envolvente (decalque) — theta 0 = frente (+z)
   const arco = (Math.min(352, o.cArco || 340) * Math.PI) / 180;
   const altArte = Hh * 0.84;
-  const mapArte = carregarTextura(ctx3, o.arte, (arco * R) / altArte);
+  const mapArte = carregarTextura(ctx3, o.arte, (arco * R) / altArte, 0, o.ajuste);
   const decal = new THREE.Mesh(
     new THREE.CylinderGeometry(R + 0.0015, R + 0.0015, altArte, 128, 1, true, -arco / 2, arco),
     new THREE.MeshPhysicalMaterial({
@@ -307,8 +307,8 @@ export function construirCaneca(ctx3, o) {
 export function construirCartoes(ctx3, o) {
   const cw = 0.85;
   const ch = 0.55;
-  const mapF = carregarTextura(ctx3, o.arte, cw / ch);
-  const mapV = carregarTextura(ctx3, o.arteVerso, cw / ch);
+  const mapF = carregarTextura(ctx3, o.arte, cw / ch, 0, o.ajuste);
+  const mapV = carregarTextura(ctx3, o.arteVerso, cw / ch, 0, o.ajuste);
   const bordaPag = new THREE.MeshStandardMaterial({ map: texturaBordaPaginas(ctx3), roughness: 0.9 });
   const frente = new THREE.MeshStandardMaterial({ color: mapF ? "#fff" : "#f1ece0", map: mapF, roughness: o.cFosco ? 0.7 : 0.35 });
   const verso = new THREE.MeshStandardMaterial({ color: mapV ? "#fff" : (o.corVerso || "#ffffff"), map: mapV, roughness: o.cFosco ? 0.7 : 0.35 });
@@ -348,7 +348,7 @@ export function construirCaixa(ctx3, o) {
   const Hc = d.h;
   const t = 0.022;
   const corCaixa = o.corCapa || "#1e293b";
-  const mapTampa = carregarTextura(ctx3, o.arte, (W + 0.05) / (D + 0.05));
+  const mapTampa = carregarTextura(ctx3, o.arte, (W + 0.05) / (D + 0.05), 0, o.ajuste);
   const papel = (cor, map) =>
     new THREE.MeshPhysicalMaterial({
       color: map ? "#fff" : cor, map: map || null, roughness: o.mat === "brilho" ? 0.25 : 0.7, clearcoat: o.mat === "brilho" ? 1 : 0.1, side: THREE.DoubleSide,
@@ -427,7 +427,7 @@ export function construirSacola(ctx3, o) {
   const D = d.d;
   const Hb = d.h;
   const corBase = o.corCapa || "#f1ece0";
-  const mapArte = carregarTextura(ctx3, o.arte, W / Hb);
+  const mapArte = carregarTextura(ctx3, o.arte, W / Hb, 0, o.ajuste);
   const papel = (map, cor = corBase) =>
     new THREE.MeshStandardMaterial({ color: map ? "#fff" : cor, map: map || null, roughness: o.mat === "brilho" ? 0.3 : 0.75 });
   const lateral = new THREE.MeshStandardMaterial({ color: new THREE.Color(corBase).multiplyScalar(0.86), roughness: 0.8 });
