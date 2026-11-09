@@ -37,13 +37,14 @@ export function limparTudo() {
 }
 
 // Copia o sticker para todas as páginas (útil para bordas, fitas e marcas).
-export function repetirEmTodas(id, totalPaginas) {
+export function repetirEmTodas(id, totalPaginas, prefixo = "") {
   const base = stickersDados.get().itens.find((i) => i.id === id);
   if (!base) return;
   const extras = [];
-  for (let p = 0; p < totalPaginas; p += 1) {
-    if (p === base.pagina) continue;
-    extras.push({ ...base, id: novoId(), pagina: p });
+  const chaves = Array.isArray(totalPaginas) ? totalPaginas : Array.from({ length: totalPaginas }, (_, p) => (prefixo ? `${prefixo}${p}` : p));
+  for (const chave of chaves) {
+    if (chave === base.pagina) continue;
+    extras.push({ ...base, id: novoId(), pagina: chave });
   }
   stickersDados.set({ itens: [...stickersDados.get().itens, ...extras] });
 }
