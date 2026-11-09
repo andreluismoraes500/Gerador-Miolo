@@ -54,6 +54,8 @@ import "../styles/talonario.css";
 
 // Agrupa a lista de cartelas em blocos do tamanho escolhido (cartelas por
 // folha), para renderizar uma <div className="tal-print-page"> por bloco.
+import { PainelStickers, StickerPortaisTal } from "../components/StickersEditor";
+import { stickersDados, stickersUi } from "../lib/stickers";
 import ExtrasPanel from "../components/talonario/ExtrasPanel";
 import BackgroundPanel from "../components/talonario/BackgroundPanel";
 
@@ -80,6 +82,8 @@ export default function TalonarioPage() {
   const accent = t.accents;
 
   const printBatchRef = useRef(null);
+  const stItens = stickersDados.useStore().itens;
+  const stEditando = stickersUi.useStore().editando;
 
   // Sinaliza (usado por outras integrações de impressão) que o lote
   // (.tal-print-page) terminou de ser montado no DOM.
@@ -103,6 +107,7 @@ export default function TalonarioPage() {
 
   return (
     <div style={cssVars} className="min-h-full">
+      <StickerPortaisTal ativo={stEditando || stItens.length > 0} tab={t.activeTab} />
       {/* ---------- barra de abas (própria do Talonário, no tom do app) ---------- */}
       <div className="print:hidden border-b border-[#D8CBA8] bg-[#FBF8F1]/70">
         <div className="max-w-7xl mx-auto px-5 sm:px-6 py-4 flex items-center justify-between flex-wrap gap-3">
@@ -421,6 +426,7 @@ export default function TalonarioPage() {
             setField={t.setBackgroundField}
           />
         <ExtrasPanel />
+          <PainelStickers talonario />
 
           <div className="bg-[#FFFEFB] pt-4 pb-1 mt-6 border-t border-[#eee]">
             <button
