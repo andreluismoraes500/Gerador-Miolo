@@ -128,7 +128,33 @@ export function StickerPortais({ ativo }) {
   return hosts.map((h, i) => createPortal(<StickerLayer pagina={i} />, h, `st-${i}`));
 }
 
-export function PainelStickers() {
+// Talonário: cada .doc-card (prévia e vias impressas) recebe a camada de
+// stickers da aba ativa — o mesmo desenho se repete em todas as vias.
+export function StickerPortaisTal({ ativo, tab }) {
+  const [hosts, setHosts] = useState([]);
+  useEffect(() => {
+    if (!ativo) return undefined;
+    const varre = () => {
+      const hs = [...document.querySelectorAll(".doc-card")].map((card) => {
+        let h = [...card.children].find((c) => c.classList?.contains("sticker-host"));
+        if (!h) {
+          h = document.createElement("div");
+          h.className = "sticker-host";
+          card.appendChild(h);
+        }
+        return h;
+      });
+      setHosts((prev) => (prev.length === hs.length && prev.every((x, i) => x === hs[i]) ? prev : hs));
+    };
+    varre();
+    const mo = new MutationObserver(varre);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, [ativo]);
+  return hosts.map((h, i) => createPortal(<StickerLayer pagina={`tal-${tab}`} />, h, `st-${i}`));
+}
+
+export function PainelStickers({ talonario = false }) {
   const { itens } = stickersDados.useStore();
   const { editando, armado, sel } = stickersUi.useStore();
   const arquivo = useRef(null);
@@ -174,8 +200,8 @@ export function PainelStickers() {
     <div className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-col gap-3 sticky top-16 z-30 shadow-md max-h-[42vh] overflow-auto">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-bold text-[#24344D]">🎨 Stickers — escolha um e clique na página</h3>
-          <p className="text-[11px] text-[#8B6A1F]">Arraste para mover. Selecione para ajustar tamanho e giro. Delete remove.</p>
+          <h3 className="text-sm font-bold text-[#24344D]">🎨 Stickers — escolha um e clique {talonario ? "no talão" : "na página"}</h3>
+          <p className="text-[11px] text-[#8B6A1F]">{talonario ? "Valem para todas as vias desta aba. " : ""}Arraste para mover. Selecione para ajustar tamanho e giro. Delete remove.</p>
         </div>
         <button type="button" onClick={() => stickersUi.set({ editando: false, armado: null, sel: null })} className="bg-[#24344D] text-[#F6F1E7] text-xs font-semibold py-2 px-4 rounded-lg">
           Concluir
@@ -231,9 +257,9 @@ export function PainelStickers() {
           <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => stickersUi.set({ sel: adicionar({ ...atual, id: undefined, x: Math.min(95, atual.x + 4), y: Math.min(95, atual.y + 4) }) })}>
             Duplicar
           </button>
-          <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => { repetirEmTodas(atual.id, total()); toast.success("Repetido em todas as páginas"); }}>
+          {!talonario && <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => { repetirEmTodas(atual.id, total()); toast.success("Repetido em todas as páginas"); }}>
             Repetir em todas as páginas
-          </button>
+          </button>}
           <button type="button" className="border border-[#8B2E3F]/40 text-[#8B2E3F] rounded-lg px-2.5 py-1 bg-white" onClick={() => remover(atual.id)}>
             Excluir
           </button>
