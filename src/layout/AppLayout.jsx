@@ -10,7 +10,7 @@ import { cssFonte, fonteCfg } from "../lib/configFonte";
 import { LadosImpressao } from "../components/OpcoesImpressao";
 import { useEffect, useRef } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdAutoStories } from "react-icons/md";
+import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdAutoStories, MdPictureAsPdf } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -27,6 +27,7 @@ const NAV_ITEMS = [
   { to: "/config", label: "Configurações", icon: MdTune },
   { to: "/preview", label: "Visualização", icon: MdVisibility },
   { to: "/talonario", label: "Talonário", icon: MdReceiptLong },
+  { to: "/imprimir-pdf", label: "Imprimir PDF", icon: MdPictureAsPdf },
   { to: "/mockup", label: "Mockup", icon: MdAutoStories },
   { to: "/sobre", label: "Sobre", icon: MdFavorite },
 ];
@@ -146,10 +147,10 @@ export default function AppLayout() {
           {/* Ação principal — o Talonário tem seu próprio botão de impressão
               em lote (numeração/marca d'água), então o botão global de PDF
               da agenda fica escondido nessa rota para não confundir. */}
-          {location.pathname !== "/talonario" && location.pathname !== "/sobre" && (
+          {location.pathname !== "/talonario" && location.pathname !== "/sobre" && location.pathname !== "/imprimir-pdf" && (
             <div className="hidden md:block"><LadosImpressao compacto /></div>
           )}
-          {location.pathname !== "/talonario" && location.pathname !== "/sobre" && (
+          {location.pathname !== "/talonario" && location.pathname !== "/sobre" && location.pathname !== "/imprimir-pdf" && (
             <button
               onClick={handlePrintClick}
               className="relative shrink-0 bg-[#8B2E3F] hover:bg-[#7A2837] text-[#FBF8F1] text-xs font-semibold py-2.5 px-4 sm:px-5 rounded-lg flex items-center gap-2 transition-all shadow-[0_2px_0_0_#5E1F2B] hover:shadow-[0_1px_0_0_#5E1F2B] hover:translate-y-px active:translate-y-0.5 active:shadow-none"

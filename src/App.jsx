@@ -6,6 +6,7 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layout/AppLayout";
+import ImprimirPdfPage from "./pages/ImprimirPdfPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import ConfigPage from "./pages/ConfigPage";
 import PreviewPage from "./pages/PreviewPage";
@@ -34,6 +35,7 @@ export default function App() {
                     ao ser acessado direto, carregava sem Tailwind/CSS de
                     impressão nenhum. */}
                 <Route path="talonario" element={<TalonarioPage />} />
+                <Route path="imprimir-pdf" element={<ImprimirPdfPage />} />
                 <Route path="mockup" element={<MockupPage />} />
                 <Route path="sobre" element={<SobrePage />} />
                 <Route path="*" element={<Navigate to="/templates" replace />} />
