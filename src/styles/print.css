@@ -332,3 +332,35 @@ body.sticker-editando .sticker-host::after {
 .tab-horarios :is(th, td):nth-child(2) { width: 55%; flex: none; }
 .tab-horarios :is(th, td):nth-child(3) { width: 31%; flex: none; }
 .tab-horarios thead th { display: block; box-sizing: border-box; }
+
+/* ---- Imprimir PDF próprio ---- */
+.pdf-pagina {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.pdf-pagina img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.pdf-pagina.preencher img { width: 100%; height: 100%; object-fit: cover; max-width: none; max-height: none; }
+.pdf-pagina img.girar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 297mm;
+  height: 210mm;
+  max-width: none;
+  max-height: none;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.pdf-pagina.preencher img.girar { object-fit: cover; }
