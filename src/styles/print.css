@@ -364,3 +364,5 @@ body.sticker-editando .sticker-host::after {
   transform: translate(-50%, -50%) rotate(90deg);
 }
 .pdf-pagina.preencher img.girar { object-fit: cover; }
+.pdf-pagina img.pdf-bg { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
+.pdf-marca { position: absolute; left: 50%; top: 50%; white-space: nowrap; font-weight: 800; line-height: 1; pointer-events: none; z-index: 5; }

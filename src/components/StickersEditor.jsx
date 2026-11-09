@@ -125,7 +125,7 @@ export function StickerPortais({ ativo }) {
     return () => document.body.classList.remove("sticker-editando");
   });
 
-  return hosts.map((h, i) => createPortal(<StickerLayer pagina={i} />, h, `st-${i}`));
+  return hosts.map((h, i) => createPortal(<StickerLayer pagina={h.parentElement?.dataset.stkey ?? i} />, h, `st-${i}`));
 }
 
 // Talonário: cada .doc-card (prévia e vias impressas) recebe a camada de
@@ -154,7 +154,7 @@ export function StickerPortaisTal({ ativo, tab }) {
   return hosts.map((h, i) => createPortal(<StickerLayer pagina={`tal-${tab}`} />, h, `st-${i}`));
 }
 
-export function PainelStickers({ talonario = false }) {
+export function PainelStickers({ talonario = false, prefixo = "" }) {
   const { itens } = stickersDados.useStore();
   const { editando, armado, sel } = stickersUi.useStore();
   const arquivo = useRef(null);
@@ -257,7 +257,7 @@ export function PainelStickers({ talonario = false }) {
           <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => stickersUi.set({ sel: adicionar({ ...atual, id: undefined, x: Math.min(95, atual.x + 4), y: Math.min(95, atual.y + 4) }) })}>
             Duplicar
           </button>
-          {!talonario && <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => { repetirEmTodas(atual.id, total()); toast.success("Repetido em todas as páginas"); }}>
+          {!talonario && <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => { repetirEmTodas(atual.id, prefixo ? [...document.querySelectorAll(".print-container > .page-break")].map((el) => el.dataset.stkey) : total()); toast.success("Repetido em todas as páginas"); }}>
             Repetir em todas as páginas
           </button>}
           <button type="button" className="border border-[#8B2E3F]/40 text-[#8B2E3F] rounded-lg px-2.5 py-1 bg-white" onClick={() => remover(atual.id)}>
