@@ -164,7 +164,10 @@ function texturaGrao(ctx3, tipo) {
   );
 }
 
-export function carregarTextura(ctx3, src, aspect, giro = 0) {
+// ajuste = { zoom, x, y, modo } — posição da imagem dentro da área (x,y em -1..1).
+export const AJUSTE_PADRAO = { zoom: 1, x: 0, y: 0, modo: "cobrir" };
+
+export function carregarTextura(ctx3, src, aspect, giro = 0, ajuste = null) {
   if (!src) return null;
   const branco = document.createElement("canvas");
   branco.width = branco.height = 2;
@@ -176,17 +179,38 @@ export function carregarTextura(ctx3, src, aspect, giro = 0) {
   const im = new Image();
   im.onload = () => {
     const fonte = girarCanvas(im, giro);
-    t.image = fonte;
     const fw = fonte.naturalWidth || fonte.width;
     const fh = fonte.naturalHeight || fonte.height;
-    if (aspect && fw) {
-      const ia = fw / fh; // "object-fit: cover"
-      if (ia > aspect) {
-        t.repeat.x = aspect / ia;
-        t.offset.x = (1 - t.repeat.x) / 2;
-      } else {
-        t.repeat.y = ia / aspect;
-        t.offset.y = (1 - t.repeat.y) / 2;
+    if (ajuste && aspect && fw) {
+      const aj = { ...AJUSTE_PADRAO, ...ajuste };
+      const w = aspect >= 1 ? 2048 : Math.round(2048 * aspect);
+      const h = Math.round(w / aspect);
+      const cv = document.createElement("canvas");
+      cv.width = w;
+      cv.height = h;
+      const c2 = cv.getContext("2d");
+      c2.fillStyle = "#fff";
+      c2.fillRect(0, 0, w, h);
+      const base = aj.modo === "caber" ? Math.min(w / fw, h / fh) : Math.max(w / fw, h / fh);
+      const sc = base * aj.zoom;
+      const dw = fw * sc;
+      const dh = fh * sc;
+      const dx = (w - dw) / 2 + aj.x * (Math.abs(w - dw) / 2);
+      const dy = (h - dh) / 2 + aj.y * (Math.abs(h - dh) / 2);
+      c2.imageSmoothingQuality = "high";
+      c2.drawImage(fonte, dx, dy, dw, dh);
+      t.image = cv;
+    } else {
+      t.image = fonte;
+      if (aspect && fw) {
+        const ia = fw / fh; // "object-fit: cover"
+        if (ia > aspect) {
+          t.repeat.x = aspect / ia;
+          t.offset.x = (1 - t.repeat.x) / 2;
+        } else {
+          t.repeat.y = ia / aspect;
+          t.offset.y = (1 - t.repeat.y) / 2;
+        }
       }
     }
     t.dispose(); // o tamanho mudou: força realocar a textura na GPU
@@ -385,15 +409,18 @@ function aneisEnrolados(g, { tipo, metalMat, H, n, cx, cy, a, b, furosX, yFuro, 
   if (tipo === "wireo") {
     const margem = 0.17;
     const total = H - margem * 2;
-    const k = Math.max(2, n || Math.floor(total / 0.085) + 1);
-    const geo = new THREE.TubeGeometry(elipseCurva(cx, cy, a, b), 56, 0.0085, 8, true);
+    // wire-o "de verdade" é duplo: cada passo tem dois anéis lado a lado.
+    const k = Math.max(2, n || Math.floor(total / 0.12) + 1);
+    const geo = new THREE.TubeGeometry(elipseCurva(cx, cy, a, b), 56, 0.0075, 8, true);
     for (let i = 0; i < k; i++) {
       const z = -total / 2 + (i * total) / (k - 1);
-      const r = new THREE.Mesh(geo, metalMat);
-      r.position.z = z;
-      r.castShadow = true;
-      g.add(r);
-      furosX.forEach((fx) => g.add(mk(fx, z)));
+      [-0.0165, 0.0165].forEach((dz) => {
+        const r = new THREE.Mesh(geo, metalMat);
+        r.position.z = z + dz;
+        r.castShadow = true;
+        g.add(r);
+        furosX.forEach((fx) => g.add(mk(fx, z + dz)));
+      });
     }
   } else {
     const turns = Math.max(3, n || Math.floor((H - 0.3) / 0.09));
@@ -469,7 +496,7 @@ export function construirFechado(ctx3, o) {
   const T = o.Tov ?? (tipo === "grampo" ? 0.07 : 0.2);
   const g = new THREE.Group();
 
-  const mapCapa = carregarTextura(ctx3, capaSrc, W / H, giro);
+  const mapCapa = carregarTextura(ctx3, capaSrc, W / H, giro, o.ajuste);
   const capa = matCapa(ctx3, { cor: corCapa, mat, map: mapCapa });
   const capaCor = matCapa(ctx3, { cor: corCapa, mat, map: null });
   // lados/lombada acompanham a cor predominante da arte da capa

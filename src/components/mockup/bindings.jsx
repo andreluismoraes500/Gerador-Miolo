@@ -108,7 +108,7 @@ export function Binding({ tipo, len, metal, aberto = false, n = null, furo = "au
   const forma = formaFuro(furo, tipo);
 
   if (tipo === "wireo" || tipo === "espiral" || tipo === "discos") {
-    const auto = Math.floor((len - 60) / (tipo === "discos" ? 40 : 26)) + 1;
+    const auto = Math.floor((len - 60) / (tipo === "discos" ? 40 : tipo === "wireo" ? 26 : 15)) + 1;
     const k = Math.max(2, Math.min(n || auto, Math.floor((len - 40) / 11)));
     const passo = (len - 60) / (k - 1);
     const ys = Array.from({ length: k }, (_, i) => 30 + i * passo);
@@ -143,22 +143,35 @@ export function Binding({ tipo, len, metal, aberto = false, n = null, furo = "au
       <g>
         {ys.map((y, i) => (
           <g key={`h${i}`}>
-            <Furo forma={forma} x={hx} y={y} />
-            {aberto && <Furo forma={forma} x={-hx} y={y} espelho />}
+            {tipo === "wireo" ? (
+              [-4.4, 4.4].map((d) => (
+                <g key={d}>
+                  <Furo forma={forma} x={hx} y={y + d} esc={0.62} />
+                  {aberto && <Furo forma={forma} x={-hx} y={y + d} esc={0.62} espelho />}
+                </g>
+              ))
+            ) : (
+              <>
+                <Furo forma={forma} x={hx} y={y} />
+                {aberto && <Furo forma={forma} x={-hx} y={y} espelho />}
+              </>
+            )}
           </g>
         ))}
         {ys.map((y, i) =>
           tipo === "wireo" ? (
             <g key={i}>
-              <Tubo d={`M-17 ${y} a17 5.6 0 1 0 34 0 a17 5.6 0 1 0 -34 0`} m={m} />
+              {[-4.4, 4.4].map((d) => (
+                <Tubo key={d} d={`M-17 ${y + d} a17 3.6 0 1 0 34 0 a17 3.6 0 1 0 -34 0`} m={m} w={3.4} />
+              ))}
             </g>
           ) : (
             <g key={i}>
-              <Tubo
-                d={`M-18 ${y + 6} C-7 ${y - 10} 7 ${y - 10} 18 ${y + 1}`}
-                m={m}
-                w={4.2}
-              />
+              {/* sombra de contato, arame e brilho: espiral fino e realista */}
+              <path d={`M-19 ${y + 5} C-8 ${y - 8} 8 ${y - 8} 19 ${y + 1.5}`} fill="none" stroke="#000" strokeOpacity="0.38" strokeWidth="4.4" strokeLinecap="round" transform="translate(0.6 1.6)" />
+              <path d={`M-19 ${y + 5} C-8 ${y - 8} 8 ${y - 8} 19 ${y + 1.5}`} fill="none" stroke={m.base} strokeWidth="3.2" strokeLinecap="round" />
+              <path d={`M-17 ${y + 3.6} C-8 ${y - 6.4} 7 ${y - 6.6} 16 ${y - 0.4}`} fill="none" stroke={m.luz} strokeWidth="1" strokeLinecap="round" opacity="0.85" />
+              <path d={`M-13 ${y + 5.6} C-6 ${y + 4} 4 ${y + 4} 14 ${y + 6.6}`} fill="none" stroke="#000" strokeOpacity="0.28" strokeWidth="1.6" strokeLinecap="round" />
             </g>
           ),
         )}

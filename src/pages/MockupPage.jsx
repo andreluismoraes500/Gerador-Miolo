@@ -60,6 +60,29 @@ function Aba({ id, atual, todas, children }) {
 }
 
 // Quantidade: digitar ou usar −/+. Fora da faixa, ajusta ao sair do campo.
+function AjusteImagem({ aj, setAj }) {
+  const mudou = aj.zoom !== 1 || aj.x !== 0 || aj.y !== 0 || aj.modo !== "cobrir";
+  const sl = (rotulo, k, min, max, passo, fmt) => (
+    <label className="mk-linha mk-linha--col">
+      <span>{rotulo}: <b>{fmt(aj[k])}</b></span>
+      <input type="range" min={min} max={max} step={passo} value={aj[k]} onChange={(e) => setAj({ ...aj, [k]: Number(e.target.value) })} />
+    </label>
+  );
+  return (
+    <Bloco titulo="Posição da imagem">
+      <div className="mk-seg">
+        <button type="button" className={aj.modo === "cobrir" ? "is-on" : ""} onClick={() => setAj({ ...aj, modo: "cobrir" })}>Preencher</button>
+        <button type="button" className={aj.modo === "caber" ? "is-on" : ""} onClick={() => setAj({ ...aj, modo: "caber" })}>Caber inteira</button>
+      </div>
+      {sl("Zoom", "zoom", 0.5, 3, 0.05, (v) => `${Math.round(v * 100)}%`)}
+      {sl("Horizontal (esq. ↔ dir.)", "x", -1, 1, 0.02, (v) => `${Math.round(v * 100)}`)}
+      {sl("Vertical (cima ↕ baixo)", "y", -1, 1, 0.02, (v) => `${Math.round(v * 100)}`)}
+      {mudou && <button type="button" className="mk-link" onClick={() => setAj({ zoom: 1, x: 0, y: 0, modo: "cobrir" })}><MdRefresh /> Restaurar posição</button>}
+      <p className="mk-dica">Arraste os controles para subir, descer ou aproximar a imagem no produto.</p>
+    </Bloco>
+  );
+}
+
 function Contador({ valor, min, max, onChange, unidade, esmaecido }) {
   const [rascunho, setRascunho] = useState(null); // texto enquanto a pessoa digita
   const txt = rascunho ?? String(valor);
@@ -156,6 +179,7 @@ export default function MockupPage() {
   const [sTam, setSTam] = usePersistedState("mockup-s-tam", "m");
   const [corAlcaSac, setCorAlcaSac] = usePersistedState("mockup-s-alca", "#c9b27c");
   const [girar, setGirar] = useState(false);
+  const [ajusteImg, setAjusteImg] = useState({ zoom: 1, x: 0, y: 0, modo: "cobrir" });
   const [gravando, setGravando] = useState(false);
   const m3dRef = useRef(null);
 
@@ -445,6 +469,7 @@ export default function MockupPage() {
                   </label>
                 )}
               </Bloco>
+              <AjusteImagem aj={ajusteImg} setAj={setAjusteImg} />
 
               {produto === "quadro" && (
                 <>
@@ -662,6 +687,7 @@ export default function MockupPage() {
               <input type="checkbox" checked={brilho} onChange={(e) => setBrilho(e.target.checked)} />
             </label>
           </Bloco>
+          {origem === "upload" && <AjusteImagem aj={ajusteImg} setAj={setAjusteImg} />}
 
           {produto === "agenda" && view === "aberta" && (
             <Bloco titulo="Tipo de miolo (páginas abertas)">
@@ -881,6 +907,7 @@ export default function MockupPage() {
                   tamanho={tamanho}
                   corCapa={corCapa}
                   capaSrc={capaSrc}
+                  ajuste={ajusteImg}
                   miolosrc={miolo}
                   mioloTipo={mioloTipo}
                   formato={formato}

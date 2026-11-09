@@ -122,7 +122,7 @@ export default function TalonarioPage() {
               Pedidos, receituários e receitas em formato de talão
             </p>
           </div>
-          <div className="flex gap-1 bg-[#F1EADB] border border-[#D8CBA8] p-1 rounded-xl">
+          <div className="flex gap-1 bg-[#F1EADB] border border-[#D8CBA8] p-1 rounded-xl overflow-x-auto max-w-full [&>button]:shrink-0">
             {TABS.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}

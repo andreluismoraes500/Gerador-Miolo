@@ -1,4 +1,5 @@
 // src/pages/PreviewPage.jsx
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
 import { LadosImpressao, PartiturasOpcoes, HorarioOpcoes, DevocionalOpcoes } from "../components/OpcoesImpressao";
@@ -6,6 +7,26 @@ import { PainelStickers, StickerPortais } from "../components/StickersEditor";
 import { stickersDados, stickersUi } from "../lib/stickers";
 import AgendaPreview from "../components/AgendaPreview";
 import AgendaBuilderPreview from "../components/AgendaBuilderPreview";
+
+// No celular a folha A4 (794px) é reduzida para caber na largura da tela.
+function CabeNaTela({ children, ativo }) {
+  const ref = useRef(null);
+  const [zoom, setZoom] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !ativo) return undefined;
+    const calc = () => setZoom(Math.min(1, el.clientWidth / 800));
+    calc();
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ativo]);
+  return (
+    <div ref={ref} className="w-full flex justify-center">
+      <div style={ativo && zoom < 1 ? { zoom } : undefined}>{children}</div>
+    </div>
+  );
+}
 
 export default function PreviewPage() {
   const { settings, builder } = useOutletContext();
@@ -85,7 +106,8 @@ export default function PreviewPage() {
       </div>
 
       <StickerPortais ativo={printing && (editando || stickersItens.length > 0)} />
-      <div className="max-w-6xl mx-auto w-full px-5 sm:px-6 pb-12 flex justify-center print:p-0 print:max-w-none">
+      <div className="max-w-6xl mx-auto w-full px-2 sm:px-6 pb-12 flex justify-center print:p-0 print:max-w-none">
+        <CabeNaTela ativo={!printing}>
         {builderMode ? (
           <AgendaBuilderPreview
             modules={modules}
@@ -106,6 +128,7 @@ export default function PreviewPage() {
             businessProfileId={businessProfileId}
           />
         )}
+        </CabeNaTela>
       </div>
     </div>
   );
