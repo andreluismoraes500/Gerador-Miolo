@@ -9,6 +9,7 @@
 //   do início ao fim — sem precisar de html2canvas ou libs de PDF.
 
 import { partiturasCfg } from "../lib/configPartituras";
+import { devocionalCfg } from "../lib/configDevocional";
 import React, { useEffect, useState, useRef } from "react";
 import { TEMPLATE_MANIFEST } from "../templates/manifest";
 import { preloadTemplates, getCachedTemplate } from "../templates";
@@ -67,6 +68,7 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
     setCapaFrase,
   } = useAgendaConfig();
   partiturasCfg.useStore(); // re-renderiza ao mudar os tipos de pauta
+  devocionalCfg.useStore();
 
   const baseLayoutProps = {
     footerName: customName,

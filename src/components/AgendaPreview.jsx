@@ -4,6 +4,7 @@
 // aparência (cores, logo, fonte, etc.) ao contexto AgendaConfig.
 
 import { partiturasCfg } from "../lib/configPartituras";
+import { devocionalCfg } from "../lib/configDevocional";
 import React, { useEffect, useState, useRef } from "react";
 import { loadTemplate, getCachedTemplate } from "../templates";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
@@ -35,6 +36,7 @@ const AgendaPreview = React.memo(function AgendaPreview({
     setCapaFrase,
   } = useAgendaConfig();
   partiturasCfg.useStore(); // re-renderiza ao mudar os tipos de pauta
+  devocionalCfg.useStore();
 
   const [currentTemplate, setCurrentTemplate] = useState(() =>
     getCachedTemplate(template),

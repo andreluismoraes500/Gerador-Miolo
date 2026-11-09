@@ -68,6 +68,7 @@ const LOADERS = {
   caligrafia: () => import("./caligrafia.jsx"),
   noivas: () => import("./noivas.jsx"),
   partituras: () => import("./partituras.jsx"),
+  devocional: () => import("./devocional.jsx"),
 };
 
 // Cache em memória: { [key]: { nome, layout } }. Vive só durante a sessão
