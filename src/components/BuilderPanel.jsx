@@ -37,6 +37,7 @@ const MULTI_PAGE_TEMPLATES = new Set([
   "noivas",
   "partituras",
   "devocional",
+  "agendaAnual",
 ]);
 
 const ANNUAL_DAY_TEMPLATES = new Set(["anualCompleto", "anualLivre", "anualComercialDuplo"]);

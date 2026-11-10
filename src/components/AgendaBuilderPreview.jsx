@@ -10,6 +10,7 @@
 
 import { partiturasCfg } from "../lib/configPartituras";
 import { devocionalCfg } from "../lib/configDevocional";
+import { agendaAnualCfg } from "../lib/configAgendaAnual";
 import React, { useEffect, useState, useRef } from "react";
 import { TEMPLATE_MANIFEST } from "../templates/manifest";
 import { preloadTemplates, getCachedTemplate } from "../templates";
@@ -69,6 +70,7 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
   } = useAgendaConfig();
   partiturasCfg.useStore(); // re-renderiza ao mudar os tipos de pauta
   devocionalCfg.useStore();
+  agendaAnualCfg.useStore();
 
   const baseLayoutProps = {
     footerName: customName,
