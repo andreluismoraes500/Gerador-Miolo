@@ -5,6 +5,7 @@
 
 import { partiturasCfg } from "../lib/configPartituras";
 import { devocionalCfg } from "../lib/configDevocional";
+import { agendaAnualCfg } from "../lib/configAgendaAnual";
 import React, { useEffect, useState, useRef } from "react";
 import { loadTemplate, getCachedTemplate } from "../templates";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
@@ -37,6 +38,7 @@ const AgendaPreview = React.memo(function AgendaPreview({
   } = useAgendaConfig();
   partiturasCfg.useStore(); // re-renderiza ao mudar os tipos de pauta
   devocionalCfg.useStore();
+  agendaAnualCfg.useStore();
 
   const [currentTemplate, setCurrentTemplate] = useState(() =>
     getCachedTemplate(template),

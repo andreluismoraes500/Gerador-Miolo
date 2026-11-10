@@ -69,6 +69,7 @@ const LOADERS = {
   noivas: () => import("./noivas.jsx"),
   partituras: () => import("./partituras.jsx"),
   devocional: () => import("./devocional.jsx"),
+  agendaAnual: () => import("./agendaAnual.jsx"),
 };
 
 // Cache em memória: { [key]: { nome, layout } }. Vive só durante a sessão

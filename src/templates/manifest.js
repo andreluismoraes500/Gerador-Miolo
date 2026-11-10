@@ -67,6 +67,7 @@ export const TEMPLATE_MANIFEST = {
   noivas: { nome: "Planner de Noivas", categoria: "criativos" },
   partituras: { nome: "Caderno de Partituras", categoria: "criativos" },
   devocional: { nome: "Diário Devocional", categoria: "criativos" },
+  agendaAnual: { nome: "Agenda Anual Completa", categoria: "agendas" },
 };
 
 export const TEMPLATE_KEYS = Object.keys(TEMPLATE_MANIFEST);

@@ -1,3 +1,4 @@
+import { agendaAnualCfg, montarPaginasAnual, ESTILOS } from "../lib/configAgendaAnual";
 import { devocionalCfg, montarPaginas, PALETAS, FONTES_TITULO } from "../lib/configDevocional";
 import { horarioCfg } from "../lib/configHorario";
 import { FORMATOS, LADOS, DICAS_LADOS, impressao } from "../lib/configImpressao";
@@ -179,6 +180,76 @@ export function DevocionalOpcoes() {
         <label className="flex flex-col gap-1 flex-1 min-w-48">Frase da capa
           <input value={c.frase} onChange={(e) => devocionalCfg.set({ frase: e.target.value })} className="border rounded px-2 py-1 bg-white" />
         </label>
+      </div>
+    </div>
+  );
+}
+
+export function AgendaAnualOpcoes() {
+  const c = agendaAnualCfg.useStore();
+  const total = montarPaginasAnual(c).length;
+  const sel = "border rounded px-2 py-1 bg-white";
+  const num = (k, min, max, rotulo) => (
+    <label className="flex flex-col gap-1">{rotulo}
+      <input type="number" min={min} max={max} value={c[k]} onChange={(e) => agendaAnualCfg.set({ [k]: Math.max(min, Math.min(max, Number(e.target.value) || 0)) })} className="w-20 border rounded px-2 py-1 text-xs bg-white" />
+    </label>
+  );
+  const chk = (k, rotulo) => (
+    <label className="flex items-center gap-1"><input type="checkbox" checked={c[k]} onChange={(e) => agendaAnualCfg.set({ [k]: e.target.checked })} />{rotulo}</label>
+  );
+  const dia = c.estilo !== "planner";
+  return (
+    <div className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-col gap-3 print:hidden text-xs text-[#24344D]">
+      <div>
+        <h3 className="text-sm font-bold">📅 Agenda Anual Completa — {c.ano}</h3>
+        <p className="text-[11px] text-[#8B6A1F]">{total} páginas. Dias da semana, semanas e feriados seguem o ano escolhido. Para A5, escolha o formato A5 acima.</p>
+      </div>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="flex flex-col gap-1">Estilo
+          <select value={c.estilo} className={sel} onChange={(e) => { const k = e.target.value; agendaAnualCfg.set({ estilo: k, cor: ESTILOS[k].cor, semanaComeca: ESTILOS[k].semana }); }}>
+            {Object.entries(ESTILOS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}
+          </select>
+        </label>
+        {num("ano", 2000, 2100, "Ano")}
+        <label className="flex flex-col gap-1">Cor
+          <input type="color" value={c.cor} onChange={(e) => agendaAnualCfg.set({ cor: e.target.value })} className="h-7 w-10 border rounded" />
+        </label>
+        <label className="flex flex-col gap-1">Fonte dos títulos
+          <select value={c.fonteTitulo} onChange={(e) => agendaAnualCfg.set({ fonteTitulo: e.target.value })} className={sel}>
+            {FONTES_TITULO.map((f) => <option key={f.v} value={f.v}>{f.n}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">Semana começa
+          <select value={c.semanaComeca} onChange={(e) => agendaAnualCfg.set({ semanaComeca: Number(e.target.value) })} className={sel}>
+            <option value={0}>Domingo</option><option value={1}>Segunda</option>
+          </select>
+        </label>
+        {dia && (
+          <label className="flex flex-col gap-1">Dias por página
+            <select value={c.diasPorPagina} onChange={(e) => agendaAnualCfg.set({ diasPorPagina: Number(e.target.value) })} className={sel}>
+              <option value={1}>1 dia (1dpp)</option><option value={2}>2 dias (2dpp)</option>
+            </select>
+          </label>
+        )}
+        {dia && num("horaIni", 0, 12, "Hora inicial")}
+        {dia && num("horaFim", 12, 23, "Hora final")}
+      </div>
+      <div className="flex flex-wrap items-center gap-4">
+        {dia && chk("mesesContinuos", "Meses contínuos")}
+        {dia && chk("anotacoesMes", "Anotações a cada mês")}
+        {chk("dados", "Página de dados")}
+        {chk("planejamentoAnual", "Planejamento anual")}
+        {!dia && chk("extrasPlanner", "Páginas extras (roda da vida, logins…)")}
+      </div>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="flex flex-col gap-1">Calendários
+          <select value={c.calendarios} onChange={(e) => agendaAnualCfg.set({ calendarios: Number(e.target.value) })} className={sel}>
+            <option value={0}>Nenhum</option><option value={1}>Só o ano</option><option value={2}>Ano e seguinte</option>
+          </select>
+        </label>
+        {num("anotacoesIni", 0, 10, "Anotações (início)")}
+        {num("anotacoesFim", 0, 10, "Anotações (fim)")}
+        {c.estilo === "pop" && num("contatos", 0, 10, "Contatos")}
       </div>
     </div>
   );
