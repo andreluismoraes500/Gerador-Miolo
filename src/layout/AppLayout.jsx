@@ -10,7 +10,7 @@ import { cssFonte, fonteCfg } from "../lib/configFonte";
 import { LadosImpressao } from "../components/OpcoesImpressao";
 import { useEffect, useRef } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdAutoStories, MdPictureAsPdf } from "react-icons/md";
+import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdPictureAsPdf, MdBadge } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -27,8 +27,8 @@ const NAV_ITEMS = [
   { to: "/config", label: "Configurações", icon: MdTune },
   { to: "/preview", label: "Visualização", icon: MdVisibility },
   { to: "/talonario", label: "Talonário", icon: MdReceiptLong },
-  { to: "/imprimir-pdf", label: "Imprimir PDF", icon: MdPictureAsPdf },
-  { to: "/mockup", label: "Mockup", icon: MdAutoStories },
+  { to: "/imprimir-pdf", label: "Imprimir PDF", icon: MdPictureAsPdf, MdBadge },
+  { to: "/cartao-de-visita", label: "Cartão de visita", icon: MdBadge },
   { to: "/sobre", label: "Sobre", icon: MdFavorite },
 ];
 

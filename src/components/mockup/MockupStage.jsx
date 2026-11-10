@@ -26,6 +26,13 @@ export const CENAS = {
   branco: { nome: "Branco", a: "#ffffff", b: "#f1f1f1" },
   concreto: { nome: "Concreto", a: "#c9cbcd", b: "#9fa3a8" },
   verde: { nome: "Verde", a: "#e1ece1", b: "#b9d1bb" },
+  bege: { nome: "Estúdio bege", a: "#efe3d0", b: "#d9c4a3" },
+  marmore: { nome: "Mármore", a: "#f4f4f2", b: "#d9dadc", textura: "marmore" },
+  escritorio: { nome: "Escritório", a: "#5a4636", b: "#2f241b", madeira: true, escuro: true },
+  papelaria: { nome: "Papelaria", a: "#fdf6ee", b: "#ecd9c6", textura: "papelaria" },
+  floral: { nome: "Floral", a: "#fcebee", b: "#f3c4cf", textura: "floral" },
+  minimalista: { nome: "Minimalista", a: "#f7f7f5", b: "#e9e9e6" },
+  premium: { nome: "Premium", a: "#2b2f3a", b: "#0f1116", escuro: true },
 };
 
 function clarear(hex, f) {

@@ -6,6 +6,7 @@
 
 import * as THREE from "three";
 
+import { acabamentoCapa } from "./acessorios3d";
 import { TAMANHOS, FORMATOS_BLOCO, MATERIAIS, METAIS3D, PAPELAO3D } from "./opcoes";
 export { TAMANHOS, FORMATOS_BLOCO, MATERIAIS, METAIS3D, PAPELAO3D };
 
@@ -148,6 +149,20 @@ function texturaGrao(ctx3, tipo) {
             g.arc(Math.random() * w, Math.random() * h, 1 + Math.random() * 2.2, 0, 7);
             g.fill();
           }
+        } else if (tipo === "tecido") {
+          for (let i = -h; i < w; i += 3) {
+            g.strokeStyle = `rgba(${(i / 3) % 2 ? 40 : 215},${(i / 3) % 2 ? 40 : 215},${(i / 3) % 2 ? 40 : 215},0.55)`;
+            g.lineWidth = 1.4;
+            g.beginPath(); g.moveTo(i, 0); g.lineTo(i + h, h); g.stroke();
+          }
+        } else if (tipo === "kraft") {
+          for (let i = 0; i < 2600; i++) {
+            const v = 70 + Math.random() * 130;
+            g.strokeStyle = `rgba(${v},${v},${v},0.5)`;
+            g.lineWidth = 0.6 + Math.random();
+            const x = Math.random() * w, y = Math.random() * h, l = 4 + Math.random() * 18, a = Math.random() * 3.14;
+            g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
+          }
         } else {
           for (let y = 0; y < h; y += 2) {
             g.fillStyle = `rgba(${y % 4 ? 60 : 200},${y % 4 ? 60 : 200},${y % 4 ? 60 : 200},0.5)`;
@@ -239,10 +254,12 @@ export function matCapa(ctx3, { cor, mat, map }) {
   if (m.bump) {
     const g = texturaGrao(ctx3, mat);
     g.wrapS = g.wrapT = THREE.RepeatWrapping;
-    g.repeat.set(mat === "couro" ? 5 : 8, mat === "couro" ? 7 : 11);
+    const rep = { couro: [5, 7, 1.6], tecido: [12, 16, 1.1], kraft: [6, 8, 0.7] }[mat] || [8, 11, 0.8];
+    g.repeat.set(rep[0], rep[1]);
     p.bumpMap = g;
-    p.bumpScale = mat === "couro" ? 1.6 : 0.8;
+    p.bumpScale = rep[2];
   }
+  if (m.metal) { p.metalness = m.metal; p.envMapIntensity = 1.2; }
   return p;
 }
 
@@ -530,6 +547,14 @@ export function construirFechado(ctx3, o) {
   back.position.y = c / 2;
   front.position.y = c + T + c / 2;
   g.add(back, front);
+  const acab = acabamentoCapa(o, W, H, rotY);
+  if (acab) {
+    acab.malha.position.set(0.02, c + T + c + 0.0015, 0);
+    acab.malha.rotation.z = -rotY; // mantém o texto em pé, qualquer que seja a posição da lombada
+    ctx3.track(acab.malha.userData.textura);
+    ctx3.track(acab.malha.material);
+    g.add(acab.malha);
+  }
 
   const pw = W - (duro ? over * 2 : 0.04);
   const ph = H - over * 2;
