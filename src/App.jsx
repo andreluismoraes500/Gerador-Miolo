@@ -7,12 +7,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layout/AppLayout";
 import ImprimirPdfPage from "./pages/ImprimirPdfPage";
+import CartaoVisitaPage from "./pages/CartaoVisitaPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import ConfigPage from "./pages/ConfigPage";
 import PreviewPage from "./pages/PreviewPage";
 import TalonarioPage from "./pages/TalonarioPage";
 import SobrePage from "./pages/SobrePage";
-import MockupPage from "./pages/MockupPage";
 import { AgendaConfigProvider } from "./context/AgendaConfigContext";
 import { AgendaDataProvider } from "./context/AgendaDataContext";
 import { BusinessProfileProvider } from "./context/BusinessProfileContext";
@@ -36,7 +36,7 @@ export default function App() {
                     impressão nenhum. */}
                 <Route path="talonario" element={<TalonarioPage />} />
                 <Route path="imprimir-pdf" element={<ImprimirPdfPage />} />
-                <Route path="mockup" element={<MockupPage />} />
+                <Route path="cartao-de-visita" element={<CartaoVisitaPage />} />
                 <Route path="sobre" element={<SobrePage />} />
                 <Route path="*" element={<Navigate to="/templates" replace />} />
               </Route>

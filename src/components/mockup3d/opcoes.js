@@ -20,6 +20,21 @@ export const MATERIAIS = {
   brilho: { nome: "Laminado brilhante", rough: 0.25, clear: 1, bump: 0.0 },
   couro: { nome: "Couro", rough: 0.55, clear: 0.15, bump: 1 },
   linho: { nome: "Linho", rough: 0.95, clear: 0, bump: 0.6 },
+  tecido: { nome: "Tecido (sarja)", rough: 0.98, clear: 0, bump: 0.7 },
+  kraft: { nome: "Kraft", rough: 0.96, clear: 0, bump: 0.5 },
+  fosco: { nome: "Laminação fosca (soft touch)", rough: 0.6, clear: 0.25, bump: 0 },
+  metalizado: { nome: "Acabamento metálico", rough: 0.3, clear: 0.6, bump: 0, metal: 0.85 },
+};
+
+// Acabamentos localizados aplicados sobre a capa (verniz UV e hot stamping).
+export const ACABAMENTOS = {
+  nenhum: { nome: "Nenhum" },
+  verniz: { nome: "Verniz localizado" },
+  hot: { nome: "Hot stamping" },
+};
+
+export const ACESSORIOS_3D = {
+  caneta: "Caneta", lapis: "Lápis", xicara: "Xícara", livro: "Livro", flor: "Flor", oculos: "Óculos", clipe: "Clipe", folha: "Folhas",
 };
 
 export const METAIS3D = {

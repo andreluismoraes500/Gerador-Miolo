@@ -22,6 +22,11 @@ const PRESETS = {
   topo: new THREE.Vector3(0, 1, 0.02),
   rasante: new THREE.Vector3(0.35, 0.24, 1),
   frente: new THREE.Vector3(0.12, 0.28, 1),
+  frontal: new THREE.Vector3(0, 0.02, 1),
+  lateral: new THREE.Vector3(1, 0.08, 0),
+  iso: new THREE.Vector3(1, 0.95, 1),
+  close: new THREE.Vector3(0.3, 0.45, 1),
+  verso: new THREE.Vector3(0.05, 0.12, -1),
 };
 
 // direção inicial da câmera por produto (objetos em pé pedem vista mais baixa)
@@ -48,6 +53,45 @@ function texturaCena(cenaId) {
   g.fillRect(0, 0, 512, 512);
   const t = new THREE.CanvasTexture(cv);
   t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+function texturaPadrao(tipo) {
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = 1024;
+  const g = cv.getContext("2d");
+  if (tipo === "marmore") {
+    g.fillStyle = "#f2f2f0";
+    g.fillRect(0, 0, 1024, 1024);
+    for (let i = 0; i < 16; i++) {
+      g.strokeStyle = `rgba(110,115,125,${0.07 + Math.random() * 0.18})`;
+      g.lineWidth = 0.6 + Math.random() * 2.4;
+      g.beginPath();
+      let x = Math.random() * 1024, y = 0;
+      g.moveTo(x, y);
+      while (y < 1024) { x += (Math.random() - 0.5) * 90; y += 30 + Math.random() * 40; g.lineTo(x, y); }
+      g.stroke();
+    }
+  } else if (tipo === "papelaria") {
+    g.fillStyle = "#fbf3e8";
+    g.fillRect(0, 0, 1024, 1024);
+    g.strokeStyle = "rgba(190,150,120,0.28)";
+    for (let i = 0; i <= 1024; i += 32) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 1024); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(1024, i); g.stroke(); }
+  } else {
+    g.fillStyle = "#fbe6ea";
+    g.fillRect(0, 0, 1024, 1024);
+    for (let i = 0; i < 70; i++) {
+      const x = Math.random() * 1024, y = Math.random() * 1024, r = 14 + Math.random() * 26;
+      g.fillStyle = ["#f4b6c4", "#f8cfd8", "#e9a0b4", "#fbe0b8"][i % 4];
+      for (let p = 0; p < 6; p++) { g.beginPath(); g.ellipse(x + Math.cos(p * 1.047) * r * 0.7, y + Math.sin(p * 1.047) * r * 0.7, r * 0.55, r * 0.35, p * 1.047, 0, 7); g.fill(); }
+      g.fillStyle = "#f3c969"; g.beginPath(); g.arc(x, y, r * 0.25, 0, 7); g.fill();
+    }
+  }
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(2, 2);
+  t.anisotropy = 8;
   return t;
 }
 
@@ -88,7 +132,7 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
   // ------------------------------------------------ inicialização única
   useEffect(() => {
     const host = hostRef.current;
-    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping; // preserva branco e cores da capa
@@ -120,13 +164,16 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
     sol.shadow.bias = -0.0004;
     sol.shadow.normalBias = 0.02;
     scene.add(sol);
+    S.current.sol = sol;
     // contraluz frio e preenchimento: dão volume e "recorte" ao objeto
     const rim = new THREE.DirectionalLight("#cfe0ff", 0.8);
     rim.position.set(4, 3, -4);
     scene.add(rim);
+    S.current.rim = rim;
     const fill = new THREE.DirectionalLight("#fff0dd", 0.5);
     fill.position.set(4, 2.5, 4);
     scene.add(fill);
+    S.current.fill = fill;
 
     const chao = new THREE.Mesh(
       new THREE.PlaneGeometry(60, 60),
@@ -174,11 +221,35 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
     ro.observe(host);
     resize();
 
-    let raf = 0;
-    const loop = () => {
+    // Renderização sob demanda + qualidade adaptativa.
+    let raf = 0, quadro = 0, ultimo = performance.now(), lentos = 0, medidos = 0;
+    const invalidar = (n = 90) => { S.current.sujo = Math.max(S.current.sujo || 0, n); };
+    controls.addEventListener("change", () => invalidar(30));
+    S.current.invalidar = invalidar;
+    const loop = (agora) => {
       raf = requestAnimationFrame(loop);
-      controls.update();
+      quadro += 1;
+      const mudou = controls.update();
+      const animando = gsap.globalTimeline.getChildren(false, true, false).length > 0;
+      if (animando || controls.autoRotate) invalidar(20);
+      const ativo = (S.current.sujo || 0) > 0;
+      if (!ativo && !mudou && quadro % 20 !== 0) return; // parado: ~3 quadros/s (texturas assíncronas)
+      if (ativo) S.current.sujo -= 1;
       desenhar();
+      // qualidade adaptativa: se a animação ficar lenta, desliga GTAO e reduz a resolução
+      if (ativo && propsRef.current.qualidade === "auto" && !S.current.degradou) {
+        const dt = agora - ultimo;
+        medidos += 1;
+        if (medidos > 15) lentos += dt > 45 ? 1 : 0;
+        if (medidos > 75 && lentos > 40) {
+          S.current.degradou = true;
+          S.current.hq = false;
+          renderer.setPixelRatio(1);
+          resize();
+          propsRef.current.onQualidade?.("rapida");
+        }
+      }
+      ultimo = agora;
     };
     const desenhar = () => {
       const st = S.current;
@@ -225,16 +296,20 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
     if (cenaDe(props.cena).madeira) {
       s.piso = texturaMadeira();
       s.chao.material = new THREE.MeshStandardMaterial({ map: s.piso, roughness: 0.75 });
+    } else if (cenaDe(props.cena).textura) {
+      s.piso = texturaPadrao(cenaDe(props.cena).textura);
+      s.chao.material = new THREE.MeshStandardMaterial({ map: s.piso, roughness: props.cena === "marmore" ? 0.25 : 0.8 });
     } else {
       s.chao.material = new THREE.ShadowMaterial({ opacity: cenaDe(props.cena).escuro || props.cena === "grafite" ? 0.55 : 0.3 });
     }
     s.chao.material.needsUpdate = true;
+    s.invalidar?.();
   }, [props.cena]);
 
   // ------------------------------------------------ modelo
-  const { capaSrc, miolosrc, folhaSrc, arte, arteVerso, girar, qualidade, ...resto } = props;
+  const { capaSrc, miolosrc, folhaSrc, arte, arteVerso, girar, qualidade, luz: _luz, onQualidade: _oq, ...resto } = props;
   const chave = JSON.stringify(resto);
-  const chaveFit = `${props.produto}|${props.view}|${props.tamanho}|${props.formato}|${props.tipo === "bloco"}|${props.destacando}|${props.disp}|${props.qTam}|${props.orient}|${props.montagem}|${props.bTam}|${props.sTam}|${props.cxTam}|${(props.abertura ?? 0) > 30}`;
+  const chaveFit = `${props.produto}|${props.view}|${props.tamanho}|${props.formato}|${props.tipo === "bloco"}|${props.destacando}|${props.disp}|${props.qTam}|${props.orient}|${props.montagem}|${props.bTam}|${props.sTam}|${props.cxTam}|${(props.abertura ?? 0) > 30}|${(props.acessorios3d || []).length}`;
 
   useEffect(() => {
     const s = S.current;
@@ -251,6 +326,7 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
     s.track = track;
 
     s.chao.visible = !m.userData.parede;
+    s.invalidar?.(120);
     // entrada suave do objeto
     m.scale.setScalar(0.93);
     gsap.to(m.scale, { x: 1, y: 1, z: 1, duration: 0.55, ease: "back.out(1.5)" });
@@ -262,8 +338,9 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
       s.prodKey = props.produto;
       const w = m.userData.w || 1.5;
       const h = m.userData.h || 2;
-      const r = Math.hypot(w, h) / 2;
       const caixaM = new THREE.Box3().setFromObject(m);
+      const temAcc = (props.acessorios3d || []).length > 0;
+      const r = temAcc ? Math.hypot(caixaM.max.x - caixaM.min.x, caixaM.max.z - caixaM.min.z) / 2 : Math.hypot(w, h) / 2;
       const centro = caixaM.getCenter(new THREE.Vector3());
       const dir = trocouProduto
         ? (DIR_PRODUTO[props.produto] || PRESETS.tres).clone()
@@ -279,6 +356,7 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
         dist = Math.max(h / 2 / t, w / 2 / (t * aspect)) * 1.22;
       }
       dist *= m.userData.folga ?? 1;
+      s.distBase = dist;
       const alvo = new THREE.Vector3(centro.x, m.userData.cy ?? 0.05, centro.z);
       const pos = alvo.clone().add(dir.multiplyScalar(dist));
       gsap.killTweensOf(s.camera.position);
@@ -297,11 +375,28 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
   }, [chave, props.capaSrc, props.miolosrc, props.folhaSrc, props.arte, props.arteVerso]);
 
   useEffect(() => {
-    if (S.current.controls) S.current.controls.autoRotate = !!props.girar;
+    const s = S.current;
+    if (!s.sol) return;
+    const l = props.luz || {};
+    s.sol.intensity = 2.1 * (l.principal ?? 1);
+    s.fill.intensity = 0.5 * (l.preench ?? 1);
+    s.rim.intensity = 0.8 * (l.recorte ?? 1);
+    s.renderer.toneMappingExposure = l.exposicao ?? 1;
+    s.scene.environmentIntensity = 0.55 * (l.ambiente ?? 1);
+    s.sol.position.x = -2.4 + (l.angulo ?? 0) * 0.08;
+    s.invalidar?.();
+  }, [props.luz]);
+
+  useEffect(() => {
+    if (S.current.controls) { S.current.controls.autoRotate = !!props.girar; S.current.invalidar?.(); }
   }, [props.girar]);
 
   useEffect(() => {
-    if (S.current.renderer) S.current.hq = props.qualidade !== "rapida";
+    if (S.current.renderer) {
+      S.current.hq = props.qualidade !== "rapida";
+      S.current.degradou = false;
+      S.current.invalidar?.();
+    }
   }, [props.qualidade]);
 
   // ------------------------------------------------ API imperativa
@@ -309,12 +404,14 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
     preset(nome) {
       const s = S.current;
       const dir = (PRESETS[nome] || PRESETS.tres).clone().normalize();
-      const dist = s.camera.position.distanceTo(s.controls.target);
+      let dist = s.camera.position.distanceTo(s.controls.target);
+      if (nome === "close") dist = Math.max(1.4, dist * 0.55);
+      else if (s.distBase && nome !== "close") dist = s.distBase;
       const pos = s.controls.target.clone().add(dir.multiplyScalar(dist));
       gsap.killTweensOf(s.camera.position);
       gsap.to(s.camera.position, { x: pos.x, y: pos.y, z: pos.z, duration: 0.8, ease: "power3.inOut", onUpdate: () => s.controls.update() });
     },
-    capturar({ tipo = "png", largura = 2400 } = {}) {
+    capturar({ tipo = "png", largura = 2400, transparente = false } = {}) {
       const s = S.current;
       const { renderer, camera, scene, composer } = s;
       // conclui animações em andamento (câmera/entrada) antes de fotografar
@@ -326,7 +423,10 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
       const prev = renderer.getSize(new THREE.Vector2());
       const aspect = camera.aspect;
       const altura = Math.round(largura / aspect);
-      const usar = composer && s.hq !== false;
+      const transp = transparente && tipo !== "jpg";
+      const fundoAntes = scene.background;
+      if (transp) { scene.background = null; renderer.setClearColor(0x000000, 0); }
+      const usar = composer && s.hq !== false && !transp;
       renderer.setPixelRatio(1);
       renderer.setSize(largura, altura, false);
       if (usar) {
@@ -339,6 +439,7 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
       return new Promise((ok) => {
         renderer.domElement.toBlob(
           (b) => {
+            if (transp) scene.background = fundoAntes;
             renderer.setPixelRatio(prevPR);
             renderer.setSize(prev.x, prev.y, false);
             composer?.setPixelRatio(prevPR);
@@ -350,7 +451,7 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
         );
       });
     },
-    gravar(segundos = 6) {
+    gravar(segundos = 6, bitrate = 8_000_000) {
       const s = S.current;
       const canvas = s.renderer.domElement;
       if (!canvas.captureStream || typeof MediaRecorder === "undefined") {
@@ -359,7 +460,7 @@ const Mockup3D = forwardRef(function Mockup3D(props, ref) {
       const mime = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"].find((m) =>
         MediaRecorder.isTypeSupported(m),
       );
-      const rec = new MediaRecorder(canvas.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8_000_000 });
+      const rec = new MediaRecorder(canvas.captureStream(30), { mimeType: mime, videoBitsPerSecond: bitrate });
       const partes = [];
       rec.ondataavailable = (e) => e.data.size && partes.push(e.data);
       const antes = { auto: s.controls.autoRotate, vel: s.controls.autoRotateSpeed };
