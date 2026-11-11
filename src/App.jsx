@@ -8,6 +8,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layout/AppLayout";
 import ImprimirPdfPage from "./pages/ImprimirPdfPage";
 import CartaoVisitaPage from "./pages/CartaoVisitaPage";
+import BottonsPage from "./pages/BottonsPage";
+import CalendarioPage from "./pages/CalendarioPage";
+import MockupAgendaPage from "./pages/MockupAgendaPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import ConfigPage from "./pages/ConfigPage";
 import PreviewPage from "./pages/PreviewPage";
@@ -37,6 +40,9 @@ export default function App() {
                 <Route path="talonario" element={<TalonarioPage />} />
                 <Route path="imprimir-pdf" element={<ImprimirPdfPage />} />
                 <Route path="cartao-de-visita" element={<CartaoVisitaPage />} />
+                <Route path="bottons" element={<BottonsPage />} />
+                <Route path="calendarios" element={<CalendarioPage />} />
+                <Route path="mockup-agenda" element={<MockupAgendaPage />} />
                 <Route path="sobre" element={<SobrePage />} />
                 <Route path="*" element={<Navigate to="/templates" replace />} />
               </Route>

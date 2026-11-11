@@ -5,29 +5,10 @@ import { toast } from "react-hot-toast";
 import { MdPrint, MdUploadFile } from "react-icons/md";
 import CartaoFace from "../components/cartao/CartaoFace";
 import FolhaCartoes from "../components/cartao/FolhaCartoes";
+import { lerImagem } from "../lib/lerImagem";
 import { AJUSTE_ARTE, calcularLayout, cartaoCfg, FONTES, PALETAS, PAPEIS, TAMANHOS } from "../lib/cartaoVisita";
 
 const MM = 3.7795; // px por mm
-
-function lerImagem(file, max = 1600) {
-  return new Promise((ok, erro) => {
-    const fr = new FileReader();
-    fr.onerror = erro;
-    fr.onload = () => {
-      const i = new Image();
-      i.onerror = erro;
-      i.onload = () => {
-        const k = Math.min(1, max / Math.max(i.width, i.height));
-        const cv = document.createElement("canvas");
-        cv.width = Math.round(i.width * k); cv.height = Math.round(i.height * k);
-        cv.getContext("2d").drawImage(i, 0, 0, cv.width, cv.height);
-        ok(file.type === "image/png" ? cv.toDataURL("image/png") : cv.toDataURL("image/jpeg", 0.9));
-      };
-      i.src = fr.result;
-    };
-    fr.readAsDataURL(file);
-  });
-}
 
 const Campo = ({ rotulo, children, dica }) => (
   <div className="flex flex-col gap-1 text-xs text-[#24344D]">
