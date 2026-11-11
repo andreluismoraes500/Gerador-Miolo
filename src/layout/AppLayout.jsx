@@ -10,7 +10,7 @@ import { cssFonte, fonteCfg } from "../lib/configFonte";
 import { LadosImpressao } from "../components/OpcoesImpressao";
 import { useEffect, useRef } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdPictureAsPdf, MdBadge } from "react-icons/md";
+import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdPictureAsPdf, MdBadge, MdRadioButtonChecked, MdCalendarMonth, MdAutoStories } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -27,8 +27,11 @@ const NAV_ITEMS = [
   { to: "/config", label: "Configurações", icon: MdTune },
   { to: "/preview", label: "Visualização", icon: MdVisibility },
   { to: "/talonario", label: "Talonário", icon: MdReceiptLong },
-  { to: "/imprimir-pdf", label: "Imprimir PDF", icon: MdPictureAsPdf, MdBadge },
+  { to: "/imprimir-pdf", label: "Imprimir PDF", icon: MdPictureAsPdf },
   { to: "/cartao-de-visita", label: "Cartão de visita", icon: MdBadge },
+  { to: "/bottons", label: "Bottons", icon: MdRadioButtonChecked },
+  { to: "/calendarios", label: "Calendários", icon: MdCalendarMonth },
+  { to: "/mockup-agenda", label: "Mockup agenda", icon: MdAutoStories },
   { to: "/sobre", label: "Sobre", icon: MdFavorite },
 ];
 
@@ -46,6 +49,7 @@ export default function AppLayout() {
     return () => st.remove();
   }, [escalaFonte]);
 
+  const rotaPropria = ["/talonario", "/sobre", "/imprimir-pdf", "/cartao-de-visita", "/bottons", "/calendarios", "/mockup-agenda"].includes(location.pathname);
   const headerRef = useRef(null);
   const mainRef = useRef(null);
 
@@ -100,7 +104,7 @@ export default function AppLayout() {
         ref={headerRef}
         className="sticky top-0 z-40 bg-[#FBF8F1]/90 backdrop-blur-md border-b border-[#D8CBA8] print:hidden"
       >
-        <div className="max-w-7xl 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 py-2 md:py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-3 gap-y-2">
+        <div className="max-w-7xl 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 py-2 md:py-3 flex flex-wrap 2xl:flex-nowrap items-center justify-between gap-x-3 gap-y-2">
           {/* Marca */}
           <div className="flex items-center gap-3 shrink-0 mr-auto md:mr-0">
             <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-[#24344D] shadow-[2px_2px_0_0_#B8933D]">
@@ -125,7 +129,7 @@ export default function AppLayout() {
           </div>
 
           {/* Navegação entre páginas */}
-          <nav aria-label="Navegação principal" className="order-last md:order-none w-full md:w-auto md:min-w-0 md:overflow-x-auto flex items-center justify-between md:justify-start gap-0.5 md:gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner">
+          <nav aria-label="Navegação principal" className="order-last 2xl:order-none w-full 2xl:w-auto flex items-center justify-between gap-0.5 sm:gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner">
             {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
@@ -133,15 +137,19 @@ export default function AppLayout() {
                 title={label}
                 aria-label={label}
                 className={({ isActive }) =>
-                  `flex items-center justify-center gap-1.5 flex-1 md:flex-none px-2 sm:px-3 xl:px-4 py-2.5 md:py-2 rounded-lg text-xs font-semibold transition-all ${
+                  `flex items-center justify-center gap-1.5 flex-1 2xl:flex-none min-w-0 px-1.5 sm:px-3 py-2.5 2xl:py-2 rounded-lg text-xs font-semibold transition-all ${
                     isActive
                       ? "bg-[#24344D] text-[#F6F1E7] shadow-sm"
                       : "text-[#6B6458] hover:bg-[#EFE4C8] hover:text-[#24344D]"
                   }`
                 }
               >
-                <Icon className="w-4 h-4" />
-                <span className="hidden xl:inline">{label}</span>
+                {({ isActive }) => (
+                  <>
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className={`${isActive ? "hidden sm:inline" : "hidden xl:inline"} truncate`}>{label}</span>
+                  </>
+                )}
               </NavLink>
             ))}
           </nav>
@@ -149,10 +157,10 @@ export default function AppLayout() {
           {/* Ação principal — o Talonário tem seu próprio botão de impressão
               em lote (numeração/marca d'água), então o botão global de PDF
               da agenda fica escondido nessa rota para não confundir. */}
-          {location.pathname !== "/talonario" && location.pathname !== "/sobre" && location.pathname !== "/imprimir-pdf" && (
+          {!rotaPropria && (
             <div className="hidden min-[1960px]:block"><LadosImpressao compacto /></div>
           )}
-          {location.pathname !== "/talonario" && location.pathname !== "/sobre" && location.pathname !== "/imprimir-pdf" && (
+          {!rotaPropria && (
             <button
               onClick={handlePrintClick}
               className="relative shrink-0 bg-[#8B2E3F] hover:bg-[#7A2837] text-[#FBF8F1] text-xs font-semibold py-2.5 px-4 sm:px-5 rounded-lg flex items-center gap-2 transition-all shadow-[0_2px_0_0_#5E1F2B] hover:shadow-[0_1px_0_0_#5E1F2B] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
