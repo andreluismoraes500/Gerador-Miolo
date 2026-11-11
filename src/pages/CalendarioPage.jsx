@@ -6,23 +6,35 @@ import { calendarioCfg, dimensoes, encaixar, ESTILOS_GRADE, MODELOS_CAL, montarP
 import { FONTES, PAPEIS } from "../lib/cartaoVisita";
 import { MESES_PT } from "../lib/configAgendaAnual";
 import { lerImagem } from "../lib/lerImagem";
-import { Capa, Mini, MesParede, PainelMesa, PlannerMes, Poster } from "../components/calendario/CalPaginas";
+import { Capa, Foto, Mini, MesParede, PainelMesa, PlannerMes, Poster } from "../components/calendario/CalPaginas";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
 const Campo = ({ rotulo, children }) => (<div className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}</div>);
 const Painel = ({ titulo, children }) => (<section className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3"><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>);
 
-const AJ0 = { modo: "preencher", zoom: 1, x: 0, y: 0 };
-function Pagina({ pg, cfg, d, fotos, aj }) {
-  const de = (...chaves) => { const k = chaves.find((c) => fotos[c]); return k === undefined ? null : { src: fotos[k], ...AJ0, ...(aj[k] || {}) }; };
-  const foto = (i) => de(i, "unica");
-  if (pg.tipo === "capa") return <Capa cfg={cfg} w={d.w} h={d.h} foto={de("capa", "unica", 0)} ano={cfg.ano} />;
-  if (pg.tipo === "poster") return <Poster cfg={cfg} w={d.w} h={d.h} foto={de("unica", 0)} />;
-  if (pg.tipo === "mini") return <Mini cfg={cfg} w={d.w} h={d.h} foto={de("unica", 0)} />;
-  if (pg.tipo === "planner") return <PlannerMes ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} foto={foto(pg.mes)} />;
-  if (cfg.modelo === "mesa") return <PainelMesa ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} foto={foto(pg.mes)} />;
-  return <MesParede ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} foto={foto(pg.mes)} />;
+const opPadrao = (cfg) => ((cfg.modelo === "poster" && (cfg.posterFundo || cfg.fotoPct === 0)) || (cfg.modelo !== "poster" && cfg.imagemFundo) ? 35 : 100);
+const AJ0 = { modo: "preencher", zoom: 1, x: 0, y: 0, op: 100 };
+function Pagina({ pg, cfg: cfg0, d, fotos, aj }) {
+  const de = (...chaves) => { const k = chaves.find((c) => fotos[c]); return k === undefined ? null : { src: fotos[k], ...AJ0, op: opPadrao(cfg0), ...(aj[k] || {}) }; };
+  // "imagem ao fundo" nos modelos que não são o pôster: a foto cobre a folha e as áreas de foto somem
+  const fundoFoto = cfg0.modelo !== "poster" && cfg0.imagemFundo && pg.tipo !== "capa" ? (pg.tipo === "mini" ? de("unica", 0) : de(pg.mes, "unica")) : null;
+  const cfg = fundoFoto ? { ...cfg0, corPagina: "transparent", fotoPct: 0, semFotoArea: true } : cfg0;
+  const foto = (i) => (fundoFoto ? null : de(i, "unica"));
+  let pagina;
+  if (pg.tipo === "capa") pagina = <Capa cfg={cfg} w={d.w} h={d.h} foto={de("capa", "unica", 0)} ano={cfg.ano} />;
+  else if (pg.tipo === "poster") pagina = <Poster cfg={cfg} w={d.w} h={d.h} foto={de("unica", 0)} />;
+  else if (pg.tipo === "mini") pagina = <Mini cfg={cfg} w={d.w} h={d.h} foto={fundoFoto ? null : de("unica", 0)} />;
+  else if (pg.tipo === "planner") pagina = <PlannerMes ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} foto={foto(pg.mes)} />;
+  else if (cfg.modelo === "mesa") pagina = <PainelMesa ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} foto={foto(pg.mes)} />;
+  else pagina = <MesParede ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} foto={foto(pg.mes)} />;
+  if (!fundoFoto) return pagina;
+  return (
+    <div style={{ position: "relative", width: `${d.w}mm`, height: `${d.h}mm`, background: cfg0.corPagina || "#fff", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0 }}><Foto foto={fundoFoto} cfg={{ ...cfg0, semFotoArea: false }} w={d.w} h={d.h} /></div>
+      <div style={{ position: "relative" }}>{pagina}</div>
+    </div>
+  );
 }
 
 export default function CalendarioPage() {
@@ -120,13 +132,23 @@ export default function CalendarioPage() {
               <Campo rotulo="Fonte do título"><select className={entrada} value={cfg.fonteTitulo} onChange={(e) => set({ fonteTitulo: e.target.value })}>{FONTES.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
               <Campo rotulo="Título"><input className={entrada} value={cfg.titulo} onChange={(e) => set({ titulo: e.target.value })} /></Campo>
               <Campo rotulo="Subtítulo (capa)"><input className={entrada} value={cfg.subtitulo} onChange={(e) => set({ subtitulo: e.target.value })} /></Campo>
+              <Campo rotulo={`Tamanho do texto: ${Math.round((cfg.escala ?? 1) * 100)}%`}><input type="range" min={60} max={140} value={Math.round((cfg.escala ?? 1) * 100)} onChange={(e) => set({ escala: Number(e.target.value) / 100 })} /></Campo>
+              <Campo rotulo={`Margem interna: ${Math.round((cfg.margemInt ?? 1) * 100)}%`}><input type="range" min={30} max={200} value={Math.round((cfg.margemInt ?? 1) * 100)} onChange={(e) => set({ margemInt: Number(e.target.value) / 100 })} /></Campo>
+              <Campo rotulo={`Mover calendário ↔: ${cfg.deslocX ?? 0} mm`}><input type="range" min={-30} max={30} value={cfg.deslocX ?? 0} onChange={(e) => set({ deslocX: Number(e.target.value) })} /></Campo>
+              <Campo rotulo={`Mover calendário ↕: ${cfg.deslocY ?? 0} mm`}><input type="range" min={-30} max={30} value={cfg.deslocY ?? 0} onChange={(e) => set({ deslocY: Number(e.target.value) })} /></Campo>
+              <Campo rotulo="Cor dos títulos (mês / ano)"><div className="flex gap-2 items-center"><input type="color" className="h-8 w-14" value={cfg.corTitulo || cfg.cor} onChange={(e) => set({ corTitulo: e.target.value })} /><button type="button" className="text-[11px] underline" onClick={() => set({ corTitulo: "" })}>usar destaque</button></div></Campo>
+              <Campo rotulo="Cor dos números e textos"><input type="color" className="h-8 w-14" value={cfg.corTexto || "#2f3140"} onChange={(e) => set({ corTexto: e.target.value })} /></Campo>
+              <Campo rotulo="Cor dos feriados"><input type="color" className="h-8 w-14" value={cfg.corFeriado || "#d6455d"} onChange={(e) => set({ corFeriado: e.target.value })} /></Campo>
+              <Campo rotulo="Cor de fundo da página"><div className="flex gap-2 items-center"><input type="color" className="h-8 w-14" value={cfg.corPagina || "#ffffff"} onChange={(e) => set({ corPagina: e.target.value })} /><button type="button" className="text-[11px] underline" onClick={() => set({ corPagina: "" })}>branco</button></div></Campo>
+              <Campo rotulo="Onde mostrar o ano"><select className={entrada} value={cfg.anoPos ?? "auto"} onChange={(e) => set({ anoPos: e.target.value })}><option value="auto">Automático (sempre visível)</option><option value="titulo">Ao lado do mês</option><option value="foto">Sobre a foto</option><option value="oculto">Ocultar</option></select></Campo>
               <Campo rotulo={`Área da foto: ${cfg.fotoPct}%`}><input type="range" min={0} max={70} value={cfg.fotoPct} onChange={(e) => set({ fotoPct: Number(e.target.value) })} /></Campo>
             </div>
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs">
+              {cfg.modelo === "poster" ? <label className="flex gap-2 items-center"><input type="checkbox" checked={!!cfg.posterFundo || cfg.fotoPct === 0} onChange={(e) => (e.target.checked ? set({ posterFundo: true }) : set({ posterFundo: false, fotoPct: cfg.fotoPct || 30 }))} />Imagem ao fundo da folha inteira{cfg.posterFundo && !Object.keys(fotos).length ? " — envie uma imagem abaixo" : ""}</label> : <label className="flex gap-2 items-center"><input type="checkbox" checked={!!cfg.imagemFundo} onChange={(e) => set({ imagemFundo: e.target.checked })} />Imagem ao fundo da folha inteira{cfg.imagemFundo && !Object.keys(fotos).length ? " — envie uma imagem abaixo" : ""}</label>}
               {cfg.modelo === "parede" || cfg.modelo === "planner" ? <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.capa} onChange={(e) => set({ capa: e.target.checked })} />Capa</label> : null}
-              {cfg.modelo === "parede" && <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.listaFeriados} onChange={(e) => set({ listaFeriados: e.target.checked })} />Lista de feriados</label>}
+              {["parede", "poster", "mesa", "planner"].includes(cfg.modelo) && <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.listaFeriados} onChange={(e) => set({ listaFeriados: e.target.checked })} />Lista de feriados</label>}
               {cfg.modelo === "parede" && <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.notas} onChange={(e) => set({ notas: e.target.checked })} />Notas</label>}
-              <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.nomesNaGrade} onChange={(e) => set({ nomesNaGrade: e.target.checked })} />Nome dos feriados na grade</label>
+              {["parede", "planner"].includes(cfg.modelo) && <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.nomesNaGrade} onChange={(e) => set({ nomesNaGrade: e.target.checked })} />Nome dos feriados na grade</label>}
               <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.semanaNumero} onChange={(e) => set({ semanaNumero: e.target.checked })} />Nº da semana</label>
             </div>
           </Painel>
@@ -140,14 +162,15 @@ export default function CalendarioPage() {
             </div>
             {Object.keys(fotos).length > 0 && (() => {
               const k = fotos[ajKey] ? ajKey : Object.keys(fotos)[0];
-              const a = { ...AJ0, ...(aj[k] || {}) };
-              const mudar = (p) => setAj((o) => ({ ...o, [k]: { ...AJ0, ...(o[k] || {}), ...p } }));
+              const a = { ...AJ0, op: opPadrao(cfg), ...(aj[k] || {}) };
+              const mudar = (p) => setAj((o) => ({ ...o, [k]: { ...AJ0, op: opPadrao(cfg), ...(o[k] || {}), ...p } }));
               const nome = (c) => (c === "unica" ? "Imagem única" : c === "capa" ? "Capa" : MESES_PT[c] || c);
               return (
                 <div className="flex flex-col gap-2 border border-[#E8DFC8] rounded-xl bg-white p-2.5 text-xs text-[#24344D]">
                   <b>Ajustar enquadramento da foto</b>
                   <select className={entrada} value={k} onChange={(e) => setAjKey(e.target.value)}>{Object.keys(fotos).map((c) => <option key={c} value={c}>{nome(c)}</option>)}</select>
                   <select className={entrada} value={a.modo} onChange={(e) => mudar({ modo: e.target.value })}><option value="preencher">Preencher (corta o excesso)</option><option value="inteira">Imagem inteira (sem cortar)</option></select>
+                  <label className="grid grid-cols-[52px_1fr] items-center gap-1">Opac. {a.op}%<input type="range" min={5} max={100} value={a.op} onChange={(e) => mudar({ op: Number(e.target.value) })} /></label>
                   <label className="grid grid-cols-[52px_1fr] items-center gap-1">Zoom<input type="range" min={1} max={3} step={0.02} value={a.zoom} onChange={(e) => mudar({ zoom: Number(e.target.value) })} /></label>
                   <label className="grid grid-cols-[52px_1fr] items-center gap-1">Horiz.<input type="range" min={-100} max={100} value={a.x} onChange={(e) => mudar({ x: Number(e.target.value) })} /></label>
                   <label className="grid grid-cols-[52px_1fr] items-center gap-1">Vert.<input type="range" min={-100} max={100} value={a.y} onChange={(e) => mudar({ y: Number(e.target.value) })} /></label>

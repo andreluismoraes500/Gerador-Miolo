@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { MdDownload, MdUploadFile } from "react-icons/md";
 import { carregarImg, desenharAberta, desenharFechada, FIOS, FORMATOS, mockCfg } from "../lib/mockupAgenda";
+import { FONTES } from "../lib/cartaoVisita";
 import { lerImagem } from "../lib/lerImagem";
 import { abrirPdf, renderPagina } from "../lib/pdfPagina";
 
@@ -63,7 +64,7 @@ export default function MockupAgendaPage() {
   useEffect(() => {
     let vivo = true;
     (async () => {
-      try { await Promise.all(["italic 40px 'Great Vibes'", "20px 'Montserrat'", "20px 'Playfair Display'"].map((f) => document.fonts.load(f))); } catch { /* fontes opcionais */ }
+      try { await Promise.all(["italic 40px 'Great Vibes'", "20px 'Montserrat'", "20px 'Playfair Display'", `40px ${cfg.tituloFonte}`].map((f) => document.fonts.load(f))); } catch { /* fontes opcionais */ }
       const [capa, p1, p2] = await Promise.all([carregarImg(srcs.capa), carregarImg(srcs.p1), carregarImg(srcs.p2)]);
       if (!vivo) return;
       if (cvF.current) desenharFechada(cvF.current, cfg, { capa });
@@ -94,11 +95,21 @@ export default function MockupAgendaPage() {
             </div>
             <Campo rotulo="Cor da capa (sem arte) e dos detalhes"><Cores valor={cfg.corCapa} onChange={(c) => set({ corCapa: c })} lista={CORES_CAPA} /></Campo>
             <Campo rotulo="Cor da lateral / bordas da capa dura"><Cores valor={cfg.corBorda} onChange={(c) => set({ corBorda: c })} lista={CORES_BORDA} /></Campo>
-            <div className="grid grid-cols-2 gap-3">
-              <Campo rotulo="Título (vazio = só a arte)"><input className={entrada} value={cfg.tituloAgenda} onChange={(e) => set({ tituloAgenda: e.target.value })} /></Campo>
-              <Campo rotulo="Cor do título sobre a arte"><input type="color" className="h-8 w-full" value={cfg.corTitulo} onChange={(e) => set({ corTitulo: e.target.value })} /></Campo>
-              <Campo rotulo={`Cantos: ${cfg.cantos} mm`}><input type="range" min={0} max={8} value={cfg.cantos} onChange={(e) => set({ cantos: Number(e.target.value) })} /></Campo>
+            <Campo rotulo="Título (vazio = só a arte)"><input className={entrada} value={cfg.tituloAgenda} onChange={(e) => set({ tituloAgenda: e.target.value })} /></Campo>
+            <div className="grid grid-cols-3 gap-1.5 w-40">
+              {[[15, 12, "↖"], [50, 12, "↑"], [85, 12, "↗"], [20, 50, "←"], [50, 50, "•"], [80, 50, "→"], [15, 88, "↙"], [50, 88, "↓"], [85, 88, "↘"]].map(([x, y, t]) => (
+                <button key={t} type="button" title="Posição do título" onClick={() => set({ tituloX: x, tituloY: y })} className={`rounded-lg border py-1 text-sm ${cfg.tituloX === x && cfg.tituloY === y ? "bg-[#24344D] text-white" : "bg-white border-[#D8CBA8]"}`}>{t}</button>))}
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Campo rotulo={`Horizontal: ${cfg.tituloX}%`}><input type="range" min={5} max={95} value={cfg.tituloX} onChange={(e) => set({ tituloX: Number(e.target.value) })} /></Campo>
+              <Campo rotulo={`Vertical: ${cfg.tituloY}%`}><input type="range" min={4} max={96} value={cfg.tituloY} onChange={(e) => set({ tituloY: Number(e.target.value) })} /></Campo>
+              <Campo rotulo={`Tamanho: ${cfg.tituloTam}`}><input type="range" min={3} max={26} value={cfg.tituloTam} onChange={(e) => set({ tituloTam: Number(e.target.value) })} /></Campo>
+              <Campo rotulo="Cor do título sobre a arte"><input type="color" className="h-8 w-full" value={cfg.corTitulo} onChange={(e) => set({ corTitulo: e.target.value })} /></Campo>
+            </div>
+            <Campo rotulo="Estilo da fonte"><select className={entrada} value={cfg.tituloFonte} onChange={(e) => set({ tituloFonte: e.target.value })}>
+              {FONTES.map(([v, n]) => <option key={v} value={v}>{n}</option>)}
+            </select></Campo>
+            <Campo rotulo={`Cantos: ${cfg.cantos} mm`}><input type="range" min={0} max={8} value={cfg.cantos} onChange={(e) => set({ cantos: Number(e.target.value) })} /></Campo>
             <label className="flex gap-2 items-center text-xs"><input type="checkbox" checked={cfg.brilho} onChange={(e) => set({ brilho: e.target.checked })} /> Brilho na capa</label>
           </Painel>
 
