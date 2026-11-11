@@ -13,7 +13,7 @@ export const FORMATOS = {
 export const mockCfg = criarStore("mock-agenda-cfg", {
   formato: "a5", espessura: 16, yaw: 32, pitch: 16, tipoWire: "espiral", corWire: "#f4f4f2", passo: 9,
   elastico: true, corElastico: "#e9e4d9", posElastico: 11, larguraElastico: 8,
-  corCapa: "#d6567a", corBorda: "#9fb0c0", papel: "#fffdf8", corTitulo: "#ffffff", cantos: 2, brilho: true,
+  corCapa: "#d6567a", corBorda: "#9fb0c0", papel: "#fffdf8", corTitulo: "#ffffff", tituloX: 50, tituloY: 50, tituloTam: 11, tituloFonte: "'Great Vibes', cursive", cantos: 2, brilho: true,
   fundo: "estudio", corFundo: "#eee9e1", ajuste: "preencher", tituloAgenda: "minha agenda", pertence: "Pertence a:",
   src1: "branco", src2: "pertence",
 });
@@ -69,16 +69,16 @@ export function texturaCapa(cfg, img, wmm, hmm) {
   if (img) cobrir(ctx, img, W, H, "preencher"); else florais(ctx, W, H, cfg.corCapa);
   const titulo = (cfg.tituloAgenda || "").trim();
   if (titulo) {
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    const tx = (W * cfg.tituloX) / 100, ty = (H * cfg.tituloY) / 100, fs = (W * cfg.tituloTam) / 100, maxW = W * 0.9;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = `${fs}px ${cfg.tituloFonte}`;
+    const tw = Math.min(ctx.measureText(titulo).width, maxW);
     if (img) { // texto por cima da arte, sem caixa
       ctx.save(); ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = W * 0.02; ctx.shadowOffsetY = W * 0.006;
-      ctx.fillStyle = cfg.corTitulo; ctx.font = `italic ${W * 0.11}px 'Great Vibes', 'Playfair Display', Georgia, serif`;
-      ctx.fillText(titulo, W / 2, H * 0.5, W * 0.84); ctx.restore();
+      ctx.fillStyle = cfg.corTitulo; ctx.fillText(titulo, tx, ty, maxW); ctx.restore();
     } else {
-      const lw = W * 0.7, lh = W * 0.2;
-      ctx.fillStyle = "rgba(255,255,255,.88)"; rr(ctx, (W - lw) / 2, H * 0.4, lw, lh, lh * 0.2); ctx.fill();
-      ctx.fillStyle = escuro(cfg.corCapa, 0.1); ctx.font = `italic ${W * 0.085}px 'Great Vibes', 'Playfair Display', Georgia, serif`;
-      ctx.fillText(titulo, W / 2, H * 0.4 + lh * 0.52, lw * 0.92);
+      const bw = tw + fs * 0.9, bh = fs * 1.7;
+      ctx.fillStyle = "rgba(255,255,255,.88)"; rr(ctx, tx - bw / 2, ty - bh / 2, bw, bh, bh * 0.2); ctx.fill();
+      ctx.fillStyle = escuro(cfg.corCapa, 0.1); ctx.font = `${fs}px ${cfg.tituloFonte}`; ctx.fillText(titulo, tx, ty, maxW);
     }
   }
   // dobradiça (lombada) e brilho
