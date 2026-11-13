@@ -6,6 +6,7 @@ import { MdPrint, MdUploadFile } from "react-icons/md";
 import CartaoFace from "../components/cartao/CartaoFace";
 import FolhaCartoes from "../components/cartao/FolhaCartoes";
 import { lerImagem } from "../lib/lerImagem";
+import BotaoPadrao from "../components/BotaoPadrao";
 import { AJUSTE_ARTE, calcularLayout, cartaoCfg, FONTES, PALETAS, PAPEIS, TAMANHOS } from "../lib/cartaoVisita";
 
 const MM = 3.7795; // px por mm
@@ -17,8 +18,8 @@ const Campo = ({ rotulo, children, dica }) => (
   </div>
 );
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
-const Painel = ({ titulo, children }) => (
-  <section className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3">
+const Painel = ({ titulo, children, cls = "" }) => (
+  <section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}>
     <h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}
   </section>
 );
@@ -139,7 +140,7 @@ export default function CartaoVisitaPage() {
                           {a.fundoModo === "cor" && <input type="color" value={a.fundoCor} onChange={(e) => ed({ fundoCor: e.target.value })} />}
                         </div>
                       )}
-                      <label className="grid grid-cols-[70px_1fr_36px] items-center gap-2">Zoom<input type="range" min={0.5} max={3} step={0.02} value={a.zoom} onChange={(e) => ed({ zoom: Number(e.target.value) })} /><span>{a.zoom.toFixed(2)}×</span></label>
+                      <label className="grid grid-cols-[70px_1fr_36px] items-center gap-2">Zoom<input type="range" min={0.2} max={3} step={0.02} value={a.zoom} onChange={(e) => ed({ zoom: Number(e.target.value) })} /><span>{a.zoom.toFixed(2)}×</span></label>
                       <label className="grid grid-cols-[70px_1fr_36px] items-center gap-2">Horizontal<input type="range" min={-100} max={100} value={a.x} onChange={(e) => ed({ x: Number(e.target.value) })} /><span>{a.x}</span></label>
                       <label className="grid grid-cols-[70px_1fr_36px] items-center gap-2">Vertical<input type="range" min={-100} max={100} value={a.y} onChange={(e) => ed({ y: Number(e.target.value) })} /><span>{a.y}</span></label>
                       <div className="flex gap-2">
@@ -161,6 +162,7 @@ export default function CartaoVisitaPage() {
 
         <div className="flex flex-col gap-4 min-w-0">
           <Painel titulo="🖨️ Impressão automática">
+            <BotaoPadrao onClick={() => { cartaoCfg.resetar(["tamanho", "sangria", "quantidade", "papel", "margem", "espaco", "marcas", "ajusteX", "ajusteY", "orientacao", "ajusteF", "ajusteV"]); toast.success("Medidas padrão restauradas"); }} />
             <div className="grid gap-3 sm:grid-cols-3">
               <Campo rotulo="Quantidade de cartões"><input type="number" min={1} max={20000} className={`${entrada} text-lg font-bold`} value={c.quantidade} onChange={(e) => set({ quantidade: Math.max(1, Math.min(20000, Number(e.target.value) || 1)) })} /></Campo>
               <Campo rotulo="Tamanho do cartão"><select className={entrada} value={c.tamanho} onChange={(e) => set({ tamanho: e.target.value })}>{Object.entries(TAMANHOS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}</select></Campo>
@@ -195,7 +197,7 @@ export default function CartaoVisitaPage() {
             <p className="text-[11px] text-[#8B6A1F]">Na janela de impressão escolha <b>frente e verso (duplex)</b> e escala <b>100%</b> (sem “ajustar à página”). Sem duplex: imprima as páginas ímpares, vire as folhas e imprima as pares.</p>
           </Painel>
 
-          <Painel titulo="👀 Pré-visualização">
+          <Painel titulo="👀 Pré-visualização" cls="pre-fixa">
             <div className="flex flex-wrap gap-6 items-start">
               {["frente", ...(c.verso ? ["verso"] : [])].map((lado) => (
                 <div key={lado} className="flex flex-col gap-1">

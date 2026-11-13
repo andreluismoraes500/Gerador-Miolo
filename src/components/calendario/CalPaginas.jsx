@@ -16,7 +16,7 @@ export function Foto({ foto, cfg, w, h }) {
   if (foto?.src) {
     const pos = `${50 + (foto.x || 0) / 2}% ${50 + (foto.y || 0) / 2}%`;
     return (
-      <div style={{ width: mm(w), height: mm(h), overflow: "hidden", background: foto.modo === "inteira" ? mix(c, 0.9) : "transparent" }}>
+      <div style={{ width: mm(w), height: mm(h), overflow: "hidden", background: foto.bg || (foto.modo === "inteira" ? mix(c, 0.9) : "transparent") }}>
         <img src={foto.src} alt="" style={{ width: "100%", height: "100%", display: "block", objectFit: foto.modo === "inteira" ? "contain" : "cover", objectPosition: pos, transform: `scale(${foto.zoom || 1})`, transformOrigin: pos, opacity: (foto.op ?? 100) / 100 }} />
       </div>
     );
@@ -192,32 +192,37 @@ export function Poster({ cfg, w, h, foto }) {
   );
 }
 
-export function Mini({ cfg, w, h, foto }) {
-  const { esc, mi, dx, dy, ano: anoPos } = aj(cfg);
-  const retrato = h > w;
-  const faixa = cfg.fotoPct > 0 ? h * 0.2 : 0;
-  const mostraAno = anoPos !== "oculto";
-  const cab = faixa > 0 ? faixa : mostraAno || cfg.titulo ? h * 0.14 : 0; // altura do cabeçalho
-  const cols = retrato ? 3 : 4, rows = 12 / cols;
-  const pad = Math.min(w, h) * 0.04 * mi;
-  const areaW = w - 2 * pad, areaH = h - cab - 2 * pad;
-  const mw = areaW / cols - pad * 0.4;
-  const tam = Math.max(1.1, Math.min(mw / 11.8, (areaH / rows) / 12.6) * esc);
-  const claroTxt = faixa > 0 && !cfg.semFotoArea;
-  const corCab = claroTxt ? "#fff" : corT(cfg);
-  const sombra = claroTxt ? "0 0 2mm #0006" : "none";
+// Ímã só com cabeçalho: nome, logo e telefone numa cor à escolha; abaixo, fundo liso onde o calendário é colado.
+export function CabecalhoIma({ cfg, w, h, foto }) {
+  const hc = h * ((cfg.cabAltPct ?? 58) / 100);
+  const m = Math.min(w, h) * 0.07;
+  const hNome = hc * 0.27, hLogo = hc * 0.4, hFone = hc - hNome - hLogo;
+  const tx = cfg.corCabTxt || "#fff";
+  const nome = (cfg.cabNome || "").toUpperCase();
+  const fsNome = cabe(hNome * 0.62, nome, w - 2 * m, 0.66);
+  const fone = cfg.cabFone || "";
+  const fsFone = cabe(hFone * 0.4, fone, w - 2 * m - (cfg.cabZap ? hFone * 0.34 : 0), 0.6);
   return (
-    <div style={{ width: mm(w), height: mm(h), background: cfg.corPagina || "#fff", overflow: "hidden", position: "relative", fontFamily: cfg.fonteTexto }}>
-      {cab > 0 && (
-        <div style={{ height: mm(cab), position: "relative" }}>
-          {faixa > 0 && <Foto foto={foto} cfg={cfg} w={w} h={faixa} />}
-          {mostraAno && <span style={{ position: "absolute", left: mm(pad), bottom: mm(pad * 0.3), color: corCab, fontFamily: cfg.fonteTitulo, fontSize: mm(cab * 0.55), textShadow: sombra, lineHeight: 1 }}>{cfg.ano}</span>}
-          <span style={{ position: "absolute", right: mm(pad), bottom: mm(pad * 0.4), color: corCab, fontSize: mm(cab * 0.2), letterSpacing: mm(0.3), textTransform: "uppercase", textShadow: sombra }}>{cfg.titulo}</span>
+    <div style={{ width: mm(w), height: mm(h), background: cfg.corAreaCal || "#fff", position: "relative", overflow: "hidden", fontFamily: cfg.fonteTexto }}>
+      <div style={{ height: mm(hc), background: cfg.corCab, color: tx, position: "relative" }}>
+        <div style={{ height: mm(hNome), display: "grid", placeItems: "center", padding: `0 ${mm(m)}`, fontFamily: cfg.fonteTitulo, fontWeight: 800, fontSize: mm(fsNome), lineHeight: 1, whiteSpace: "nowrap" }}>{nome}</div>
+        <div style={{ height: mm(hLogo), background: foto?.src ? "transparent" : "#fff", display: "grid", placeItems: "center" }}>
+          {foto?.src ? <Foto foto={foto} cfg={{ ...cfg, semFotoArea: false }} w={w} h={hLogo} /> : <span className="print:invisible" style={{ color: "#b9b9b9", fontWeight: 800, fontSize: mm(hLogo * 0.3), letterSpacing: mm(0.4) }}>SEU LOGO</span>}
         </div>
-      )}
-      <div style={{ padding: mm(pad), height: mm(h - cab), boxSizing: "border-box", transform: `translate(${dx}mm, ${dy}mm)`, display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)`, gap: `${mm(pad * 0.5)} ${mm(pad * 0.4)}` }}>
-        {Array.from({ length: 12 }).map((_, i) => <MiniMes key={i} ano={cfg.ano} mes={i} cfg={cfg} tam={tam} w={mw} />)}
+        <div style={{ height: mm(hFone), display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: mm(hFone * 0.04) }}>
+          {cfg.cabLinha && <span style={{ fontSize: mm(hFone * 0.2), letterSpacing: mm(hFone * 0.04), textTransform: "uppercase", opacity: 0.92, lineHeight: 1 }}>{cfg.cabLinha}</span>}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: mm(hFone * 0.08), fontWeight: 800, fontSize: mm(fsFone), lineHeight: 1, whiteSpace: "nowrap" }}>
+            {cfg.cabZap && (
+              <svg width={`${hFone * 0.3}mm`} height={`${hFone * 0.3}mm`} viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill={tx} /><path d="M16.6 14.4c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.9-.4-1.9-1.1-2.7-2.2-.1-.2 0-.3.1-.4l.4-.5c.1-.1.1-.3 0-.4-.1-.2-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s1 2.5 1.1 2.7c.1.2 1.9 3 4.7 4.1 2.3.9 2.8.7 3.3.6.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z" fill={cfg.corCab} /></svg>
+            )}
+            {fone}
+          </span>
+        </div>
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: mm(Math.max(0.6, h * 0.008)), background: cfg.corDetalhe || "transparent" }} />
       </div>
+      {cfg.guiaCal && (
+        <div className="print:invisible" style={{ position: "absolute", left: mm(m), right: mm(m), top: mm(hc + m * 0.8), bottom: mm(m), border: `${mm(0.3)} dashed #bbb`, display: "grid", placeItems: "center", color: "#bbb", fontSize: mm(Math.min(w, h) * 0.05), textAlign: "center" }}>cole o calendário aqui</div>
+      )}
     </div>
   );
 }

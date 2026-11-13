@@ -54,6 +54,17 @@ export default function AppLayout() {
   const headerRef = useRef(null);
   const mainRef = useRef(null);
 
+  // Altura do cabeçalho fixo (as pré-visualizações fixas se posicionam logo abaixo dele).
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return undefined;
+    const aplica = () => document.documentElement.style.setProperty("--cab-h", `${el.offsetHeight}px`);
+    aplica();
+    const ro = new ResizeObserver(aplica);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   // Cabeçalho entra suavemente uma única vez, ao montar o app.
   useEffect(() => {
     animateHeaderIn(headerRef.current);

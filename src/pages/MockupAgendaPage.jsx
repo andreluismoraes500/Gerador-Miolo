@@ -6,10 +6,11 @@ import { carregarImg, desenharAberta, desenharFechada, FIOS, FORMATOS, mockCfg }
 import { FONTES } from "../lib/cartaoVisita";
 import { lerImagem } from "../lib/lerImagem";
 import { abrirPdf, renderPagina } from "../lib/pdfPagina";
+import BotaoPadrao from "../components/BotaoPadrao";
 
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
 const Campo = ({ rotulo, children }) => (<div className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}</div>);
-const Painel = ({ titulo, children }) => (<section className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3"><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>);
+const Painel = ({ titulo, children, cls = "" }) => (<section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>);
 const Cores = ({ valor, onChange, lista }) => (
   <div className="flex flex-wrap gap-2">
     {lista.map((f) => <button key={f.cor} type="button" title={f.nome} aria-label={f.nome} onClick={() => onChange(f.cor)} style={{ background: f.cor }} className={`w-7 h-7 rounded-full border-2 shadow ${valor === f.cor ? "border-[#24344D]" : "border-white"}`} />)}
@@ -80,6 +81,7 @@ export default function MockupAgendaPage() {
     <div className="mx-auto max-w-7xl px-4 py-6">
       <div className="grid gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
         <div className="flex flex-col gap-4 min-w-0">
+          <BotaoPadrao onClick={() => { mockCfg.resetar(["formato", "espessura", "yaw", "pitch", "passo", "posElastico", "larguraElastico", "tituloX", "tituloY", "tituloTam", "cantos", "capaModo", "capaZoom", "capaX", "capaY", "ajuste", "folhaZoom", "folhaX", "folhaY"]); toast.success("Medidas padrão restauradas"); }} />
           <Painel titulo="📐 Agenda">
             <div className="grid grid-cols-2 gap-3">
               <Campo rotulo="Formato"><select className={entrada} value={cfg.formato} onChange={(e) => set({ formato: e.target.value })}>{Object.entries(FORMATOS).map(([k, v]) => <option key={k} value={k}>{v[0]}</option>)}</select></Campo>
@@ -93,6 +95,17 @@ export default function MockupAgendaPage() {
               {srcs.capa && <button type="button" onClick={() => setSrcs((o) => ({ ...o, capa: null }))} className="px-3 py-2 rounded-xl border border-[#D8CBA8] text-xs">Remover</button>}
               <input ref={capaInp} type="file" accept="image/*" hidden onChange={(e) => { enviarCapa(e.target.files[0]); e.target.value = ""; }} />
             </div>
+            {srcs.capa && (
+              <div className="flex flex-col gap-2 border border-[#E8DFC8] rounded-xl bg-white p-2.5">
+                <Campo rotulo="Ajuste da arte"><select className={entrada} value={cfg.capaModo} onChange={(e) => set({ capaModo: e.target.value })}><option value="inteira">Automático — cabe inteira (recomendado)</option><option value="preencher">Preencher (corta o excesso)</option></select></Campo>
+                <div className="grid grid-cols-3 gap-2">
+                  <Campo rotulo={`Zoom ${Math.round(cfg.capaZoom * 100)}%`}><input type="range" min={0.2} max={3} step={0.02} value={cfg.capaZoom} onChange={(e) => set({ capaZoom: Number(e.target.value) })} /></Campo>
+                  <Campo rotulo="Horiz."><input type="range" min={-100} max={100} value={cfg.capaX} onChange={(e) => set({ capaX: Number(e.target.value) })} /></Campo>
+                  <Campo rotulo="Vert."><input type="range" min={-100} max={100} value={cfg.capaY} onChange={(e) => set({ capaY: Number(e.target.value) })} /></Campo>
+                </div>
+                <button type="button" className="self-start underline font-semibold text-xs" onClick={() => set({ capaModo: "inteira", capaZoom: 1, capaX: 0, capaY: 0 })}>↺ Restaurar enquadramento</button>
+              </div>
+            )}
             <Campo rotulo="Cor da capa (sem arte) e dos detalhes"><Cores valor={cfg.corCapa} onChange={(c) => set({ corCapa: c })} lista={CORES_CAPA} /></Campo>
             <Campo rotulo="Cor da lateral / bordas da capa dura"><Cores valor={cfg.corBorda} onChange={(c) => set({ corBorda: c })} lista={CORES_BORDA} /></Campo>
             <Campo rotulo="Título (vazio = só a arte)"><input className={entrada} value={cfg.tituloAgenda} onChange={(e) => set({ tituloAgenda: e.target.value })} /></Campo>
@@ -117,8 +130,10 @@ export default function MockupAgendaPage() {
             <FonteFolha titulo="Folha da esquerda" tipo={cfg.src1} onTipo={(t) => set({ src1: t })} onImagem={(s) => setSrcs((o) => ({ ...o, p1: s }))} />
             <FonteFolha titulo="Folha da direita (primeira folha)" tipo={cfg.src2} onTipo={(t) => set({ src2: t })} onImagem={(s) => setSrcs((o) => ({ ...o, p2: s }))} />
             <div className="grid grid-cols-2 gap-3">
-              <Campo rotulo="Ajuste da imagem"><select className={entrada} value={cfg.ajuste} onChange={(e) => set({ ajuste: e.target.value })}><option value="preencher">Preencher a folha</option><option value="inteira">Imagem inteira</option></select></Campo>
+              <Campo rotulo="Ajuste da imagem"><select className={entrada} value={cfg.ajuste} onChange={(e) => set({ ajuste: e.target.value })}><option value="inteira">Automático — cabe inteira</option><option value="preencher">Preencher a folha</option></select></Campo>
               <Campo rotulo="Cor do papel"><input type="color" className="h-8 w-full" value={cfg.papel} onChange={(e) => set({ papel: e.target.value })} /></Campo>
+              <Campo rotulo={`Zoom ${Math.round(cfg.folhaZoom * 100)}%`}><input type="range" min={0.2} max={3} step={0.02} value={cfg.folhaZoom} onChange={(e) => set({ folhaZoom: Number(e.target.value) })} /></Campo>
+              <div className="grid grid-cols-2 gap-2"><Campo rotulo="Horiz."><input type="range" min={-100} max={100} value={cfg.folhaX} onChange={(e) => set({ folhaX: Number(e.target.value) })} /></Campo><Campo rotulo="Vert."><input type="range" min={-100} max={100} value={cfg.folhaY} onChange={(e) => set({ folhaY: Number(e.target.value) })} /></Campo></div>
             </div>
           </Painel>
 
@@ -151,7 +166,7 @@ export default function MockupAgendaPage() {
           </Painel>
         </div>
 
-        <div className="flex flex-col gap-4 min-w-0">
+        <div className="flex flex-col gap-4 min-w-0 pre-fixa">
           <Painel titulo="📕 Capa fechada">
             <canvas ref={cvF} width={1500} height={1300} className="w-full h-auto rounded-xl bg-[#eee]" />
             <button type="button" disabled={!pronto} onClick={() => baixar(cvF.current, "agenda-fechada.png")} className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#8B1D2C] text-white text-sm font-bold"><MdDownload size={18} /> Baixar PNG</button>
