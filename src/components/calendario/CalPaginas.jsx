@@ -196,7 +196,9 @@ export function Poster({ cfg, w, h, foto }) {
 export function CabecalhoIma({ cfg, w, h, foto }) {
   const hc = h * ((cfg.cabAltPct ?? 58) / 100);
   const m = Math.min(w, h) * 0.07;
-  const hNome = hc * 0.27, hLogo = hc * 0.4, hFone = hc - hNome - hLogo;
+  // faixas só existem se houver texto: sem texto, o logo/imagem se estende até a linha de detalhe
+  const temNome = !!(cfg.cabNome || "").trim(), temFone = !!((cfg.cabFone || "").trim() || (cfg.cabLinha || "").trim());
+  const hNome = temNome ? hc * (temFone ? 0.27 : 0.3) : 0, hFone = temFone ? hc * (temNome ? 0.33 : 0.38) : 0, hLogo = hc - hNome - hFone;
   const tx = cfg.corCabTxt || "#fff";
   const nome = (cfg.cabNome || "").toUpperCase();
   const fsNome = cabe(hNome * 0.62, nome, w - 2 * m, 0.66);
@@ -205,19 +207,19 @@ export function CabecalhoIma({ cfg, w, h, foto }) {
   return (
     <div style={{ width: mm(w), height: mm(h), background: cfg.corAreaCal || "#fff", position: "relative", overflow: "hidden", fontFamily: cfg.fonteTexto }}>
       <div style={{ height: mm(hc), background: cfg.corCab, color: tx, position: "relative" }}>
-        <div style={{ height: mm(hNome), display: "grid", placeItems: "center", padding: `0 ${mm(m)}`, fontFamily: cfg.fonteTitulo, fontWeight: 800, fontSize: mm(fsNome), lineHeight: 1, whiteSpace: "nowrap" }}>{nome}</div>
+        {temNome && <div style={{ height: mm(hNome), display: "grid", placeItems: "center", padding: `0 ${mm(m)}`, fontFamily: cfg.fonteTitulo, fontWeight: 800, fontSize: mm(fsNome), lineHeight: 1, whiteSpace: "nowrap" }}>{nome}</div>}
         <div style={{ height: mm(hLogo), background: foto?.src ? "transparent" : "#fff", display: "grid", placeItems: "center" }}>
           {foto?.src ? <Foto foto={foto} cfg={{ ...cfg, semFotoArea: false }} w={w} h={hLogo} /> : <span className="print:invisible" style={{ color: "#b9b9b9", fontWeight: 800, fontSize: mm(hLogo * 0.3), letterSpacing: mm(0.4) }}>SEU LOGO</span>}
         </div>
-        <div style={{ height: mm(hFone), display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: mm(hFone * 0.04) }}>
+        {temFone && <div style={{ height: mm(hFone), display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: mm(hFone * 0.04) }}>
           {cfg.cabLinha && <span style={{ fontSize: mm(hFone * 0.2), letterSpacing: mm(hFone * 0.04), textTransform: "uppercase", opacity: 0.92, lineHeight: 1 }}>{cfg.cabLinha}</span>}
-          <span style={{ display: "inline-flex", alignItems: "center", gap: mm(hFone * 0.08), fontWeight: 800, fontSize: mm(fsFone), lineHeight: 1, whiteSpace: "nowrap" }}>
+          {fone && <span style={{ display: "inline-flex", alignItems: "center", gap: mm(hFone * 0.08), fontWeight: 800, fontSize: mm(fsFone), lineHeight: 1, whiteSpace: "nowrap" }}>
             {cfg.cabZap && (
               <svg width={`${hFone * 0.3}mm`} height={`${hFone * 0.3}mm`} viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill={tx} /><path d="M16.6 14.4c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.9-.4-1.9-1.1-2.7-2.2-.1-.2 0-.3.1-.4l.4-.5c.1-.1.1-.3 0-.4-.1-.2-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s1 2.5 1.1 2.7c.1.2 1.9 3 4.7 4.1 2.3.9 2.8.7 3.3.6.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z" fill={cfg.corCab} /></svg>
             )}
             {fone}
-          </span>
-        </div>
+          </span>}
+        </div>}
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: mm(Math.max(0.6, h * 0.008)), background: cfg.corDetalhe || "transparent" }} />
       </div>
       {cfg.guiaCal && (
