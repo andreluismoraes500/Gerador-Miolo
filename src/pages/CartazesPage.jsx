@@ -7,11 +7,12 @@ import { cartazCfg, FONTES_CZ, FORMATOS_CZ, itemNovo, LAYOUTS_CZ, MODELOS_CZ, PA
 import { encaixar } from "../lib/calendario";
 import { PAPEIS } from "../lib/cartaoVisita";
 import { lerImagem } from "../lib/lerImagem";
+import BotaoPadrao from "../components/BotaoPadrao";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
 const Campo = ({ rotulo, children }) => (<div className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}</div>);
-const Painel = ({ titulo, children }) => (<section className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3"><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>);
+const Painel = ({ titulo, children, cls = "" }) => (<section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>);
 const Cor = ({ rotulo, valor, onChange }) => (<label className="flex items-center gap-2 text-xs text-[#24344D]"><input type="color" value={valor} onChange={(e) => onChange(e.target.value)} className="h-7 w-10 rounded" />{rotulo}</label>);
 const AMOSTRA = itemNovo({ nome: "ARROZ TIPO 1 5KG", de: "29,90", por: "24,99", unid: "un" });
 
@@ -120,7 +121,7 @@ export default function CartazesPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Campo rotulo="Ajuste da foto"><select className={entrada} value={item.fotoModo} onChange={(e) => setItem({ fotoModo: e.target.value })}><option value="caber">Caber inteira</option><option value="preencher">Preencher o quadro</option></select></Campo>
-              <Campo rotulo={`Zoom: ${item.fotoZoom}×`}><input type="range" min={0.5} max={2.5} step={0.05} value={item.fotoZoom} onChange={(e) => setItem({ fotoZoom: Number(e.target.value) })} /></Campo>
+              <Campo rotulo={`Zoom: ${item.fotoZoom}×`}><input type="range" min={0.2} max={2.5} step={0.05} value={item.fotoZoom} onChange={(e) => setItem({ fotoZoom: Number(e.target.value) })} /></Campo>
               <Campo rotulo="Foto ↔"><input type="range" min={-100} max={100} value={item.fotoX} onChange={(e) => setItem({ fotoX: Number(e.target.value) })} /></Campo>
               <Campo rotulo="Foto ↕"><input type="range" min={-100} max={100} value={item.fotoY} onChange={(e) => setItem({ fotoY: Number(e.target.value) })} /></Campo>
             </div>
@@ -160,6 +161,7 @@ export default function CartazesPage() {
 
         <div className="flex flex-col gap-4 min-w-0">
           <Painel titulo="📄 Papel e impressão">
+            <BotaoPadrao onClick={() => { cartazCfg.resetar(["formato", "orient", "papel", "margem", "espaco", "guias"]); setItem({ fotoModo: "caber", fotoZoom: 1, fotoX: 0, fotoY: 0 }); toast.success("Medidas padrão restauradas"); }} />
             <div className="grid gap-3 sm:grid-cols-3">
               <Campo rotulo="Tamanho do cartaz"><select className={entrada} value={cfg.formato} onChange={(e) => set({ formato: e.target.value })}>{Object.entries(FORMATOS_CZ).map(([k, v]) => <option key={k} value={k}>{v[0]}</option>)}</select></Campo>
               <Campo rotulo="Posição"><select className={entrada} value={cfg.orient} onChange={(e) => set({ orient: e.target.value })}><option value="retrato">Em pé</option><option value="paisagem">Deitado</option></select></Campo>
@@ -171,7 +173,7 @@ export default function CartazesPage() {
             <div className="text-xs text-[#24344D]">{N.porFolha ? <><b>{todos.length}</b> {todos.length === 1 ? "cartaz" : "cartazes"} · <b>{N.porFolha} por folha</b> → <b>{folhas.length}</b> {folhas.length === 1 ? "folha" : "folhas"}.{semMargem > N.porFolha ? ` Dica: com margem e espaço 0, cabem ${semMargem} por folha.` : ""}</> : <span className="text-red-700">Esse cartaz não cabe nesse papel.</span>}</div>
             <button type="button" onClick={imprimir} className="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B1D2C] text-white font-bold hover:opacity-90"><MdPrint size={20} /> Imprimir / salvar em PDF</button>
           </Painel>
-          <Painel titulo="👀 Pré-visualização">
+          <Painel titulo="👀 Pré-visualização" cls="pre-fixa">
             <div className="overflow-auto rounded-lg bg-[#ddd] p-3 flex justify-center"><div style={{ zoom: escala, width: "fit-content", boxShadow: "0 4px 16px #0004" }}><Cartaz cfg={cfg} item={item} foto={fotos[item.id]} logo={logo} w={fw} h={fh} /></div></div>
           </Painel>
         </div>

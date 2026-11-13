@@ -17,9 +17,9 @@ export const MODELOS_CAL = {
     nome: "Mesa triangular (cavalete)", desc: "Um painel por mês, dobrado em prisma; vários painéis por folha A4.",
     tamanhos: { h148: ["148 × 105 mm (deitado)", 148, 105], v105: ["105 × 148 mm (em pé)", 105, 148], l210: ["210 × 105 mm (panorâmico)", 210, 105] }, tam: "h148",
   },
-  mini: {
-    nome: "Ímã / bolso — ano compacto", desc: "Calendário pequeno com o ano inteiro. Ideal para ímã de geladeira, brinde e cartão.",
-    tamanhos: { m90: ["90 × 50 mm", 90, 50], m76: ["76 × 76 mm (quadrado)", 76, 76], m100: ["100 × 70 mm", 100, 70], v70: ["70 × 100 mm (em pé)", 70, 100] }, tam: "m76",
+  cabecalho: {
+    nome: "Ímã só com cabeçalho (calendário colado depois)", desc: "Cabeçalho com nome, logo e telefone + fundo na cor que o cliente escolher. O calendário pequeno você cola em cima.",
+    tamanhos: { c55: ["55 × 100 mm (em pé)", 55, 100], c50: ["50 × 90 mm (em pé)", 50, 90], c60: ["60 × 110 mm (em pé)", 60, 110], c70: ["70 × 100 mm (em pé)", 70, 100], pers: ["Personalizado (você digita)", 55, 100] }, tam: "c55",
   },
   planner: {
     nome: "Planner mensal de mesa (desk pad)", desc: "Bloco de mesa: grade grande do mês com semanas numeradas, metas e notas.",
@@ -37,6 +37,8 @@ export const calendarioCfg = criarStore("calendario-cfg", {
   modelo: "parede", tam: "a4", ano: ANO + (new Date().getMonth() >= 9 ? 1 : 0), semanaComeca: 0, cor: "#d6567a",
   fonteTitulo: "'DM Serif Display', serif", fonteTexto: "'Montserrat', sans-serif", estilo: "colorido", orientacao: "retrato",
   fotoPct: 50, escala: 1, margemInt: 1, anoPos: "auto", corTitulo: "", corTexto: "#2f3140", corFeriado: "#d6455d", posterFundo: false, corPagina: "", deslocX: 0, deslocY: 0, capa: true, listaFeriados: true, nomesNaGrade: true, notas: true, titulo: "Meu Calendário", subtitulo: "",
+  persW: 76, persH: 76,
+  cabNome: "SEU NEGÓCIO", cabLinha: "DELIVERY", cabFone: "(00) 00000-0000", cabZap: true, cabAltPct: 58, corCab: "#1f5fbf", corCabTxt: "#ffffff", corDetalhe: "#d6213a", corAreaCal: "#ffffff", guiaCal: true,
   papel: "a4", margem: 8, espaco: 0, marcas: true, semanaNumero: false, fases: false,
 });
 
@@ -57,10 +59,14 @@ export function encaixar(papel, cw, ch, margem, espaco, orient = "auto") {
   return { ...g, pos, porFolha: g.n };
 }
 
+// salvo de versão antiga com o modelo removido (ímã/bolso): passa para o ímã com cabeçalho
+if (!MODELOS_CAL[calendarioCfg.get().modelo]) calendarioCfg.set({ modelo: "cabecalho", tam: "c55" });
+
 export function dimensoes(cfg) {
   const m = MODELOS_CAL[cfg.modelo];
   const t = m.tamanhos[cfg.tam] || m.tamanhos[m.tam];
   let [, w, h] = t;
+  if (cfg.modelo === "cabecalho" && cfg.tam === "pers") return { w: Math.max(20, Number(cfg.persW) || 55), h: Math.max(20, Number(cfg.persH) || 100) };
   // orientação só vale para parede e pôster (os demais já definem a posição)
   if (["parede", "poster"].includes(cfg.modelo) && cfg.orientacao === "paisagem" && h > w) [w, h] = [h, w];
   if (["parede", "poster"].includes(cfg.modelo) && cfg.orientacao === "retrato" && w > h) [w, h] = [h, w];
@@ -69,7 +75,7 @@ export function dimensoes(cfg) {
 
 export function montarPaginasCal(cfg) {
   const p = [];
-  if (cfg.modelo === "poster" || cfg.modelo === "mini") return [{ tipo: cfg.modelo }];
+  if (cfg.modelo === "poster" || cfg.modelo === "cabecalho") return [{ tipo: cfg.modelo }];
   if (cfg.capa) p.push({ tipo: "capa" });
   for (let m = 0; m < 12; m += 1) p.push({ tipo: cfg.modelo === "planner" ? "planner" : "mes", mes: m });
   return p;

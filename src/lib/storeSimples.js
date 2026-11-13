@@ -21,10 +21,16 @@ export function criarStore(chave, inicial, persistir = true) {
     }
     ouvintes.forEach((f) => f());
   };
+  // volta ao padrão: tudo (sem argumento) ou só as chaves indicadas (ex.: as medidas)
+  const resetar = (chaves) => {
+    const parc = {};
+    (chaves || Object.keys(inicial)).forEach((k) => { parc[k] = inicial[k]; });
+    set(parc);
+  };
   const subscribe = (f) => {
     ouvintes.add(f);
     return () => ouvintes.delete(f);
   };
   const useStore = () => useSyncExternalStore(subscribe, get, get);
-  return { get, set, useStore };
+  return { get, set, resetar, padrao: inicial, useStore };
 }

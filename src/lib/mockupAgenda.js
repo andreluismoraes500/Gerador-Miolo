@@ -14,7 +14,7 @@ export const mockCfg = criarStore("mock-agenda-cfg", {
   formato: "a5", espessura: 16, yaw: 32, pitch: 16, tipoWire: "espiral", corWire: "#f4f4f2", passo: 9,
   elastico: true, corElastico: "#e9e4d9", posElastico: 11, larguraElastico: 8,
   corCapa: "#d6567a", corBorda: "#9fb0c0", papel: "#fffdf8", corTitulo: "#ffffff", tituloX: 50, tituloY: 50, tituloTam: 11, tituloFonte: "'Great Vibes', cursive", cantos: 2, brilho: true,
-  fundo: "estudio", corFundo: "#eee9e1", ajuste: "preencher", tituloAgenda: "minha agenda", pertence: "Pertence a:",
+  fundo: "estudio", corFundo: "#eee9e1", ajuste: "inteira", folhaZoom: 1, folhaX: 0, folhaY: 0, capaModo: "inteira", capaZoom: 1, capaX: 0, capaY: 0, tituloAgenda: "minha agenda", pertence: "Pertence a:",
   src1: "branco", src2: "pertence",
 });
 
@@ -34,10 +34,22 @@ const poly = (ctx, pts, fill) => { ctx.beginPath(); pts.forEach(([x, y], i) => (
 export function carregarImg(src) {
   return new Promise((ok) => { if (!src) { ok(null); return; } const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
 }
-function cobrir(ctx, img, w, h, modo) {
+// cor do canto da imagem (fundo quando ela é exibida inteira)
+function corCanto(img) {
+  try {
+    const c = novoCanvas(4, 4), x = c.getContext("2d");
+    x.drawImage(img, 0, 0, 4, 4);
+    const [r, g, b, a] = x.getImageData(0, 0, 1, 1).data;
+    return a < 40 ? null : `rgb(${r},${g},${b})`;
+  } catch { return null; }
+}
+// modo "inteira" = cabe sem cortar (fundo = cor do canto da imagem); "preencher" = corta o excesso.
+function cobrir(ctx, img, w, h, modo, { zoom = 1, x = 0, y = 0, bg } = {}) {
   const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
-  const k = modo === "inteira" ? Math.min(w / iw, h / ih) : Math.max(w / iw, h / ih);
-  ctx.drawImage(img, (w - iw * k) / 2, (h - ih * k) / 2, iw * k, ih * k);
+  const inteira = modo === "inteira";
+  const k = (inteira ? Math.min(w / iw, h / ih) : Math.max(w / iw, h / ih)) * zoom;
+  if (inteira) { ctx.fillStyle = bg || corCanto(img) || "#ffffff"; ctx.fillRect(0, 0, w, h); }
+  ctx.drawImage(img, (w - iw * k) / 2 + (x / 100) * (w / 2), (h - ih * k) / 2 + (y / 100) * (h / 2), iw * k, ih * k);
 }
 
 /* ---------- texturas ---------- */
@@ -66,7 +78,7 @@ export function texturaCapa(cfg, img, wmm, hmm) {
   const c = novoCanvas(W, H), ctx = c.getContext("2d");
   const raio = (cfg.cantos / wmm) * W;
   ctx.save(); rr(ctx, 0, 0, W, H, raio); ctx.clip();
-  if (img) cobrir(ctx, img, W, H, "preencher"); else florais(ctx, W, H, cfg.corCapa);
+  if (img) cobrir(ctx, img, W, H, cfg.capaModo, { zoom: cfg.capaZoom, x: cfg.capaX, y: cfg.capaY }); else florais(ctx, W, H, cfg.corCapa);
   const titulo = (cfg.tituloAgenda || "").trim();
   if (titulo) {
     const tx = (W * cfg.tituloX) / 100, ty = (H * cfg.tituloY) / 100, fs = (W * cfg.tituloTam) / 100, maxW = W * 0.9;
@@ -100,7 +112,7 @@ export function texturaFolha(cfg, tipo, img, wmm, hmm) {
   const c = novoCanvas(W, H), ctx = c.getContext("2d");
   ctx.fillStyle = cfg.papel; ctx.fillRect(0, 0, W, H);
   const acento = cfg.corCapa;
-  if (img && tipo !== "branco") cobrir(ctx, img, W, H, cfg.ajuste);
+  if (img && tipo !== "branco") cobrir(ctx, img, W, H, cfg.ajuste, { zoom: cfg.folhaZoom, x: cfg.folhaX, y: cfg.folhaY });
   if (tipo === "linhas") {
     ctx.strokeStyle = "rgba(90,100,120,.28)"; ctx.lineWidth = 1.4;
     for (let y = H * 0.12; y < H * 0.95; y += H * 0.045) { ctx.beginPath(); ctx.moveTo(W * 0.1, y); ctx.lineTo(W * 0.9, y); ctx.stroke(); }

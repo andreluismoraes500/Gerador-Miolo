@@ -6,22 +6,25 @@ import { MdDeleteOutline, MdPrint, MdUploadFile } from "react-icons/md";
 import { calcularBottons, bottonsCfg, DIAMETROS } from "../lib/bottons";
 import { PAPEIS } from "../lib/cartaoVisita";
 import { lerImagem } from "../lib/lerImagem";
+import { AJ_PADRAO, corDoCanto } from "../lib/imagemAjuste";
+import ImgAjustada from "../components/ImgAjustada";
+import ControlesImagem from "../components/ControlesImagem";
+import BotaoPadrao from "../components/BotaoPadrao";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
 const Campo = ({ rotulo, children, dica }) => (
   <div className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}{dica && <span className="text-[11px] text-[#8B6A1F]">{dica}</span>}</div>
 );
-const Painel = ({ titulo, children }) => (
-  <section className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3"><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>
+const Painel = ({ titulo, children, cls = "" }) => (
+  <section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>
 );
 
 function Celula({ img, cfg, cell }) {
-  const pos = `${50 + img.x / 2}% ${50 + img.y / 2}%`;
   const c = cell / 2, rc = cell / 2 - 0.1, rv = cfg.diametro / 2;
   return (
     <div style={{ position: "relative", width: `${cell}mm`, height: `${cell}mm`, overflow: "hidden", background: "#fff" }}>
-      <img src={img.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos, transform: `scale(${img.zoom})`, transformOrigin: pos, display: "block" }} />
+      <ImgAjustada src={img.src} modo={img.modo} zoom={img.zoom} x={img.x} y={img.y} bg={img.bg} />
       {cfg.guias && (
         <svg style={{ position: "absolute", inset: 0 }} width={`${cell}mm`} height={`${cell}mm`} viewBox={`0 0 ${cell} ${cell}`}>
           <circle cx={c} cy={c} r={rc} fill="none" stroke="#000" strokeWidth="0.2" />
@@ -60,7 +63,7 @@ export default function BottonsPage() {
 
   const enviar = async (files) => {
     for (const f of files) {
-      try { const src = await lerImagem(f, 1400); setImgs((l) => [...l, { id: Math.random().toString(36).slice(2), src, nome: f.name, qtd: 1, zoom: 1, x: 0, y: 0 }]); }
+      try { const src = await lerImagem(f, 1400); const bgAuto = await corDoCanto(src); setImgs((l) => [...l, { id: Math.random().toString(36).slice(2), src, nome: f.name, qtd: 1, ...AJ_PADRAO, bg: bgAuto, bgAuto }]); }
       catch { toast.error(`Não foi possível ler ${f.name}`); }
     }
   };
@@ -117,9 +120,7 @@ export default function BottonsPage() {
                       <button type="button" aria-label="Remover" onClick={() => setImgs((l) => l.filter((i) => i.id !== im.id))}><MdDeleteOutline size={18} /></button>
                     </div>
                     <label className="flex items-center gap-2">Quantidade <input type="number" min={0} max={1000} value={im.qtd} onChange={(e) => alt(im.id, { qtd: Math.max(0, Number(e.target.value) || 0) })} className="w-16 rounded-lg border border-[#D8CBA8] px-2 py-1" /></label>
-                    <label className="grid grid-cols-[48px_1fr] items-center gap-1">Zoom<input type="range" min={1} max={3} step={0.02} value={im.zoom} onChange={(e) => alt(im.id, { zoom: Number(e.target.value) })} /></label>
-                    <label className="grid grid-cols-[48px_1fr] items-center gap-1">Horiz.<input type="range" min={-100} max={100} value={im.x} onChange={(e) => alt(im.id, { x: Number(e.target.value) })} /></label>
-                    <label className="grid grid-cols-[48px_1fr] items-center gap-1">Vert.<input type="range" min={-100} max={100} value={im.y} onChange={(e) => alt(im.id, { y: Number(e.target.value) })} /></label>
+                    <ControlesImagem a={{ ...AJ_PADRAO, ...im }} bgAuto={im.bgAuto} mudar={(p) => alt(im.id, p)} />
                   </div>
                 </li>
               ))}
@@ -129,6 +130,7 @@ export default function BottonsPage() {
 
         <div className="flex flex-col gap-4 min-w-0">
           <Painel titulo="🖨️ Botton e folha">
+            <BotaoPadrao onClick={() => { bottonsCfg.resetar(); setImgs((l) => l.map((i) => ({ ...i, ...AJ_PADRAO, bg: i.bgAuto || "" }))); toast.success("Medidas padrão restauradas"); }} />
             <div className="grid gap-3 sm:grid-cols-3">
               <Campo rotulo="Diâmetro do botton (mm)">
                 <select className={entrada} value={DIAMETROS.includes(cfg.diametro) ? cfg.diametro : "x"} onChange={(e) => e.target.value !== "x" && set({ diametro: Number(e.target.value) })}>
@@ -156,7 +158,7 @@ export default function BottonsPage() {
             <p className="text-[11px] text-[#8B6A1F]">Imprima em escala 100% (sem “ajustar à página”). Recorte no círculo de corte; o tracejado mostra o que ficará visível no botton.</p>
           </Painel>
 
-          <Painel titulo="👀 Pré-visualização">
+          <Painel titulo="👀 Pré-visualização" cls="pre-fixa">
             {lista.length > 0 && L.porFolha > 0 ? (
               <>
                 <select className="self-start rounded-lg border border-[#D8CBA8] bg-white px-2 py-1 text-xs" value={fp} onChange={(e) => setFolha(Number(e.target.value))}>
