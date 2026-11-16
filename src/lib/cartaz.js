@@ -40,7 +40,7 @@ export function splitPreco(v) {
 // Mede o texto com a fonte real (canvas) para o cartaz nunca estourar a caixa.
 let ctxMedida = null;
 const cache = new Map();
-function emLargura(txt, fonte) {
+export function emLargura(txt, fonte) {
   const k = `${fonte}|${txt}`;
   if (cache.has(k)) return cache.get(k);
   try {
