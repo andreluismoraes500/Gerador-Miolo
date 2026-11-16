@@ -24,6 +24,37 @@ function Visual({ s }) {
   );
 }
 
+// Campo numérico que aceita digitar livremente (inclusive "-" e valores parciais) e só aplica números válidos.
+function NumCampo({ valor, onChange, min, max, largura = "w-20" }) {
+  const [txt, setTxt] = useState(String(valor));
+  const ref = useRef(null);
+  useEffect(() => { if (document.activeElement !== ref.current) setTxt(String(Math.round(valor * 10) / 10)); }, [valor]);
+  return (
+    <input
+      ref={ref}
+      type="text"
+      inputMode="decimal"
+      value={txt}
+      className={`${largura} rounded-lg border border-[#D8CBA8] bg-white px-2 py-1 text-sm text-center`}
+      onChange={(e) => { setTxt(e.target.value); const n = Number(e.target.value.replace(",", ".")); if (e.target.value.trim() !== "" && Number.isFinite(n)) onChange(Math.min(max, Math.max(min, n))); }}
+      onBlur={() => setTxt(String(Math.round(valor * 10) / 10))}
+      onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); e.stopPropagation(); }}
+    />
+  );
+}
+
+// Prévia do sticker selecionado dentro do próprio painel: gira na hora, sem precisar olhar a página.
+function PreviaSticker({ s }) {
+  const larg = s.tipo === "washi" ? s.tam * 3 : s.tam, alt = s.tipo === "washi" ? s.tam * 0.6 : s.tam;
+  const k = Math.min(1, 92 / (Math.max(larg, alt) * 3.78));
+  return (
+    <div className="relative shrink-0 grid place-items-center rounded-xl border border-[#D8CBA8] overflow-hidden" style={{ width: 120, height: 120, background: "repeating-conic-gradient(#f3efe4 0% 25%, #fff 0% 50%) 50% / 14px 14px" }} aria-label="Prévia do sticker">
+      <div style={{ transform: `rotate(${s.rot}deg) scale(${k})`, transformOrigin: "center", transition: "transform .12s" }}><Visual s={s} /></div>
+      <span className="absolute top-0.5 left-1/2 -translate-x-1/2 text-[9px] text-[#8B6A1F]">▲ topo</span>
+    </div>
+  );
+}
+
 // Camada de stickers de UMA página (fica dentro do .page-break).
 function StickerLayer({ pagina }) {
   const { itens } = stickersDados.useStore();
@@ -197,11 +228,11 @@ export function PainelStickers({ talonario = false, prefixo = "" }) {
   const total = () => document.querySelectorAll(".print-container > .page-break").length;
 
   return (
-    <div className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-col gap-3 sticky top-16 z-30 shadow-md max-h-[42vh] overflow-auto">
+    <div style={{ top: "calc(var(--cab-h, 64px) + 8px)" }} className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-col gap-3 sticky z-30 shadow-md max-h-[46vh] overflow-auto">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="text-sm font-bold text-[#24344D]">🎨 Stickers — escolha um e clique {talonario ? "no talão" : "na página"}</h3>
-          <p className="text-[11px] text-[#8B6A1F]">{talonario ? "Valem para todas as vias desta aba. " : ""}Arraste para mover. Selecione para ajustar tamanho e giro. Delete remove.</p>
+          <p className="text-[11px] text-[#8B6A1F]">{talonario ? "Valem para todas as vias desta aba. " : ""}Arraste para mover. Selecione para ajustar tamanho e giro (digite os graus ao lado, ex.: 90 ou 180). Delete remove.</p>
         </div>
         <button type="button" onClick={() => stickersUi.set({ editando: false, armado: null, sel: null })} className="bg-[#24344D] text-[#F6F1E7] text-xs font-semibold py-2 px-4 rounded-lg">
           Concluir
@@ -245,24 +276,38 @@ export function PainelStickers({ talonario = false, prefixo = "" }) {
       </div>
 
       {atual && (
-        <div className="flex flex-wrap items-center gap-4 border-t border-[#D8CBA8]/70 pt-3 text-xs text-[#24344D]">
-          <label className="flex items-center gap-2">
-            Tamanho
-            <input type="range" min="5" max="90" value={atual.tam} onChange={(e) => atualizar(atual.id, { tam: Number(e.target.value) })} />
-          </label>
-          <label className="flex items-center gap-2">
-            Giro
-            <input type="range" min="-180" max="180" value={atual.rot} onChange={(e) => atualizar(atual.id, { rot: Number(e.target.value) })} />
-          </label>
-          <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => stickersUi.set({ sel: adicionar({ ...atual, id: undefined, x: Math.min(95, atual.x + 4), y: Math.min(95, atual.y + 4) }) })}>
-            Duplicar
-          </button>
-          {!talonario && <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => { repetirEmTodas(atual.id, prefixo ? [...document.querySelectorAll(".print-container > .page-break")].map((el) => el.dataset.stkey) : total()); toast.success("Repetido em todas as páginas"); }}>
-            Repetir em todas as páginas
-          </button>}
-          <button type="button" className="border border-[#8B2E3F]/40 text-[#8B2E3F] rounded-lg px-2.5 py-1 bg-white" onClick={() => remover(atual.id)}>
-            Excluir
-          </button>
+        <div className="flex flex-wrap items-start gap-4 border-t border-[#D8CBA8]/70 pt-3 text-xs text-[#24344D]">
+          <PreviaSticker s={atual} />
+          <div className="flex flex-col gap-2 min-w-[260px] flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-semibold">Giro</span>
+              <NumCampo valor={atual.rot} min={-360} max={360} onChange={(n) => atualizar(atual.id, { rot: n })} />
+              <span>graus</span>
+              {[0, 90, 180, 270, -90].map((g) => (
+                <button key={g} type="button" onClick={() => atualizar(atual.id, { rot: g })} className={`rounded-lg border px-2 py-1 ${atual.rot === g ? "border-[#24344D] bg-[#24344D] text-white" : "border-[#D8CBA8] bg-white"}`}>{g}°</button>
+              ))}
+              <button type="button" onClick={() => atualizar(atual.id, { rot: atual.rot - 15 })} className="rounded-lg border border-[#D8CBA8] bg-white px-2 py-1" title="Girar 15° para a esquerda">↺ 15°</button>
+              <button type="button" onClick={() => atualizar(atual.id, { rot: atual.rot + 15 })} className="rounded-lg border border-[#D8CBA8] bg-white px-2 py-1" title="Girar 15° para a direita">↻ 15°</button>
+            </div>
+            <input type="range" min="-180" max="180" value={Math.max(-180, Math.min(180, atual.rot))} onChange={(e) => atualizar(atual.id, { rot: Number(e.target.value) })} aria-label="Giro" />
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-semibold">Tamanho</span>
+              <NumCampo valor={atual.tam} min={5} max={150} onChange={(n) => atualizar(atual.id, { tam: n })} largura="w-16" />
+              <span>mm</span>
+              <input type="range" min="5" max="90" value={Math.min(90, atual.tam)} onChange={(e) => atualizar(atual.id, { tam: Number(e.target.value) })} aria-label="Tamanho" className="flex-1 min-w-[100px]" />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => stickersUi.set({ sel: adicionar({ ...atual, id: undefined, x: Math.min(95, atual.x + 4), y: Math.min(95, atual.y + 4) }) })}>
+                Duplicar
+              </button>
+              {!talonario && <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => { repetirEmTodas(atual.id, prefixo ? [...document.querySelectorAll(".print-container > .page-break")].map((el) => el.dataset.stkey) : total()); toast.success("Repetido em todas as páginas"); }}>
+                Repetir em todas as páginas
+              </button>}
+              <button type="button" className="border border-[#8B2E3F]/40 text-[#8B2E3F] rounded-lg px-2.5 py-1 bg-white" onClick={() => remover(atual.id)}>
+                Excluir
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
