@@ -27,6 +27,10 @@ export const FORMATOS = [
     dica: "Folha A4 deitada. Para frente e verso, vire pela borda CURTA (como página de livro). Depois corte ao meio nas linhas tracejadas.",
   },
   {
+    id: "2dup", nome: "2 iguais por folha — mesma página A5 repetida (corte ao meio)", folha: [297, 210], cols: 2, rows: 1, dup: true,
+    dica: "Folha A4 deitada: a página 1 sai 2 vezes na frente e a página 2 sai 2 vezes no verso (3 e 4 na folha seguinte…). Vire pela borda CURTA e corte na linha do meio: você obtém 2 folhas A5 idênticas (frente = página ímpar, verso = par).",
+  },
+  {
     id: "4up", nome: "4 por folha — páginas A6 em folha A4", folha: [210, 297], cols: 2, rows: 2,
     dica: "Folha A4 em pé. Para frente e verso, vire pela borda LONGA. Depois corte nas linhas tracejadas.",
   },
@@ -42,6 +46,13 @@ function montarFolhas(n, f) {
   const folhas = [];
   if (k === 1) {
     for (let i = 0; i < n; i += 1) folhas.push({ lado: i % 2 === 0 ? "frente" : "verso", cells: [i] });
+    return folhas;
+  }
+  if (f.dup) {
+    for (let i = 0; i < n; i += 2) {
+      folhas.push({ lado: "frente", cells: [i, i] });
+      folhas.push({ lado: "verso", cells: [i + 1 < n ? i + 1 : null, i + 1 < n ? i + 1 : null] });
+    }
     return folhas;
   }
   const grupo = k * 2; // páginas por papel (frente + verso)
@@ -116,7 +127,7 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
       if (idx !== null) {
         const pg = paginas[idx];
         pg.style.zoom = String(Math.min(sx, sy));
-        cel.appendChild(pg);
+        cel.appendChild(f.dup && c > 0 ? pg.cloneNode(true) : pg);
       }
       el.appendChild(cel);
     });

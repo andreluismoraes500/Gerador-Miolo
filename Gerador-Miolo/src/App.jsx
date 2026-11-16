@@ -1,0 +1,59 @@
+// src/App.jsx
+//
+// Ponto de entrada das rotas. O estado da agenda (useAgendaSettings /
+// useAgendaBuilder) vive em AppLayout e é repassado às páginas via
+// <Outlet context /> — assim nada se perde ao navegar entre elas.
+
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import AppLayout from "./layout/AppLayout";
+import ImprimirPdfPage from "./pages/ImprimirPdfPage";
+import CartaoVisitaPage from "./pages/CartaoVisitaPage";
+import BottonsPage from "./pages/BottonsPage";
+import CalendarioPage from "./pages/CalendarioPage";
+import MockupAgendaPage from "./pages/MockupAgendaPage";
+import CartazesPage from "./pages/CartazesPage";
+import AdesivosPage from "./pages/AdesivosPage";
+import TemplatesPage from "./pages/TemplatesPage";
+import ConfigPage from "./pages/ConfigPage";
+import PreviewPage from "./pages/PreviewPage";
+import TalonarioPage from "./pages/TalonarioPage";
+import SobrePage from "./pages/SobrePage";
+import { AgendaConfigProvider } from "./context/AgendaConfigContext";
+import { AgendaDataProvider } from "./context/AgendaDataContext";
+import { BusinessProfileProvider } from "./context/BusinessProfileContext";
+
+export default function App() {
+  return (
+    <AgendaConfigProvider>
+      <AgendaDataProvider>
+        <BusinessProfileProvider initialProfileId="default">
+          <BrowserRouter>
+            <Routes>
+              <Route element={<AppLayout />}>
+                <Route index element={<Navigate to="/templates" replace />} />
+                <Route path="templates" element={<TemplatesPage />} />
+                <Route path="config" element={<ConfigPage />} />
+                <Route path="preview" element={<PreviewPage />} />
+                {/* Talonário agora vive dentro do layout principal do app,
+                    compartilhando cabeçalho, navegação e (crucialmente) o
+                    print.css global — antes ele ficava fora do AppLayout e,
+                    ao ser acessado direto, carregava sem Tailwind/CSS de
+                    impressão nenhum. */}
+                <Route path="talonario" element={<TalonarioPage />} />
+                <Route path="imprimir-pdf" element={<ImprimirPdfPage />} />
+                <Route path="cartao-de-visita" element={<CartaoVisitaPage />} />
+                <Route path="bottons" element={<BottonsPage />} />
+                <Route path="calendarios" element={<CalendarioPage />} />
+                <Route path="mockup-agenda" element={<MockupAgendaPage />} />
+                <Route path="cartazes" element={<CartazesPage />} />
+                <Route path="adesivos" element={<AdesivosPage />} />
+                <Route path="sobre" element={<SobrePage />} />
+                <Route path="*" element={<Navigate to="/templates" replace />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </BusinessProfileProvider>
+      </AgendaDataProvider>
+    </AgendaConfigProvider>
+  );
+}
