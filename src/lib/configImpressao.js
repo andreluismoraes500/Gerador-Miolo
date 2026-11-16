@@ -85,7 +85,7 @@ function montarFolhas(n, f) {
 
 // Prepara o DOM para a impressão (A4/A5/A6, N por folha, só frente/verso).
 // Devolve uma função que desfaz tudo.
-export function prepararImpressao({ lados = "ambos", formato = "a4", compensar = true } = {}) {
+export function prepararImpressao({ lados = "ambos", formato = "a4", compensar = true, paisagem = false } = {}) {
   const cont = document.querySelector(".print-container");
   const limpar = () => delete document.body.dataset.ladosImpressao;
   document.body.dataset.ladosImpressao = lados;
@@ -97,7 +97,7 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
   });
 
   const f = FORMATOS.find((x) => x.id === formato) || FORMATOS[0];
-  const simples = f.id === "a4" && lados === "ambos";
+  const simples = f.id === "a4" && lados === "ambos" && !paisagem;
   if (simples) {
     return () => {
       paginas.forEach((el) => delete el.dataset.lado);
@@ -105,11 +105,18 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
     };
   }
 
-  const [fw, fh] = f.folha;
-  const cw = fw / f.cols;
-  const ch = fh / f.rows;
-  const sx = cw / 210;
-  const sy = ch / 297;
+  // Páginas deitadas (297×210): a folha gira (A4 em pé com 2 páginas empilhadas, etc.)
+  const [fw, fh] = paisagem ? [f.folha[1], f.folha[0]] : f.folha;
+  const cols = paisagem ? f.rows : f.cols;
+  const rows = paisagem ? f.cols : f.rows;
+  const pw = paisagem ? 297 : 210;
+  const ph = paisagem ? 210 : 297;
+  const cw = fw / cols;
+  const ch = fh / rows;
+  const sx = cw / pw;
+  const sy = ch / ph;
+  const internos = paisagem ? paginas.map((el) => [el.querySelector(".pdf-pagina"), el.querySelector(".pdf-pagina")?.getAttribute("style")]) : [];
+  internos.forEach(([el]) => { if (el) { el.style.width = "297mm"; el.style.height = "210mm"; } });
 
   let folhas = montarFolhas(paginas.length, f);
   if (lados === "frente") folhas = folhas.filter((x) => x.lado === "frente");
@@ -125,9 +132,14 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
   const reforco = compensar && z < 1 ? 1 + (1 - z) * 0.85 : 1;
   const fonteExtra = reforco > 1 ? cssFonte(Math.round((fonteCfg.get().escala / 100) * reforco * 100), ".folha .printable-page") : "";
   const pagina = document.createElement("style");
+  const tamPag = paisagem ? `@media print { body .folha .celula .page-break { width: 297mm !important; height: 210mm !important; overflow: visible !important; } }\n` : "";
   const semCal = formato === "4up" ? "@media print { .mini-cal { display: none !important; } }\n" : "";
-  pagina.textContent = `${fonteExtra}\n${semCal}`+`@media print { @page { size: ${fw}mm ${fh}mm; margin: 0; } html, body, #root, .print-container { width: ${fw}mm !important; min-width: ${fw}mm !important; max-width: none !important; height: auto !important; margin: 0 !important; padding: 0 !important; } .folha { margin: 0 !important; } }`;
+  pagina.textContent = `${fonteExtra}\n${semCal}${tamPag}`+`@media print { @page { size: ${fw}mm ${fh}mm; margin: 0; } html, body, #root, .print-container { width: ${fw}mm !important; min-width: ${fw}mm !important; max-width: none !important; height: auto !important; margin: 0 !important; padding: 0 !important; } .folha { margin: 0 !important; } }`;
   document.head.appendChild(pagina);
+  // o contêiner da página pode ter respiro (padding) na tela: zera para a 1ª folha não descer
+  const pai = cont.parentElement;
+  const paiStyle = pai ? pai.getAttribute("style") : null;
+  if (pai) { pai.style.padding = "0"; pai.style.margin = "0"; pai.style.maxWidth = "none"; pai.style.gap = "0"; }
 
   const novas = folhas.map((fo) => {
     const el = document.createElement("div");
@@ -136,7 +148,7 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
     fo.cells.forEach((idx, c) => {
       const cel = document.createElement("div");
       cel.className = "celula";
-      cel.style.cssText = `left:${(c % f.cols) * cw}mm;top:${Math.floor(c / f.cols) * ch}mm;width:${cw}mm;height:${ch}mm;`;
+      cel.style.cssText = `left:${(c % cols) * cw}mm;top:${Math.floor(c / cols) * ch}mm;width:${cw}mm;height:${ch}mm;`;
       if (idx !== null) {
         const pg = paginas[idx];
         pg.style.zoom = String(Math.min(sx, sy));
@@ -144,13 +156,13 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
       }
       el.appendChild(cel);
     });
-    if (f.cols > 1) {
+    if (cols > 1) {
       const g = document.createElement("div");
       g.className = "guia";
       g.style.cssText = `left:${cw}mm;top:0;bottom:0;border-left-width:0.25mm;`;
       el.appendChild(g);
     }
-    if (f.rows > 1) {
+    if (rows > 1) {
       const g = document.createElement("div");
       g.className = "guia";
       g.style.cssText = `top:${ch}mm;left:0;right:0;border-top-width:0.25mm;`;
@@ -172,6 +184,8 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
       else el.setAttribute("style", st);
       delete el.dataset.lado;
     });
+    internos.forEach(([el, st]) => { if (!el) return; if (st === null || st === undefined) el.removeAttribute("style"); else el.setAttribute("style", st); });
+    if (pai) { if (paiStyle === null) pai.removeAttribute("style"); else pai.setAttribute("style", paiStyle); }
     pagina.remove();
     limpar();
   };

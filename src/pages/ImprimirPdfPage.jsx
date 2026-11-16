@@ -68,11 +68,14 @@ export default function ImprimirPdfPage() {
   const escolhidas = parseIntervalo(intervalo, total).filter((i) => paginas[i]);
   const f = FORMATOS.find((x) => x.id === formato) || FORMATOS[0];
   const porFolha = f.cols * f.rows;
+  const deitado = !girar && !!paginas[escolhidas[0]] && paginas[escolhidas[0]].larg > paginas[escolhidas[0]].alt;
   const folhas = Math.ceil(escolhidas.length / porFolha);
 
   const imprimir = () => {
     if (!escolhidas.length) return toast.error("Nenhuma página selecionada.");
-    const restaurar = prepararImpressao(impressao.get());
+    const primeira = paginas[escolhidas[0]];
+    const paisagem = !girar && !!primeira && primeira.larg > primeira.alt;
+    const restaurar = prepararImpressao({ ...impressao.get(), paisagem });
     window.print();
     restaurar();
   };
@@ -108,6 +111,7 @@ export default function ImprimirPdfPage() {
                 </select>
               </label>
               <label className="flex items-center gap-1.5"><input type="checkbox" checked={girar} onChange={(e) => setGirar(e.target.checked)} />Girar páginas deitadas (paisagem)</label>
+              {deitado && <span className="text-[11px] text-[#8B6A1F]">Modo paisagem: a folha é montada em pé com as páginas deitadas empilhadas (2 por folha A4). Vire pela borda curta.</span>}
             </div>
             <div className="border-t border-[#D8CBA8]/70 pt-3 flex flex-col gap-3">
               <b>🎨 Fundo da página</b>
@@ -157,8 +161,8 @@ export default function ImprimirPdfPage() {
               const p = paginas[i];
               const fora = !escolhidas.includes(i);
               return (
-                <div key={i} className={`relative bg-white border border-[#D8CBA8] rounded-md overflow-hidden ${fora ? "opacity-30" : ""}`} style={{ width: 130, height: 184 }}>
-                  {p ? <div style={{ zoom: 130 / 794 }}><PdfFolha p={p} cfg={cfg} bgImg={bgImg} marcaImg={marcaImg} ajuste={ajuste} girar={girar} /></div> : <span className="text-[10px] text-gray-400">…</span>}
+                <div key={i} className={`relative bg-white border border-[#D8CBA8] rounded-md overflow-hidden ${fora ? "opacity-30" : ""}`} style={{ width: deitado ? 184 : 130, height: deitado ? 130 : 184 }}>
+                  {p ? <div style={{ zoom: (deitado ? 184 : 130) / (deitado ? 1123 : 794) }} className={deitado ? "pdf-deitada" : ""}><PdfFolha p={p} cfg={cfg} bgImg={bgImg} marcaImg={marcaImg} ajuste={ajuste} girar={girar} /></div> : <span className="text-[10px] text-gray-400">…</span>}
                   <span className="absolute bottom-0 right-0 bg-[#24344D]/80 text-white text-[9px] px-1.5 rounded-tl">{i + 1}</span>
                 </div>
               );

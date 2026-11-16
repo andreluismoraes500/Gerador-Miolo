@@ -386,3 +386,6 @@ body.sticker-editando .sticker-host::after {
   .pre-fixa { position: sticky; top: calc(var(--cab-h, 64px) + 8px); max-height: calc(100vh - var(--cab-h, 64px) - 16px); overflow: auto; align-self: start; }
 }
 @media print { .pre-fixa { position: static !important; max-height: none !important; overflow: visible !important; } }
+
+/* Miniatura de página deitada (paisagem sem girar) */
+.pdf-deitada .pdf-pagina { width: 297mm; height: 210mm; }
