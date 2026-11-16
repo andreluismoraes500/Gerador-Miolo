@@ -1,0 +1,61 @@
+# 📅 Miolos de Agenda
+
+Gerador de miolos personalizáveis para agendas, com múltiplos layouts e temas visuais. Ideal para gráficas, designers e criadores que desejam produzir agendas sob medida com aparência profissional.
+
+![Preview](./public/preview.png) _(adicione uma imagem se desejar)_
+
+---
+
+## ✨ Funcionalidades
+
+- **7 modelos de páginas**:
+  - **Diário** – página diária com horários (7h às 20h) e campos para cliente, serviço e formas de pagamento.
+  - **Semanal** – visão da semana com espaços para anotações por dia e prioridades.
+  - **Lista de Tarefas** – checklist com até 14 itens, prioridades críticas e rastreador de hábitos.
+  - **Dados Pessoais** – campos para informações pessoais, profissionais e de emergência.
+  - **Mensal Completo** – um dia por página para todo o mês (impressão consecutiva).
+  - **Anual Completo** – todos os dias do ano (365 páginas) prontos para encadernação.
+  - **Calendários** – visão geral dos 12 meses com feriados e datas comemorativas, com páginas para 3 anos consecutivos.
+
+- **Temas visuais** – altere a aparência de **todas as páginas** de uma vez com um único clique:
+  - Clássico, Floral, Comercial, Moderno, Rústico e mais (você pode criar quantos quiser). Bingo
+
+- **Pré-visualização em tempo real** – veja as alterações antes de imprimir.
+
+- **Geração de PDF / Impressão**:
+  - Páginas formatadas para **A4 portrait**.
+  - Margens assimétricas (espelhadas) para encadernação com **Wire-O**.
+  - Quebra de página automática para múltiplas páginas (mensal, anual, calendários).
+
+- **Personalização do rodapé** – substitua o nome padrão pelo seu ou o da sua marca.
+
+- **Feriados e datas comemorativas** – feriados nacionais fixos e móveis (Carnaval, Páscoa, Corpus Christi) são destacados automaticamente.
+
+---
+
+## 🚀 Tecnologias
+
+- [React](https://react.dev/) + [Vite](https://vitejs.dev/)
+- [Tailwind CSS](https://tailwindcss.com/) – estilização utilitária
+- [React Icons](https://react-icons.github.io/react-icons/) – ícones elegantes
+- CSS puro para ajustes de impressão
+
+---
+
+## 📦 Instalação e Execução
+
+---
+
+## 🛠️ Desenvolvimento
+
+```bash
+npm install
+npm run dev      # servidor local em http://localhost:5173
+npm run lint     # ESLint (config na raiz)
+npm test         # Vitest (utilitários de agenda e geração de bingo)
+npm run build    # build de produção em dist/
+```
+
+- Projeto 100% front-end: o PDF é gerado pelo navegador (`window.print()` → "Salvar como PDF").
+- Copie `.env.example` para `.env` para configurar a chave PIX (`VITE_PIX_KEY`) e o QR Code em `public/pix.png` é opcional (sem ele, só a chave PIX é exibida).
+- Chaves de data de campos editáveis usam a data **local** (`formatLocalDate`), evitando deslocamento de fuso.
