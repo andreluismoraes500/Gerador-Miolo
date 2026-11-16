@@ -411,7 +411,7 @@ export function CaligrafiaCapaPage(rest) {
         <div className="relative z-10">
           {rest.logo && <Logo src={rest.logo} className="h-16 mb-8 mx-auto" />}
 
-          <p className="text-xs uppercase tracking-[0.35em] text-gray-400 mb-3">
+          <p className="text-[12pt] uppercase tracking-[0.25em] text-gray-400 mb-3">
             Vamos aprender a escrever brincando!
           </p>
 
@@ -427,25 +427,25 @@ export function CaligrafiaCapaPage(rest) {
           </h1>
 
           <p
-            className="text-sm text-gray-500 mb-6"
+            className="text-[12pt] text-gray-500 mb-6"
             style={{ fontFamily: FONTE_INFANTIL }}
           >
             Letrinhas, números e muita diversão de A a Z ✨
           </p>
 
-          <div className="w-56 mx-auto mb-2">
-            <span className="text-[10px] uppercase tracking-widest text-gray-400">
+          <div className="w-72 mx-auto mb-2">
+            <span className="text-[12pt] uppercase tracking-widest text-gray-400">
               Nome do(a) aluno(a)
             </span>
             <EditableField
               fieldKey="caligrafia-nome-aluno"
-              className="w-full min-h-8 border-b-2 text-center text-sm py-1"
+              className="w-full min-h-8 border-b-2 text-center text-[14pt] py-1"
               style={{ borderColor: primaryColor, fontFamily: FONTE_INFANTIL }}
               placeholder=""
             />
           </div>
 
-          <p className="text-xs text-gray-500 mt-8 max-w-xs mx-auto leading-relaxed">
+          <p className="text-[12pt] text-gray-500 mt-8 max-w-sm mx-auto leading-relaxed">
             Trace as letrinhas esmaecidas com atenção ao formato e depois
             continue sozinho(a) até o final da linha.
           </p>

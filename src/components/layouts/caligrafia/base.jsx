@@ -250,7 +250,7 @@ export function TituloColorido({ texto, tamanho = "10.5mm", inicio = 0 }) {
 function Campo({ rotulo, peso = 1, cor }) {
   return (
     <div className="flex items-end gap-1.5" style={{ flex: peso }}>
-      <span className="text-[15px] font-bold shrink-0" style={{ color: cor }}>
+      <span className="text-[14pt] font-bold shrink-0" style={{ color: cor }}>
         {rotulo}:
       </span>
       <span className="flex-1 border-b" style={{ borderColor: "#64748b", height: "7mm" }} />
@@ -287,7 +287,7 @@ export function Cabecalho({ titulo, selo, faixa, logo, primaryColor, dados = tru
         </div>
         {selo && (
           <span
-            className="text-[10px] font-bold rounded-full px-3 py-1 shrink-0"
+            className="font-bold rounded-full px-3 py-1 shrink-0 text-[12pt]"
             style={{ backgroundColor: primaryColor, color: "#fff", fontFamily: FONTE_INFANTIL }}
           >
             {selo}
@@ -297,7 +297,7 @@ export function Cabecalho({ titulo, selo, faixa, logo, primaryColor, dados = tru
       {faixa && (
         <div className="flex justify-center">
           <span
-            className="px-8 py-1 rounded-md text-[13px] font-bold"
+            className="px-8 py-1 rounded-md text-[14pt] font-bold"
             style={{
               backgroundColor: "#dbeafe",
               border: "1.5px dashed #93c5fd",
@@ -319,15 +319,15 @@ export function Secao({ n, children, cor, dica }) {
   return (
     <div className="flex items-center gap-2 shrink-0 mt-1.5 mb-1" style={{ fontFamily: FONTE_INFANTIL }}>
       <span
-        className="flex items-center justify-center rounded-full text-white text-[11px] font-bold shrink-0"
-        style={{ width: "5.5mm", height: "5.5mm", backgroundColor: c }}
+        className="flex items-center justify-center rounded-full text-white text-[12pt] font-bold shrink-0"
+        style={{ width: "7.5mm", height: "7.5mm", backgroundColor: c }}
       >
         {n}
       </span>
-      <span className="text-[11px] font-bold" style={{ color: AZUL_ESCURO }}>
+      <span className="text-[13pt] font-bold" style={{ color: AZUL_ESCURO }}>
         {children}
       </span>
-      {dica && <span className="text-[9px] text-gray-400 ml-auto">{dica}</span>}
+      {dica && <span className="text-[10pt] text-gray-400 ml-auto">{dica}</span>}
     </div>
   );
 }
