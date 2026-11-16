@@ -31,6 +31,10 @@ export const FORMATOS = [
     dica: "Folha A4 deitada: a página 1 sai 2 vezes na frente e a página 2 sai 2 vezes no verso (3 e 4 na folha seguinte…). Vire pela borda CURTA e corte na linha do meio: você obtém 2 folhas A5 idênticas (frente = página ímpar, verso = par).",
   },
   {
+    id: "livro", nome: "Brochura — caderno dobrado (A5 em folhas A4)", folha: [297, 210], cols: 2, rows: 1, livro: true,
+    dica: "Páginas na ordem de caderno: imprima frente e verso virando pela borda CURTA, empilhe as folhas na ordem, dobre ao meio (a linha tracejada é a dobra) e grampeie/costure na dobra. O total de páginas é completado com brancas até múltiplo de 4.",
+  },
+  {
     id: "4up", nome: "4 por folha — páginas A6 em folha A4", folha: [210, 297], cols: 2, rows: 2,
     dica: "Folha A4 em pé. Para frente e verso, vire pela borda LONGA. Depois corte nas linhas tracejadas.",
   },
@@ -46,6 +50,15 @@ function montarFolhas(n, f) {
   const folhas = [];
   if (k === 1) {
     for (let i = 0; i < n; i += 1) folhas.push({ lado: i % 2 === 0 ? "frente" : "verso", cells: [i] });
+    return folhas;
+  }
+  if (f.livro) {
+    const N = Math.ceil(n / 4) * 4;
+    const o = (p) => (p - 1 < n ? p - 1 : null); // p = número da página (1..N)
+    for (let k = 1; k <= N / 4; k += 1) {
+      folhas.push({ lado: "frente", cells: [o(N - 2 * k + 2), o(2 * k - 1)] });
+      folhas.push({ lado: "verso", cells: [o(2 * k), o(N - 2 * k + 1)] });
+    }
     return folhas;
   }
   if (f.dup) {
