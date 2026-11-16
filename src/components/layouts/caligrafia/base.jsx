@@ -59,7 +59,11 @@ function caminhoPontos(letra, cx, base, fs) {
   const v = PONTOS_CURSIVA[letra];
   const ox = cx - (ADV_CURSIVA[letra] * fs) / 2;
   let d = "";
-  for (let k = 0; k < v.length; k += 2) {
+  // pontos mais espaçados (1 a cada 3 amostras), sempre mantendo o último
+  const n = v.length / 2;
+  for (let i = 0; i < n; i += 1) {
+    if (i % 3 !== 0 && i !== n - 1) continue;
+    const k = i * 2;
     d += `M${(ox + (v[k] * fs) / 1000).toFixed(2)} ${(base + (v[k + 1] * fs) / 1000).toFixed(2)}h0`;
   }
   return d;
@@ -117,12 +121,12 @@ function Glifo({ t, x, y, fs, modo, cor, fonte, peso }) {
     const k = fs / 12.5;
     if (modo === "tracejado")
       return (
-        <path d={d} fill="none" stroke="#334155" strokeWidth={0.36 * k} strokeLinecap="round" />
+        <path d={d} fill="none" stroke="#334155" strokeWidth={0.6 * k} strokeLinecap="round" />
       );
     return (
       <g>
         <path d={d} fill="none" stroke="#e5e9f1" strokeWidth={1.7 * k} strokeLinecap="round" />
-        <path d={d} fill="none" stroke="#111827" strokeWidth={0.42 * k} strokeLinecap="round" />
+        <path d={d} fill="none" stroke="#111827" strokeWidth={0.72 * k} strokeLinecap="round" />
       </g>
     );
   }
@@ -143,7 +147,7 @@ function Glifo({ t, x, y, fs, modo, cor, fonte, peso }) {
         {t}
       </text>
       {modo === "tracejado" ? (
-        <text {...base} fill="none" stroke="#374151" strokeWidth="0.18" strokeDasharray="0.8 0.6">
+        <text {...base} fill="none" stroke="#374151" strokeWidth="0.3" strokeDasharray="0.5 1.6">
           {t}
         </text>
       ) : (
@@ -151,8 +155,8 @@ function Glifo({ t, x, y, fs, modo, cor, fonte, peso }) {
           {...base}
           fill="none"
           stroke="#111827"
-          strokeWidth="0.32"
-          strokeDasharray="0 0.75"
+          strokeWidth="0.55"
+          strokeDasharray="0 1.9"
           strokeLinecap="round"
         >
           {t}
@@ -246,10 +250,10 @@ export function TituloColorido({ texto, tamanho = "10.5mm", inicio = 0 }) {
 function Campo({ rotulo, peso = 1, cor }) {
   return (
     <div className="flex items-end gap-1.5" style={{ flex: peso }}>
-      <span className="text-[10px] font-bold shrink-0" style={{ color: cor }}>
+      <span className="text-[15px] font-bold shrink-0" style={{ color: cor }}>
         {rotulo}:
       </span>
-      <span className="flex-1 border-b" style={{ borderColor: "#64748b", height: "4mm" }} />
+      <span className="flex-1 border-b" style={{ borderColor: "#64748b", height: "7mm" }} />
     </div>
   );
 }
@@ -257,7 +261,7 @@ function Campo({ rotulo, peso = 1, cor }) {
 export function CaixaDados({ cor = AZUL_ESCURO }) {
   return (
     <div
-      className="rounded-2xl border-2 px-4 py-2 shrink-0 flex flex-col gap-1.5"
+      className="rounded-2xl border-2 px-4 py-2 shrink-0 flex flex-col gap-2"
       style={{ borderColor: "#93c5fd", fontFamily: FONTE_INFANTIL }}
     >
       <div className="flex gap-6">

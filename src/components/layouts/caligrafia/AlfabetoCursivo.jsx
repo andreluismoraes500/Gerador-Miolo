@@ -23,8 +23,8 @@ import {
 } from "./base";
 
 const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const FS = 12; // mm — tamanho do corpo da letra na pauta
-const ALTURA_LINHA = 23.5; // mm
+const FS = 14; // mm — tamanho do corpo da letra na pauta
+const ALTURA_LINHA = 26; // mm
 
 // Lista de páginas: A, a, B, b, ...
 export const PAGINAS_ALFABETO_CURSIVO = [...ALFABETO].flatMap((letra) => [
