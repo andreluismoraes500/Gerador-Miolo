@@ -13,6 +13,7 @@ import CalendarioPage from "./pages/CalendarioPage";
 import MockupAgendaPage from "./pages/MockupAgendaPage";
 import CartazesPage from "./pages/CartazesPage";
 import AdesivosPage from "./pages/AdesivosPage";
+import CapasPage from "./pages/CapasPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import ConfigPage from "./pages/ConfigPage";
 import PreviewPage from "./pages/PreviewPage";
@@ -47,6 +48,7 @@ export default function App() {
                 <Route path="mockup-agenda" element={<MockupAgendaPage />} />
                 <Route path="cartazes" element={<CartazesPage />} />
                 <Route path="adesivos" element={<AdesivosPage />} />
+                <Route path="capas" element={<CapasPage />} />
                 <Route path="sobre" element={<SobrePage />} />
                 <Route path="*" element={<Navigate to="/templates" replace />} />
               </Route>

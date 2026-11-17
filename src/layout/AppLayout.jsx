@@ -10,7 +10,7 @@ import { cssFonte, fonteCfg } from "../lib/configFonte";
 import { LadosImpressao } from "../components/OpcoesImpressao";
 import { useEffect, useRef } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdPictureAsPdf, MdBadge, MdRadioButtonChecked, MdCalendarMonth, MdAutoStories, MdLocalOffer, MdSell } from "react-icons/md";
+import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdPictureAsPdf, MdBadge, MdRadioButtonChecked, MdCalendarMonth, MdAutoStories, MdLocalOffer, MdSell, MdMenuBook } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -34,6 +34,7 @@ const NAV_ITEMS = [
   { to: "/mockup-agenda", label: "Mockup agenda", icon: MdAutoStories },
   { to: "/cartazes", label: "Cartazes", icon: MdLocalOffer },
   { to: "/adesivos", label: "Adesivos", icon: MdSell },
+  { to: "/capas", label: "Capas", icon: MdMenuBook },
   { to: "/sobre", label: "Sobre", icon: MdFavorite },
 ];
 
@@ -51,7 +52,7 @@ export default function AppLayout() {
     return () => st.remove();
   }, [escalaFonte]);
 
-  const rotaPropria = ["/talonario", "/sobre", "/imprimir-pdf", "/cartao-de-visita", "/bottons", "/calendarios", "/mockup-agenda", "/cartazes", "/adesivos"].includes(location.pathname);
+  const rotaPropria = ["/talonario", "/sobre", "/imprimir-pdf", "/cartao-de-visita", "/bottons", "/calendarios", "/mockup-agenda", "/cartazes", "/adesivos", "/capas"].includes(location.pathname);
   const headerRef = useRef(null);
   const mainRef = useRef(null);
 
