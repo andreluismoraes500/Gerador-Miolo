@@ -19,6 +19,7 @@ import { fonteCfg } from "../lib/configFonte";
 import { logoCfg, LOGO_PADRAO } from "../lib/logoCfg";
 import CapaLayout from "../components/layouts/CapaLayout";
 import { capaCfg, CAPA_PADRAO, FONTES_CAPA } from "../lib/capaCfg";
+import { rodapeCfg } from "../lib/rodapeCfg";
 import { fundoCfg, FUNDO_PADRAO, estiloFundo } from "../lib/fundoCfg";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 
@@ -224,6 +225,25 @@ function CapaAjuste({ settings }) {
         </div>
         <button type="button" onClick={() => set({ ...CAPA_PADRAO })} className="self-start text-xs text-[#8B6A1F] underline">↺ Restaurar padrão da capa</button>
       </div>
+    </div>
+  );
+}
+
+// Opções do rodapé: crédito (só no bíblico) e tamanho das letras
+function RodapeAjuste({ footerType }) {
+  const c = rodapeCfg.useStore();
+  return (
+    <div className="mt-3 flex flex-col gap-2.5">
+      {footerType === "biblical" && (
+        <label className="flex items-center gap-2 text-xs text-[#24344D]">
+          <input type="checkbox" checked={c.mostrarCredito} onChange={(e) => rodapeCfg.set({ mostrarCredito: e.target.checked })} />
+          Mostrar “Desenho de Miolo por: nome” abaixo do versículo
+        </label>
+      )}
+      <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
+        <span className="flex justify-between"><span>Tamanho das letras do rodapé</span><span className="text-[#24344D]">{c.tamanho}%</span></span>
+        <input type="range" min={70} max={300} step={5} value={c.tamanho} onChange={(e) => rodapeCfg.set({ tamanho: Number(e.target.value) })} />
+      </label>
     </div>
   );
 }
@@ -779,6 +799,7 @@ export default function ConfigPage() {
                   </button>
                 ))}
               </div>
+              <RodapeAjuste footerType={footerType} />
             </div>
 
             <div className="pt-2 border-t border-[#D8CBA8]/50">

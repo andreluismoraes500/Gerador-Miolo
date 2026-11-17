@@ -3,6 +3,7 @@ import { DEFAULT_FOOTER_NAME } from "../config/appInfo";
 import { TEMAS } from "../themes";
 import { BUSINESS_PROFILES } from "../config/businessProfiles";
 import { getVersiculoAleatorio } from "../utils/versiculos";
+import { rodapeCfg } from "../lib/rodapeCfg";
 
 export default function Footer({
   name,
@@ -12,6 +13,8 @@ export default function Footer({
   fontFamily = "sans-serif",
   hidden = false,
 }) {
+  const rc = rodapeCfg.useStore();
+  const zoom = (Number(rc.tamanho) || 100) / 100;
   const temaBase = TEMAS[colorTheme] || TEMAS.classico;
   const perfil = BUSINESS_PROFILES[colorTheme] || BUSINESS_PROFILES.default;
 
@@ -30,24 +33,24 @@ export default function Footer({
 
   if (type === "biblical") {
     return (
-      <div className="w-full mt-4 pt-2 border-t border-gray-300 flex flex-col items-center text-[9px] tracking-wide font-serif italic print:mt-2">
+      <div className="w-full mt-4 pt-2 border-t border-gray-300 flex flex-col items-center text-[9px] tracking-wide font-serif italic print:mt-2" style={{ zoom }}>
         <p className={`text-center max-w-[80%]`} style={{ color: styleColor }}>
           {versiculo}
         </p>
-        <p
+        {rc.mostrarCredito && <p
           className={`text-[8px] uppercase tracking-widest font-sans mt-1`}
           style={{
             color: customColors.primary || temaBase.accent || "#9ca3af",
           }}
         >
           Desenho de Miolo por: {displayName}
-        </p>
+        </p>}
       </div>
     );
   }
 
   return (
-    <div className="w-full mt-4 pt-2 border-t border-gray-300 flex justify-between items-center text-[9px] tracking-widest uppercase font-mono print:mt-2">
+    <div className="w-full mt-4 pt-2 border-t border-gray-300 flex justify-between items-center text-[9px] tracking-widest uppercase font-mono print:mt-2" style={{ zoom }}>
       <p className="text-gray-400">
         <span className={`font-semibold`} style={{ color: styleColor }}>
           {displayName}
