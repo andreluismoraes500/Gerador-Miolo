@@ -20,6 +20,8 @@ export const agendaAnualCfg = criarStore("agenda-anual-cfg", {
   diasPorPagina: 1, // 1 ou 2 (clássica / pop)
   horaIni: 7,
   horaFim: 19,
+  escalaTexto: 100,
+  escalaCal: 115,
   mesesContinuos: false,
   anotacoesMes: true,
   dados: true,
@@ -70,7 +72,7 @@ export const cabecalhoSemana = (inicio) => Array.from({ length: 7 }, (_, i) => I
 
 export function mapaFeriados(ano) {
   const m = {};
-  feriadosDoAno(ano).forEach((f) => { m[`${f.mes}-${f.dia}`] = f.nome; });
+  feriadosDoAno(ano).forEach((f) => { m[`${f.mes + 1}-${f.dia}`] = f.nome; });
   return m;
 }
 

@@ -4,6 +4,7 @@ import Background from "../Background";
 import { TEMAS } from "../../themes";
 import { getCapaEstiloById } from "../../config/capaStyles.jsx";
 import { getJapaneseInitial } from "../../utils/japaneseInitials";
+import { capaCfg } from "../../lib/capaCfg";
 
 export default function CapaLayout({
   capaNome = "",
@@ -21,6 +22,7 @@ export default function CapaLayout({
   selectedDate,
   capaFrase,
 }) {
+  const cc = capaCfg.useStore();
   const tema = TEMAS[colorTheme] || TEMAS.classico;
   const bgColor = customColors.background || "#ffffff";
   const primaryColor = customColors.primary || tema.text || "#000000";
@@ -47,7 +49,13 @@ export default function CapaLayout({
 
       <div className="flex-1 flex items-center justify-center p-12 relative overflow-visible">
         {estilo.extra && estilo.extra()}
-        <div className={estilo.container}>
+        <div
+          className={estilo.container}
+          style={{
+            transform: `translate(${cc.x}mm, ${cc.y}mm)`,
+            ...(cc.alinh === "esq" ? { alignItems: "flex-start", textAlign: "left" } : cc.alinh === "dir" ? { alignItems: "flex-end", textAlign: "right" } : cc.alinh === "centro" ? { alignItems: "center", textAlign: "center" } : {}),
+          }}
+        >
           {logo && <Logo src={logo} className="h-16 mb-8 z-10" />}
 
           {capaEstilo === "destaque" && (
@@ -86,7 +94,7 @@ export default function CapaLayout({
 
               <p
                 className="absolute -top-4 left-0 right-0 mx-auto text-sm tracking-[0.3em] uppercase z-10"
-                style={{ color: secondaryColor }} // Texto "AGENDA" usa a cor secundária
+                style={{ color: secondaryColor, zoom: cc.tamAno / 100, fontFamily: cc.fonte || undefined }} // Texto "AGENDA" usa a cor secundária
               >
                 {ano}
               </p>
@@ -95,7 +103,7 @@ export default function CapaLayout({
 
           <h1
             className={estilo.nomeClasse}
-            style={{ color: secondaryColor }} // Título do Nome usa a cor secundária
+            style={{ color: cc.corNome || secondaryColor, zoom: cc.tamNome / 100, fontFamily: cc.fonte || undefined }}
           >
             {capaNome || "Seu Nome Aqui"}
           </h1>
@@ -108,15 +116,15 @@ export default function CapaLayout({
           )}
 
           {capaEstilo !== "destaque" && (
-            <p className={estilo.subClasse} style={{ color: secondaryColor }}>
+            <p className={estilo.subClasse} style={{ color: secondaryColor, zoom: cc.tamAno / 100, fontFamily: cc.fonte || undefined }}>
               {ano}
             </p>
           )}
 
           {capaFrase && (
             <p
-              className={`${estilo.subClasse} mt-24`}
-              style={{ color: secondaryColor }}
+              className={estilo.subClasse}
+              style={{ color: secondaryColor, zoom: cc.tamFrase / 100, fontFamily: cc.fonte || undefined, marginTop: `${24 * 4 / 3.78 + cc.espaco}mm` }}
             >
               {capaFrase}
             </p>

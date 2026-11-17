@@ -17,6 +17,8 @@ import { TEMAS } from "../themes";
 import { getCapaEstiloOptions } from "../config/capaStyles.jsx";
 import { fonteCfg } from "../lib/configFonte";
 import { logoCfg, LOGO_PADRAO } from "../lib/logoCfg";
+import CapaLayout from "../components/layouts/CapaLayout";
+import { capaCfg, CAPA_PADRAO, FONTES_CAPA } from "../lib/capaCfg";
 import { fundoCfg, FUNDO_PADRAO, estiloFundo } from "../lib/fundoCfg";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 
@@ -172,6 +174,60 @@ const inputCls =
   "border border-[#D8CBA8] rounded-lg px-3 py-2 text-sm bg-[#FBF8F1] font-medium focus:ring-2 focus:ring-[#B8933D]/40 focus:border-[#B8933D] focus:outline-none transition";
 
 
+// Fonte, tamanho e posição dos textos da capa, com prévia da capa inteira
+function CapaAjuste({ settings }) {
+  const c = capaCfg.useStore();
+  const set = (o) => capaCfg.set(o);
+  const range = (rotulo, k, min, max, un) => (
+    <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
+      <span className="flex justify-between"><span>{rotulo}</span><span className="text-[#24344D]">{c[k]}{un}</span></span>
+      <input type="range" min={min} max={max} value={c[k]} onChange={(e) => set({ [k]: Number(e.target.value) })} />
+    </label>
+  );
+  const alin = [["padrao", "Padrão"], ["esq", "Esquerda"], ["centro", "Centro"], ["dir", "Direita"]];
+  return (
+    <div className="mt-4 flex flex-col sm:flex-row gap-4 border-t border-[#E7DCC0] pt-4">
+      <div className="shrink-0">
+        <p className="text-[10px] uppercase tracking-wider text-[#8B6A1F] font-bold mb-1">Prévia da capa</p>
+        <p className="text-[10px] text-[#6B6458] mb-1 max-w-[200px]">Modelos com capa própria (ex.: Agenda Anual) usam os mesmos ajustes — veja em Visualização.</p>
+        <div className="bg-white border border-[#D8CBA8] shadow overflow-hidden relative" style={{ width: 210 * 0.95, height: 297 * 0.95 }}>
+          <div className="amostra-pg" style={{ transform: "scale(0.251)", transformOrigin: "top left", width: "210mm", display: "block" }}>
+            <div className="page-break"><CapaLayout {...settings} printing={false} /></div>
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 flex flex-col gap-3 min-w-[220px]">
+        <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
+          Fonte das letras
+          <select className="rounded-lg border border-[#D8CBA8] bg-[#FBF8F1] px-2 py-1.5 text-sm" value={c.fonte} onChange={(e) => set({ fonte: e.target.value })} style={{ fontFamily: c.fonte || undefined }}>
+            {FONTES_CAPA.map(([v, n]) => <option key={n} value={v} style={{ fontFamily: v || undefined }}>{n}</option>)}
+          </select>
+        </label>
+        <div className="grid grid-cols-3 gap-3">
+          {range("Tamanho do nome", "tamNome", 40, 220, "%")}
+          {range("Tamanho do ano", "tamAno", 40, 220, "%")}
+          {range("Tamanho da frase", "tamFrase", 40, 220, "%")}
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {range("Mover ← →", "x", -80, 80, " mm")}
+          {range("Mover ↑ ↓", "y", -120, 120, " mm")}
+          {range("Espaço da frase", "espaco", -20, 60, " mm")}
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-semibold text-[#6B6458] mr-1">Alinhamento</span>
+          {alin.map(([id, n]) => (
+            <button key={id} type="button" onClick={() => set({ alinh: id })} className={`text-xs px-3 py-1 rounded-full border ${c.alinh === id ? "bg-[#24344D] text-white border-[#24344D]" : "bg-[#FBF8F1] text-[#24344D] border-[#D8CBA8]"}`}>{n}</button>
+          ))}
+          <label className="ml-3 flex items-center gap-1.5 text-[11px] font-semibold text-[#6B6458]">Cor do nome
+            <input type="color" value={c.corNome || "#374151"} onChange={(e) => set({ corNome: e.target.value })} />
+          </label>
+        </div>
+        <button type="button" onClick={() => set({ ...CAPA_PADRAO })} className="self-start text-xs text-[#8B6A1F] underline">↺ Restaurar padrão da capa</button>
+      </div>
+    </div>
+  );
+}
+
 // Tamanho/posição da imagem de fundo, com prévia da página inteira
 function FundoAjuste({ src, opacidade }) {
   const c = fundoCfg.useStore();
@@ -265,6 +321,7 @@ export default function ConfigPage() {
     footerName,
   } = settings;
 
+  const cfgCtx = useAgendaConfig();
   const { escala: escalaFonte } = fonteCfg.useStore();
   const {
     colorTheme,
@@ -948,6 +1005,7 @@ export default function ConfigPage() {
             </select>
           </div>
         </div>
+        <CapaAjuste settings={{ ...settings, ...cfgCtx }} />
       </SectionCard>
 
       {/* Navegação */}
