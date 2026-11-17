@@ -11,6 +11,7 @@
 import { partiturasCfg } from "../lib/configPartituras";
 import { devocionalCfg } from "../lib/configDevocional";
 import { agendaAnualCfg } from "../lib/configAgendaAnual";
+import { paginasAmostra } from "../lib/amostraPaginas";
 import React, { useEffect, useState, useRef } from "react";
 import { TEMPLATE_MANIFEST } from "../templates/manifest";
 import { preloadTemplates, getCachedTemplate } from "../templates";
@@ -246,8 +247,13 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
                 {def.nome}
               </span>
             </div>
-            <div className="agenda-preview-container">
-              {def.layout({ ...baseLayoutProps, printing: false })}
+            <div className="amostra-pg">
+              {(() => {
+                const am = paginasAmostra(def, baseLayoutProps, 3);
+                return am.length > 0
+                  ? am.map((pg, i) => React.cloneElement(pg, { key: i }))
+                  : def.layout({ ...baseLayoutProps, printing: false });
+              })()}
             </div>
           </div>
         );

@@ -16,6 +16,7 @@ import { toast } from "react-hot-toast";
 import { TEMAS } from "../themes";
 import { getCapaEstiloOptions } from "../config/capaStyles.jsx";
 import { fonteCfg } from "../lib/configFonte";
+import { logoCfg, LOGO_PADRAO } from "../lib/logoCfg";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 
 const FONT_OPTIONS = [
@@ -168,6 +169,40 @@ function SectionCard({ title, description, icon: Icon, children }) {
 
 const inputCls =
   "border border-[#D8CBA8] rounded-lg px-3 py-2 text-sm bg-[#FBF8F1] font-medium focus:ring-2 focus:ring-[#B8933D]/40 focus:border-[#B8933D] focus:outline-none transition";
+
+
+// Ajuste do tamanho do logo com prévia do cabeçalho da página (escala real, A4 reduzido)
+function LogoAjuste({ logo }) {
+  const c = logoCfg.useStore();
+  const num = (rotulo, k, min, max, un) => (
+    <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
+      <span className="flex justify-between"><span>{rotulo}</span><span className="text-[#24344D]">{c[k]}{un}</span></span>
+      <input type="range" min={min} max={max} value={c[k]} onChange={(e) => logoCfg.set({ [k]: Number(e.target.value) })} />
+    </label>
+  );
+  return (
+    <div className="mt-3 flex flex-col gap-3">
+      <div className="rounded-lg border border-[#D8CBA8] bg-[#E9E2D0] p-3 overflow-hidden">
+        <p className="text-[10px] uppercase tracking-wider text-[#8B6A1F] font-bold mb-2">Prévia do topo da página (A4)</p>
+        <div className="mx-auto bg-white shadow overflow-hidden relative" style={{ width: 210 * 1.4, height: 70 * 1.4 }}>
+          <div style={{ width: 210 + "mm", transform: "scale(0.37)", transformOrigin: "top left", padding: "15mm 12mm 0 22mm", boxSizing: "border-box" }}>
+            <div className="flex items-start justify-between border-b border-gray-300 pb-2">
+              <img src={logo} alt="" style={{ height: "8.5mm", width: "auto", objectFit: "contain", zoom: c.escala / 100, maxWidth: c.larguraMax + "mm", maxHeight: c.alturaMax + "mm" }} />
+              <span className="text-[11pt] text-gray-500">Título da página</span>
+            </div>
+            <div className="mt-3 h-3 bg-gray-100 rounded" /><div className="mt-2 h-3 bg-gray-100 rounded w-3/4" />
+          </div>
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-3 gap-3">
+        {num("Tamanho", "escala", 40, 300, "%")}
+        {num("Largura máxima", "larguraMax", 15, 120, " mm")}
+        {num("Altura máxima", "alturaMax", 8, 50, " mm")}
+      </div>
+      <button type="button" onClick={() => logoCfg.set({ ...LOGO_PADRAO })} className="self-start text-xs text-[#8B6A1F] underline">↺ Restaurar tamanho padrão</button>
+    </div>
+  );
+}
 
 export default function ConfigPage() {
   const { settings } = useOutletContext();
@@ -719,6 +754,7 @@ export default function ConfigPage() {
               </>
             )}
           </div>
+          {logo && <LogoAjuste logo={logo} />}
         </SectionCard>
 
         {/* Marca d'água */}

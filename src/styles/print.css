@@ -389,3 +389,42 @@ body.sticker-editando .sticker-host::after {
 
 /* Miniatura de página deitada (paisagem sem girar) */
 .pdf-deitada .pdf-pagina { width: 297mm; height: 210mm; }
+
+/* Prévia real na tela (primeiras páginas, como na impressão) */
+
+.amostra-pg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+.amostra-pg .page-break {
+  position: relative;
+  display: block;
+  width: 210mm;
+  height: 297mm;
+  flex: none;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+.amostra-pg .printable-page {
+  width: 210mm !important;
+  height: 297mm !important;
+  max-width: 210mm !important;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  padding-top: 15mm;
+  padding-bottom: 12mm;
+}
+.amostra-pg .page-break:nth-child(odd) .printable-page {
+  padding-left: 22mm;
+  padding-right: 12mm;
+}
+.amostra-pg .page-break:nth-child(even) .printable-page {
+  padding-left: 12mm;
+  padding-right: 22mm;
+}
