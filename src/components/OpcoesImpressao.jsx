@@ -234,6 +234,17 @@ export function AgendaAnualOpcoes() {
         {dia && num("horaIni", 0, 12, "Hora inicial")}
         {dia && num("horaFim", 12, 23, "Hora final")}
       </div>
+      <div className="flex flex-wrap items-end gap-6">
+        <label className="flex flex-col gap-1 min-w-48">
+          <span className="flex justify-between"><span>Tamanho das letras</span><b>{c.escalaTexto}%</b></span>
+          <input type="range" min={70} max={160} step={5} value={c.escalaTexto} onChange={(e) => agendaAnualCfg.set({ escalaTexto: Number(e.target.value) })} />
+        </label>
+        <label className="flex flex-col gap-1 min-w-48">
+          <span className="flex justify-between"><span>Tamanho dos calendários do ano</span><b>{c.escalaCal}%</b></span>
+          <input type="range" min={80} max={130} step={5} value={c.escalaCal} onChange={(e) => agendaAnualCfg.set({ escalaCal: Number(e.target.value) })} />
+        </label>
+        <button type="button" onClick={() => agendaAnualCfg.set({ escalaTexto: 100, escalaCal: 115 })} className="text-xs text-[#8B6A1F] underline pb-1">↺ Restaurar</button>
+      </div>
       <div className="flex flex-wrap items-center gap-4">
         {dia && chk("mesesContinuos", "Meses contínuos")}
         {dia && chk("anotacoesMes", "Anotações a cada mês")}

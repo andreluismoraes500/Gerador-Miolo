@@ -1,6 +1,9 @@
 // Agenda Anual Completa — Clássica, Pop Color e Planner. Todas as datas,
 // dias da semana, semanas e feriados vêm do ano escolhido.
 import Footer from "../Footer";
+import Logo from "../Logo";
+import { agendaAnualCfg } from "../../lib/configAgendaAnual";
+import { capaCfg } from "../../lib/capaCfg";
 import Watermark from "../Watermark";
 import Background from "../Background";
 import {
@@ -9,6 +12,11 @@ import {
 } from "../../lib/configAgendaAnual";
 
 const TXT = "#3a3a46";
+// Escala do texto (configurável): multiplica os tamanhos de fonte em mm de todas as páginas.
+const fs = (v) => {
+  const k = Math.max(0.5, (Number(agendaAnualCfg.get().escalaTexto) || 100) / 100);
+  return `${+(parseFloat(v) * k).toFixed(2)}mm`;
+};
 
 function Shell({ children, cfg, props, pad = "10mm", fundo }) {
   const { fontFamily, watermarkSrc, watermarkOpacity, backgroundSrc, backgroundOpacity, footerName, footerType, colorTheme, customColors = {}, footerHidden } = props;
@@ -28,7 +36,7 @@ function Shell({ children, cfg, props, pad = "10mm", fundo }) {
 const Titulo = ({ cfg, children, sub, tam = "9mm" }) => (
   <div className="shrink-0 text-center" style={{ marginBottom: "5mm" }}>
     <h2 className="leading-none" style={{ fontFamily: cfg.fonteTitulo, color: cfg.cor, fontSize: tam }}>{children}</h2>
-    {sub && <div style={{ fontSize: "3mm", color: "#888", marginTop: "1.5mm", letterSpacing: "0.3mm" }}>{sub}</div>}
+    {sub && <div style={{ fontSize: fs("3mm"), color: "#888", marginTop: "1.5mm", letterSpacing: "0.3mm" }}>{sub}</div>}
     <div style={{ height: "0.6mm", width: "26mm", background: mix(cfg.cor, 0.45), margin: "3mm auto 0", borderRadius: "1mm" }} />
   </div>
 );
@@ -45,13 +53,13 @@ const Pontilhado = ({ cor = "#c9c9d3" }) => (
 );
 const Caixa = ({ cfg, titulo, children, flex, style }) => (
   <div className={flex ? "flex flex-col flex-1 min-h-0" : "flex flex-col"} style={{ border: `0.3mm solid ${mix(cfg.cor, 0.35)}`, borderRadius: "2.5mm", overflow: "hidden", ...style }}>
-    {titulo && <div style={{ background: mix(cfg.cor, 0.78), color: TXT, fontWeight: 700, fontSize: "3.2mm", padding: "1.4mm 3mm", letterSpacing: "0.2mm" }}>{titulo}</div>}
+    {titulo && <div style={{ background: mix(cfg.cor, 0.78), color: TXT, fontWeight: 700, fontSize: fs("3.2mm"), padding: "1.4mm 3mm", letterSpacing: "0.2mm" }}>{titulo}</div>}
     <div className="flex flex-col flex-1 min-h-0" style={{ padding: "1.5mm 3mm" }}>{children}</div>
   </div>
 );
 const Campo = ({ rotulo, cfg, w }) => (
   <div style={{ display: "flex", alignItems: "flex-end", gap: "2mm", height: "8mm", width: w, borderBottom: `0.25mm solid ${mix(cfg.cor, 0.3)}` }}>
-    <span style={{ fontSize: "3mm", color: "#666", whiteSpace: "nowrap" }}>{rotulo}</span>
+    <span style={{ fontSize: fs("3mm"), color: "#666", whiteSpace: "nowrap" }}>{rotulo}</span>
   </div>
 );
 
@@ -60,8 +68,8 @@ function MiniMes({ ano, mes, cfg, destaque, tam = "2.6mm", feriados }) {
   const cel = celulasMes(ano, mes, cfg.semanaComeca);
   const cab = cabecalhoSemana(cfg.semanaComeca);
   return (
-    <div style={{ fontSize: tam, lineHeight: 1.25 }}>
-      <div style={{ fontWeight: 700, color: cfg.cor, marginBottom: "0.8mm", fontSize: `calc(${tam} * 1.15)` }}>{MESES_PT[mes]}</div>
+    <div style={{ fontSize: fs(tam), lineHeight: 1.25 }}>
+      <div style={{ fontWeight: 700, color: cfg.cor, marginBottom: "0.8mm", fontSize: fs(`${parseFloat(tam) * 1.15}mm`) }}>{MESES_PT[mes]}</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center", gap: "0.2mm" }}>
         {cab.map((c, i) => <span key={`h${i}`} style={{ color: "#999", fontWeight: 700 }}>{c}</span>)}
         {cel.map((d, i) => {
@@ -82,6 +90,10 @@ function MiniMes({ ano, mes, cfg, destaque, tam = "2.6mm", feriados }) {
 
 /* ---------- Páginas fixas ---------- */
 function Capa({ cfg, props }) {
+  const cc = capaCfg.useStore();
+  const { capaNome, capaFrase, logo } = props;
+  const fam = cc.fonte || undefined;
+  const alin = cc.alinh === "esq" ? "left" : cc.alinh === "dir" ? "right" : "center";
   const pop = cfg.estilo === "pop";
   const cores = [cfg.cor, mix(cfg.cor, 0.35), mix(cfg.cor, 0.65)];
   return (
@@ -91,14 +103,15 @@ function Capa({ cfg, props }) {
         <div style={{ position: "absolute", top: "40mm", right: "30mm", width: "60mm", height: "60mm", borderRadius: pop ? "12mm" : "50%", background: cores[1], opacity: 0.8, transform: pop ? "rotate(18deg)" : "none" }} />
         <div style={{ position: "absolute", bottom: "-25mm", left: "-25mm", width: "100mm", height: "100mm", borderRadius: "50%", background: cores[2], opacity: 0.9 }} />
         <div style={{ position: "absolute", bottom: "50mm", left: "25mm", width: "28mm", height: "28mm", borderRadius: pop ? "6mm" : "50%", background: cores[0], opacity: 0.5, transform: pop ? "rotate(-12deg)" : "none" }} />
-        <div style={{ position: "absolute", left: 0, right: 0, top: "98mm", textAlign: "center" }}>
-          <div style={{ fontFamily: cfg.fonteTitulo, fontSize: "30mm", lineHeight: 1, color: "#2a2a35" }}>{cfg.ano}</div>
-          <div style={{ fontSize: "7mm", letterSpacing: "2.5mm", color: "#2a2a35", marginTop: "5mm" }}>{cfg.estilo === "planner" ? "PLANNER" : "AGENDA"}</div>
-          <div style={{ fontSize: "3.4mm", color: "#555", marginTop: "3mm", letterSpacing: "0.6mm" }}>{cfg.estilo === "classica" ? "COM HORÁRIO" : cfg.estilo === "pop" ? "POP COLOR" : "DATADO · SEMANAL E MENSAL"}</div>
+        <div style={{ position: "absolute", left: "12mm", right: "12mm", top: "98mm", textAlign: alin, transform: `translate(${cc.x}mm, ${cc.y}mm)` }}>
+          {logo && <div style={{ display: "flex", justifyContent: alin === "left" ? "flex-start" : alin === "right" ? "flex-end" : "center", marginBottom: "6mm" }}><Logo src={logo} /></div>}
+          <div style={{ fontFamily: fam || cfg.fonteTitulo, fontSize: fs("30mm"), lineHeight: 1, color: "#2a2a35", zoom: cc.tamAno / 100 }}>{cfg.ano}</div>
+          <div style={{ fontFamily: fam, fontSize: fs("7mm"), letterSpacing: "2.5mm", color: cc.corNome || "#2a2a35", marginTop: "5mm", zoom: cc.tamNome / 100 }}>{(capaNome || (cfg.estilo === "planner" ? "PLANNER" : "AGENDA")).toUpperCase()}</div>
+          <div style={{ fontFamily: fam, fontSize: fs("3.4mm"), color: "#555", marginTop: `${3 + cc.espaco}mm`, letterSpacing: "0.6mm", zoom: cc.tamFrase / 100 }}>{capaFrase || (cfg.estilo === "classica" ? "COM HORÁRIO" : cfg.estilo === "pop" ? "POP COLOR" : "DATADO · SEMANAL E MENSAL")}</div>
         </div>
         <div style={{ position: "absolute", left: "30mm", right: "30mm", bottom: "30mm", textAlign: "center" }}>
           <div style={{ borderBottom: "0.3mm solid #2a2a35", height: "9mm" }} />
-          <div style={{ fontSize: "3mm", marginTop: "1.5mm" }}>Esta agenda pertence a</div>
+          <div style={{ fontSize: fs("3mm"), marginTop: "1.5mm" }}>Esta agenda pertence a</div>
         </div>
       </div>
     </Shell>
@@ -110,7 +123,7 @@ function Dados({ cfg, props }) {
   return (
     <Shell cfg={cfg} props={props}>
       <Titulo cfg={cfg}>Meus dados</Titulo>
-      <div className="flex flex-col gap-3 flex-1 min-h-0" style={{ fontSize: "3.2mm" }}>
+      <div className="flex flex-col gap-3 flex-1 min-h-0" style={{ fontSize: fs("3.2mm") }}>
         <Caixa cfg={cfg} titulo="Dados pessoais">
           {L("Nome:")}{L("Endereço:")}
           <div className="grid grid-cols-2 gap-x-4">{L("Cidade/UF:")}{L("CEP:")}{L("Telefone:")}{L("Celular:")}{L("E-mail:")}{L("Nascimento:")}{L("CPF:")}{L("RG:")}</div>
@@ -136,9 +149,9 @@ function Calendarios({ item, cfg, props }) {
     <Shell cfg={cfg} props={props}>
       <Titulo cfg={cfg} sub="Feriados nacionais e datas comemorativas em vermelho">{item.ano}</Titulo>
       <div className="grid grid-cols-3 gap-x-5 gap-y-4" style={{ marginBottom: "4mm" }}>
-        {Array.from({ length: 12 }).map((_, m) => <MiniMes key={m} ano={item.ano} mes={m} cfg={cfg} tam="2.9mm" feriados={fer} />)}
+        {Array.from({ length: 12 }).map((_, m) => <MiniMes key={m} ano={item.ano} mes={m} cfg={cfg} tam={`${2.9 * (cfg.escalaCal || 115) / 100}mm`} feriados={fer} />)}
       </div>
-      <div className="flex-1 min-h-0" style={{ columns: 3, columnGap: "5mm", fontSize: "2.5mm", lineHeight: 1.45, color: "#555" }}>
+      <div className="flex-1 min-h-0" style={{ columns: 3, columnGap: "5mm", fontSize: fs("2.5mm"), lineHeight: 1.45, color: "#555" }}>
         {lista.map((f) => (
           <div key={`${f.m}-${f.d}`} style={{ breakInside: "avoid" }}><b style={{ color: "#d6455d" }}>{dois(f.d)}/{dois(f.m)}</b> {f.nome}</div>
         ))}
@@ -178,7 +191,7 @@ function Contatos({ cfg, props }) {
       <Titulo cfg={cfg}>Contatos</Titulo>
       <div className="grid grid-cols-2 gap-3 flex-1 min-h-0" style={{ gridAutoRows: "1fr", marginBottom: "6mm" }}>
         {Array.from({ length: 10 }).map((_, i) => (
-          <Caixa key={i} cfg={cfg} flex><Linhas n={4} flex /><div style={{ fontSize: "2.4mm", color: "#aaa" }}>Nome · Telefone · E-mail</div></Caixa>
+          <Caixa key={i} cfg={cfg} flex><Linhas n={4} flex /><div style={{ fontSize: fs("2.4mm"), color: "#aaa" }}>Nome · Telefone · E-mail</div></Caixa>
         ))}
       </div>
     </Shell>
@@ -200,23 +213,23 @@ function DiaBloco({ ms, cfg, compacto }) {
   return (
     <div className="flex flex-col flex-1 min-h-0" style={{ gap: compacto ? "1.5mm" : "3mm" }}>
       <div className="shrink-0" style={{ display: "flex", alignItems: "center", gap: "3mm", background: cab, borderRadius: pop ? "3mm" : 0, padding: pop ? "1.5mm 3mm" : "0 0 1.5mm", borderBottom: pop ? "none" : `0.5mm solid ${cfg.cor}` }}>
-        <div style={{ fontFamily: cfg.fonteTitulo, fontSize: compacto ? "11mm" : "16mm", lineHeight: 1, color: dom ? "#d6455d" : cfg.cor }}>{dois(d.getDate())}</div>
+        <div style={{ fontFamily: cfg.fonteTitulo, fontSize: fs(compacto ? "11mm" : "16mm"), lineHeight: 1, color: dom ? "#d6455d" : cfg.cor }}>{dois(d.getDate())}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: compacto ? "4mm" : "5mm", color: TXT }}>{DIAS_PT[dow]}{dow > 0 && dow < 6 ? "-feira" : ""}</div>
-          <div style={{ fontSize: "2.5mm", color: "#888" }}>{DIAS_EN[dow]} · {DIAS_ES[dow]}</div>
-          {fer && <div style={{ fontSize: "2.8mm", color: "#d6455d", fontWeight: 700 }}>★ {typeof fer === "string" ? fer : fer.nome}</div>}
+          <div style={{ fontWeight: 700, fontSize: fs(compacto ? "4mm" : "5mm"), color: TXT }}>{DIAS_PT[dow]}{dow > 0 && dow < 6 ? "-feira" : ""}</div>
+          <div style={{ fontSize: fs("2.5mm"), color: "#888" }}>{DIAS_EN[dow]} · {DIAS_ES[dow]}</div>
+          {fer && <div style={{ fontSize: fs("2.8mm"), color: "#d6455d", fontWeight: 700 }}>★ {typeof fer === "string" ? fer : fer.nome}</div>}
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontWeight: 700, fontSize: compacto ? "4mm" : "5mm", color: cfg.cor, textTransform: "uppercase", letterSpacing: "0.3mm" }}>{MESES_PT[d.getMonth()]}</div>
-          <div style={{ fontSize: "2.5mm", color: "#888" }}>{MESES_EN[d.getMonth()]} · {MESES_ES[d.getMonth()]}</div>
-          <div style={{ fontSize: "2.8mm", color: "#666" }}>{String(diaDoAno(d)).padStart(3, "0")} | Semana {dois(sem)}</div>
+          <div style={{ fontWeight: 700, fontSize: fs(compacto ? "4mm" : "5mm"), color: cfg.cor, textTransform: "uppercase", letterSpacing: "0.3mm" }}>{MESES_PT[d.getMonth()]}</div>
+          <div style={{ fontSize: fs("2.5mm"), color: "#888" }}>{MESES_EN[d.getMonth()]} · {MESES_ES[d.getMonth()]}</div>
+          <div style={{ fontSize: fs("2.8mm"), color: "#666" }}>{String(diaDoAno(d)).padStart(3, "0")} | Semana {dois(sem)}</div>
         </div>
       </div>
       <div className="flex flex-1 min-h-0" style={{ gap: "3mm" }}>
         <div className="flex flex-col" style={{ flex: "1 1 64%", minWidth: 0 }}>
           {horas.map((h) => (
             <div key={h} style={{ flex: 1, display: "flex", alignItems: "flex-end", borderBottom: `0.25mm solid ${mix(cfg.cor, 0.55)}`, minHeight: 0 }}>
-              <span style={{ fontSize: "2.8mm", color: cfg.cor, fontWeight: 700, width: "9mm" }}>{dois(h)}h</span>
+              <span style={{ fontSize: fs("2.8mm"), color: cfg.cor, fontWeight: 700, width: "9mm" }}>{dois(h)}h</span>
             </div>
           ))}
         </div>
@@ -282,7 +295,7 @@ function ListaGrade({ cfg, props, titulo, sub, colunas, linhas = 14 }) {
     <Shell cfg={cfg} props={props}>
       <Titulo cfg={cfg} sub={sub}>{titulo}</Titulo>
       <div className="flex-1 min-h-0 flex flex-col" style={{ border: `0.3mm solid ${mix(cfg.cor, 0.35)}`, borderRadius: "2.5mm", overflow: "hidden", marginBottom: "6mm" }}>
-        <div style={{ display: "grid", gridTemplateColumns: colunas.map((c) => c[1]).join(" "), background: mix(cfg.cor, 0.78), fontWeight: 700, fontSize: "3mm" }}>
+        <div style={{ display: "grid", gridTemplateColumns: colunas.map((c) => c[1]).join(" "), background: mix(cfg.cor, 0.78), fontWeight: 700, fontSize: fs("3mm") }}>
           {colunas.map((c) => <div key={c[0]} style={{ padding: "1.6mm 2mm" }}>{c[0]}</div>)}
         </div>
         {Array.from({ length: linhas }).map((_, i) => (
@@ -344,14 +357,14 @@ function MesPlanejamento({ item, cfg, props }) {
     <Shell cfg={cfg} props={props}>
       <Titulo cfg={cfg} sub={String(cfg.ano)} tam="11mm">{MESES_PT[item.mes]}</Titulo>
       <div className="flex-1 min-h-0 flex flex-col" style={{ border: `0.3mm solid ${mix(cfg.cor, 0.35)}`, borderRadius: "2.5mm", overflow: "hidden" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", background: mix(cfg.cor, 0.78), textAlign: "center", fontWeight: 700, fontSize: "3mm", padding: "1.5mm 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", background: mix(cfg.cor, 0.78), textAlign: "center", fontWeight: 700, fontSize: fs("3mm"), padding: "1.5mm 0" }}>
           {cab.map((c) => <span key={c}>{c}</span>)}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gridTemplateRows: `repeat(${linhas},1fr)`, flex: 1 }}>
           {cel.map((d, i) => (
-            <div key={i} style={{ borderTop: `0.25mm solid ${mix(cfg.cor, 0.6)}`, borderLeft: i % 7 ? `0.25mm solid ${mix(cfg.cor, 0.6)}` : "none", padding: "1mm 1.5mm", fontSize: "3mm", background: d ? "transparent" : mix(cfg.cor, 0.95) }}>
+            <div key={i} style={{ borderTop: `0.25mm solid ${mix(cfg.cor, 0.6)}`, borderLeft: i % 7 ? `0.25mm solid ${mix(cfg.cor, 0.6)}` : "none", padding: "1mm 1.5mm", fontSize: fs("3mm"), background: d ? "transparent" : mix(cfg.cor, 0.95) }}>
               {d && <b style={{ color: i % 7 === 6 || fer[`${item.mes + 1}-${d}`] ? "#d6455d" : TXT }}>{d}</b>}
-              {d && fer[`${item.mes + 1}-${d}`] && <div style={{ fontSize: "1.9mm", color: "#d6455d", lineHeight: 1.1 }}>{fer[`${item.mes + 1}-${d}`]}</div>}
+              {d && fer[`${item.mes + 1}-${d}`] && <div style={{ fontSize: fs("1.9mm"), color: "#d6455d", lineHeight: 1.1 }}>{fer[`${item.mes + 1}-${d}`]}</div>}
             </div>
           ))}
         </div>
@@ -424,7 +437,7 @@ function SemanaB({ item, cfg, props }) {
           );
         })}
         <Caixa cfg={cfg} titulo="Controle de hábitos" flex>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr repeat(7, 6mm)", fontSize: "2.6mm", alignItems: "center", rowGap: "1.2mm" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr repeat(7, 6mm)", fontSize: fs("2.6mm"), alignItems: "center", rowGap: "1.2mm" }}>
             <span />{["S", "T", "Q", "Q", "S", "S", "D"].map((c, i) => <span key={i} style={{ textAlign: "center", color: "#888" }}>{c}</span>)}
             {hab.map((h) => (
               <>
