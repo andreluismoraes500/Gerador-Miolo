@@ -17,6 +17,7 @@ import { TEMAS } from "../themes";
 import { getCapaEstiloOptions } from "../config/capaStyles.jsx";
 import { fonteCfg } from "../lib/configFonte";
 import { logoCfg, LOGO_PADRAO } from "../lib/logoCfg";
+import { fundoCfg, FUNDO_PADRAO, estiloFundo } from "../lib/fundoCfg";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 
 const FONT_OPTIONS = [
@@ -170,6 +171,50 @@ function SectionCard({ title, description, icon: Icon, children }) {
 const inputCls =
   "border border-[#D8CBA8] rounded-lg px-3 py-2 text-sm bg-[#FBF8F1] font-medium focus:ring-2 focus:ring-[#B8933D]/40 focus:border-[#B8933D] focus:outline-none transition";
 
+
+// Tamanho/posição da imagem de fundo, com prévia da página inteira
+function FundoAjuste({ src, opacidade }) {
+  const c = fundoCfg.useStore();
+  const set = (o) => fundoCfg.set(o);
+  const modos = [["cobrir", "Cobrir a página"], ["inteira", "Caber inteira"], ["pct", "Tamanho personalizado"]];
+  const range = (rotulo, k, min, max, un) => (
+    <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
+      <span className="flex justify-between"><span>{rotulo}</span><span className="text-[#24344D]">{c[k]}{un}</span></span>
+      <input type="range" min={min} max={max} value={c[k]} onChange={(e) => set({ [k]: Number(e.target.value) })} />
+    </label>
+  );
+  return (
+    <div className="mt-3 flex flex-col sm:flex-row gap-4">
+      <div className="shrink-0">
+        <p className="text-[10px] uppercase tracking-wider text-[#8B6A1F] font-bold mb-1">Prévia da página</p>
+        <div className="bg-white border border-[#D8CBA8] shadow relative overflow-hidden" style={{ width: 150, height: 212 }}>
+          <div className="absolute inset-0" style={{ backgroundImage: `url(${src})`, ...estiloFundo(c), opacity: Math.min(1, opacidade * 2.2) }} />
+          <div className="absolute left-3 right-3 top-4 h-2 bg-gray-200 rounded" />
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="absolute left-3 right-3 border-t border-gray-300" style={{ top: 40 + i * 22 }} />)}
+        </div>
+      </div>
+      <div className="flex-1 flex flex-col gap-3 min-w-[200px]">
+        <div className="flex flex-wrap gap-1.5">
+          {modos.map(([id, nome]) => (
+            <button key={id} type="button" onClick={() => set({ modo: id })}
+              className={`text-xs px-3 py-1.5 rounded-full border ${c.modo === id ? "bg-[#24344D] text-white border-[#24344D]" : "bg-[#FBF8F1] text-[#24344D] border-[#D8CBA8]"}`}>{nome}</button>
+          ))}
+        </div>
+        {c.modo === "pct" && range("Tamanho (largura da imagem)", "tamanho", 10, 200, "%")}
+        {c.modo !== "cobrir" && (
+          <div className="grid grid-cols-2 gap-3">
+            {range("Posição horizontal", "x", 0, 100, "%")}
+            {range("Posição vertical", "y", 0, 100, "%")}
+          </div>
+        )}
+        {c.modo === "pct" && (
+          <label className="flex items-center gap-2 text-xs text-[#24344D]"><input type="checkbox" checked={c.repetir} onChange={(e) => set({ repetir: e.target.checked })} /> Repetir a imagem (estampa)</label>
+        )}
+        <button type="button" onClick={() => set({ ...FUNDO_PADRAO })} className="self-start text-xs text-[#8B6A1F] underline">↺ Restaurar padrão</button>
+      </div>
+    </div>
+  );
+}
 
 // Ajuste do tamanho do logo com prévia do cabeçalho da página (escala real, A4 reduzido)
 function LogoAjuste({ logo }) {
@@ -852,6 +897,7 @@ export default function ConfigPage() {
               </>
             )}
           </div>
+          {backgroundSrc && <FundoAjuste src={backgroundSrc} opacidade={backgroundOpacity} />}
         </SectionCard>
       </div>
 
