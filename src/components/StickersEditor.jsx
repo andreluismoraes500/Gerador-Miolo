@@ -56,7 +56,7 @@ function PreviaSticker({ s }) {
 }
 
 // Camada de stickers de UMA página (fica dentro do .page-break).
-function StickerLayer({ pagina }) {
+export function StickerLayer({ pagina }) {
   const { itens } = stickersDados.useStore();
   const { editando, armado, sel } = stickersUi.useStore();
   const ref = useRef(null);
