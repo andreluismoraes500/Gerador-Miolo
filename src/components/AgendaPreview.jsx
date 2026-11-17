@@ -9,6 +9,7 @@ import { agendaAnualCfg } from "../lib/configAgendaAnual";
 import React, { useEffect, useState, useRef } from "react";
 import { loadTemplate, getCachedTemplate } from "../templates";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
+import { paginasAmostra } from "../lib/amostraPaginas";
 import { usePdfReadySignal } from "../hooks/usePdfReadySignal";
 
 const AgendaPreview = React.memo(function AgendaPreview({
@@ -121,6 +122,22 @@ const AgendaPreview = React.memo(function AgendaPreview({
     capaFrase,
     setCapaFrase,
   };
+
+  if (!printing) {
+    const amostra = paginasAmostra(currentTemplate, layoutProps);
+    if (amostra.length > 0) {
+      return (
+        <div ref={containerRef} className="flex flex-col items-center gap-3 w-full">
+          <p className="text-xs text-[#6B6458] text-center">Prévia das primeiras páginas — é como sairá na impressão.</p>
+          <div className="amostra-pg">
+          {amostra.map((pg, i) => (
+            React.cloneElement(pg, { key: i })
+          ))}
+          </div>
+        </div>
+      );
+    }
+  }
 
   return (
     <div
