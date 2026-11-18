@@ -5,6 +5,7 @@ import { MdAdd, MdContentCopy, MdDeleteOutline, MdPrint, MdUploadFile, MdChevron
 import { PainelStickers } from "../components/StickersEditor";
 import CapaFolha from "../components/capas/CapaFolha";
 import { stickersDados } from "../lib/stickers";
+import { geom } from "../lib/capas";
 import { capasCfg, capasImgs, CAPA_CFG_PADRAO, FONTES_CAPA2, ITENS_PADRAO, itemImagem, itemTexto, lerCsv } from "../lib/capas";
 import { limparCacheMedida } from "../lib/cartaz";
 import { lerImagem } from "../lib/lerImagem";
@@ -50,7 +51,9 @@ export default function CapasPage() {
   const sel = Math.min(c.sel, c.itens.length - 1);
   const item = c.itens[sel];
   const setItem = (o) => set({ itens: c.itens.map((x, i) => (i === sel ? { ...x, ...o } : x)) });
-  const zoom = largPre / 793.7;
+  const F = geom(c).F;
+  const zoom = largPre / (F.w * 3.7795);
+  const girar = (o) => { if (c.orient === o) return; const [mw, mh] = [Math.min(c.placaW, c.placaH), Math.max(c.placaW, c.placaH)]; set(o === "paisagem" ? { orient: o, placaW: mh, placaH: mw } : { orient: o, placaW: mw, placaH: mh }); };
 
   const imgPara = async (file, id) => {
     try { capasImgs[id] = await lerImagem(file); forca((n) => n + 1); if (id === "fundo") set({ fundoImg: true }); }
@@ -84,7 +87,7 @@ export default function CapasPage() {
     forca((n) => n + 1);
     toast.success("Capa restaurada ao padrão.");
   };
-  const restaurar = () => { set({ placaW: 160, placaH: 220, dobra: 17.5, molde: "linhas", corMolde: CAPA_CFG_PADRAO.corMolde, moldeFrente: true, verso: "molde" }); };
+  const restaurar = () => { set({ orient: "retrato", placaW: 160, placaH: 220, dobra: 17.5, molde: "linhas", corMolde: CAPA_CFG_PADRAO.corMolde, moldeFrente: true, verso: "molde" }); };
 
   const paginas = [];
   nomes.forEach((d, n) => {
@@ -105,12 +108,12 @@ export default function CapasPage() {
       <style>{`
         .cp-print { display: none; }
         @media print {
-          @page { size: 210mm 297mm; margin: 0; }
-          html, body { width: 210mm !important; height: auto !important; }
+          @page { size: ${F.w}mm ${F.h}mm; margin: 0; }
+          html, body { width: ${F.w}mm !important; height: auto !important; }
           .cp-raiz { padding: 0 !important; margin: 0 !important; max-width: none !important; }
           .cp-tela { display: none !important; }
           .cp-print { display: block !important; }
-          .cp-print .cp-pag { page-break-after: always; break-after: page; height: 297mm; overflow: hidden; }
+          .cp-print .cp-pag { page-break-after: always; break-after: page; height: ${F.h}mm; overflow: hidden; }
           .cp-print .cp-pag:last-child { page-break-after: auto; break-after: auto; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
@@ -223,6 +226,11 @@ export default function CapasPage() {
           </Painel>
 
           <Painel titulo="✂️ Molde de corte">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-semibold text-[#24344D] mr-1">Capa</span>
+              <Chip ativo={c.orient !== "paisagem"} onClick={() => girar("retrato")}>Retrato (em pé)</Chip>
+              <Chip ativo={c.orient === "paisagem"} onClick={() => girar("paisagem")}>Paisagem (deitada)</Chip>
+            </div>
             <div className="flex flex-wrap gap-1.5">
               <Chip ativo={c.molde === "linhas"} onClick={() => set({ molde: "linhas" })}>Linhas (octógono + placa)</Chip>
               <Chip ativo={c.molde === "marcas"} onClick={() => set({ molde: "marcas" })}>Só marcas de canto</Chip>
@@ -238,7 +246,7 @@ export default function CapasPage() {
             </Campo>
             <Campo rotulo="Imprimir">
               <select className={entrada} value={c.imprimir || "tudo"} onChange={(e) => set({ imprimir: e.target.value })}>
-                <option value="tudo">Frente e verso (impressora duplex, vire pela borda longa)</option>
+                <option value="tudo">Frente e verso (impressora duplex; molde é simétrico, qualquer borda serve)</option>
                 <option value="frentes">Só as frentes</option>
                 <option value="versos">Só os versos</option>
               </select>
@@ -252,7 +260,7 @@ export default function CapasPage() {
               <Campo rotulo="Cor do molde"><input type="color" className="h-8 w-14 rounded" value={c.corMolde} onChange={(e) => set({ corMolde: e.target.value })} /></Campo>
               <button type="button" onClick={restaurar} className="inline-flex items-center gap-1 text-xs text-[#8B6A1F] underline mt-4"><MdRestartAlt /> Restaurar medidas padrão</button>
             </div>
-            <p className="text-[11px] text-[#6B6458]">Padrão: placa 160 × 220 mm (capa A5) com 17,5 mm de dobra, cantos cortados a 45°.</p>
+            <p className="text-[11px] text-[#6B6458]">Padrão: placa 160 × 220 mm (capa A5 em pé; deitada vira 220 × 160) com 17,5 mm de dobra, cantos cortados a 45°. Paisagem imprime em folha A4 deitada.</p>
           </Painel>
 
           <button type="button" onClick={imprimir} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#8B1D2C] text-white font-bold hover:bg-[#741626]"><MdPrint /> Imprimir {nomes.length} capa(s) — {paginas.length} folha(s) A4</button>
@@ -268,7 +276,7 @@ export default function CapasPage() {
             <Chip ativo={lado === "frente"} onClick={() => setLado("frente")}>Frente</Chip>
             <Chip ativo={lado === "verso"} onClick={() => setLado("verso")}>Verso</Chip>
           </div>
-          <div className="shadow-[0_6px_24px_rgba(36,52,77,0.2)] bg-white" style={{ width: largPre, height: largPre * (297 / 210) }}>
+          <div className="shadow-[0_6px_24px_rgba(36,52,77,0.2)] bg-white" style={{ width: largPre, height: largPre * (F.h / F.w) }}>
             <div style={{ zoom }}>
               <CapaFolha c={c} dados={dados} lado={lado} interativo={lado === "frente"} sel={sel} onSel={(i) => set({ sel: i })} onMover={(i, x, y) => set({ itens: capasCfg.get().itens.map((it, k) => (k === i ? { ...it, x, y } : it)) })} versao={0} onEditar={(i) => { set({ sel: i }); setTimeout(() => { txtRef.current?.focus(); txtRef.current?.select(); }, 50); }} />
             </div>

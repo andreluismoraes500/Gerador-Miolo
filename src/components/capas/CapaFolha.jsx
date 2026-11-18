@@ -48,7 +48,7 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
   };
 
   return (
-    <div data-v={versao} style={{ position: "relative", width: "210mm", height: "297mm", background: "#fff", overflow: "hidden", breakInside: "avoid" }}>
+    <div data-v={versao} style={{ position: "relative", width: `${g.F.w}mm`, height: `${g.F.h}mm`, background: "#fff", overflow: "hidden", breakInside: "avoid" }}>
       {comArte && (
         <div
           data-arte
@@ -89,7 +89,7 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
         </div>
       )}
       {molde && (
-        <svg viewBox="0 0 210 297" width="210mm" height="297mm" style={{ position: "absolute", left: 0, top: 0, pointerEvents: "none" }}>
+        <svg viewBox={`0 0 ${g.F.w} ${g.F.h}`} width={`${g.F.w}mm`} height={`${g.F.h}mm`} style={{ position: "absolute", left: 0, top: 0, pointerEvents: "none" }}>
           <Molde c={c} g={g} />
         </svg>
       )}
