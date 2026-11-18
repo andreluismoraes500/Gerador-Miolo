@@ -17,6 +17,7 @@ export default function ImprimirPdfPage() {
   const [lendo, setLendo] = useState(false);
   const [intervalo, setIntervalo] = useState("");
   const [girar, setGirar] = useState(true);
+  const [inv, setInv] = useState({}); // páginas com giro invertido manualmente
   const [ajuste, setAjuste] = useState("caber"); // caber | preencher
   const [bgImg, setBgImg] = useState(null);
   const [marcaImg, setMarcaImg] = useState(null);
@@ -162,7 +163,8 @@ export default function ImprimirPdfPage() {
               const fora = !escolhidas.includes(i);
               return (
                 <div key={i} className={`relative bg-white border border-[#D8CBA8] rounded-md overflow-hidden ${fora ? "opacity-30" : ""}`} style={{ width: deitado ? 184 : 130, height: deitado ? 130 : 184 }}>
-                  {p ? <div style={{ zoom: (deitado ? 184 : 130) / (deitado ? 1123 : 794) }} className={deitado ? "pdf-deitada" : ""}><PdfFolha p={p} cfg={cfg} bgImg={bgImg} marcaImg={marcaImg} ajuste={ajuste} girar={girar} /></div> : <span className="text-[10px] text-gray-400">…</span>}
+                  {p ? <div style={{ zoom: (deitado ? 184 : 130) / (deitado ? 1123 : 794) }} className={deitado ? "pdf-deitada" : ""}><PdfFolha p={p} cfg={cfg} bgImg={bgImg} marcaImg={marcaImg} ajuste={ajuste} girar={girar} inverter={inv[i]} /></div> : <span className="text-[10px] text-gray-400">…</span>}
+                  <button type="button" title="Girar esta página 90°" aria-label={`Girar página ${i + 1}`} onClick={() => setInv((o) => ({ ...o, [i]: !o[i] }))} className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full text-xs shadow ${inv[i] ? "bg-[#8B1D2C] text-white" : "bg-white/90 text-[#24344D] border border-[#D8CBA8]"}`}>⟳</button>
                   <span className="absolute bottom-0 right-0 bg-[#24344D]/80 text-white text-[9px] px-1.5 rounded-tl">{i + 1}</span>
                 </div>
               );
@@ -178,7 +180,7 @@ export default function ImprimirPdfPage() {
             const p = paginas[i];
             return (
               <div key={i} className="page-break" data-stkey={`pdf-${i}`}>
-                <PdfFolha p={p} cfg={cfg} bgImg={bgImg} marcaImg={marcaImg} ajuste={ajuste} girar={girar} />
+                <PdfFolha p={p} cfg={cfg} bgImg={bgImg} marcaImg={marcaImg} ajuste={ajuste} girar={girar} inverter={inv[i]} />
               </div>
             );
           })}
