@@ -21,6 +21,10 @@ export const MODELOS_CAL = {
     nome: "Ímã só com cabeçalho (calendário colado depois)", desc: "Cabeçalho com nome, logo e telefone + fundo na cor que o cliente escolher. O calendário pequeno você cola em cima.",
     tamanhos: { c55: ["55 × 100 mm (em pé)", 55, 100], c50: ["50 × 90 mm (em pé)", 50, 90], c60: ["60 × 110 mm (em pé)", 60, 110], c70: ["70 × 100 mm (em pé)", 70, 100], pers: ["Personalizado (você digita)", 55, 100] }, tam: "c55",
   },
+  minis: {
+    nome: "Mini calendários de bolso (1 mês por cartão)", desc: "Cartõezinhos coloridos, um por mês, com feriados e luas. Vários por folha A4 ou A3.",
+    tamanhos: { m45: ["45 × 65 mm (bolso)", 45, 65], m55: ["55 × 80 mm", 55, 80], m65: ["65 × 95 mm", 65, 95], m80: ["80 × 115 mm", 80, 115], m100: ["100 × 140 mm (grande)", 100, 140], q70: ["70 × 70 mm (quadrado)", 70, 70], pers: ["Personalizado (você digita)", 55, 80] }, tam: "m65",
+  },
   planner: {
     nome: "Planner mensal de mesa (desk pad)", desc: "Bloco de mesa: grade grande do mês com semanas numeradas, metas e notas.",
     tamanhos: { a4: ["A4 (297 × 210 deitado)", 297, 210], a3: ["A3 (420 × 297 deitado)", 420, 297], a5: ["A5 (210 × 148 deitado)", 210, 148] }, tam: "a4",
@@ -39,7 +43,7 @@ export const calendarioCfg = criarStore("calendario-cfg", {
   fotoPct: 50, escala: 1, margemInt: 1, anoPos: "auto", corTitulo: "", corTexto: "#2f3140", corFeriado: "#d6455d", posterFundo: false, corPagina: "", deslocX: 0, deslocY: 0, capa: true, listaFeriados: true, nomesNaGrade: true, notas: true, titulo: "Meu Calendário", subtitulo: "",
   persW: 76, persH: 76,
   cabNome: "SEU NEGÓCIO", cabLinha: "DELIVERY", cabFone: "(00) 00000-0000", cabZap: true, cabAltPct: 58, corCab: "#1f5fbf", corCabTxt: "#ffffff", corDetalhe: "#d6213a", corAreaCal: "#ffffff", guiaCal: true,
-  papel: "a4", margem: 8, espaco: 0, marcas: true, semanaNumero: false, fases: false,
+  minisCor: "variada", minisRaio: 3, minisLegenda: true, papel: "a4", margem: 8, espaco: 0, marcas: true, semanaNumero: false, fases: false,
 });
 
 // Posiciona painéis pequenos (mesa / ímã) em folhas.
@@ -66,7 +70,7 @@ export function dimensoes(cfg) {
   const m = MODELOS_CAL[cfg.modelo];
   const t = m.tamanhos[cfg.tam] || m.tamanhos[m.tam];
   let [, w, h] = t;
-  if (cfg.modelo === "cabecalho" && cfg.tam === "pers") return { w: Math.max(20, Number(cfg.persW) || 55), h: Math.max(20, Number(cfg.persH) || 100) };
+  if (["cabecalho", "minis"].includes(cfg.modelo) && cfg.tam === "pers") return { w: Math.max(20, Number(cfg.persW) || 55), h: Math.max(20, Number(cfg.persH) || 100) };
   // orientação só vale para parede e pôster (os demais já definem a posição)
   if (["parede", "poster"].includes(cfg.modelo) && cfg.orientacao === "paisagem" && h > w) [w, h] = [h, w];
   if (["parede", "poster"].includes(cfg.modelo) && cfg.orientacao === "retrato" && w > h) [w, h] = [h, w];
@@ -76,6 +80,7 @@ export function dimensoes(cfg) {
 export function montarPaginasCal(cfg) {
   const p = [];
   if (cfg.modelo === "poster" || cfg.modelo === "cabecalho") return [{ tipo: cfg.modelo }];
+  if (cfg.modelo === "minis") return Array.from({ length: 12 }, (_, m) => ({ tipo: "mini", mes: m }));
   if (cfg.capa) p.push({ tipo: "capa" });
   for (let m = 0; m < 12; m += 1) p.push({ tipo: cfg.modelo === "planner" ? "planner" : "mes", mes: m });
   return p;

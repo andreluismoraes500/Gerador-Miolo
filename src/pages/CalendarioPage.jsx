@@ -7,7 +7,7 @@ import { FONTES, PAPEIS } from "../lib/cartaoVisita";
 import { MESES_PT } from "../lib/configAgendaAnual";
 import { lerImagem } from "../lib/lerImagem";
 import BotaoPadrao from "../components/BotaoPadrao";
-import { CabecalhoIma, Capa, Foto, MesParede, PainelMesa, PlannerMes, Poster } from "../components/calendario/CalPaginas";
+import { CabecalhoIma, Capa, Foto, MesParede, MiniCartao, PainelMesa, PlannerMes, Poster } from "../components/calendario/CalPaginas";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
@@ -36,6 +36,7 @@ function Pagina({ pg, cfg: cfg0, d, fotos, aj }) {
   if (pg.tipo === "capa") pagina = <Capa cfg={cfg} w={d.w} h={d.h} foto={de("capa", "unica", 0)} ano={cfg.ano} />;
   else if (pg.tipo === "poster") pagina = <Poster cfg={cfg} w={d.w} h={d.h} foto={de("unica", 0)} />;
   else if (pg.tipo === "cabecalho") pagina = <CabecalhoIma cfg={cfg} w={d.w} h={d.h} foto={de("unica", 0)} />;
+  else if (pg.tipo === "mini") pagina = <MiniCartao ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} />;
   else if (pg.tipo === "planner") pagina = <PlannerMes ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} foto={foto(pg.mes)} />;
   else if (cfg.modelo === "mesa") pagina = <PainelMesa ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} foto={foto(pg.mes)} />;
   else pagina = <MesParede ano={cfg.ano} mes={pg.mes} cfg={cfg} w={d.w} h={d.h} foto={foto(pg.mes)} />;
@@ -62,7 +63,8 @@ export default function CalendarioPage() {
   const mod = MODELOS_CAL[cfg.modelo];
   const d = useMemo(() => dimensoes(cfg), [cfg]);
   const copias = cfg.modelo === "cabecalho";
-  const agrupa = cfg.modelo === "mesa" || copias;
+  const minis = cfg.modelo === "minis";
+  const agrupa = cfg.modelo === "mesa" || copias || minis;
   const paginas = useMemo(() => montarPaginasCal(cfg), [cfg]);
   // mesa: painéis n-up na folha; cabeçalho: n cópias por folha
   const [qtd, setQtd] = useState(1);
@@ -70,11 +72,11 @@ export default function CalendarioPage() {
   const folhas = useMemo(() => {
     if (!agrupa) return paginas.map((p) => [p]);
     if (!N?.porFolha) return [];
-    const itens = copias ? Array.from({ length: qtd }, () => paginas[0]) : paginas;
+    const itens = copias ? Array.from({ length: qtd }, () => paginas[0]) : minis ? Array.from({ length: qtd }, () => paginas).flat() : paginas;
     const f = [];
     for (let i = 0; i < itens.length; i += N.porFolha) f.push(itens.slice(i, i + N.porFolha));
     return f;
-  }, [agrupa, N, paginas, qtd, copias]);
+  }, [agrupa, N, paginas, qtd, copias, minis]);
   const W = agrupa ? N?.W || 210 : d.w, H = agrupa ? N?.H || 297 : d.h;
   const fp = Math.min(sel, Math.max(folhas.length - 1, 0));
 
@@ -135,7 +137,7 @@ export default function CalendarioPage() {
               {cfg.modelo !== "cabecalho" && <Campo rotulo="Ano"><input type="number" min={1900} max={2200} className={entrada} value={cfg.ano} onChange={(e) => set({ ano: Math.min(2200, Math.max(1900, Number(e.target.value) || cfg.ano)) })} /></Campo>}
               {cfg.modelo !== "cabecalho" && <Campo rotulo="Semana começa em"><select className={entrada} value={cfg.semanaComeca} onChange={(e) => set({ semanaComeca: Number(e.target.value) })}><option value={0}>Domingo</option><option value={1}>Segunda</option></select></Campo>}
               <Campo rotulo="Tamanho"><select className={entrada} value={cfg.tam} onChange={(e) => set({ tam: e.target.value })}>{Object.entries(mod.tamanhos).map(([k, v]) => <option key={k} value={k}>{v[0]}</option>)}</select></Campo>
-              {cfg.tam === "pers" && (copias) && <><Campo rotulo="Largura (mm)"><input type="number" min={20} max={400} className={entrada} value={cfg.persW} onChange={(e) => set({ persW: Number(e.target.value) || 20 })} /></Campo><Campo rotulo="Altura (mm)"><input type="number" min={20} max={400} className={entrada} value={cfg.persH} onChange={(e) => set({ persH: Number(e.target.value) || 20 })} /></Campo></>}
+              {cfg.tam === "pers" && (copias || minis) && <><Campo rotulo="Largura (mm)"><input type="number" min={20} max={400} className={entrada} value={cfg.persW} onChange={(e) => set({ persW: Number(e.target.value) || 20 })} /></Campo><Campo rotulo="Altura (mm)"><input type="number" min={20} max={400} className={entrada} value={cfg.persH} onChange={(e) => set({ persH: Number(e.target.value) || 20 })} /></Campo></>}
               {["parede", "poster"].includes(cfg.modelo) && <Campo rotulo="Posição"><select className={entrada} value={cfg.orientacao} onChange={(e) => set({ orientacao: e.target.value })}><option value="retrato">Em pé</option><option value="paisagem">Deitado</option></select></Campo>}
             </div>
           </Painel>
@@ -160,6 +162,19 @@ export default function CalendarioPage() {
                 <Campo rotulo="Fundo (área do calendário)"><input type="color" className="h-8 w-full" value={cfg.corAreaCal} onChange={(e) => set({ corAreaCal: e.target.value })} /></Campo>
               </div>
               <label className="flex gap-2 items-center text-xs"><input type="checkbox" checked={cfg.guiaCal} onChange={(e) => set({ guiaCal: e.target.checked })} />Mostrar guia “cole o calendário aqui” (não sai na impressão)</label>
+            </Painel>
+          )}
+          {minis && (
+            <Painel titulo="🗓️ Cartões de bolso">
+              <div className="grid grid-cols-2 gap-3">
+                <Campo rotulo="Cores"><select className={entrada} value={cfg.minisCor} onChange={(e) => set({ minisCor: e.target.value })}><option value="variada">Uma cor diferente por mês</option><option value="unica">Mesma cor em todos</option></select></Campo>
+                <Campo rotulo={`Cantos arredondados: ${cfg.minisRaio ?? 3} mm`}><input type="range" min={0} max={8} value={cfg.minisRaio ?? 3} onChange={(e) => set({ minisRaio: Number(e.target.value) })} /></Campo>
+              </div>
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs">
+                <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.minisLegenda} onChange={(e) => set({ minisLegenda: e.target.checked })} />Feriados embaixo</label>
+                <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.fases} onChange={(e) => set({ fases: e.target.checked })} />Fases da lua</label>
+              </div>
+              <p className="text-[11px] text-[#8B6A1F]">Com “Mesma cor”, escolha a cor em Estilo. Ajuste papel (A4, A3…), margem e espaço em Folha de impressão.</p>
             </Painel>
           )}
           {cfg.modelo !== "cabecalho" && <Painel titulo="🎨 Estilo">
@@ -229,6 +244,7 @@ export default function CalendarioPage() {
                 <Campo rotulo="Papel"><select className={entrada} value={cfg.papel} onChange={(e) => set({ papel: e.target.value })}>{Object.entries(PAPEIS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}</select></Campo>
                 <Campo rotulo="Margem (mm)"><input type="number" min={0} className={entrada} value={cfg.margem} onChange={(e) => set({ margem: Math.max(0, Number(e.target.value) || 0) })} /></Campo>
                 <Campo rotulo="Espaço (mm)"><input type="number" min={0} className={entrada} value={cfg.espaco} onChange={(e) => set({ espaco: Math.max(0, Number(e.target.value) || 0) })} /></Campo>
+                {minis && <Campo rotulo="Conjuntos de 12 meses"><input type="number" min={1} max={500} className={entrada} value={qtd} onChange={(e) => setQtd(Math.max(1, Number(e.target.value) || 1))} /></Campo>}
                 {copias && <Campo rotulo={"Quantidade de ímãs"}><input type="number" min={1} max={5000} className={entrada} value={qtd} onChange={(e) => setQtd(Math.max(1, Number(e.target.value) || 1))} /></Campo>}
                 <label className="flex gap-2 items-center text-xs mt-5"><input type="checkbox" checked={cfg.marcas} onChange={(e) => set({ marcas: e.target.checked })} />Guias de corte</label>
               </div>
