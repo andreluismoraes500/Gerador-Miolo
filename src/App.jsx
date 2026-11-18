@@ -14,6 +14,7 @@ import MockupAgendaPage from "./pages/MockupAgendaPage";
 import CartazesPage from "./pages/CartazesPage";
 import AdesivosPage from "./pages/AdesivosPage";
 import CapasPage from "./pages/CapasPage";
+import EmbalagensPage from "./pages/EmbalagensPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import ConfigPage from "./pages/ConfigPage";
 import PreviewPage from "./pages/PreviewPage";
@@ -49,6 +50,7 @@ export default function App() {
                 <Route path="cartazes" element={<CartazesPage />} />
                 <Route path="adesivos" element={<AdesivosPage />} />
                 <Route path="capas" element={<CapasPage />} />
+                <Route path="embalagens" element={<EmbalagensPage />} />
                 <Route path="sobre" element={<SobrePage />} />
                 <Route path="*" element={<Navigate to="/templates" replace />} />
               </Route>
