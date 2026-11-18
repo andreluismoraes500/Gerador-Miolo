@@ -1,6 +1,6 @@
 // Uma folha do PDF (210x297mm) com fundo colorido/imagem, marca d'água e a página.
-export default function PdfFolha({ p, cfg, bgImg, marcaImg, ajuste, girar }) {
-  const deitada = p.larg > p.alt && girar;
+export default function PdfFolha({ p, cfg, bgImg, marcaImg, ajuste, girar, inverter }) {
+  const deitada = (p.larg > p.alt && girar) !== !!inverter;
   const temFundo = !!cfg.bgCor || !!bgImg;
   return (
     <div className={`pdf-pagina ${ajuste === "preencher" ? "preencher" : ""}`}>
