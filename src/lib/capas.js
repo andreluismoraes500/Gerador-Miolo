@@ -3,6 +3,7 @@ import { criarStore } from "./storeSimples";
 import { emLargura } from "./cartaz";
 
 export const A4 = { w: 210, h: 297 };
+export const folhaDe = (c) => (c.orient === "paisagem" ? { w: 297, h: 210 } : A4);
 export const PT = 0.3528; // 1 pt em mm
 export const COR_MOLDE = "#231f20";
 
@@ -28,7 +29,7 @@ export const ITENS_PADRAO = () => [
 ];
 
 export const CAPA_CFG_PADRAO = {
-  placaW: 160, placaH: 220, dobra: 17.5,
+  orient: "retrato", placaW: 160, placaH: 220, dobra: 17.5,
   molde: "linhas", corMolde: COR_MOLDE, moldeFrente: true, verso: "molde", intercalar: true,
   fundo: "#ffffff", fundoImg: false, fundoModo: "cobrir", fundoOpac: 100,
   itens: ITENS_PADRAO(), csv: "Maria Souza\nJoão Pereira\nAna Clara Lima", sel: 0, usarCsv: true,
@@ -41,9 +42,10 @@ export const capasImgs = {};
 // octógono (mm): dobra + chanfro proporcional ao molde original (17,5 → 30,5)
 export function geom(c) {
   const W = c.placaW + 2 * c.dobra, H = c.placaH + 2 * c.dobra, ch = c.dobra * (30.5 / 17.5);
-  const ox = (A4.w - W) / 2, oy = (A4.h - H) / 2;
+  const F = folhaDe(c);
+  const ox = (F.w - W) / 2, oy = (F.h - H) / 2;
   const pts = [[ch, 0], [W - ch, 0], [W, ch], [W, H - ch], [W - ch, H], [ch, H], [0, H - ch], [0, ch]];
-  return { W, H, ch, ox, oy, pts, px: (W - c.placaW) / 2, py: (H - c.placaH) / 2 };
+  return { W, H, ch, ox, oy, F, pts, px: (W - c.placaW) / 2, py: (H - c.placaH) / 2 };
 }
 export const poligono = (pts) => pts.map(([x, y]) => `${x},${y}`).join(" ");
 
