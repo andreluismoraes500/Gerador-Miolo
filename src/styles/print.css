@@ -428,3 +428,9 @@ body.sticker-editando .sticker-host::after {
   padding-left: 12mm;
   padding-right: 22mm;
 }
+
+/* Responsivo: nunca mostrar barra de rolagem horizontal na página */
+@media screen {
+  html, body { overflow-x: clip; max-width: 100%; }
+  img, video, canvas { max-width: 100%; }
+}

@@ -1,5 +1,5 @@
 // Páginas dos calendários, desenhadas em milímetros.
-import { feriadosCal, feriadosDoMesCal } from "../../lib/calendario";
+import { feriadosCal, feriadosDoMesCal, PALETAS_CAL } from "../../lib/calendario";
 import { cabecalhoSemana, celulasMes, DIAS_PT, INICIAIS, MESES_PT, mix, semanaDoAno } from "../../lib/configAgendaAnual";
 
 const mm = (v) => `${v}mm`;
@@ -287,6 +287,65 @@ export function PlannerMes({ ano, mes, cfg, w, h, foto }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <GradeMes ano={ano} mes={mes} cfg={cfg2} w={w - lado - 3 * m} h={h - 2 * m} tam={tam} nomes={cfg.nomesNaGrade} />
       </div>
+      </div>
+    </div>
+  );
+}
+
+// fases da lua (aprox.): 0 nova, 1 crescente, 2 cheia, 3 minguante, por dia
+function faseDoDia(ano, mes, dia) {
+  const jd = Date.UTC(ano, mes, dia, 12) / 86400000 + 2440587.5;
+  const idade = (((jd - 2451550.1) / 29.530588853) % 1 + 1) % 1;
+  const lim = 0.5 / 29.530588853;
+  for (const [i, alvo] of [0, 0.25, 0.5, 0.75].entries()) { const dist = Math.min(Math.abs(idade - alvo), 1 - Math.abs(idade - alvo)); if (dist < lim) return i; }
+  return null;
+}
+const LUA = ["●", "◐", "○", "◑"];
+
+// Cartão de bolso: 1 mês, painel branco sobre fundo colorido.
+export function MiniCartao({ ano, mes, cfg, w, h }) {
+  const cor = cfg.minisCor === "variada" ? PALETAS_CAL[mes % PALETAS_CAL.length].cor : cfg.cor;
+  const cel = celulasMes(ano, mes, cfg.semanaComeca);
+  const lin = cel.length / 7;
+  const fer = feriadosCal(ano);
+  const cab = cabecalhoSemana(cfg.semanaComeca);
+  const u = Math.min(w / 55, h / 80);
+  const r = (cfg.minisRaio ?? 3) * u;
+  const m = 3.2 * u;
+  const lista = cfg.minisLegenda ? feriadosDoMesCal(ano, mes).filter((f) => f.tipo === "f").slice(0, 4) : [];
+  const hTop = 11 * u;
+  const hLeg = lista.length ? (lista.length * 2.7 + 2) * u : 3 * u;
+  const fs = 3.1 * u * (cfg.escala ?? 1);
+  const feriC = cfg.corFeriado || "#d6455d";
+  const nome = MESES_PT[mes].toUpperCase();
+  return (
+    <div style={{ width: mm(w), height: mm(h), background: cor, borderRadius: mm(r), padding: mm(m), boxSizing: "border-box", display: "flex", flexDirection: "column", gap: mm(m * 0.7), fontFamily: cfg.fonteTexto, overflow: "hidden", position: "relative" }}>
+      <div style={{ position: "absolute", right: mm(-w * 0.18), top: mm(-w * 0.18), width: mm(w * 0.5), height: mm(w * 0.5), borderRadius: "50%", background: "#fff", opacity: 0.1 }} />
+      <div style={{ height: mm(hTop), display: "flex", gap: mm(m * 0.6), alignItems: "stretch", position: "relative" }}>
+        <div style={{ flex: 1, background: "#fff", color: cor, borderRadius: mm(hTop / 2), display: "grid", placeItems: "center", fontFamily: cfg.fonteTitulo, fontSize: mm(cabe(hTop * 0.5, nome, w * 0.6, 0.62)), lineHeight: 1, letterSpacing: mm(0.15 * u) }}>{nome}</div>
+        <div style={{ width: mm(hTop * 1.55), border: `${mm(0.45 * u)} solid #fff`, color: "#fff", borderRadius: mm(hTop * 0.3), display: "grid", placeItems: "center", fontWeight: 800, fontSize: mm(hTop * 0.42), lineHeight: 1 }}>{ano}</div>
+      </div>
+      <div style={{ flex: 1, minHeight: 0, background: "#fff", borderRadius: mm(Math.max(1, r * 0.7)), padding: mm(m * 0.6), display: "flex", flexDirection: "column", position: "relative" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", textAlign: "center", fontSize: mm(fs * 0.85), fontWeight: 800, color: cor, borderBottom: `${mm(0.3 * u)} solid ${mix(cor, 0.5)}`, paddingBottom: mm(0.6 * u) }}>
+          {cab.map((x, i) => <span key={i}>{x}</span>)}
+        </div>
+        <div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(7,1fr)", gridTemplateRows: `repeat(${lin},1fr)`, textAlign: "center", fontSize: mm(fs) }}>
+          {cel.map((d, i) => {
+            const dow = (i % 7 + cfg.semanaComeca) % 7;
+            const info = d && fer[`${mes}-${d}`];
+            const feri = info && info.tipo === "f";
+            const fase = d && cfg.fases ? faseDoDia(ano, mes, d) : null;
+            return (
+              <span key={i} style={{ display: "grid", placeItems: "center", position: "relative", color: feri || dow === 0 ? feriC : (cfg.corTexto || TXT), fontWeight: feri ? 800 : 500 }}>
+                {d && <span style={feri ? { background: mix(feriC, 0.85), borderRadius: "50%", width: mm(fs * 1.7), height: mm(fs * 1.7), display: "grid", placeItems: "center" } : info ? { borderBottom: `${mm(0.5 * u)} solid ${cor}` } : undefined}>{d}</span>}
+                {fase != null && <span style={{ position: "absolute", right: "4%", top: "-2%", fontSize: mm(fs * 0.6), color: cor, lineHeight: 1 }}>{LUA[fase]}</span>}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+      <div style={{ height: mm(hLeg), color: "#fff", fontSize: mm(2.3 * u), lineHeight: 1.15, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        {lista.length ? lista.map((f) => <div key={f.d} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><b>{String(f.d).padStart(2, "0")}</b> · {f.n}</div>) : <div style={{ textAlign: "center", opacity: 0.85, letterSpacing: mm(0.3 * u) }}>{ano}</div>}
       </div>
     </div>
   );
