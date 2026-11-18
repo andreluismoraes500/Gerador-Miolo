@@ -156,18 +156,6 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
       }
       el.appendChild(cel);
     });
-    if (cols > 1) {
-      const g = document.createElement("div");
-      g.className = "guia";
-      g.style.cssText = `left:${cw}mm;top:0;bottom:0;border-left-width:0.25mm;`;
-      el.appendChild(g);
-    }
-    if (rows > 1) {
-      const g = document.createElement("div");
-      g.className = "guia";
-      g.style.cssText = `top:${ch}mm;left:0;right:0;border-top-width:0.25mm;`;
-      el.appendChild(g);
-    }
     return el;
   });
 
