@@ -68,7 +68,10 @@ export default function EmbalagensPage() {
     return f;
   }, [N.porFolha, copias.length, cfg.nomes, cfg.usarNomes]); // eslint-disable-line react-hooks/exhaustive-deps
   const fp = Math.min(folhaSel, Math.max(0, folhas.length - 1));
-  const z = Math.min(1, largPre / (N.W * MM));
+  const [altJan, setAltJan] = useState(typeof window !== "undefined" ? window.innerHeight : 800);
+  useEffect(() => { const f = () => setAltJan(window.innerHeight); window.addEventListener("resize", f); return () => window.removeEventListener("resize", f); }, []);
+  const altDisp = Math.max(260, altJan - 200);
+  const z = Math.min(1, largPre / (N.W * MM), altDisp / (N.H * MM));
 
   const ajustar = () => {
     const p = PAPEIS[cfg.papel] || PAPEIS.a4;

@@ -35,7 +35,10 @@ export default function EncartePage() {
     return r.length ? r : [[]];
   }, [cfg.itens, porPagina]);
   const pgs = Math.min(pg, paginas.length - 1);
-  const z = Math.min(1, larg / (W * MM));
+  const [altJan, setAltJan] = useState(typeof window !== "undefined" ? window.innerHeight : 800);
+  useEffect(() => { const f = () => setAltJan(window.innerHeight); window.addEventListener("resize", f); return () => window.removeEventListener("resize", f); }, []);
+  const altDisp = Math.max(260, altJan - 190); // cabeçalho + seletor de folha + respiro
+  const z = Math.min(1, larg / (W * MM), altDisp / (H * MM));
 
   const setItem = (id, o) => set({ itens: cfg.itens.map((i) => (i.id === id ? { ...i, ...o } : i)) });
   const foto = async (id, f) => { try { encarteFotos[id] = await lerImagem(f, 900); forca((n) => n + 1); } catch { toast.error("Imagem inválida."); } };
