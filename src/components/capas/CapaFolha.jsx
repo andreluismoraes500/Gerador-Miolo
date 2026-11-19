@@ -1,6 +1,8 @@
 // Uma face da folha A4 da capa: arte recortada no octógono + molde (linhas/marcas).
 import { StickerLayer } from "../StickersEditor";
-import { aplicar, capasImgs, COR_MOLDE, geom, poligono, PT, tamanhoCaber } from "../../lib/capas";
+import { aplicar, capasImgs, CAMINHO_FORMA, COR_MOLDE, geom, poligono, PT, tamanhoCaber } from "../../lib/capas";
+
+const rgba = (hex, op) => { const h = /^#[0-9a-f]{6}$/i.test(hex) ? hex.slice(1) : "ffffff"; const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); return `rgba(${r},${g},${b},${op})`; };
 
 function Molde({ c, g }) {
   const cor = c.corMolde || COR_MOLDE;
@@ -28,6 +30,8 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
   const comItens = lado === "frente";
   const molde = lado === "frente" ? c.moldeFrente : c.verso !== "nenhum";
   const fundoImg = c.fundoImg && capasImgs.fundo;
+  const cobrir = !!c.cobrirFolha;
+  const A = cobrir ? { x: 0, y: 0, w: g.F.w, h: g.F.h } : { x: g.ox, y: g.oy, w: g.W, h: g.H };
 
   const iniciar = (e, i) => {
     if (!interativo) return;
@@ -53,9 +57,9 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
         <div
           data-arte
           style={{
-            position: "absolute", left: `${g.ox}mm`, top: `${g.oy}mm`, width: `${g.W}mm`, height: `${g.H}mm`,
+            position: "absolute", left: `${A.x}mm`, top: `${A.y}mm`, width: `${A.w}mm`, height: `${A.h}mm`,
             background: c.fundo,
-            clipPath: `polygon(${g.pts.map(([x, y]) => `${x}mm ${y}mm`).join(",")})`,
+            clipPath: cobrir ? undefined : `polygon(${g.pts.map(([x, y]) => `${x}mm ${y}mm`).join(",")})`,
           }}
         >
           {fundoImg && <img src={capasImgs.fundo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: c.fundoModo === "inteira" ? "contain" : "cover", opacity: (c.fundoOpac ?? 100) / 100 }} />}
@@ -65,23 +69,41 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
             if (it.tipo === "imagem") {
               const src = capasImgs[it.id];
               if (!src) return interativo ? <div key={it.id} onPointerDown={(e) => iniciar(e, i)} style={{ ...base, ...marca, width: `${it.w}mm`, height: `${it.w * 0.6}mm`, border: "0.4mm dashed #999", display: "grid", placeItems: "center", fontSize: "4mm", color: "#999", background: "#ffffffaa" }}>imagem</div> : null;
-              return <img key={it.id} src={src} alt="" draggable={false} onPointerDown={(e) => iniciar(e, i)} style={{ ...base, ...marca, width: `${it.w}mm`, height: "auto", maxHeight: `${g.H}mm`, objectFit: "contain", opacity: (it.opac ?? 100) / 100 }} />;
+              return <img key={it.id} src={src} alt="" draggable={false} onPointerDown={(e) => iniciar(e, i)} style={{ ...base, ...marca, width: `${it.w}mm`, height: "auto", maxHeight: `${A.h}mm`, objectFit: "contain", opacity: (it.opac ?? 100) / 100 }} />;
             }
             const txt = aplicar(it.texto, dados);
-            const larg = (g.W * it.larg) / 100;
+            const larg = (A.w * it.larg) / 100;
             const pt = it.caber ? tamanhoCaber(it.caixaAlta ? txt.toUpperCase() : txt, it, larg) : it.tam;
+            const forma = it.fundoForma || "nenhum";
+            const cam = CAMINHO_FORMA[forma];
+            const pad = it.fundoPad ?? 4, op = (it.fundoOp ?? 100) / 100, bEsp = it.fundoBorda || 0, bCor = it.fundoBordaCor || "#24344D", fCor = it.fundoCor || "#ffffff";
+            const comFundo = forma !== "nenhum";
+            const cssForma = { retangulo: 0, arredondado: `${Math.max(2, pad)}mm`, pilula: "999px", oval: "50%" }[forma];
+            const extra = comFundo ? (cam ? pad * (cam.pad || 1) : pad) : 0;
+            const padBx = comFundo ? `${extra}mm ${extra}mm ${extra + (cam?.extra || 0)}mm` : 0;
             return (
               <div
                 key={it.id}
                 onPointerDown={(e) => iniciar(e, i)}
                 onDoubleClick={() => onEditar && onEditar(i)}
                 style={{
-                  ...base, ...marca, width: `${larg}mm`, textAlign: it.alinh, fontFamily: it.fonte, fontSize: `${pt * PT}mm`, lineHeight: 1.12,
-                  color: it.cor, fontWeight: it.negrito ? 800 : 400, fontStyle: it.italico ? "italic" : "normal", textTransform: it.caixaAlta ? "uppercase" : "none",
-                  letterSpacing: `${it.esp * PT}mm`, whiteSpace: it.caber || it.quebra === false ? "pre" : "pre-wrap", wordBreak: "break-word", userSelect: "none",
+                  ...base, ...marca, boxSizing: "content-box", width: `${larg}mm`, padding: padBx,
+                  ...(comFundo && cssForma !== undefined ? { background: rgba(fCor, op), borderRadius: cssForma, border: bEsp ? `${bEsp}mm solid ${bCor}` : "none" } : {}),
                 }}
               >
-                {txt || " "}
+                {comFundo && cam && (
+                  <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible", pointerEvents: "none" }}>
+                    {cam.d ? <path d={cam.d} fill={fCor} fillOpacity={op} stroke={bEsp ? bCor : "none"} strokeWidth={bEsp * 3.78} vectorEffect="non-scaling-stroke" />
+                      : <polygon points={cam.pol} fill={fCor} fillOpacity={op} stroke={bEsp ? bCor : "none"} strokeWidth={bEsp * 3.78} vectorEffect="non-scaling-stroke" strokeLinejoin="round" />}
+                  </svg>
+                )}
+                <div style={{
+                  position: "relative", textAlign: it.alinh, fontFamily: it.fonte, fontSize: `${pt * PT}mm`, lineHeight: 1.12,
+                  color: it.cor, fontWeight: it.negrito ? 800 : 400, fontStyle: it.italico ? "italic" : "normal", textTransform: it.caixaAlta ? "uppercase" : "none",
+                  letterSpacing: `${it.esp * PT}mm`, whiteSpace: it.caber || it.quebra === false ? "pre" : "pre-wrap", wordBreak: "break-word", userSelect: "none",
+                }}>
+                  {txt || " "}
+                </div>
               </div>
             );
           })}

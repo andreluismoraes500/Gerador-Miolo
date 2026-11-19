@@ -6,7 +6,7 @@ import { PainelStickers } from "../components/StickersEditor";
 import CapaFolha from "../components/capas/CapaFolha";
 import { stickersDados } from "../lib/stickers";
 import { geom } from "../lib/capas";
-import { capasCfg, capasImgs, CAPA_CFG_PADRAO, FONTES_CAPA2, ITENS_PADRAO, itemImagem, itemTexto, lerCsv } from "../lib/capas";
+import { CORES_FUNDO_TEXTO, FORMAS_TEXTO, capasCfg, capasImgs, CAPA_CFG_PADRAO, FONTES_CAPA2, ITENS_PADRAO, itemImagem, itemTexto, lerCsv } from "../lib/capas";
 import { limparCacheMedida } from "../lib/cartaz";
 import { lerImagem } from "../lib/lerImagem";
 
@@ -77,7 +77,7 @@ export default function CapasPage() {
   const restaurarItem = () => {
     if (!item) return;
     const base = item.tipo === "imagem" ? itemImagem() : itemTexto();
-    setItem(item.tipo === "imagem" ? { x: base.x, y: base.y, w: base.w, opac: 100 } : { fonte: base.fonte, tam: base.tam, cor: base.cor, x: base.x, y: base.y, larg: base.larg, alinh: base.alinh, negrito: false, italico: false, caixaAlta: false, esp: 0, caber: false, quebra: true });
+    setItem(item.tipo === "imagem" ? { x: base.x, y: base.y, w: base.w, opac: 100 } : { fonte: base.fonte, tam: base.tam, cor: base.cor, x: base.x, y: base.y, larg: base.larg, alinh: base.alinh, negrito: false, italico: false, caixaAlta: false, esp: 0, caber: false, quebra: true, fundoForma: "nenhum", fundoCor: "#ffffff", fundoOp: 100, fundoPad: 4, fundoBorda: 0 });
   };
   const restaurarCapa = () => {
     if (!window.confirm("Restaurar a capa ao padrão? Textos, fundo e stickers da capa voltam ao início (os nomes são mantidos).")) return;
@@ -179,6 +179,27 @@ export default function CapasPage() {
                 </div>
                 <label className="flex items-center gap-2 text-xs text-[#24344D]"><input type="checkbox" checked={item.caber} onChange={(e) => setItem({ caber: e.target.checked })} /> Ajustar para caber em 1 linha (nomes compridos)</label>
                 {!item.caber && <label className="flex items-center gap-2 text-xs text-[#24344D]"><input type="checkbox" checked={item.quebra !== false} onChange={(e) => setItem({ quebra: e.target.checked })} /> Quebrar linha automaticamente na largura da caixa</label>}
+                <div className="flex flex-col gap-2.5 rounded-xl border border-[#E7DCC0] bg-white/60 p-3">
+                  <span className="text-xs font-bold text-[#24344D]">🏷️ Fundo do texto (forma)</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {FORMAS_TEXTO.map(([id, n]) => <Chip key={id} ativo={(item.fundoForma || "nenhum") === id} onClick={() => setItem({ fundoForma: id })}>{n}</Chip>)}
+                  </div>
+                  {(item.fundoForma || "nenhum") !== "nenhum" && (
+                    <>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {CORES_FUNDO_TEXTO.map((cor) => <button key={cor} type="button" aria-label={`Cor ${cor}`} onClick={() => setItem({ fundoCor: cor })} style={{ background: cor }} className={`w-7 h-7 rounded-full border ${item.fundoCor === cor ? "ring-2 ring-offset-1 ring-[#24344D]" : "border-[#D8CBA8]"}`} />)}
+                        <input type="color" value={item.fundoCor || "#ffffff"} onChange={(e) => setItem({ fundoCor: e.target.value })} className="h-7 w-9 rounded" title="Outra cor" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Faixa rotulo="Opacidade do fundo" valor={item.fundoOp ?? 100} min={10} max={100} un="%" onChange={(v) => setItem({ fundoOp: v })} />
+                        <Faixa rotulo="Folga ao redor do texto" valor={item.fundoPad ?? 4} min={0} max={20} step={0.5} un=" mm" onChange={(v) => setItem({ fundoPad: v })} />
+                        <Faixa rotulo="Borda" valor={item.fundoBorda || 0} min={0} max={3} step={0.1} un=" mm" onChange={(v) => setItem({ fundoBorda: v })} />
+                        <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">Cor da borda<input type="color" value={item.fundoBordaCor || "#24344D"} onChange={(e) => setItem({ fundoBordaCor: e.target.value })} className="h-7 w-full rounded" /></label>
+                      </div>
+                      <p className="text-[11px] text-[#6B6458]">O fundo acompanha a largura da caixa de texto: ajuste “Largura da caixa” para encolher ou esticar a forma.</p>
+                    </>
+                  )}
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Faixa rotulo="Largura da caixa" valor={item.larg} min={10} max={100} un="%" onChange={(v) => setItem({ larg: v })} />
                   <Faixa rotulo="Espaço entre letras" valor={item.esp} min={0} max={20} un=" pt" onChange={(v) => setItem({ esp: v })} />
@@ -226,6 +247,11 @@ export default function CapasPage() {
           </Painel>
 
           <Painel titulo="✂️ Molde de corte">
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => set({ molde: "nenhum", moldeFrente: false, cobrirFolha: true })} className="px-3 py-1.5 rounded-lg bg-[#24344D] text-white text-xs font-semibold">Tirar todas as marcações e imprimir a imagem inteira</button>
+              <button type="button" onClick={() => set({ molde: "linhas", moldeFrente: true, cobrirFolha: false })} className="px-3 py-1.5 rounded-lg border border-[#D8CBA8] bg-white text-xs font-semibold text-[#24344D]">Voltar ao molde</button>
+            </div>
+            <label className="flex items-center gap-2 text-xs text-[#24344D]"><input type="checkbox" checked={!!c.cobrirFolha} onChange={(e) => set({ cobrirFolha: e.target.checked })} /> Imagem e fundo cobrem a folha inteira (sem recorte do octógono)</label>
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-xs font-semibold text-[#24344D] mr-1">Capa</span>
               <Chip ativo={c.orient !== "paisagem"} onClick={() => girar("retrato")}>Retrato (em pé)</Chip>
