@@ -12,6 +12,7 @@ import BottonsPage from "./pages/BottonsPage";
 import CalendarioPage from "./pages/CalendarioPage";
 import MockupAgendaPage from "./pages/MockupAgendaPage";
 import CartazesPage from "./pages/CartazesPage";
+import EncartePage from "./pages/EncartePage";
 import AdesivosPage from "./pages/AdesivosPage";
 import CapasPage from "./pages/CapasPage";
 import EmbalagensPage from "./pages/EmbalagensPage";
@@ -48,6 +49,7 @@ export default function App() {
                 <Route path="calendarios" element={<CalendarioPage />} />
                 <Route path="mockup-agenda" element={<MockupAgendaPage />} />
                 <Route path="cartazes" element={<CartazesPage />} />
+                <Route path="encarte" element={<EncartePage />} />
                 <Route path="adesivos" element={<AdesivosPage />} />
                 <Route path="capas" element={<CapasPage />} />
                 <Route path="embalagens" element={<EmbalagensPage />} />

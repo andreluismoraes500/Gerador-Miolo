@@ -76,7 +76,7 @@ const TABS = [
   { id: "ordemServico", label: "Ordem de Serviço", icon: MdBuild },
   { id: "recibo", label: "Recibo de Pagamento", icon: MdReceipt },
   { id: "comanda", label: "Comandas", icon: MdRoomService },
-  { id: "entrega", label: "Entrega (tele-entrega)", icon: MdLocalShipping },
+  { id: "entrega", label: "Supermercado (caixas)", icon: MdLocalShipping },
   { id: "reserva", label: "Reserva / Agendamento", icon: MdEventAvailable },
   { id: "valePresente", label: "Vale-Presente", icon: MdCardGiftcard },
 ];
