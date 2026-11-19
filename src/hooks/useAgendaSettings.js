@@ -1,5 +1,5 @@
 // src/hooks/useAgendaSettings.js
-import { impressao, prepararImpressao } from "../lib/configImpressao";
+import { aguardarImagens, impressao, prepararImpressao } from "../lib/configImpressao";
 import { DEFAULT_FOOTER_NAME } from "../config/appInfo";
 import { useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
@@ -166,8 +166,9 @@ export function useAgendaSettings() {
 
   const handlePrint = useCallback(() => {
     setPrinting(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       const restaurar = prepararImpressao(impressao.get());
+      try { await aguardarImagens(document.querySelector(".print-container") || document); } catch { /* segue mesmo assim */ }
       window.print();
       restaurar();
       setPrinting(false);

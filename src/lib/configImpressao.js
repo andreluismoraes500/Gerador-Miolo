@@ -179,4 +179,12 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
   };
 }
 
+// Espera as imagens (inclusive as cópias de "2 iguais por folha") carregarem antes de imprimir; senão a cópia sai em branco.
+export async function aguardarImagens(raiz = document) {
+  const imgs = [...raiz.querySelectorAll("img")];
+  await Promise.all(imgs.map((i) => (i.complete && i.naturalWidth ? Promise.resolve() : i.decode ? i.decode().catch(() => {}) : new Promise((r) => { i.onload = r; i.onerror = r; }))));
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  await new Promise((r) => setTimeout(r, 150));
+}
+
 if (typeof window !== "undefined") window.__prepararImpressao = prepararImpressao; // gancho de teste

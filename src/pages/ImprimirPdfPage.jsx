@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { LadosImpressao } from "../components/OpcoesImpressao";
-import { FORMATOS, impressao, prepararImpressao } from "../lib/configImpressao";
+import { aguardarImagens, FORMATOS, impressao, prepararImpressao } from "../lib/configImpressao";
 import { lerPdf, parseIntervalo } from "../lib/pdfImpressao";
 import { pdfCfg, TONS } from "../lib/configPdf";
 import PdfFolha from "../components/PdfFolha";
@@ -72,11 +72,12 @@ export default function ImprimirPdfPage() {
   const deitado = !girar && !!paginas[escolhidas[0]] && paginas[escolhidas[0]].larg > paginas[escolhidas[0]].alt;
   const folhas = Math.ceil(escolhidas.length / porFolha);
 
-  const imprimir = () => {
+  const imprimir = async () => {
     if (!escolhidas.length) return toast.error("Nenhuma página selecionada.");
     const primeira = paginas[escolhidas[0]];
     const paisagem = !girar && !!primeira && primeira.larg > primeira.alt;
     const restaurar = prepararImpressao({ ...impressao.get(), paisagem });
+    try { await aguardarImagens(document.querySelector(".print-container") || document); } catch { /* segue mesmo assim */ }
     window.print();
     restaurar();
   };
