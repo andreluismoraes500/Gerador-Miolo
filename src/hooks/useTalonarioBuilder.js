@@ -21,6 +21,7 @@ export const TAL_ACCENTS = {
   comanda: { accent: "#9d174d", dark: "#701038", light: "#fbe4ee" },
   reserva: { accent: "#4338ca", dark: "#312a8f", light: "#e7e5fb" },
   valePresente: { accent: "#be123c", dark: "#8b0e2c", light: "#fbe0e6" },
+  entrega: { accent: "#1d4ed8", dark: "#1e3a8a", light: "#e3ecfd" },
 };
 
 // Algumas sugestões de cor rápidas para o seletor de configurações
@@ -287,6 +288,15 @@ export function useTalonarioBuilder() {
     setComanda((c) => ({ ...c, [key]: value }));
   }, []);
 
+  // ---------------- Entrega ----------------
+  const [entrega, setEntrega] = useState(() => ({
+    empresa: "", rotuloTel: "TELE-ENTREGA", telefone: "", endereco: "", titulo: "PEDIDO",
+    caixas: true, recebedor: true, numStart: 1, numEnd: 100, prefix: "", digits: 6, linhas: 14, rodape: "", numerar: true,
+  }));
+  const setEntregaField = useCallback((key, value) => {
+    setEntrega((c) => ({ ...c, [key]: value }));
+  }, []);
+
   // ---------------- Reserva / Agendamento ----------------
   const [reserva, setReserva] = useState(() => ({
       empresa: "",
@@ -372,6 +382,7 @@ export function useTalonarioBuilder() {
       ordemServico: null,
       recibo: null,
       comanda: null,
+      entrega: null,
       reserva: null,
       valePresente: null,
     }),
@@ -556,6 +567,13 @@ export function useTalonarioBuilder() {
     return { start, end, total: end - start + 1 };
   }, [comanda.numStart, comanda.numEnd]);
 
+  const entregaRange = useMemo(() => {
+    let start = parseInt(entrega.numStart, 10) || 1;
+    let end = parseInt(entrega.numEnd, 10) || start;
+    if (end < start) [start, end] = [end, start];
+    return { start, end, total: end - start + 1 };
+  }, [entrega.numStart, entrega.numEnd]);
+
   const reservaRange = useMemo(() => {
     let start = parseInt(reserva.numStart, 10) || 1;
     let end = parseInt(reserva.numEnd, 10) || start;
@@ -661,6 +679,16 @@ export function useTalonarioBuilder() {
         tab: "comanda",
         items: Array.from({ length: total }, (_, i) => start + i),
       });
+    } else if (activeTab === "entrega") {
+      if (!entrega.numerar) {
+        setPrintBatch({ tab: "entrega", items: [null] });
+        return;
+      }
+      const { start, total } = entregaRange;
+      if (total > 800 && !window.confirm(`Você está prestes a gerar ${total} pedidos. Isso pode demorar. Deseja continuar?`)) {
+        return;
+      }
+      setPrintBatch({ tab: "entrega", items: Array.from({ length: total }, (_, i) => start + i) });
     } else if (activeTab === "reserva") {
       if (!reserva.numerar) {
         setPrintBatch({ tab: "reserva", items: [null] });
@@ -724,6 +752,8 @@ export function useTalonarioBuilder() {
     reciboRange,
     comanda.numerar,
     comandaRange,
+    entrega.numerar,
+    entregaRange,
     reserva.numerar,
     reservaRange,
     valePresente.numerar,
@@ -778,6 +808,10 @@ export function useTalonarioBuilder() {
     comanda,
     setComandaField,
     comandaRange,
+
+    entrega,
+    setEntregaField,
+    entregaRange,
 
     reserva,
     setReservaField,

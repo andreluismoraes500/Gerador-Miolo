@@ -1615,3 +1615,70 @@ export function BingoCard({
     </div>
   );
 }
+
+// ============================== ENTREGA ===============================
+
+export function EntregaCard({ empresa, logo, rotuloTel, telefone, endereco, titulo, caixas, recebedor, linhas, rodape, numero, digits, prefix, numerar = true, watermarkStyle }) {
+  const numStr = numerar ? `${prefix || ""}${pad(numero, digits)}` : "";
+  const bd = "1.3px solid var(--tal-accent)";
+  const rotulo = { fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--tal-accent-dark)" };
+  const linha = (children, extra = {}) => (
+    <div className="flex items-end gap-2" style={{ borderBottom: "1px solid var(--tal-accent)", minHeight: 24, padding: "0 2px 1px", ...extra }}>{children}</div>
+  );
+  return (
+    <div className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]" style={{ border: "2.5px solid var(--tal-accent)", outline: "2px solid var(--tal-accent)", outlineOffset: 5, margin: 5 }}>
+      <WatermarkLayer style={watermarkStyle} />
+      <div className="relative z-2 px-6 pt-5 pb-4">
+        <div className="flex" style={{ border: bd, borderRadius: 10, overflow: "hidden" }}>
+          <div className="flex items-center gap-3 flex-1 min-w-0 px-3 py-2.5">
+            {logo && <img src={logo} alt="Logo" className="max-w-18 max-h-16 object-contain shrink-0" />}
+            <div className="min-w-0 flex-1 text-center">
+              {empresa && <div className="truncate font-bold text-[15px]" style={{ fontFamily: "'Cormorant Garamond', serif", color: "var(--tal-accent-dark)" }}>{empresa}</div>}
+              {rotuloTel && <div className="text-[9.5px] font-bold tracking-wider uppercase" style={{ color: "var(--tal-accent-dark)" }}>{rotuloTel}</div>}
+              {telefone && <div className="text-[22px] leading-none font-extrabold" style={{ color: "var(--tal-accent-dark)" }}>{telefone}</div>}
+              {endereco && <div className="text-[8.5px] mt-1 text-(--tal-ink-soft) truncate">{endereco}</div>}
+            </div>
+          </div>
+          <div className="flex flex-col items-center justify-center px-4 shrink-0 min-w-28" style={{ borderLeft: bd }}>
+            <span className="text-[13px] font-bold tracking-[0.3em]" style={{ color: "var(--tal-accent-dark)" }}>{titulo || "PEDIDO"}</span>
+            {numerar && <span className="mt-1 font-bold text-[17px]" style={{ fontFamily: "'Space Mono', monospace", color: "var(--tal-stamp)" }}>Nº {numStr}</span>}
+          </div>
+        </div>
+
+        <div className="mt-2.5 flex flex-col" style={{ border: bd, borderRadius: 10, padding: "4px 10px 6px" }}>
+          {linha(<span style={rotulo}>Cliente:</span>)}
+          {linha(<><span style={rotulo}>Endereço:</span><span className="flex-1" /><span style={rotulo}>Fone:</span><span style={{ width: "30%" }} /></>)}
+          {linha(<><span style={rotulo}>Cidade:</span><span className="flex-1" />{caixas && <><span style={rotulo}>Caixas a entregar:</span><span style={{ width: 56, height: 17, border: "1.3px solid var(--tal-accent)", borderRadius: 4, marginBottom: 2 }} /></>}</>, { borderBottom: "none" })}
+        </div>
+
+        <table className="w-full border-collapse mt-2.5 text-xs" style={{ border: bd }}>
+          <thead>
+            <tr>
+              {[["Quant.", "11%"], ["Discriminação da mercadoria", "auto"], ["P. unit.", "15%"], ["Preço total", "17%"]].map(([h, w]) => (
+                <th key={h} className="font-semibold text-[9.5px] uppercase tracking-wide py-1 px-1" style={{ width: w, color: "var(--tal-accent-dark)", background: "var(--tal-light)", border: "1px solid var(--tal-accent)" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: linhas || 14 }).map((_, i) => (
+              <tr key={i}>{[0, 1, 2, 3].map((c) => <td key={c} className="h-5" style={{ border: "1px solid var(--tal-accent)" }} />)}</tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="mt-3 flex items-end gap-4" style={{ border: bd, borderRadius: 10, padding: "8px 12px" }}>
+          <div className="flex-1 flex flex-col gap-3">
+            <div className="text-center text-[9.5px] text-(--tal-ink-soft)" style={{ borderTop: "1px solid var(--tal-accent)", paddingTop: 2 }}>Assinatura do vendedor</div>
+            {recebedor && <div className="text-center text-[9.5px] text-(--tal-ink-soft)" style={{ borderTop: "1px solid var(--tal-accent)", paddingTop: 2 }}>Recebido por (cliente)  ·  Data: ___/___/_____</div>}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="font-extrabold text-[12px] uppercase" style={{ color: "var(--tal-accent-dark)" }}>Valor total R$</span>
+            <span style={{ width: 96, height: 28, border: "1.5px solid var(--tal-accent)", borderRadius: 5 }} />
+          </div>
+        </div>
+        {rodape && <div className="mt-2 text-[11px] text-(--tal-ink-soft)">{rodape}</div>}
+        <ExtrasTalonario />
+      </div>
+    </div>
+  );
+}
