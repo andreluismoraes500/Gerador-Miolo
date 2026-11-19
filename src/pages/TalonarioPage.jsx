@@ -16,6 +16,7 @@ import {
   MdBuild,
   MdReceipt,
   MdRoomService,
+  MdLocalShipping,
   MdEventAvailable,
   MdCardGiftcard,
 } from "react-icons/md";
@@ -32,6 +33,7 @@ import {
   OrdemServicoCard,
   ReciboCard,
   ComandaCard,
+  EntregaCard,
   ReservaCard,
   ValePresenteCard,
 } from "../components/talonario/TalonarioCards";
@@ -43,6 +45,7 @@ import {
   OrdemServicoPanel,
   ReciboPanel,
   ComandaPanel,
+  EntregaPanel,
   ReservaPanel,
   ValePresentePanel,
   WatermarkPanel,
@@ -73,6 +76,7 @@ const TABS = [
   { id: "ordemServico", label: "Ordem de Serviço", icon: MdBuild },
   { id: "recibo", label: "Recibo de Pagamento", icon: MdReceipt },
   { id: "comanda", label: "Comandas", icon: MdRoomService },
+  { id: "entrega", label: "Entrega (tele-entrega)", icon: MdLocalShipping },
   { id: "reserva", label: "Reserva / Agendamento", icon: MdEventAvailable },
   { id: "valePresente", label: "Vale-Presente", icon: MdCardGiftcard },
 ];
@@ -285,6 +289,18 @@ export default function TalonarioPage() {
                   >
                     remover logo
                   </button>
+                )}
+              </div>
+            </>
+          )}
+
+          {t.activeTab === "entrega" && (
+            <>
+              <EntregaPanel entrega={t.entrega} setField={t.setEntregaField} range={t.entregaRange} />
+              <div className="mt-4">
+                <UploadBox inputId="tal-logo-entrega" label="Enviar logo" hint="Aparece no cabeçalho do pedido" thumb={t.logos.entrega} onFile={(f) => t.handleLogoUpload("entrega", f)} />
+                {t.logos.entrega && (
+                  <button onClick={() => t.clearLogo("entrega")} className="text-[11.5px] underline mt-1" style={{ color: "var(--tal-stamp)" }}>remover logo</button>
                 )}
               </div>
             </>
@@ -508,6 +524,14 @@ export default function TalonarioPage() {
               watermarkStyle={t.watermarkStyle}
             />
           )}
+          {t.activeTab === "entrega" && (
+            <EntregaCard
+              empresa={t.entrega.empresa} logo={t.logos.entrega} rotuloTel={t.entrega.rotuloTel} telefone={t.entrega.telefone}
+              endereco={t.entrega.endereco} titulo={t.entrega.titulo} caixas={t.entrega.caixas} recebedor={t.entrega.recebedor}
+              linhas={t.entrega.linhas} rodape={t.entrega.rodape} numero={t.entregaRange.start} digits={Number(t.entrega.digits)}
+              prefix={t.entrega.prefix} numerar={t.entrega.numerar} watermarkStyle={t.watermarkStyle}
+            />
+          )}
           {t.activeTab === "comanda" && (
             <ComandaCard
               empresa={t.comanda.empresa}
@@ -580,6 +604,10 @@ export default function TalonarioPage() {
               (t.recibo.numerar
                 ? `Pré-visualização do 1º recibo do lote (Nº ${t.recibo.prefix || ""}${String(t.reciboRange.start).padStart(Number(t.recibo.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`
                 : "Pré-visualização do recibo sem numeração. Todos os exemplares sairão sem número.")}
+            {t.activeTab === "entrega" &&
+              (t.entrega.numerar
+                ? `Pré-visualização do 1º pedido do lote (Nº ${t.entrega.prefix || ""}${String(t.entregaRange.start).padStart(Number(t.entrega.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`
+                : "Pré-visualização do pedido sem numeração. Todos os exemplares sairão sem número.")}
             {t.activeTab === "comanda" &&
               (t.comanda.numerar
                 ? `Pré-visualização da 1ª comanda do lote (Nº ${t.comanda.prefix || ""}${String(t.comandaRange.start).padStart(Number(t.comanda.digits) || 0, "0")}). Cada página impressa terá um número diferente, em sequência.`
@@ -660,6 +688,17 @@ export default function TalonarioPage() {
                   numerar={t.recibo.numerar}
                   watermarkStyle={t.watermarkStyle}
                 />
+              </div>
+            ))}
+          {t.printBatch.tab === "entrega" &&
+            t.printBatch.items.map((n) => (
+              <div key={n} className="tal-print-page">
+                <EntregaCard
+              empresa={t.entrega.empresa} logo={t.logos.entrega} rotuloTel={t.entrega.rotuloTel} telefone={t.entrega.telefone}
+              endereco={t.entrega.endereco} titulo={t.entrega.titulo} caixas={t.entrega.caixas} recebedor={t.entrega.recebedor}
+              linhas={t.entrega.linhas} rodape={t.entrega.rodape} numero={n} digits={Number(t.entrega.digits)}
+              prefix={t.entrega.prefix} numerar={t.entrega.numerar} watermarkStyle={t.watermarkStyle}
+            />
               </div>
             ))}
           {t.printBatch.tab === "comanda" &&

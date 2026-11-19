@@ -175,6 +175,9 @@ export function PedidoPanel({ pedido, setField, toggleCampo, range }) {
                 <option value={3}>3 dígitos (001)</option>
                 <option value={4}>4 dígitos (0001)</option>
                 <option value={5}>5 dígitos (00001)</option>
+                <option value={6}>6 dígitos (000001)</option>
+                <option value={7}>7 dígitos (0000001)</option>
+                <option value={8}>8 dígitos (00000001)</option>
               </Select>
             </div>
           </div>
@@ -307,6 +310,9 @@ export function OrdemServicoPanel({ ordemServico, setField, range }) {
                 <option value={3}>3 dígitos (001)</option>
                 <option value={4}>4 dígitos (0001)</option>
                 <option value={5}>5 dígitos (00001)</option>
+                <option value={6}>6 dígitos (000001)</option>
+                <option value={7}>7 dígitos (0000001)</option>
+                <option value={8}>8 dígitos (00000001)</option>
               </Select>
             </div>
           </div>
@@ -403,6 +409,9 @@ export function ReciboPanel({ recibo, setField, range }) {
                 <option value={3}>3 dígitos (001)</option>
                 <option value={4}>4 dígitos (0001)</option>
                 <option value={5}>5 dígitos (00001)</option>
+                <option value={6}>6 dígitos (000001)</option>
+                <option value={7}>7 dígitos (0000001)</option>
+                <option value={8}>8 dígitos (00000001)</option>
               </Select>
             </div>
           </div>
@@ -490,6 +499,10 @@ export function ComandaPanel({ comanda, setField, range }) {
                 <option value={0}>Sem zeros (1, 2, 3…)</option>
                 <option value={3}>3 dígitos (001)</option>
                 <option value={4}>4 dígitos (0001)</option>
+                <option value={5}>5 dígitos (00001)</option>
+                <option value={6}>6 dígitos (000001)</option>
+                <option value={7}>7 dígitos (0000001)</option>
+                <option value={8}>8 dígitos (00000001)</option>
               </Select>
             </div>
           </div>
@@ -578,6 +591,10 @@ export function ReservaPanel({ reserva, setField, range }) {
                 <option value={0}>Sem zeros (1, 2, 3…)</option>
                 <option value={3}>3 dígitos (001)</option>
                 <option value={4}>4 dígitos (0001)</option>
+                <option value={5}>5 dígitos (00001)</option>
+                <option value={6}>6 dígitos (000001)</option>
+                <option value={7}>7 dígitos (0000001)</option>
+                <option value={8}>8 dígitos (00000001)</option>
               </Select>
             </div>
           </div>
@@ -666,6 +683,9 @@ export function ValePresentePanel({ valePresente, setField, range }) {
                 <option value={0}>Sem zeros (1, 2, 3…)</option>
                 <option value={4}>4 dígitos (0001)</option>
                 <option value={5}>5 dígitos (00001)</option>
+                <option value={6}>6 dígitos (000001)</option>
+                <option value={7}>7 dígitos (0000001)</option>
+                <option value={8}>8 dígitos (00000001)</option>
               </Select>
             </div>
           </div>
@@ -1133,6 +1153,63 @@ export function WatermarkPanel({ watermark, setField, activeTab, hasLogo }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ---------------- Entrega (tele-entrega) ----------------
+
+export function EntregaPanel({ entrega, setField, range }) {
+  return (
+    <div>
+      <SectionTitle>Cabeçalho</SectionTitle>
+      <Label first>Nome do estabelecimento</Label>
+      <TextInput placeholder="Ex: Mercado Bom Preço" value={entrega.empresa} onChange={(e) => setField("empresa", e.target.value)} />
+      <Label>Texto acima do telefone</Label>
+      <TextInput value={entrega.rotuloTel} onChange={(e) => setField("rotuloTel", e.target.value)} />
+      <Label>Telefone / WhatsApp de entrega</Label>
+      <TextInput placeholder="(00) 0000-0000" value={entrega.telefone} onChange={(e) => setField("telefone", e.target.value)} />
+      <Label>Endereço / cidade (linha pequena)</Label>
+      <TextInput value={entrega.endereco} onChange={(e) => setField("endereco", e.target.value)} />
+      <Label>Título do canto direito</Label>
+      <TextInput value={entrega.titulo} onChange={(e) => setField("titulo", e.target.value)} />
+
+      <SectionTitle>Campos da entrega</SectionTitle>
+      <CheckRow label="Quantidade de caixas a entregar" checked={entrega.caixas} onChange={(e) => setField("caixas", e.target.checked)} />
+      <CheckRow label="Linha de “Recebido por” (assinatura do cliente)" checked={entrega.recebedor} onChange={(e) => setField("recebedor", e.target.checked)} />
+
+      <SectionTitle>Numeração automática</SectionTitle>
+      <CheckRow label="Numerar os pedidos" checked={entrega.numerar} onChange={(e) => setField("numerar", e.target.checked)} />
+      {entrega.numerar && (
+        <>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div><Label first>Do número</Label><NumberInput min={1} value={entrega.numStart} onChange={(e) => setField("numStart", e.target.value)} /></div>
+            <div><Label first>Até o número</Label><NumberInput min={1} value={entrega.numEnd} onChange={(e) => setField("numEnd", e.target.value)} /></div>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div><Label>Prefixo (opcional)</Label><TextInput value={entrega.prefix} onChange={(e) => setField("prefix", e.target.value)} /></div>
+            <div>
+              <Label>Zeros à esquerda</Label>
+              <Select value={entrega.digits} onChange={(e) => setField("digits", Number(e.target.value))}>
+                <option value={0}>Sem zeros (1, 2, 3…)</option>
+                <option value={3}>3 dígitos (001)</option>
+                <option value={4}>4 dígitos (0001)</option>
+                <option value={5}>5 dígitos (00001)</option>
+                <option value={6}>6 dígitos (000001)</option>
+                <option value={7}>7 dígitos (0000001)</option>
+                <option value={8}>8 dígitos (00000001)</option>
+              </Select>
+            </div>
+          </div>
+          <CountBadge>{range.total} pedido{range.total > 1 ? "s" : ""} será{range.total > 1 ? "ão" : ""} gerado{range.total > 1 ? "s" : ""}</CountBadge>
+        </>
+      )}
+
+      <SectionTitle>Layout</SectionTitle>
+      <Label first>Linhas de mercadoria</Label>
+      <NumberInput min={4} max={60} value={entrega.linhas} onChange={(e) => setField("linhas", Number(e.target.value) || 14)} />
+      <Label>Texto de rodapé (opcional)</Label>
+      <TextInput value={entrega.rodape} onChange={(e) => setField("rodape", e.target.value)} />
     </div>
   );
 }
