@@ -18,7 +18,7 @@ export const FONTES_CAPA2 = [
 export const idNovo = () => Math.random().toString(36).slice(2, 9);
 export const itemTexto = (p = {}) => ({
   id: idNovo(), tipo: "texto", texto: "Texto", fonte: "'Montserrat', sans-serif", tam: 24, cor: "#24344D",
-  x: 50, y: 50, larg: 80, alinh: "center", negrito: false, italico: false, caixaAlta: false, esp: 0, caber: false, quebra: true, ...p,
+  x: 50, y: 50, larg: 80, alinh: "center", negrito: false, italico: false, caixaAlta: false, esp: 0, caber: false, quebra: true, fundoForma: "nenhum", fundoCor: "#ffffff", fundoOp: 100, fundoPad: 4, fundoBorda: 0, fundoBordaCor: "#24344D", ...p,
 });
 export const itemImagem = (p = {}) => ({ id: idNovo(), tipo: "imagem", x: 50, y: 25, w: 60, opac: 100, ...p });
 
@@ -31,7 +31,7 @@ export const ITENS_PADRAO = () => [
 export const CAPA_CFG_PADRAO = {
   orient: "retrato", placaW: 160, placaH: 220, dobra: 17.5,
   molde: "linhas", corMolde: COR_MOLDE, moldeFrente: true, verso: "molde", intercalar: true,
-  fundo: "#ffffff", fundoImg: false, fundoModo: "cobrir", fundoOpac: 100,
+  cobrirFolha: false, fundo: "#ffffff", fundoImg: false, fundoModo: "cobrir", fundoOpac: 100,
   itens: ITENS_PADRAO(), csv: "Maria Souza\nJoão Pereira\nAna Clara Lima", sel: 0, usarCsv: true,
 };
 export const capasCfg = criarStore("capas-cfg", CAPA_CFG_PADRAO);
@@ -86,3 +86,31 @@ export function tamanhoCaber(txt, it, larguraMm) {
   const max = it.tam, mm = larguraMm / Math.max(0.01, em) / PT;
   return Math.min(max, Math.max(6, mm));
 }
+
+// Formas de fundo do texto (SVG em 100×100, esticado até a caixa). `extra` = respiro extra embaixo (mm).
+export const FORMAS_TEXTO = [
+  ["nenhum", "Sem fundo"], ["retangulo", "Retângulo"], ["arredondado", "Arredondado"], ["pilula", "Pílula"], ["oval", "Oval"],
+  ["nuvem", "Nuvem"], ["balao", "Balão de fala"], ["estrela", "Explosão"], ["onda", "Faixa ondulada"], ["fita", "Fita"],
+];
+function scallop(nx, ny) {
+  const x0 = 9, x1 = 91, y0 = 14, y1 = 86; let d = `M${x0} ${y0}`;
+  const sx = (x1 - x0) / nx, sy = (y1 - y0) / ny;
+  for (let i = 1; i <= nx; i += 1) d += `A${sx / 2} 8 0 0 1 ${x0 + sx * i} ${y0}`;
+  for (let i = 1; i <= ny; i += 1) d += `A8 ${sy / 2} 0 0 1 ${x1} ${y0 + sy * i}`;
+  for (let i = 1; i <= nx; i += 1) d += `A${sx / 2} 8 0 0 1 ${x1 - sx * i} ${y1}`;
+  for (let i = 1; i <= ny; i += 1) d += `A8 ${sy / 2} 0 0 1 ${x0} ${y1 - sy * i}`;
+  return `${d}Z`;
+}
+function explosao(n) {
+  const p = [];
+  for (let i = 0; i < n * 2; i += 1) { const a = (Math.PI * i) / n, r = i % 2 ? 40 : 50; p.push(`${(50 + r * Math.cos(a)).toFixed(1)},${(50 + r * 0.98 * Math.sin(a)).toFixed(1)}`); }
+  return p.join(" ");
+}
+export const CAMINHO_FORMA = {
+  nuvem: { d: scallop(6, 3), pad: 3.2 },
+  balao: { d: "M8 0H92Q100 0 100 8V72Q100 80 92 80H38L20 100L27 80H8Q0 80 0 72V8Q0 0 8 0Z", pad: 1, extra: 6 },
+  estrela: { pol: explosao(14), pad: 3.8 },
+  onda: { d: "M0 10Q12.5 0 25 10T50 10T75 10T100 10V90Q87.5 100 75 90T50 90T25 90T0 90Z", pad: 2 },
+  fita: { pol: "0,8 100,8 93,50 100,92 0,92 7,50", pad: 1.7 },
+};
+export const CORES_FUNDO_TEXTO = ["#ffffff", "#fff4d6", "#ffd6e0", "#d6ecff", "#d9f2d9", "#ffe08a", "#24344D", "#000000"];
