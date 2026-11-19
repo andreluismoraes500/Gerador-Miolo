@@ -32,7 +32,7 @@ export const CAPA_CFG_PADRAO = {
   orient: "retrato", placaW: 160, placaH: 220, dobra: 17.5,
   molde: "linhas", corMolde: COR_MOLDE, moldeFrente: true, verso: "molde", intercalar: true,
   cobrirFolha: false, fundo: "#ffffff", fundoImg: false, fundoModo: "cobrir", fundoOpac: 100,
-  itens: ITENS_PADRAO(), csv: "Maria Souza\nJoão Pereira\nAna Clara Lima", sel: 0, usarCsv: true,
+  itens: ITENS_PADRAO(), csv: "Maria Souza\nJoão Pereira\nAna Clara Lima", sel: 0, usarCsv: true, saida: "a4", virar: "longa",
 };
 export const capasCfg = criarStore("capas-cfg", CAPA_CFG_PADRAO);
 

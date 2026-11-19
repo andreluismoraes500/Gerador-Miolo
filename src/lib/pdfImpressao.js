@@ -13,8 +13,11 @@ export function parseIntervalo(txt, total) {
   return out.sort((x, y) => x - y);
 }
 
-// Renderiza cada página do PDF em JPEG (~200 dpi em A4). Chama onPagina(i, {url, larg, alt}).
-export async function lerPdf(arquivo, { onTotal, onPagina, cancelado }) {
+// Renderiza cada página do PDF em JPEG (dpi conforme a qualidade). Chama onPagina(i, {url, larg, alt}).
+export const QUALIDADES = { rascunho: { nome: "Rascunho (leve, ~110 dpi)", lado: 1280, q: 0.75 }, normal: { nome: "Normal (recomendado, ~150 dpi)", lado: 1754, q: 0.8 }, alta: { nome: "Alta (pesado, ~200 dpi)", lado: 2339, q: 0.9 } };
+
+export async function lerPdf(arquivo, { onTotal, onPagina, cancelado, qualidade = "normal" }) {
+  const Q = QUALIDADES[qualidade] || QUALIDADES.normal;
   const pdfjs = await import("pdfjs-dist");
   const worker = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
   pdfjs.GlobalWorkerOptions.workerSrc = worker;
@@ -25,7 +28,7 @@ export async function lerPdf(arquivo, { onTotal, onPagina, cancelado }) {
     if (cancelado()) break;
     const page = await doc.getPage(n);
     const v1 = page.getViewport({ scale: 1 });
-    const escala = 2339 / Math.max(v1.width, v1.height);
+    const escala = Q.lado / Math.max(v1.width, v1.height);
     const vp = page.getViewport({ scale: escala });
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(vp.width);
@@ -34,8 +37,8 @@ export async function lerPdf(arquivo, { onTotal, onPagina, cancelado }) {
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     await page.render({ canvasContext: ctx, viewport: vp }).promise;
-    const blob = await new Promise((r) => canvas.toBlob(r, "image/jpeg", 0.93));
-    onPagina(n - 1, { url: URL.createObjectURL(blob), larg: canvas.width, alt: canvas.height });
+    const blob = await new Promise((r) => canvas.toBlob(r, "image/jpeg", Q.q));
+    onPagina(n - 1, { url: URL.createObjectURL(blob), larg: canvas.width, alt: canvas.height, bytes: blob.size });
     page.cleanup();
   }
   doc.destroy();

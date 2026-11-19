@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { LadosImpressao } from "../components/OpcoesImpressao";
 import { aguardarImagens, FORMATOS, impressao, prepararImpressao } from "../lib/configImpressao";
-import { lerPdf, parseIntervalo } from "../lib/pdfImpressao";
+import { lerPdf, parseIntervalo, QUALIDADES } from "../lib/pdfImpressao";
+import { gerarPdfLeve } from "../lib/pdfLeve";
 import { pdfCfg, TONS } from "../lib/configPdf";
 import PdfFolha from "../components/PdfFolha";
 import { PainelStickers, StickerPortais } from "../components/StickersEditor";
@@ -25,6 +26,8 @@ export default function ImprimirPdfPage() {
   const stItens = stickersDados.useStore().itens;
   const { editando } = stickersUi.useStore();
   const token = useRef(0);
+  const [arquivo, setArquivo] = useState(null);
+  const [qual, setQual] = useState("normal");
   const lerImg = (set) => (e) => {
     const f = e.target.files?.[0];
     e.target.value = "";
@@ -37,22 +40,16 @@ export default function ImprimirPdfPage() {
 
   useEffect(() => () => { token.current += 1; }, []);
 
-  const enviar = async (e) => {
-    const f = e.target.files?.[0];
-    e.target.value = "";
-    if (!f) return;
-    if (f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf")) {
-      toast.error("Escolha um arquivo PDF.");
-      return;
-    }
+  const carregar = async (f, q) => {
     const meu = (token.current += 1);
     setNome(f.name);
+    setArquivo(f);
     setPaginas([]);
     setTotal(0);
-    setIntervalo("");
     setLendo(true);
     try {
       await lerPdf(f, {
+        qualidade: q,
         onTotal: setTotal,
         onPagina: (i, p) => meu === token.current && setPaginas((a) => { const n = [...a]; n[i] = p; return n; }),
         cancelado: () => meu !== token.current,
@@ -61,17 +58,52 @@ export default function ImprimirPdfPage() {
       console.error(err);
       toast.error("Não consegui ler esse PDF (protegido por senha ou corrompido?).");
       setNome("");
+      setArquivo(null);
     } finally {
       if (meu === token.current) setLendo(false);
     }
   };
+  const enviar = async (e) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    if (f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf")) {
+      toast.error("Escolha um arquivo PDF.");
+      return;
+    }
+    setIntervalo("");
+    await carregar(f, qual);
+  };
+  const trocarQualidade = (q) => { setQual(q); if (arquivo) carregar(arquivo, q); };
 
   const escolhidas = parseIntervalo(intervalo, total).filter((i) => paginas[i]);
+  const mb = escolhidas.reduce((t, i) => t + (paginas[i]?.bytes || 0), 0) / 1048576;
   const f = FORMATOS.find((x) => x.id === formato) || FORMATOS[0];
   const porFolha = f.cols * f.rows;
   const deitado = !girar && !!paginas[escolhidas[0]] && paginas[escolhidas[0]].larg > paginas[escolhidas[0]].alt;
   const folhas = Math.ceil(escolhidas.length / porFolha);
 
+  const [gerando, setGerando] = useState("");
+  const baixarLeve = async () => {
+    if (!escolhidas.length) { toast.error("Nenhuma página escolhida."); return; }
+    try {
+      setGerando("0%");
+      const primeira = paginas[escolhidas[0]];
+      const bytes = await gerarPdfLeve({
+        paginas, indices: escolhidas, formato, lados: impressao.get().lados, ajuste, girar, inv,
+        paisagem: !girar && !!primeira && primeira.larg > primeira.alt,
+        aoProgresso: (a, t) => setGerando(`${Math.round((a / t) * 100)}%`),
+      });
+      const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+      const a = document.createElement("a");
+      a.href = url; a.download = `${(nome || "miolo").replace(/\.pdf$/i, "")}-impressao.pdf`; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      toast.success(`PDF leve pronto: ${(bytes.length / 1048576).toFixed(1)} MB. Abra e imprima por ele.`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Não consegui gerar o PDF leve.");
+    } finally { setGerando(""); }
+  };
   const imprimir = async () => {
     if (!escolhidas.length) return toast.error("Nenhuma página selecionada.");
     const primeira = paginas[escolhidas[0]];
@@ -101,6 +133,16 @@ export default function ImprimirPdfPage() {
 
         {total > 0 && (
           <div className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-col gap-3 text-xs text-[#24344D]">
+            <div className="flex flex-wrap items-end gap-4">
+              <label className="flex flex-col gap-1">Qualidade da imagem (quanto maior, mais pesado o trabalho de impressão)
+                <select value={qual} onChange={(e) => trocarQualidade(e.target.value)} className="border border-[#D8CBA8] rounded-lg px-2.5 py-2 bg-white">
+                  {Object.entries(QUALIDADES).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}
+                </select>
+              </label>
+              <span className={mb > 120 ? "text-red-700 font-semibold" : "text-[#6B6458]"}>
+                {escolhidas.length} página(s) ≈ {mb.toFixed(0)} MB{mb > 120 ? " — pesado: imprima em partes (ex.: 1-20, depois 21-40) ou use Qualidade Normal/Rascunho." : ""}
+              </span>
+            </div>
             <LadosImpressao />
             <div className="flex flex-wrap items-end gap-4">
               <label className="flex flex-col gap-1">Páginas (ex.: 1-5, 8, 10-12 — vazio = todas)
@@ -151,6 +193,10 @@ export default function ImprimirPdfPage() {
               {escolhidas.length} página(s) → {folhas} folha(s) {f.id === "a4" ? "A4" : f.nome.toLowerCase()}.
               Na caixa de impressão do navegador, deixe <b>escala 100%</b> e <b>margens: nenhuma</b>.
             </p>
+            <button type="button" onClick={baixarLeve} disabled={lendo || !!gerando} className="self-start bg-[#8B1D2C] disabled:opacity-50 text-white font-semibold text-sm py-2.5 px-6 rounded-xl">
+              {gerando ? `Gerando PDF leve… ${gerando}` : "⬇️ Baixar PDF leve (recomendado para imprimir)"}
+            </button>
+            <p className="text-[11px] text-[#6B6458] -mt-1">Gera um PDF pequeno e já organizado (frente/verso, 2 por folha, brochura…) para abrir e mandar para a impressora. Não leva fundo, marca d'água nem stickers.</p>
             <button type="button" onClick={imprimir} disabled={lendo} className="self-start bg-[#24344D] disabled:opacity-50 text-[#F6F1E7] font-semibold text-sm py-2.5 px-6 rounded-xl">
               🖨️ Imprimir / salvar PDF
             </button>
