@@ -45,7 +45,7 @@ export const impressao = criarStore("impressao-lados", { lados: "ambos", formato
 // Posição de cada página nas folhas. Cada folha é { lado, cells: [indicePágina|null] }.
 // Nas folhas múltiplas, frente e verso são montados para que, depois de virar
 // a folha e cortar, cada pedaço fique com frente = página ímpar, verso = par.
-function montarFolhas(n, f) {
+export function montarFolhas(n, f) {
   const k = f.cols * f.rows;
   const folhas = [];
   if (k === 1) {

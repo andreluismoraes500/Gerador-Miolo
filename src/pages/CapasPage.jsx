@@ -6,6 +6,7 @@ import { PainelStickers } from "../components/StickersEditor";
 import CapaFolha from "../components/capas/CapaFolha";
 import { stickersDados } from "../lib/stickers";
 import { geom } from "../lib/capas";
+import { aguardarImagens } from "../lib/configImpressao";
 import { CORES_FUNDO_TEXTO, FORMAS_TEXTO, capasCfg, capasImgs, CAPA_CFG_PADRAO, FONTES_CAPA2, ITENS_PADRAO, itemImagem, itemTexto, lerCsv } from "../lib/capas";
 import { limparCacheMedida } from "../lib/cartaz";
 import { lerImagem } from "../lib/lerImagem";
@@ -94,8 +95,36 @@ export default function CapasPage() {
     if (c.imprimir !== "versos") paginas.push({ n, d, lado: "frente" });
     if (c.verso !== "nenhum" && c.imprimir !== "frentes") paginas.push({ n, d, lado: "verso" });
   });
-  const imprimir = () => {
+  // Saída A5 ×2: cada capa vira meia folha A4 (70,7%), duas por folha, sem borda; o verso casa pela borda escolhida.
+  const a5 = c.saida === "a5x2";
+  const S = a5 ? (F.w > F.h ? { w: 210, h: 297 } : { w: 297, h: 210 }) : F;
+  const metade = F.w > F.h ? { w: 210, h: 148.5 } : { w: 148.5, h: 210 };
+  const folhasA5 = [];
+  if (a5) {
+    const troca = c.virar === "curta";
+    for (let i = 0; i < nomes.length; i += 2) {
+      const par = [nomes[i], nomes[i + 1]];
+      if (c.imprimir !== "versos") folhasA5.push([0, 1].map((k) => (par[k] ? { d: par[k], lado: "frente" } : null)));
+      if (c.verso !== "nenhum" && c.imprimir !== "frentes") {
+        const ordem = troca ? [1, 0] : [0, 1];
+        folhasA5.push(ordem.map((k) => (par[k] ? { d: par[k], lado: "verso" } : null)));
+      }
+    }
+  }
+  const nFolhas = a5 ? folhasA5.length : paginas.length;
+  const FolhaA5 = ({ cel }) => (
+    <div style={{ position: "relative", width: `${S.w}mm`, height: `${S.h}mm`, background: "#fff", overflow: "hidden" }}>
+      {cel.map((x, k) => (
+        <div key={k} style={{ position: "absolute", left: F.w > F.h ? 0 : `${k * metade.w}mm`, top: F.w > F.h ? `${k * metade.h}mm` : 0, width: `${metade.w}mm`, height: `${metade.h}mm`, overflow: "hidden", background: "#fff" }}>
+          {x && <div style={{ width: `${F.w}mm`, height: `${F.h}mm`, zoom: 0.70711 }}><CapaFolha c={c} dados={x.d} lado={x.lado} /></div>}
+        </div>
+      ))}
+    </div>
+  );
+  const imprimir = async () => {
+    if (!nFolhas) { toast.error("Nada para imprimir: escolha frentes ou versos."); return; }
     if (!paginas.length) { toast.error("Nada para imprimir: escolha frentes ou versos."); return; }
+    try { await aguardarImagens(document.querySelector(".cp-print") || document); } catch { /* segue */ }
     window.print();
   };
   const modeloCsv = () => {
@@ -108,12 +137,13 @@ export default function CapasPage() {
       <style>{`
         .cp-print { display: none; }
         @media print {
-          @page { size: ${F.w}mm ${F.h}mm; margin: 0; }
-          html, body { width: ${F.w}mm !important; height: auto !important; }
+          @page { size: ${S.w}mm ${S.h}mm; margin: 0; }
+          html, body { width: ${S.w}mm !important; height: auto !important; }
           .cp-raiz { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+          html, body { background: #fff !important; }
           .cp-tela { display: none !important; }
           .cp-print { display: block !important; }
-          .cp-print .cp-pag { page-break-after: always; break-after: page; height: ${F.h}mm; overflow: hidden; }
+          .cp-print .cp-pag { page-break-after: always; break-after: page; height: ${S.h}mm; overflow: hidden; }
           .cp-print .cp-pag:last-child { page-break-after: auto; break-after: auto; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
@@ -270,6 +300,23 @@ export default function CapasPage() {
                 <option value="nenhum">Sem verso (só frente)</option>
               </select>
             </Campo>
+            <Campo rotulo="Saída da impressão">
+              <select className={entrada} value={c.saida || "a4"} onChange={(e) => set({ saida: e.target.value })}>
+                <option value="a4">1 capa por folha A4 (como está)</option>
+                <option value="a5x2">2 capas por folha A4, cada uma em tamanho A5 (impressora sem borda → corte ao meio)</option>
+              </select>
+            </Campo>
+            {a5 && (
+              <div className="flex flex-col gap-2">
+                <Campo rotulo="Impressão frente e verso: virar a folha pela">
+                  <select className={entrada} value={c.virar || "longa"} onChange={(e) => set({ virar: e.target.value })}>
+                    <option value="longa">Borda longa (padrão da maioria das impressoras)</option>
+                    <option value="curta">Borda curta</option>
+                  </select>
+                </Campo>
+                <p className="text-[11px] text-[#6B6458]">Cada capa é reduzida a 70,7% (A4 → A5) e as duas ocupam a folha inteira, sem sobra branca: imprima em A4 sem borda e corte ao meio. Nomes seguidos ficam lado a lado (1º e 2º, 3º e 4º…) e o verso já sai alinhado.</p>
+              </div>
+            )}
             <Campo rotulo="Imprimir">
               <select className={entrada} value={c.imprimir || "tudo"} onChange={(e) => set({ imprimir: e.target.value })}>
                 <option value="tudo">Frente e verso (impressora duplex; molde é simétrico, qualquer borda serve)</option>
@@ -289,7 +336,7 @@ export default function CapasPage() {
             <p className="text-[11px] text-[#6B6458]">Padrão: placa 160 × 220 mm (capa A5 em pé; deitada vira 220 × 160) com 17,5 mm de dobra, cantos cortados a 45°. Paisagem imprime em folha A4 deitada.</p>
           </Painel>
 
-          <button type="button" onClick={imprimir} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#8B1D2C] text-white font-bold hover:bg-[#741626]"><MdPrint /> Imprimir {nomes.length} capa(s) — {paginas.length} folha(s) A4</button>
+          <button type="button" onClick={imprimir} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#8B1D2C] text-white font-bold hover:bg-[#741626]"><MdPrint /> Imprimir {nomes.length} capa(s) — {nFolhas} folha(s) A4</button>
         </div>
 
         <div ref={colRef} className="pre-fixa flex flex-col gap-3 items-center min-w-0">
@@ -312,9 +359,11 @@ export default function CapasPage() {
       </div>
 
       <div className="cp-print">
-        {paginas.slice(0, 600).map((p, k) => (
-          <div key={k} className="cp-pag"><CapaFolha c={c} dados={p.d} lado={p.lado} /></div>
-        ))}
+        {a5
+          ? folhasA5.slice(0, 300).map((cel, k) => <div key={k} className="cp-pag"><FolhaA5 cel={cel} /></div>)
+          : paginas.slice(0, 600).map((p, k) => (
+            <div key={k} className="cp-pag"><CapaFolha c={c} dados={p.d} lado={p.lado} /></div>
+          ))}
       </div>
     </div>
   );
