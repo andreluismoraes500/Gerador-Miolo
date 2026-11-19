@@ -290,7 +290,7 @@ export function useTalonarioBuilder() {
 
   // ---------------- Entrega ----------------
   const [entrega, setEntrega] = useState(() => ({
-    empresa: "", rotuloTel: "TELE-ENTREGA", telefone: "", endereco: "", titulo: "PEDIDO",
+    empresa: "", rotuloTel: "TELEFONE", telefone: "", endereco: "", titulo: "PEDIDO",
     caixas: true, recebedor: true, numStart: 1, numEnd: 100, prefix: "", digits: 6, linhas: 14, rodape: "", numerar: true,
   }));
   const setEntregaField = useCallback((key, value) => {

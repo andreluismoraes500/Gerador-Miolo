@@ -1157,7 +1157,7 @@ export function WatermarkPanel({ watermark, setField, activeTab, hasLogo }) {
   );
 }
 
-// ---------------- Entrega (tele-entrega) ----------------
+// ---------------- Supermercado: pedido com caixas ----------------
 
 export function EntregaPanel({ entrega, setField, range }) {
   return (
@@ -1165,18 +1165,18 @@ export function EntregaPanel({ entrega, setField, range }) {
       <SectionTitle>Cabeçalho</SectionTitle>
       <Label first>Nome do estabelecimento</Label>
       <TextInput placeholder="Ex: Mercado Bom Preço" value={entrega.empresa} onChange={(e) => setField("empresa", e.target.value)} />
-      <Label>Texto acima do telefone</Label>
+      <Label>Texto acima do telefone (opcional)</Label>
       <TextInput value={entrega.rotuloTel} onChange={(e) => setField("rotuloTel", e.target.value)} />
-      <Label>Telefone / WhatsApp de entrega</Label>
+      <Label>Telefone / WhatsApp do mercado</Label>
       <TextInput placeholder="(00) 0000-0000" value={entrega.telefone} onChange={(e) => setField("telefone", e.target.value)} />
-      <Label>Endereço / cidade (linha pequena)</Label>
+      <Label>Endereço do mercado (linha pequena)</Label>
       <TextInput value={entrega.endereco} onChange={(e) => setField("endereco", e.target.value)} />
       <Label>Título do canto direito</Label>
       <TextInput value={entrega.titulo} onChange={(e) => setField("titulo", e.target.value)} />
 
-      <SectionTitle>Campos da entrega</SectionTitle>
-      <CheckRow label="Quantidade de caixas a entregar" checked={entrega.caixas} onChange={(e) => setField("caixas", e.target.checked)} />
-      <CheckRow label="Linha de “Recebido por” (assinatura do cliente)" checked={entrega.recebedor} onChange={(e) => setField("recebedor", e.target.checked)} />
+      <SectionTitle>Campos do pedido</SectionTitle>
+      <CheckRow label="Quantidade de caixas que vão com o cliente" checked={entrega.caixas} onChange={(e) => setField("caixas", e.target.checked)} />
+      <CheckRow label="Linha de conferência do cliente (assinatura e data)" checked={entrega.recebedor} onChange={(e) => setField("recebedor", e.target.checked)} />
 
       <SectionTitle>Numeração automática</SectionTitle>
       <CheckRow label="Numerar os pedidos" checked={entrega.numerar} onChange={(e) => setField("numerar", e.target.checked)} />

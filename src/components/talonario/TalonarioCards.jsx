@@ -1616,7 +1616,7 @@ export function BingoCard({
   );
 }
 
-// ============================== ENTREGA ===============================
+// ============================== SUPERMERCADO (PEDIDO + CAIXAS) ==============================
 
 export function EntregaCard({ empresa, logo, rotuloTel, telefone, endereco, titulo, caixas, recebedor, linhas, rodape, numero, digits, prefix, numerar = true, watermarkStyle }) {
   const numStr = numerar ? `${prefix || ""}${pad(numero, digits)}` : "";
@@ -1648,7 +1648,7 @@ export function EntregaCard({ empresa, logo, rotuloTel, telefone, endereco, titu
         <div className="mt-2.5 flex flex-col" style={{ border: bd, borderRadius: 10, padding: "4px 10px 6px" }}>
           {linha(<span style={rotulo}>Cliente:</span>)}
           {linha(<><span style={rotulo}>Endereço:</span><span className="flex-1" /><span style={rotulo}>Fone:</span><span style={{ width: "30%" }} /></>)}
-          {linha(<><span style={rotulo}>Cidade:</span><span className="flex-1" />{caixas && <><span style={rotulo}>Caixas a entregar:</span><span style={{ width: 56, height: 17, border: "1.3px solid var(--tal-accent)", borderRadius: 4, marginBottom: 2 }} /></>}</>, { borderBottom: "none" })}
+          {linha(<><span style={rotulo}>Cidade:</span><span className="flex-1" />{caixas && <><span style={rotulo}>Qtde. de caixas:</span><span style={{ width: 56, height: 17, border: "1.3px solid var(--tal-accent)", borderRadius: 4, marginBottom: 2 }} /></>}</>, { borderBottom: "none" })}
         </div>
 
         <table className="w-full border-collapse mt-2.5 text-xs" style={{ border: bd }}>
@@ -1669,7 +1669,7 @@ export function EntregaCard({ empresa, logo, rotuloTel, telefone, endereco, titu
         <div className="mt-3 flex items-end gap-4" style={{ border: bd, borderRadius: 10, padding: "8px 12px" }}>
           <div className="flex-1 flex flex-col gap-3">
             <div className="text-center text-[9.5px] text-(--tal-ink-soft)" style={{ borderTop: "1px solid var(--tal-accent)", paddingTop: 2 }}>Assinatura do vendedor</div>
-            {recebedor && <div className="text-center text-[9.5px] text-(--tal-ink-soft)" style={{ borderTop: "1px solid var(--tal-accent)", paddingTop: 2 }}>Recebido por (cliente)  ·  Data: ___/___/_____</div>}
+            {recebedor && <div className="text-center text-[9.5px] text-(--tal-ink-soft)" style={{ borderTop: "1px solid var(--tal-accent)", paddingTop: 2 }}>Cliente (conferiu as caixas)  ·  Data: ___/___/_____</div>}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className="font-extrabold text-[12px] uppercase" style={{ color: "var(--tal-accent-dark)" }}>Valor total R$</span>
