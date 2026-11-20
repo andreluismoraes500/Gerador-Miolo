@@ -62,7 +62,11 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
             clipPath: cobrir ? undefined : `polygon(${g.pts.map(([x, y]) => `${x}mm ${y}mm`).join(",")})`,
           }}
         >
-          {fundoImg && <img src={capasImgs.fundo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: c.fundoModo === "inteira" ? "contain" : "cover", opacity: (c.fundoOpac ?? 100) / 100 }} />}
+          {fundoImg && (
+            <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+              <img src={capasImgs.fundo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: c.fundoModo === "inteira" ? "contain" : "cover", objectPosition: `${c.fundoX ?? 50}% ${c.fundoY ?? 50}%`, transformOrigin: `${c.fundoX ?? 50}% ${c.fundoY ?? 50}%`, transform: `scale(${(c.fundoZoom ?? 100) / 100})`, opacity: (c.fundoOpac ?? 100) / 100 }} />
+            </div>
+          )}
           {comItens && c.itens.map((it, i) => {
             const base = { position: "absolute", left: `${it.x}%`, top: `${it.y}%`, transform: "translate(-50%,-50%)", cursor: interativo ? "move" : "default", touchAction: "none" };
             const marca = interativo && sel === i ? { outline: "0.5mm dashed #2f6fd0", outlineOffset: "1mm" } : {};
