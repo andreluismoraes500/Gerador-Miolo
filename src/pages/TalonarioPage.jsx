@@ -6,7 +6,8 @@
 // destaque de cada aba. A numeração automática e a marca d'água são
 // geradas em lote na hora de imprimir.
 
-import { useRef } from "react";
+import { Children, useRef } from "react";
+import { FORMATOS, FORMATOS_TAL, DICAS_TAL, talImpressao } from "../lib/configImpressao";
 import {
   MdReceiptLong,
   MdMedicalServices,
@@ -68,6 +69,34 @@ function chunk(arr, size) {
   return out;
 }
 
+// Distribui os talões (cada um é uma página A4 .tal-print-page) nas folhas do formato escolhido.
+function FolhasTal({ children }) {
+  const { formato } = talImpressao.useStore();
+  const itens = Children.toArray(children);
+  const f = FORMATOS.find((x) => x.id === formato && !x.livro) || FORMATOS[0];
+  if (f.id === "a4") return itens;
+  const [fw, fh] = f.folha;
+  const cw = fw / f.cols;
+  const ch = fh / f.rows;
+  const z = Math.min(cw / 210, ch / 297);
+  const k = f.cols * f.rows;
+  const grupos = f.dup ? itens.map((el) => [el, el]) : chunk(itens, k);
+  return (
+    <>
+      <style>{`@media print { @page { size: ${fw}mm ${fh}mm; margin: 0; } }`}</style>
+      {grupos.map((g, gi) => (
+        <div key={gi} className="tal-folha" style={{ width: `${fw}mm`, height: `${fh - 0.4}mm` }}>
+          {g.map((el, i) => (
+            <div key={i} className="tal-celula" style={{ left: `${(i % f.cols) * cw}mm`, top: `${Math.floor(i / f.cols) * ch}mm`, width: `${cw}mm`, height: `${ch}mm` }}>
+              <div style={{ zoom: z, width: "210mm", height: "297mm" }}>{el}</div>
+            </div>
+          ))}
+        </div>
+      ))}
+    </>
+  );
+}
+
 const TABS = [
   { id: "pedido", label: "Pedido de Venda", icon: MdReceiptLong },
   { id: "receituario", label: "Receituário", icon: MdMedicalServices },
@@ -107,6 +136,7 @@ export default function TalonarioPage() {
     "--tal-stamp": "#b23b3b",
   };
 
+  const fmtTal = talImpressao.useStore().formato;
   const uploadKey = t.activeTab; // logos.pedido / receituario / receita
 
   return (
@@ -445,6 +475,17 @@ export default function TalonarioPage() {
           <PainelStickers talonario />
 
           <div className="bg-[#FFFEFB] pt-4 pb-1 mt-6 border-t border-[#eee]">
+            <label className="block text-[11.5px] font-semibold text-[#24344D] mb-1">Impressão na folha</label>
+            <select
+              value={fmtTal}
+              onChange={(e) => talImpressao.set({ formato: e.target.value })}
+              className="w-full border border-[#D8CBA8] rounded-lg px-2.5 py-2 text-xs bg-[#FBF8F1] font-medium text-[#24344D] mb-1"
+            >
+              {FORMATOS_TAL.map((x) => (
+                <option key={x.id} value={x.id}>{x.nome}</option>
+              ))}
+            </select>
+            <p className="text-[11px] text-[#8B6A1F] mb-3">{DICAS_TAL[fmtTal]}</p>
             <button
               onClick={t.handlePrint}
               className="w-full text-white font-bold text-[15px] rounded-xl py-3.5 flex items-center justify-center gap-2 transition-transform hover:-translate-y-px active:translate-y-0"
@@ -635,6 +676,7 @@ export default function TalonarioPage() {
       {/* ---------- lote de impressão (só aparece no @media print) ---------- */}
       {t.printBatch && (
         <div className="hidden print:block" ref={printBatchRef}>
+          <FolhasTal>
           {t.printBatch.tab === "pedido" &&
             t.printBatch.items.map((n) => (
               <div key={n} className="tal-print-page">
@@ -805,6 +847,7 @@ export default function TalonarioPage() {
                 </div>
               ));
             })()}
+          </FolhasTal>
         </div>
       )}
     </div>

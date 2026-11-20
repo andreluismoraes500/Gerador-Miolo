@@ -8,6 +8,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 import { usePersistedState } from "./usePersistedState";
+import { aguardarImagens } from "../lib/configImpressao";
 
 // Paleta padrão de cada aba — usada como ponto de partida e como opção de
 // "restaurar cor padrão" nas configurações.
@@ -770,7 +771,9 @@ export function useTalonarioBuilder() {
     // conteúdo precisa continuar no DOM até o Puppeteer terminar de gerar
     // o PDF (ver usePdfReadySignal em TalonarioPage.jsx).
     if (typeof window !== "undefined" && window.__PDF_HEADLESS__) return;
-    printTimeoutRef.current = setTimeout(() => {
+    printTimeoutRef.current = setTimeout(async () => {
+      const raiz = document.querySelector(".tal-folha, .tal-print-page")?.parentElement || document;
+      await aguardarImagens(raiz);
       window.print();
       setPrintBatch(null);
     }, 80);
