@@ -16,12 +16,25 @@ const Painel = ({ titulo, children, cls = "" }) => (
   <section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>
 );
 const Campo = ({ rotulo, children }) => <label className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}</label>;
-const Faixa = ({ rotulo, valor, min, max, step = 1, un = "", onChange }) => (
-  <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
-    <span className="flex justify-between"><span>{rotulo}</span><span className="text-[#24344D]">{valor}{un}</span></span>
-    <input type="range" min={min} max={max} step={step} value={valor} onChange={(e) => onChange(Number(e.target.value))} />
-  </label>
-);
+// Controle deslizante + caixa para DIGITAR o valor exato.
+const Faixa = ({ rotulo, valor, min, max, step = 1, un = "", onChange }) => {
+  const trava = (v) => Math.min(max, Math.max(min, v));
+  return (
+    <div className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
+      <span className="flex justify-between items-center gap-2">
+        <span>{rotulo}</span>
+        <span className="inline-flex items-center gap-1 text-[#24344D]">
+          <input type="number" min={min} max={max} step={step} value={Number.isFinite(valor) ? valor : ""} aria-label={rotulo}
+            onChange={(e) => { const n = Number(e.target.value); if (e.target.value !== "" && Number.isFinite(n)) onChange(n); }}
+            onBlur={(e) => onChange(trava(Number(e.target.value) || min))}
+            className="w-16 rounded-md border border-[#D8CBA8] bg-white px-1.5 py-0.5 text-right text-xs font-semibold" />
+          {un.trim()}
+        </span>
+      </span>
+      <input type="range" min={min} max={max} step={step} value={Math.min(max, Math.max(min, valor))} onChange={(e) => onChange(Number(e.target.value))} aria-label={`${rotulo} (deslizar)`} />
+    </div>
+  );
+};
 const Chip = ({ ativo, children, ...p }) => (
   <button type="button" {...p} className={`text-xs px-3 py-1.5 rounded-full border ${ativo ? "bg-[#24344D] text-white border-[#24344D]" : "bg-white text-[#24344D] border-[#D8CBA8]"}`}>{children}</button>
 );
