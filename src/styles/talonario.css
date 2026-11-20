@@ -66,4 +66,25 @@
     min-height: 0;
     min-width: 0;
   }
+
+  /* Várias por folha (A5/A6/2 por folha/4 por folha): cada talão é uma página A4 reduzida dentro de uma célula. */
+  .tal-folha {
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    break-after: page;
+    page-break-after: always;
+  }
+  .tal-folha:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  .tal-celula {
+    position: absolute;
+    overflow: hidden;
+  }
+  .tal-celula .tal-print-page {
+    break-after: auto;
+    page-break-after: auto;
+  }
 }

@@ -40,6 +40,18 @@ export const FORMATOS = [
   },
 ];
 
+// Formatos de folha do Talonário: os mesmos da agenda, menos a brochura.
+export const FORMATOS_TAL = FORMATOS.filter((x) => !x.livro);
+export const DICAS_TAL = {
+  a4: "Um talão por folha A4.",
+  a5: "Um talão por folha A5 (coloque papel A5 na bandeja).",
+  a6: "Um talão por folha A6 (coloque papel A6 na bandeja).",
+  "2up": "Folha A4 deitada com 2 talões diferentes lado a lado (1 e 2, 3 e 4…). Corte ao meio.",
+  "2dup": "Folha A4 deitada com o MESMO talão 2 vezes (via do cliente e via da loja, com a mesma numeração). Corte ao meio.",
+  "4up": "Folha A4 em pé com 4 talões diferentes (A6). Corte em cruz.",
+};
+export const talImpressao = criarStore("talonario-impressao", { formato: "a4" });
+
 export const impressao = criarStore("impressao-lados", { lados: "ambos", formato: "a4", compensar: true });
 
 // Posição de cada página nas folhas. Cada folha é { lado, cells: [indicePágina|null] }.
