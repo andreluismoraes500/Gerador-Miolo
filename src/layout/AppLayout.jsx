@@ -112,7 +112,7 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F1E7] bg-[radial-gradient(circle_at_top,#FBF8F1_0%,#F1EADB_55%,#EAE1CD_100%)] flex flex-col font-sans text-[#2B2A28]">
+    <div className="min-h-screen print:!bg-none print:!bg-white bg-[#F6F1E7] bg-[radial-gradient(circle_at_top,#FBF8F1_0%,#F1EADB_55%,#EAE1CD_100%)] flex flex-col font-sans text-[#2B2A28]">
       <Toaster position="bottom-right" />
 
       <header

@@ -434,3 +434,7 @@ body.sticker-editando .sticker-host::after {
   html, body { overflow-x: clip; max-width: 100%; }
   img, video, canvas { max-width: 100%; }
 }
+
+@media print {
+  html, body, #root { background: #fff !important; background-image: none !important; }
+}
