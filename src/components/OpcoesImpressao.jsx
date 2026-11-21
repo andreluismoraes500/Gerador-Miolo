@@ -4,6 +4,8 @@ import { horarioCfg } from "../lib/configHorario";
 import { FORMATOS, LADOS, LADOS_WIRE, DICAS_LADOS, impressao } from "../lib/configImpressao";
 import { TIPOS_PAUTA, partiturasCfg } from "../lib/configPartituras";
 import OpcoesFonte from "./ui/OpcoesFonte";
+import Faixa from "./ui/Faixa";
+import { pautadoCfg, ESTILOS_PAUTA, CORES_PAUTA } from "../lib/configPautado";
 
 // Escolha de quais lados imprimir (para quem não tem impressora frente e verso).
 export function LadosImpressao({ compacto = false }) {
@@ -62,6 +64,50 @@ export function LadosImpressao({ compacto = false }) {
       )}
       {!compacto && wire && !f.livro && <p className="text-[11px] text-[#8B6A1F] max-w-md">Wire-o: a página é reduzida um pouco para deixar a faixa de {wireMm} mm livre para os furos. {wireLado === "topo" ? "Em cima: vire a folha pela borda de cima (como calendário)." : "Com “inverter o lado no verso”, a faixa fica no mesmo lado físico da folha nos dois lados (use virar pela borda LONGA)."}</p>}
       {!compacto && <p className="text-[11px] text-[#8B6A1F] max-w-md">{[f.dica, DICAS_LADOS[lados]].filter(Boolean).join(" ")}</p>}
+    </div>
+  );
+}
+
+// Caderno Pautado: espaçamento, estilo e cor das linhas.
+export function PautadoOpcoes() {
+  const c = pautadoCfg.useStore();
+  const set = (o) => pautadoCfg.set(o);
+  const sel = "border border-[#D8CBA8] rounded-lg px-2.5 py-2 text-xs bg-[#FBF8F1] font-medium text-[#24344D]";
+  const chk = "flex items-center gap-2 text-xs text-[#24344D]";
+  return (
+    <div className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-col gap-3 print:hidden max-w-2xl">
+      <div>
+        <h3 className="text-sm font-bold text-[#24344D]">📏 Caderno pautado — só linhas</h3>
+        <p className="text-[11px] text-[#8B6A1F]">Folhas com apenas as linhas de pauta. Ajuste o espaço entre elas, o estilo e a cor.</p>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {[[6, "Estreita 6 mm"], [7, "Caligrafia 7 mm"], [8, "Escolar 8 mm"], [10, "Larga 10 mm"], [12, "Extra larga 12 mm"]].map(([v, n]) => (
+          <button key={v} type="button" onClick={() => set({ espac: v })} className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold ${c.espac === v ? "bg-[#24344D] text-white border-[#24344D]" : "bg-white border-[#D8CBA8] text-[#24344D]"}`}>{n}</button>
+        ))}
+      </div>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Faixa rotulo="Espaço entre as linhas" valor={c.espac} min={4} max={16} step={0.5} un="mm" onChange={(v) => set({ espac: v })} />
+        <Faixa rotulo="Espessura da linha" valor={c.espessura} min={0.1} max={0.8} step={0.05} un="mm" onChange={(v) => set({ espessura: v })} />
+        <Faixa rotulo="Folga antes da 1ª linha" valor={c.inicio} min={0} max={60} un="mm" onChange={(v) => set({ inicio: v })} />
+        <Faixa rotulo="Número de folhas" valor={c.paginas} min={2} max={200} onChange={(v) => set({ paginas: Math.max(2, Math.min(200, Math.round(v))) })} />
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <select value={c.estilo} onChange={(e) => set({ estilo: e.target.value })} aria-label="Estilo da linha" className={sel}>
+          {ESTILOS_PAUTA.map((x) => <option key={x.id} value={x.id}>{x.nome}</option>)}
+        </select>
+        <div className="flex items-center gap-1.5" role="radiogroup" aria-label="Cor da linha">
+          {CORES_PAUTA.map((cor) => (
+            <button key={cor} type="button" role="radio" aria-checked={c.cor === cor} aria-label={cor} onClick={() => set({ cor })} className={`w-6 h-6 rounded-full border ${c.cor === cor ? "ring-2 ring-[#8B1D2C]" : "border-[#D8CBA8]"}`} style={{ background: cor }} />
+          ))}
+          <input type="color" value={c.cor} onChange={(e) => set({ cor: e.target.value })} aria-label="Outra cor" className="w-7 h-7 p-0 border border-[#D8CBA8] rounded cursor-pointer bg-white" />
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-x-5 gap-y-1.5">
+        <label className={chk}><input type="checkbox" checked={c.margemLinha} onChange={(e) => set({ margemLinha: e.target.checked })} />Linha de margem vertical</label>
+        <label className={chk}><input type="checkbox" checked={c.cabecalho} onChange={(e) => set({ cabecalho: e.target.checked })} />Linhas de nome e data no topo</label>
+        <label className={chk}><input type="checkbox" checked={c.numerar} onChange={(e) => set({ numerar: e.target.checked })} />Numerar as folhas</label>
+      </div>
+      {c.margemLinha && <Faixa rotulo="Posição da margem (da borda esquerda)" valor={c.margemX} min={8} max={60} un="mm" onChange={(v) => set({ margemX: v })} />}
     </div>
   );
 }

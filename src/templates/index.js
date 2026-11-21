@@ -59,6 +59,7 @@ const LOADERS = {
   sonhos: () => import("./sonhos.jsx"),
   wishlist: () => import("./wishlist.jsx"),
   cadernoUniversitario: () => import("./cadernoUniversitario.jsx"),
+  pautado: () => import("./pautado.jsx"),
   cadernoReceitas: () => import("./cadernoReceitas.jsx"),
   bulletJournal: () => import("./bulletJournal.jsx"),
   babyBook: () => import("./babyBook.jsx"),

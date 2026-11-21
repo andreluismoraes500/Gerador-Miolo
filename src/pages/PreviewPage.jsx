@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
 import { MdArrowBack, MdPrint } from "react-icons/md";
-import { LadosImpressao, PartiturasOpcoes, HorarioOpcoes, DevocionalOpcoes, AgendaAnualOpcoes } from "../components/OpcoesImpressao";
+import { LadosImpressao, PartiturasOpcoes, PautadoOpcoes, HorarioOpcoes, DevocionalOpcoes, AgendaAnualOpcoes } from "../components/OpcoesImpressao";
 import { PainelStickers, StickerPortais } from "../components/StickersEditor";
 import { stickersDados, stickersUi } from "../lib/stickers";
 import AgendaPreview from "../components/AgendaPreview";
@@ -101,6 +101,7 @@ export default function PreviewPage() {
           <LadosImpressao />
         </div>
         {((builderMode && modules.some((m) => m.templateKey === "partituras")) || (!builderMode && template === "partituras")) && <PartiturasOpcoes />}
+        {((builderMode && modules.some((m) => m.templateKey === "pautado")) || (!builderMode && template === "pautado")) && <PautadoOpcoes />}
         {((builderMode && modules.some((m) => m.templateKey === "diarioHorario")) || (!builderMode && template === "diarioHorario")) && <HorarioOpcoes />}
         {((builderMode && modules.some((m) => m.templateKey === "devocional")) || (!builderMode && template === "devocional")) && <DevocionalOpcoes />}
         {((builderMode && modules.some((m) => m.templateKey === "agendaAnual")) || (!builderMode && template === "agendaAnual")) && <AgendaAnualOpcoes />}
