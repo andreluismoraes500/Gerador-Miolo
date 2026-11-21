@@ -8,6 +8,11 @@ import FolhaCartoes from "../components/cartao/FolhaCartoes";
 import { lerImagem } from "../lib/lerImagem";
 import BotaoPadrao from "../components/BotaoPadrao";
 import { AJUSTE_ARTE, calcularLayout, cartaoCfg, FONTES, PALETAS, PAPEIS, TAMANHOS } from "../lib/cartaoVisita";
+import Painel from "../components/ui/Painel";
+import Faixa from "../components/ui/Faixa";
+import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
+import { useHistorico } from "../lib/historico";
+import { temImagem } from "../lib/projetos";
 
 const MM = 3.7795; // px por mm
 
@@ -18,11 +23,6 @@ const Campo = ({ rotulo, children, dica }) => (
   </div>
 );
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
-const Painel = ({ titulo, children, cls = "" }) => (
-  <section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}>
-    <h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}
-  </section>
-);
 const Seg = ({ valor, opcoes, onChange }) => (
   <div className="flex flex-wrap gap-1.5">
     {opcoes.map(([v, n]) => (
@@ -34,6 +34,8 @@ const Seg = ({ valor, opcoes, onChange }) => (
 export default function CartaoVisitaPage() {
   const c = cartaoCfg.useStore();
   const set = (p) => cartaoCfg.set(p);
+  const abas = useAbaMobile();
+  const hist = useHistorico(cartaoCfg);
   const L = useMemo(() => calcularLayout(c), [c]);
   const [folha, setFolha] = useState(0);
   const [ladoPrev, setLadoPrev] = useState("frente");
@@ -43,7 +45,7 @@ export default function CartaoVisitaPage() {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f) return;
-    try { set({ [campo]: await lerImagem(f) }); } catch { toast.error("Não foi possível ler a imagem."); }
+    try { set({ [campo]: await lerImagem(f) }); toast.success("Imagem carregada."); } catch { toast.error("Não foi possível ler a imagem."); }
   };
   const campo = (k, rot, extra = {}) => <Campo rotulo={rot}><input className={entrada} value={c[k]} onChange={(e) => set({ [k]: e.target.value })} {...extra} /></Campo>;
 
@@ -58,8 +60,17 @@ export default function CartaoVisitaPage() {
     window.print();
   };
 
+  const adaptador = {
+    nome: "Cartão de visita",
+    imgs: () => ({}),
+    aplicarImgs: () => {},
+    vazio: () => false,
+    ler: () => ({ cfg: cartaoCfg.get(), imgs: {}, stk: [] }),
+    aplicar: (pr) => { setFolha(0); cartaoCfg.set(pr.cfg); },
+  };
+
   return (
-    <div className="cv-raiz mx-auto max-w-7xl px-4 py-6">
+    <div className="cv-raiz mx-auto max-w-7xl px-4 pt-6 pb-28">
       <style>{`
         .cv-print { display: none; }
         .cv-folha { position: relative; background: #fff; overflow: hidden; }
@@ -76,7 +87,8 @@ export default function CartaoVisitaPage() {
       `}</style>
 
       <div className="cv-tela grid gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
-        <div className="flex flex-col gap-4">
+        <BarraEditor tipo="cartao" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
+        <div className={`flex flex-col gap-4 ${abas.clsEditar}`}>
           <Painel titulo="🪪 Seus dados">
             {campo("nome", "Nome")}{campo("cargo", "Cargo / profissão")}{campo("empresa", "Empresa")}{campo("slogan", "Frase (verso)")}
             {campo("telefone", "Telefone / WhatsApp")}{campo("email", "E-mail")}{campo("site", "Site")}{campo("instagram", "Instagram")}{campo("endereco", "Endereço")}
@@ -140,9 +152,9 @@ export default function CartaoVisitaPage() {
                           {a.fundoModo === "cor" && <input type="color" value={a.fundoCor} onChange={(e) => ed({ fundoCor: e.target.value })} />}
                         </div>
                       )}
-                      <label className="grid grid-cols-[70px_1fr_36px] items-center gap-2">Zoom<input type="range" min={0.2} max={3} step={0.02} value={a.zoom} onChange={(e) => ed({ zoom: Number(e.target.value) })} /><span>{a.zoom.toFixed(2)}×</span></label>
-                      <label className="grid grid-cols-[70px_1fr_36px] items-center gap-2">Horizontal<input type="range" min={-100} max={100} value={a.x} onChange={(e) => ed({ x: Number(e.target.value) })} /><span>{a.x}</span></label>
-                      <label className="grid grid-cols-[70px_1fr_36px] items-center gap-2">Vertical<input type="range" min={-100} max={100} value={a.y} onChange={(e) => ed({ y: Number(e.target.value) })} /><span>{a.y}</span></label>
+                      <Faixa rotulo="Zoom" valor={a.zoom} min={0.2} max={3} step={0.02} un="×" onChange={(v) => ed({ zoom: v })} />
+                      <Faixa rotulo="Horizontal" valor={a.x} min={-100} max={100} onChange={(v) => ed({ x: v })} />
+                      <Faixa rotulo="Vertical" valor={a.y} min={-100} max={100} onChange={(v) => ed({ y: v })} />
                       <div className="flex gap-2">
                         <button type="button" className="px-3 py-1.5 rounded-lg border border-[#D8CBA8] bg-white font-semibold" onClick={() => ed({ girar: !a.girar })}>↻ Girar 90°</button>
                         <button type="button" className="px-3 py-1.5 rounded-lg border border-[#D8CBA8] bg-white font-semibold" onClick={() => set({ [aj]: { ...AJUSTE_ARTE } })}>Restaurar</button>
@@ -160,7 +172,7 @@ export default function CartaoVisitaPage() {
           </Painel>
         </div>
 
-        <div className="flex flex-col gap-4 min-w-0">
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="🖨️ Impressão automática">
             <BotaoPadrao onClick={() => { cartaoCfg.resetar(["tamanho", "sangria", "quantidade", "papel", "margem", "espaco", "marcas", "ajusteX", "ajusteY", "orientacao", "ajusteF", "ajusteV"]); toast.success("Medidas padrão restauradas"); }} />
             <div className="grid gap-3 sm:grid-cols-3">
@@ -193,7 +205,6 @@ export default function CartaoVisitaPage() {
                 <Campo rotulo="Ajuste fino do verso — vertical (mm)"><input type="number" step={0.1} className={entrada} value={c.ajusteY} onChange={(e) => set({ ajusteY: Number(e.target.value) || 0 })} /></Campo>
               </div>
             )}
-            <button type="button" onClick={imprimir} className="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B1D2C] text-white font-bold hover:opacity-90"><MdPrint size={20} /> Imprimir / salvar em PDF ({paginasTotal} páginas)</button>
             <p className="text-[11px] text-[#8B6A1F]">Na janela de impressão escolha <b>frente e verso (duplex)</b> e escala <b>100%</b> (sem “ajustar à página”). Sem duplex: imprima as páginas ímpares, vire as folhas e imprima as pares.</p>
           </Painel>
 

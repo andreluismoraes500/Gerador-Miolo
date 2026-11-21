@@ -8,17 +8,23 @@ import { encaixar } from "../lib/calendario";
 import { PAPEIS } from "../lib/cartaoVisita";
 import { lerImagem } from "../lib/lerImagem";
 import BotaoPadrao from "../components/BotaoPadrao";
+import Painel from "../components/ui/Painel";
+import Faixa from "../components/ui/Faixa";
+import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
+import { useHistorico } from "../lib/historico";
+import { temImagem } from "../lib/projetos";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
 const Campo = ({ rotulo, children }) => (<div className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}</div>);
-const Painel = ({ titulo, children, cls = "" }) => (<section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>);
 const Cor = ({ rotulo, valor, onChange }) => (<label className="flex items-center gap-2 text-xs text-[#24344D]"><input type="color" value={valor} onChange={(e) => onChange(e.target.value)} className="h-7 w-10 rounded" />{rotulo}</label>);
 const AMOSTRA = itemNovo({ nome: "ARROZ TIPO 1 5KG", de: "29,90", por: "24,99", unid: "un" });
 
 export default function CartazesPage() {
   const cfg = cartazCfg.useStore();
   const set = (p) => cartazCfg.set(p);
+  const abas = useAbaMobile();
+  const hist = useHistorico(cartazCfg);
   const [fotos, setFotos] = useState({});
   const [logo, setLogo] = useState(null);
   const [selId, setSelId] = useState(cfg.itens[0]?.id);
@@ -50,8 +56,8 @@ export default function CartazesPage() {
     return f;
   }, [N, todos]);
 
-  const enviarFoto = async (f) => { if (!f) return; try { const s = await lerImagem(f, 1400); setFotos((o) => ({ ...o, [item.id]: s })); } catch { toast.error("Não foi possível ler a imagem."); } };
-  const enviarLogo = async (f) => { if (!f) return; try { setLogo(await lerImagem(f, 700)); } catch { toast.error("Não foi possível ler o logo."); } };
+  const enviarFoto = async (f) => { if (!f) return; try { const s = await lerImagem(f, 1400); setFotos((o) => ({ ...o, [item.id]: s })); toast.success("Imagem carregada."); } catch { toast.error("Não foi possível ler a imagem."); } };
+  const enviarLogo = async (f) => { if (!f) return; try { setLogo(await lerImagem(f, 700)); toast.success("Logo carregado."); } catch { toast.error("Não foi possível ler o logo."); } };
   const imprimir = () => { if (!folhas.length) { toast.error("O cartaz não cabe nesse papel."); return; } window.print(); };
   const escala = Math.min(1, 560 / (fw * MM), 640 / (fh * MM));
 
@@ -64,8 +70,17 @@ export default function CartazesPage() {
     </div>
   );
 
+  const adaptador = {
+    nome: "Cartazes",
+    imgs: () => ({ fotos, logo }),
+    aplicarImgs: (i) => { setFotos(i?.fotos || {}); setLogo(i?.logo || null); },
+    vazio: () => !temImagem(fotos) && !logo,
+    ler: () => ({ cfg: cartazCfg.get(), imgs: { fotos, logo }, stk: [] }),
+    aplicar: (pr) => { setFotos(pr.imgs?.fotos || {}); setLogo(pr.imgs?.logo || null); setSelId(pr.cfg.itens?.[0]?.id); cartazCfg.set(pr.cfg); },
+  };
+
   return (
-    <div className="cz-raiz mx-auto max-w-7xl px-4 py-6">
+    <div className="cz-raiz mx-auto max-w-7xl px-4 pt-6 pb-28">
       <style>{`
         .cz-print { display: none; }
         @media print {
@@ -83,7 +98,8 @@ export default function CartazesPage() {
       <input ref={logoInp} type="file" accept="image/*" hidden onChange={(e) => { enviarLogo(e.target.files[0]); e.target.value = ""; }} />
 
       <div className="cz-tela grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
-        <div className="flex flex-col gap-4 min-w-0">
+        <BarraEditor tipo="cartazes" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} adaptador={adaptador} aoRestaurar={() => {}} />
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="🎨 Modelos prontos">
             <div className="grid grid-cols-3 gap-2">
               {MODELOS_CZ.map((m) => (
@@ -121,9 +137,9 @@ export default function CartazesPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Campo rotulo="Ajuste da foto"><select className={entrada} value={item.fotoModo} onChange={(e) => setItem({ fotoModo: e.target.value })}><option value="caber">Caber inteira</option><option value="preencher">Preencher o quadro</option></select></Campo>
-              <Campo rotulo={`Zoom: ${item.fotoZoom}×`}><input type="range" min={0.2} max={2.5} step={0.05} value={item.fotoZoom} onChange={(e) => setItem({ fotoZoom: Number(e.target.value) })} /></Campo>
-              <Campo rotulo="Foto ↔"><input type="range" min={-100} max={100} value={item.fotoX} onChange={(e) => setItem({ fotoX: Number(e.target.value) })} /></Campo>
-              <Campo rotulo="Foto ↕"><input type="range" min={-100} max={100} value={item.fotoY} onChange={(e) => setItem({ fotoY: Number(e.target.value) })} /></Campo>
+              <Faixa rotulo="Zoom" valor={item.fotoZoom} min={0.2} max={2.5} step={0.05} un="×" onChange={(v) => setItem({ fotoZoom: v })} />
+              <Faixa rotulo="Foto ↔" valor={item.fotoX} min={-100} max={100} onChange={(v) => setItem({ fotoX: v })} />
+              <Faixa rotulo="Foto ↕" valor={item.fotoY} min={-100} max={100} onChange={(v) => setItem({ fotoY: v })} />
             </div>
           </Painel>
 
@@ -159,7 +175,7 @@ export default function CartazesPage() {
           </Painel>
         </div>
 
-        <div className="flex flex-col gap-4 min-w-0">
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="📄 Papel e impressão">
             <BotaoPadrao onClick={() => { cartazCfg.resetar(["formato", "orient", "papel", "margem", "espaco", "guias"]); setItem({ fotoModo: "caber", fotoZoom: 1, fotoX: 0, fotoY: 0 }); toast.success("Medidas padrão restauradas"); }} />
             <div className="grid gap-3 sm:grid-cols-3">
@@ -171,7 +187,6 @@ export default function CartazesPage() {
               {!igual && <label className="flex gap-2 items-center text-xs mt-5"><input type="checkbox" checked={cfg.guias} onChange={(e) => set({ guias: e.target.checked })} />Guias de corte</label>}
             </div>
             <div className="text-xs text-[#24344D]">{N.porFolha ? <><b>{todos.length}</b> {todos.length === 1 ? "cartaz" : "cartazes"} · <b>{N.porFolha} por folha</b> → <b>{folhas.length}</b> {folhas.length === 1 ? "folha" : "folhas"}.{semMargem > N.porFolha ? ` Dica: com margem e espaço 0, cabem ${semMargem} por folha.` : ""}</> : <span className="text-red-700">Esse cartaz não cabe nesse papel.</span>}</div>
-            <button type="button" onClick={imprimir} className="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B1D2C] text-white font-bold hover:opacity-90"><MdPrint size={20} /> Imprimir / salvar em PDF</button>
           </Painel>
           <Painel titulo="👀 Pré-visualização" cls="pre-fixa">
             <div className="overflow-auto rounded-lg bg-[#ddd] p-3 flex justify-center"><div style={{ zoom: escala, width: "fit-content", boxShadow: "0 4px 16px #0004" }}><Cartaz cfg={cfg} item={item} foto={fotos[item.id]} logo={logo} w={fw} h={fh} /></div></div>
