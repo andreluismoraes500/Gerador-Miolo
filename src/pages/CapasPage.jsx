@@ -10,33 +10,16 @@ import { aguardarImagens } from "../lib/configImpressao";
 import { CORES_FUNDO_TEXTO, FORMAS_TEXTO, capasCfg, capasImgs, CAPA_CFG_PADRAO, FONTES_CAPA2, ITENS_PADRAO, itemImagem, itemTexto, lerCsv } from "../lib/capas";
 import { limparCacheMedida } from "../lib/cartaz";
 import { lerImagem } from "../lib/lerImagem";
+import GradeModelos, { MiniForma } from "../components/ui/GradeModelos";
+import Painel from "../components/ui/Painel";
+import Faixa from "../components/ui/Faixa";
+import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
+import { useHistorico } from "../lib/historico";
 
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
-const Painel = ({ titulo, children, cls = "" }) => (
-  <section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>
-);
 const Campo = ({ rotulo, children }) => (
   <label className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}</label>
 );
-// Controle deslizante + caixa para DIGITAR o valor exato.
-const Faixa = ({ rotulo, valor, min, max, step = 1, un = "", onChange }) => {
-  const trava = (v) => Math.min(max, Math.max(min, v));
-  return (
-    <div className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
-      <span className="flex justify-between items-center gap-2">
-        <span>{rotulo}</span>
-        <span className="inline-flex items-center gap-1 text-[#24344D]">
-          <input type="number" min={min} max={max} step={step} value={Number.isFinite(valor) ? valor : ""} aria-label={rotulo}
-            onChange={(e) => { const n = Number(e.target.value); if (e.target.value !== "" && Number.isFinite(n)) onChange(n); }}
-            onBlur={(e) => onChange(trava(Number(e.target.value) || min))}
-            className="w-16 rounded-md border border-[#D8CBA8] bg-white px-1.5 py-0.5 text-right text-xs font-semibold" />
-          {un.trim()}
-        </span>
-      </span>
-      <input type="range" min={min} max={max} step={step} value={Math.min(max, Math.max(min, valor))} onChange={(e) => onChange(Number(e.target.value))} aria-label={`${rotulo} (deslizar)`} />
-    </div>
-  );
-};
 const Chip = ({ ativo, children, ...p }) => (
   <button type="button" {...p} className={`text-xs px-3 py-1.5 rounded-full border ${ativo ? "bg-[#24344D] text-white border-[#24344D]" : "bg-white text-[#24344D] border-[#D8CBA8]"}`}>{children}</button>
 );
@@ -44,6 +27,8 @@ const Chip = ({ ativo, children, ...p }) => (
 export default function CapasPage() {
   const c = capasCfg.useStore();
   const set = (o) => capasCfg.set(o);
+  const abas = useAbaMobile();
+  const hist = useHistorico(capasCfg);
   const [, forca] = useState(0);
   const [idx, setIdx] = useState(0);
   const [lado, setLado] = useState("frente");
@@ -70,7 +55,7 @@ export default function CapasPage() {
   const girar = (o) => { if (c.orient === o) return; const [mw, mh] = [Math.min(c.placaW, c.placaH), Math.max(c.placaW, c.placaH)]; set(o === "paisagem" ? { orient: o, placaW: mh, placaH: mw } : { orient: o, placaW: mw, placaH: mh }); };
 
   const imgPara = async (file, id) => {
-    try { capasImgs[id] = await lerImagem(file); forca((n) => n + 1); if (id === "fundo") set({ fundoImg: true }); }
+    try { capasImgs[id] = await lerImagem(file); toast.success("Imagem carregada."); forca((n) => n + 1); if (id === "fundo") set({ fundoImg: true }); }
     catch { toast.error("Não foi possível ler a imagem."); }
   };
   const lerArquivoCsv = async (file) => {
@@ -146,7 +131,7 @@ export default function CapasPage() {
   };
 
   return (
-    <div className="cp-raiz mx-auto max-w-7xl px-4 py-6">
+    <div className="cp-raiz mx-auto max-w-7xl px-4 pt-6 pb-28">
       <style>{`
         .cp-print { display: none; }
         @media print {
@@ -163,7 +148,8 @@ export default function CapasPage() {
       `}</style>
 
       <div className="cp-tela grid gap-5 lg:grid-cols-[420px_minmax(0,1fr)]">
-        <div className="flex flex-col gap-4 min-w-0">
+        <BarraEditor tipo="capas" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${nFolhas} folha${nFolhas === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="👥 Nomes (mala direta)">
             <label className="flex items-center gap-2 text-sm text-[#24344D]"><input type="checkbox" checked={c.usarCsv} onChange={(e) => { set({ usarCsv: e.target.checked }); setIdx(0); }} /> Gerar uma capa para cada nome</label>
             {c.usarCsv && (
@@ -224,9 +210,7 @@ export default function CapasPage() {
                 {!item.caber && <label className="flex items-center gap-2 text-xs text-[#24344D]"><input type="checkbox" checked={item.quebra !== false} onChange={(e) => setItem({ quebra: e.target.checked })} /> Quebrar linha automaticamente na largura da caixa</label>}
                 <div className="flex flex-col gap-2.5 rounded-xl border border-[#E7DCC0] bg-white/60 p-3">
                   <span className="text-xs font-bold text-[#24344D]">🏷️ Fundo do texto (forma)</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {FORMAS_TEXTO.map(([id, n]) => <Chip key={id} ativo={(item.fundoForma || "nenhum") === id} onClick={() => setItem({ fundoForma: id })}>{n}</Chip>)}
-                  </div>
+                  <GradeModelos itens={FORMAS_TEXTO.map(([id, n]) => ({ id, rotulo: n, miniatura: <MiniForma forma={id} /> }))} valor={item.fundoForma || "nenhum"} colunas={5} aspecto="aspect-[5/4]" onChange={(id) => setItem({ fundoForma: id })} />
                   {(item.fundoForma || "nenhum") !== "nenhum" && (
                     <>
                       <div className="flex flex-wrap items-center gap-2">
@@ -276,7 +260,7 @@ export default function CapasPage() {
 
           <PainelStickers prefixo="capa" />
 
-          <Painel titulo="🎨 Fundo da capa">
+          <Painel titulo="🎨 Fundo da capa" aberto={false}>
             <div className="flex flex-wrap items-center gap-3">
               <Campo rotulo="Cor"><input type="color" className="h-8 w-14 rounded" value={c.fundo} onChange={(e) => set({ fundo: e.target.value })} /></Campo>
               <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#D8CBA8] bg-white text-xs font-semibold cursor-pointer text-[#24344D] mt-4">
@@ -300,7 +284,7 @@ export default function CapasPage() {
             )}
           </Painel>
 
-          <Painel titulo="✂️ Molde de corte">
+          <Painel titulo="✂️ Molde de corte" aberto={false}>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => set({ molde: "nenhum", moldeFrente: false, cobrirFolha: true })} className="px-3 py-1.5 rounded-lg bg-[#24344D] text-white text-xs font-semibold">Tirar todas as marcações e imprimir a imagem inteira</button>
               <button type="button" onClick={() => set({ molde: "linhas", moldeFrente: true, cobrirFolha: false })} className="px-3 py-1.5 rounded-lg border border-[#D8CBA8] bg-white text-xs font-semibold text-[#24344D]">Voltar ao molde</button>
@@ -360,10 +344,9 @@ export default function CapasPage() {
             <p className="text-[11px] text-[#6B6458]">Padrão: placa 160 × 220 mm (capa A5 em pé; deitada vira 220 × 160) com 17,5 mm de dobra, cantos cortados a 45°. Paisagem imprime em folha A4 deitada.</p>
           </Painel>
 
-          <button type="button" onClick={imprimir} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#8B1D2C] text-white font-bold hover:bg-[#741626]"><MdPrint /> Imprimir {nomes.length} capa(s) — {nFolhas} folha(s) A4</button>
         </div>
 
-        <div ref={colRef} className="pre-fixa flex flex-col gap-3 items-center min-w-0">
+        <div ref={colRef} className={`pre-fixa flex flex-col gap-3 items-center min-w-0 ${abas.clsVer}`}>
           <div className="flex flex-wrap items-center justify-center gap-2 w-full">
             <button type="button" className="p-1.5 rounded-lg border border-[#D8CBA8] bg-white" onClick={() => setIdx((i) => Math.max(0, i - 1))}><MdChevronLeft /></button>
             <select className="rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm max-w-[220px]" value={Math.min(idx, nomes.length - 1)} onChange={(e) => setIdx(Number(e.target.value))}>

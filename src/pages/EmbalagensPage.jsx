@@ -9,32 +9,15 @@ import { encaixar } from "../lib/calendario";
 import { EMB_PADRAO, embCfg, embImgs, FONTES_EMB, faceNova, geometria, itemTextoEmb, MODELOS_EMB, paramsPadrao, TEMAS_EMB } from "../lib/embalagens";
 import { stickersDados } from "../lib/stickers";
 import { lerImagem } from "../lib/lerImagem";
+import GradeModelos, { ITENS_EMB } from "../components/ui/GradeModelos";
+import Painel from "../components/ui/Painel";
+import Faixa from "../components/ui/Faixa";
+import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
+import { useHistorico } from "../lib/historico";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
-const Painel = ({ titulo, children, cls = "" }) => (
-  <section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>
-);
 const Campo = ({ rotulo, children }) => <label className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}</label>;
-// Controle deslizante + caixa para DIGITAR o valor exato.
-const Faixa = ({ rotulo, valor, min, max, step = 1, un = "", onChange }) => {
-  const trava = (v) => Math.min(max, Math.max(min, v));
-  return (
-    <div className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
-      <span className="flex justify-between items-center gap-2">
-        <span>{rotulo}</span>
-        <span className="inline-flex items-center gap-1 text-[#24344D]">
-          <input type="number" min={min} max={max} step={step} value={Number.isFinite(valor) ? valor : ""} aria-label={rotulo}
-            onChange={(e) => { const n = Number(e.target.value); if (e.target.value !== "" && Number.isFinite(n)) onChange(n); }}
-            onBlur={(e) => onChange(trava(Number(e.target.value) || min))}
-            className="w-16 rounded-md border border-[#D8CBA8] bg-white px-1.5 py-0.5 text-right text-xs font-semibold" />
-          {un.trim()}
-        </span>
-      </span>
-      <input type="range" min={min} max={max} step={step} value={Math.min(max, Math.max(min, valor))} onChange={(e) => onChange(Number(e.target.value))} aria-label={`${rotulo} (deslizar)`} />
-    </div>
-  );
-};
 const Chip = ({ ativo, children, ...p }) => (
   <button type="button" {...p} className={`text-xs px-3 py-1.5 rounded-full border ${ativo ? "bg-[#24344D] text-white border-[#24344D]" : "bg-white text-[#24344D] border-[#D8CBA8]"}`}>{children}</button>
 );
@@ -42,6 +25,8 @@ const Chip = ({ ativo, children, ...p }) => (
 export default function EmbalagensPage() {
   const cfg = embCfg.useStore();
   const set = (o) => embCfg.set(o);
+  const abas = useAbaMobile();
+  const hist = useHistorico(embCfg);
   const [, forca] = useState(0);
   const [folhaSel, setFolhaSel] = useState(0);
   const [selT, setSelT] = useState(0);
@@ -99,7 +84,7 @@ export default function EmbalagensPage() {
     set({ tema: cor, arte: { ...cfg.arte, [modelo]: novo } });
   };
   const imgPara = async (file) => {
-    try { embImgs[`${modelo}:${faceSel.id}`] = await lerImagem(file); setFace({ imgOn: true }); forca((n) => n + 1); }
+    try { embImgs[`${modelo}:${faceSel.id}`] = await lerImagem(file); toast.success("Imagem carregada."); setFace({ imgOn: true }); forca((n) => n + 1); }
     catch { toast.error("Não foi possível ler a imagem."); }
   };
   const copiarParaTodas = () => {
@@ -147,7 +132,7 @@ export default function EmbalagensPage() {
   );
 
   return (
-    <div className="emb-raiz mx-auto max-w-7xl px-4 py-6">
+    <div className="emb-raiz mx-auto max-w-7xl px-4 pt-6 pb-28">
       <style>{`
         .emb-print { display: none; }
         @media print {
@@ -164,14 +149,10 @@ export default function EmbalagensPage() {
       `}</style>
 
       <div className="emb-tela grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
-        <div className="flex flex-col gap-4 min-w-0">
+        <BarraEditor tipo="embalagens" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="📦 Escolha a embalagem">
-            <div className="grid grid-cols-2 gap-2">
-              {Object.entries(MODELOS_EMB).map(([k, m]) => (
-                <button key={k} type="button" onClick={() => { set({ modelo: k, sel: "" }); setFolhaSel(0); setSelT(0); }} className={`text-left rounded-xl border p-2.5 ${modelo === k ? "border-[#8B1D2C] bg-white ring-1 ring-[#8B1D2C]" : "border-[#D8CBA8] bg-[#FBF8F1]"}`}>
-                  <div className="text-sm font-bold text-[#24344D]"><span className="mr-1">{m.icone}</span>{m.nome}</div>
-                </button>))}
-            </div>
+            <GradeModelos itens={ITENS_EMB(cfg.tema)} valor={modelo} colunas={3} onChange={(k) => { set({ modelo: k, sel: "" }); setFolhaSel(0); setSelT(0); }} />
             <p className="text-[11px] text-[#8B6A1F]">{mod.desc}</p>
           </Painel>
 
@@ -259,7 +240,7 @@ export default function EmbalagensPage() {
           <PainelStickers prefixo="" semRepetir />
           <p className="text-[11px] text-[#6B6458] -mt-2">Os stickers aparecem em todos os moldes da folha, na mesma posição.</p>
 
-          <Painel titulo="✂️ Linhas de corte e dobra">
+          <Painel titulo="✂️ Linhas de corte e dobra" aberto={false}>
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs">
               <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.linhaCorte} onChange={(e) => set({ linhaCorte: e.target.checked })} />Linha de corte (cheia)</label>
               <label className="flex gap-2 items-center"><input type="checkbox" checked={cfg.linhaDobra} onChange={(e) => set({ linhaDobra: e.target.checked })} />Linha de dobra (tracejada)</label>
@@ -271,7 +252,7 @@ export default function EmbalagensPage() {
             <label className="flex gap-2 items-center text-xs"><input type="checkbox" checked={cfg.rotulos} onChange={(e) => set({ rotulos: e.target.checked })} />Mostrar nome das peças na prévia (não imprime)</label>
           </Painel>
 
-          <Painel titulo="🧩 Folha de impressão">
+          <Painel titulo="🧩 Folha de impressão" aberto={false}>
             <div className="grid grid-cols-2 gap-3">
               <Campo rotulo="Papel"><select className={entrada} value={cfg.papel} onChange={(e) => set({ papel: e.target.value })}>{Object.entries(PAPEIS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}</select></Campo>
               <Campo rotulo="Posição da folha"><select className={entrada} value={cfg.orient} onChange={(e) => set({ orient: e.target.value })}><option value="auto">Automática (a que couber mais)</option><option value="retrato">Em pé</option><option value="paisagem">Deitada</option></select></Campo>
@@ -294,10 +275,9 @@ export default function EmbalagensPage() {
           </Painel>
 
           <button type="button" onClick={restaurar} className="self-start inline-flex items-center gap-1 text-xs text-[#8B6A1F] underline"><MdRestartAlt /> Restaurar esta embalagem ao padrão</button>
-          <button type="button" onClick={imprimir} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#8B1D2C] text-white font-bold hover:bg-[#741626]"><MdPrint /> Imprimir / salvar em PDF ({folhas.length} folha{folhas.length === 1 ? "" : "s"})</button>
         </div>
 
-        <div ref={colRef} className="pre-fixa flex flex-col gap-3 min-w-0">
+        <div ref={colRef} className={`pre-fixa flex flex-col gap-3 min-w-0 ${abas.clsVer}`}>
           {folhas.length > 0 ? (
             <>
               <select className="self-start rounded-lg border border-[#D8CBA8] bg-white px-2 py-1 text-xs" value={fp} onChange={(e) => setFolhaSel(Number(e.target.value))}>
