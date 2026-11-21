@@ -11,14 +11,16 @@ import { limparCacheMedida } from "../lib/cartaz";
 import { PAPEIS } from "../lib/cartaoVisita";
 import { lerImagem } from "../lib/lerImagem";
 import { AJ_PADRAO, corDoCanto } from "../lib/imagemAjuste";
+import Painel from "../components/ui/Painel";
+import Faixa from "../components/ui/Faixa";
+import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
+import { useHistorico } from "../lib/historico";
+import { temImagem } from "../lib/projetos";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
 const Campo = ({ rotulo, children, dica }) => (
   <div className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}{dica && <span className="text-[11px] text-[#8B6A1F]">{dica}</span>}</div>
-);
-const Painel = ({ titulo, children, cls = "" }) => (
-  <section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>
 );
 const Cor = ({ rotulo, valor, onChange }) => (
   <Campo rotulo={rotulo}><input type="color" className="h-8 w-full rounded" value={/^#[0-9a-f]{6}$/i.test(valor) ? valor : "#ffffff"} onChange={(e) => onChange(e.target.value)} /></Campo>
@@ -45,6 +47,8 @@ function Folha({ L, cfg, itens, fotos }) {
 export default function AdesivosPage() {
   const cfg = adesivoCfg.useStore();
   const set = (p) => adesivoCfg.set(p);
+  const abas = useAbaMobile();
+  const hist = useHistorico(adesivoCfg);
   const [fotos, setFotos] = useState({});
   const [sel, setSel] = useState(cfg.itens[0]?.id);
   const [folha, setFolha] = useState(0);
@@ -98,8 +102,17 @@ export default function AdesivosPage() {
   const tamIdx = FORMAS[cfg.forma].tam.findIndex(([a, b]) => a === cfg.w && b === cfg.h);
   const comTexto = item.layout !== "imagem" || ehLacre(cfg.forma), comImg = item.layout !== "texto";
 
+  const adaptador = {
+    nome: "Adesivos",
+    imgs: () => ({ fotos }),
+    aplicarImgs: (i) => { setFotos(i?.fotos || {}); },
+    vazio: () => !temImagem(fotos),
+    ler: () => ({ cfg: adesivoCfg.get(), imgs: { fotos }, stk: [] }),
+    aplicar: (pr) => { setFotos(pr.imgs?.fotos || {}); setSel(pr.cfg.itens?.[0]?.id); setFolha(0); adesivoCfg.set(pr.cfg); },
+  };
+
   return (
-    <div className="ad-raiz mx-auto max-w-7xl px-4 py-6">
+    <div className="ad-raiz mx-auto max-w-7xl px-4 pt-6 pb-28">
       <style>{`
         .ad-print { display: none; }
         @media print {
@@ -115,7 +128,8 @@ export default function AdesivosPage() {
       `}</style>
 
       <div className="ad-tela grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
-        <div className="flex flex-col gap-4 min-w-0">
+        <BarraEditor tipo="adesivos" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="✨ Modelos prontos">
             <div className="grid grid-cols-3 gap-2">
               {MODELOS_AD.map((m) => {
@@ -185,14 +199,14 @@ export default function AdesivosPage() {
                   {foto?.src && <button type="button" className="underline text-xs" onClick={() => setFotos((o) => { const n = { ...o }; delete n[item.id]; return n; })}>Remover</button>}
                 </div>
                 <input ref={inp} type="file" accept="image/*" hidden onChange={(e) => { if (e.target.files[0]) enviar(e.target.files[0]); e.target.value = ""; }} />
-                {item.layout === "imagemTexto" && <Campo rotulo={`Altura da imagem: ${item.imgPct}%`}><input type="range" min={30} max={85} value={item.imgPct} onChange={(e) => setItem({ imgPct: Number(e.target.value) })} /></Campo>}
+                {item.layout === "imagemTexto" && <Faixa rotulo="Altura da imagem" valor={item.imgPct} min={30} max={85} un="%" onChange={(v) => setItem({ imgPct: v })} />}
                 {foto?.src ? <ControlesImagem a={{ ...AJ_PADRAO, ...foto }} bgAuto={foto.bgAuto} mudar={setFoto} /> : <p className="text-[11px] text-[#8B6A1F]">A imagem aparece inteira no adesivo (sem cortar o logo) e você pode ajustar zoom e posição.</p>}
               </div>
             )}
           </Painel>
         </div>
 
-        <div className="flex flex-col gap-4 min-w-0">
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="📐 Forma e folha">
             <BotaoPadrao onClick={() => { adesivoCfg.resetar(["forma", "w", "h", "sangria", "papel", "margem", "espaco", "guias", "corGuia", "orientacao"]); toast.success("Medidas padrão restauradas"); }} />
             <div className="flex flex-wrap gap-2">
@@ -223,7 +237,6 @@ export default function AdesivosPage() {
                   {lista.length > 0 && lista.length % L.porFolha !== 0 && <> · a última tem {lista.length % L.porFolha} (faltam {L.porFolha - (lista.length % L.porFolha)}). <button type="button" className="underline font-semibold" onClick={completar}>Completar a folha</button></>}.</>
               ) : <span className="text-red-700">O adesivo não cabe nessa folha com essas margens.</span>}
             </div>
-            <button type="button" onClick={imprimir} className="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B1D2C] text-white font-bold hover:opacity-90"><MdPrint size={20} /> Imprimir / salvar em PDF ({L.folhas} {L.folhas === 1 ? "página" : "páginas"})</button>
             <p className="text-[11px] text-[#8B6A1F]">Imprima em escala 100% (sem “ajustar à página”), de preferência em papel adesivo. A linha de corte ajuda a recortar à mão ou na máquina de recorte.</p>
           </Painel>
 

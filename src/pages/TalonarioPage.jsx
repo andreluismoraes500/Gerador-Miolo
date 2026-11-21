@@ -7,6 +7,7 @@
 // geradas em lote na hora de imprimir.
 
 import { Children, useRef } from "react";
+import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { FORMATOS, FORMATOS_TAL, DICAS_TAL, talImpressao } from "../lib/configImpressao";
 import {
   MdReceiptLong,
@@ -112,6 +113,15 @@ const TABS = [
 
 export default function TalonarioPage() {
   const t = useTalonarioBuilder();
+  const abas = useAbaMobile();
+  const adaptador = {
+    nome: "Talonário",
+    imgs: () => t.snapshot(),
+    aplicarImgs: (sn) => t.restaurar(sn),
+    vazio: () => true,
+    ler: () => ({ cfg: {}, imgs: t.snapshot(), stk: [] }),
+    aplicar: (pr) => t.restaurar(pr.imgs),
+  };
   const accent = t.accents;
 
   const printBatchRef = useRef(null);
@@ -185,8 +195,9 @@ export default function TalonarioPage() {
       </div>
 
       {/* ---------- corpo: sidebar + stage ---------- */}
-      <div className="print:hidden max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[380px_1fr]">
-        <div className="bg-[#FFFEFB] border-r border-[#E4DDC9] px-5.5 pt-6 pb-8">
+      <div className="print:hidden max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[380px_1fr] pb-24">
+        <BarraEditor tipo="talonario" abas={abas} onImprimir={t.handlePrint} rotuloImprimir="Gerar e imprimir" adaptador={adaptador} />
+        <div className={`bg-[#FFFEFB] border-r border-[#E4DDC9] px-5.5 pt-6 pb-8 ${abas.clsEditar}`}>
           {t.activeTab === "pedido" && (
             <>
               <PedidoPanel
@@ -486,17 +497,6 @@ export default function TalonarioPage() {
               ))}
             </select>
             <p className="text-[11px] text-[#8B6A1F] mb-3">{DICAS_TAL[fmtTal]}</p>
-            <button
-              onClick={t.handlePrint}
-              className="w-full text-white font-bold text-[15px] rounded-xl py-3.5 flex items-center justify-center gap-2 transition-transform hover:-translate-y-px active:translate-y-0"
-              style={{
-                background: "var(--tal-accent)",
-                fontFamily: "'Cormorant Garamond', serif",
-                boxShadow: "0 4px 14px var(--tal-accent-light)",
-              }}
-            >
-              <MdPrint /> Gerar e imprimir
-            </button>
             <p className="text-[11px] text-[#8a9694] text-center mt-2 leading-relaxed">
               Na janela de impressão, escolha <b>"Salvar como PDF"</b> para
               baixar o arquivo pronto.
@@ -505,7 +505,7 @@ export default function TalonarioPage() {
         </div>
 
         {/* ---------- stage de pré-visualização ---------- */}
-        <div className="p-9 flex flex-col items-center gap-5.5 bg-[#F3F0E7]">
+        <div className={`p-4 sm:p-9 flex flex-col items-center gap-5.5 bg-[#F3F0E7] ${abas.clsVer}`}>
           {t.activeTab === "pedido" && (
             <PedidoCard
               empresa={t.pedido.empresa}

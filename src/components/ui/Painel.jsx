@@ -8,7 +8,7 @@ const ler = (id, padrao) => {
 };
 
 export default function Painel({ titulo, children, cls = "", aberto = true, id }) {
-  const k = id || (typeof titulo === "string" ? titulo : "");
+  const k = `${typeof window !== "undefined" ? window.location.pathname : ""}:${id || (typeof titulo === "string" ? titulo : "")}`;
   const [open, setOpen] = useState(() => (k ? ler(k, aberto) : aberto));
   const alternar = () => {
     const n = !open;

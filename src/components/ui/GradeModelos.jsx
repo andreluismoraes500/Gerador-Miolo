@@ -59,3 +59,20 @@ export function MiniPaleta({ p }) {
     </svg>
   );
 }
+
+// Miniaturas dos modelos de calendário (desenho esquemático de cada formato).
+function Grade({ x, y, w, h, c = 7, l = 5, cor = "#24344D" }) {
+  const pts = [];
+  for (let i = 0; i < c; i += 1) for (let j = 0; j < l; j += 1) pts.push(<rect key={`${i}-${j}`} x={x + (w / c) * i + 0.4} y={y + (h / l) * j + 0.4} width={w / c - 0.8} height={h / l - 0.8} fill={cor} opacity={j === 0 ? 0.9 : 0.35} rx="0.4" />);
+  return <>{pts}</>;
+}
+export function MiniCalendario({ id, cor = "#c0643a" }) {
+  let corpo;
+  if (id === "parede") corpo = <><rect x="30" y="4" width="40" height="67" fill="#fff" stroke="#24344D" strokeWidth="1" /><rect x="33" y="7" width="34" height="28" fill={cor} opacity=".55" /><Grade x={33} y={40} w={34} h={26} /></>;
+  else if (id === "poster") corpo = <><rect x="22" y="4" width="56" height="67" fill="#fff" stroke="#24344D" strokeWidth="1" />{[0, 1, 2].map((i) => [0, 1, 2, 3].map((j) => <Grade key={`${i}${j}`} x={25 + i * 17.5} y={8 + j * 15.5} w={14} h={12} c={7} l={4} />))}</>;
+  else if (id === "mesa") corpo = <><polygon points="10,60 50,60 62,22 22,22" fill="#fff" stroke="#24344D" strokeWidth="1" /><polygon points="50,60 90,60 78,22 62,22" fill="#f3ecdc" stroke="#24344D" strokeWidth="1" /><rect x="26" y="26" width="30" height="12" fill={cor} opacity=".55" transform="skewX(-17) translate(11 0)" /><Grade x={20} y={42} w={32} h={14} /></>;
+  else if (id === "cabecalho") corpo = <><rect x="8" y="10" width="84" height="22" fill={cor} opacity=".6" stroke="#24344D" strokeWidth="1" /><rect x="8" y="38" width="84" height="30" fill="#fff" stroke="#24344D" strokeWidth="1" /><Grade x={12} y={42} w={76} h={22} c={14} l={4} /></>;
+  else if (id === "minis") corpo = <>{[0, 1, 2, 3].map((i) => [0, 1, 2].map((j) => <g key={`${i}${j}`}><rect x={6 + i * 23} y={6 + j * 22} width="20" height="19" fill="#fff" stroke="#24344D" strokeWidth=".8" rx="1.5" /><Grade x={8 + i * 23} y={12 + j * 22} w={16} h={11} c={7} l={4} /></g>))}</>;
+  else corpo = <><rect x="20" y="4" width="60" height="67" fill="#fff" stroke="#24344D" strokeWidth="1" />{[0, 1, 2, 3, 4, 5].map((i) => <line key={i} x1="25" x2="75" y1={14 + i * 8} y2={14 + i * 8} stroke="#24344D" opacity=".4" />)}<Grade x={25} y={56} w={50} h={10} c={14} l={3} /></>;
+  return <svg viewBox="0 0 100 75" className="w-full h-full" aria-hidden>{corpo}</svg>;
+}

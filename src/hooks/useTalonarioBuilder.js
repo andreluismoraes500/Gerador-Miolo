@@ -780,7 +780,30 @@ export function useTalonarioBuilder() {
     return () => clearTimeout(printTimeoutRef.current);
   }, [printBatch]);
 
+  // Foto do estado de todas as abas (para "Meus projetos" e rascunho automático) e o caminho inverso.
+  const snapshot = () => ({ pedido, receituario, receita, ordemServico, recibo, comanda, entrega, reserva, valePresente, bingo, bingoCards, logos, watermark, accentColors: accentColorsRaw, backgrounds });
+  const restaurar = (sn) => {
+    if (!sn) return;
+    if (sn.pedido) setPedido(sn.pedido);
+    if (sn.receituario) setReceituario(sn.receituario);
+    if (sn.receita) setReceita(sn.receita);
+    if (sn.ordemServico) setOrdemServico(sn.ordemServico);
+    if (sn.recibo) setRecibo(sn.recibo);
+    if (sn.comanda) setComanda(sn.comanda);
+    if (sn.entrega) setEntrega(sn.entrega);
+    if (sn.reserva) setReserva(sn.reserva);
+    if (sn.valePresente) setValePresente(sn.valePresente);
+    if (sn.bingo) setBingo(sn.bingo);
+    if (sn.bingoCards) setBingoCards(sn.bingoCards);
+    if (sn.logos) setLogos(sn.logos);
+    if (sn.watermark) setWatermark(sn.watermark);
+    if (sn.accentColors) setAccentColors(sn.accentColors);
+    if (sn.backgrounds) setBackgrounds(sn.backgrounds);
+  };
+
   return {
+    snapshot,
+    restaurar,
     activeTab,
     setActiveTab,
     accents: accentColors[activeTab] || TAL_ACCENTS[activeTab],

@@ -14,6 +14,7 @@ const aplicarStk = (pref, lista) => stickersDados.set({ itens: [...stickersDados
 export const TIPOS = {
   capas: {
     nome: "Capas",
+    vazio: () => !temImagem(capasImgs),
     ler: () => ({ cfg: capasCfg.get(), imgs: { ...capasImgs }, stk: lerStk("capa") }),
     imgs: () => ({ ...capasImgs }),
     aplicarImgs: (imgs) => { limpar(capasImgs); Object.assign(capasImgs, imgs || {}); },
@@ -21,6 +22,7 @@ export const TIPOS = {
   },
   embalagens: {
     nome: "Embalagens",
+    vazio: () => !temImagem(embImgs),
     ler: () => ({ cfg: embCfg.get(), imgs: { ...embImgs }, stk: lerStk("emb-") }),
     imgs: () => ({ ...embImgs }),
     aplicarImgs: (imgs) => { limpar(embImgs); Object.assign(embImgs, imgs || {}); },
@@ -28,6 +30,7 @@ export const TIPOS = {
   },
   encarte: {
     nome: "Encarte",
+    vazio: () => !temImagem(encarteFotos) && !encarteLogo.url,
     ler: () => ({ cfg: encarteCfg.get(), imgs: { fotos: { ...encarteFotos }, logo: encarteLogo.url }, stk: [] }),
     imgs: () => ({ fotos: { ...encarteFotos }, logo: encarteLogo.url }),
     aplicarImgs: (imgs) => { limpar(encarteFotos); Object.assign(encarteFotos, imgs?.fotos || {}); encarteLogo.url = imgs?.logo || null; },
@@ -69,8 +72,9 @@ export async function listarProjetos(tipo) {
 export const obterProjeto = (id) => tx("readonly", (s) => s.get(id));
 export const excluirProjeto = (id) => tx("readwrite", (s) => s.delete(id));
 
-export async function salvarProjeto(tipo, nome, idExistente) {
-  const dados = TIPOS[tipo].ler();
+// `ad` = adaptador da tela ({ ler, aplicar, imgs, aplicarImgs, vazio? }); sem ele usa o do tipo (Capas, Embalagens, Encarte).
+export async function salvarProjeto(tipo, nome, idExistente, ad = TIPOS[tipo]) {
+  const dados = ad.ler();
   const agora = Date.now();
   const antigo = idExistente ? await obterProjeto(idExistente) : null;
   const p = { id: antigo ? antigo.id : novoId(), tipo, nome: nome || "Sem nome", criado: antigo ? antigo.criado : agora, atualizado: agora, ...dados };
@@ -88,18 +92,30 @@ export async function renomearProjeto(id, nome) {
   const p = await obterProjeto(id);
   if (p) await tx("readwrite", (s) => s.put({ ...p, nome: nome || p.nome }));
 }
-export async function abrirProjeto(id, tipo) {
+export async function abrirProjeto(id, tipo, ad = TIPOS[tipo]) {
   const p = await obterProjeto(id);
   if (!p || p.tipo !== tipo) return null;
-  TIPOS[tipo].aplicar(p);
+  ad.aplicar(p);
   return p;
 }
 
-// rascunho automático (só imagens; a configuração já fica no localStorage)
+// rascunho automático (imagens e o que não fica no localStorage)
 const idRasc = (tipo) => `rascunho:${tipo}`;
-export const salvarRascunho = (tipo) => tx("readwrite", (s) => s.put({ id: idRasc(tipo), tipo, rascunho: true, atualizado: Date.now(), imgs: TIPOS[tipo].imgs() }));
-export async function restaurarRascunho(tipo) {
+export const salvarRascunho = (tipo, ad = TIPOS[tipo]) => tx("readwrite", (s) => s.put({ id: idRasc(tipo), tipo, rascunho: true, atualizado: Date.now(), imgs: ad.imgs() }));
+export async function restaurarRascunho(tipo, ad = TIPOS[tipo]) {
   const p = await obterProjeto(idRasc(tipo));
-  if (p?.imgs) { TIPOS[tipo].aplicarImgs(p.imgs); return true; }
+  if (p?.imgs) { ad.aplicarImgs(p.imgs); return true; }
+  return false;
+}
+
+// "assinatura" barata de um objeto com imagens: muda quando algo é trocado.
+export function assinatura(v) {
+  if (typeof v === "string") return v.length < 200 ? v : `${v.length}:${v.charCodeAt(0)}:${v.charCodeAt(v.length - 1)}:${v.charCodeAt(v.length >> 1)}`;
+  if (v && typeof v === "object") return Object.entries(v).map(([k, x]) => `${k}=${assinatura(x)}`).join("|");
+  return String(v);
+}
+export function temImagem(v) {
+  if (typeof v === "string") return v.length > 200;
+  if (v && typeof v === "object") return Object.values(v).some(temImagem);
   return false;
 }

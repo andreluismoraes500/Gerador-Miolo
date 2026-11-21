@@ -65,7 +65,7 @@ function MenuGrupos() {
   const on = "bg-[#24344D] text-[#F6F1E7] shadow-sm";
   const off = "text-[#6B6458] hover:bg-[#EFE4C8] hover:text-[#24344D]";
   return (
-    <nav ref={raiz} aria-label="Navegação principal" className="order-last md:order-none w-full md:w-auto md:min-w-[560px] flex items-center gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner relative">
+    <nav ref={raiz} aria-label="Navegação principal" className="order-last lg:order-none w-full lg:w-auto lg:min-w-[720px] flex items-center gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner relative">
       {GRUPOS.map((g) => {
         const Icon = g.icon;
         const ativoGrupo = g.itens.includes(location.pathname);
@@ -79,7 +79,7 @@ function MenuGrupos() {
         }
         const open = aberto === g.id;
         return (
-          <div key={g.id} className="relative flex-1 min-w-0 flex">
+          <div key={g.id} className={`relative min-w-0 flex ${g.itens.includes(location.pathname) ? "flex-[1.6]" : "flex-1"}`}>
             <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setAberto(open ? null : g.id)} className={`${base} w-full ${ativoGrupo ? on : off} ${open && !ativoGrupo ? "bg-[#EFE4C8]" : ""}`} title={g.nome}>
               <Icon className="w-4 h-4 shrink-0" />
               <span className="flex items-center gap-0.5 max-w-full"><span className="truncate">{atual || g.nome}</span><MdExpandMore className={`w-3.5 h-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} /></span>
@@ -183,7 +183,7 @@ export default function AppLayout() {
         ref={headerRef}
         className="sticky top-0 z-40 bg-[#FBF8F1]/90 backdrop-blur-md border-b border-[#D8CBA8] print:hidden"
       >
-        <div className="max-w-7xl 2xl:max-w-[2100px] mx-auto px-4 sm:px-6 py-2 md:py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-3 gap-y-2">
+        <div className="max-w-7xl 2xl:max-w-[2100px] mx-auto px-4 sm:px-6 py-2 md:py-3 flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-3 gap-y-2">
           {/* Marca */}
           <div className="flex items-center gap-3 shrink-0 mr-auto md:mr-0">
             <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-[#24344D] shadow-[2px_2px_0_0_#B8933D]">

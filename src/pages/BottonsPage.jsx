@@ -10,14 +10,16 @@ import { AJ_PADRAO, corDoCanto } from "../lib/imagemAjuste";
 import ImgAjustada from "../components/ImgAjustada";
 import ControlesImagem from "../components/ControlesImagem";
 import BotaoPadrao from "../components/BotaoPadrao";
+import Painel from "../components/ui/Painel";
+import Faixa from "../components/ui/Faixa";
+import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
+import { useHistorico } from "../lib/historico";
+import { temImagem } from "../lib/projetos";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
 const Campo = ({ rotulo, children, dica }) => (
   <div className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}{dica && <span className="text-[11px] text-[#8B6A1F]">{dica}</span>}</div>
-);
-const Painel = ({ titulo, children, cls = "" }) => (
-  <section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3 ${cls}`}><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>
 );
 
 function Celula({ img, cfg, cell }) {
@@ -51,6 +53,8 @@ function Folha({ L, cfg, itens }) {
 export default function BottonsPage() {
   const cfg = bottonsCfg.useStore();
   const set = (p) => bottonsCfg.set(p);
+  const abas = useAbaMobile();
+  const hist = useHistorico(bottonsCfg);
   const [imgs, setImgs] = useState([]);
   const [folha, setFolha] = useState(0);
   const inp = useRef(null);
@@ -82,8 +86,17 @@ export default function BottonsPage() {
   };
   const escala = Math.min(1, 620 / (L.W * MM));
 
+  const adaptador = {
+    nome: "Bottons",
+    imgs: () => ({ imgs }),
+    aplicarImgs: (i) => { setImgs(i?.imgs || []); },
+    vazio: () => imgs.length === 0,
+    ler: () => ({ cfg: bottonsCfg.get(), imgs: { imgs }, stk: [] }),
+    aplicar: (pr) => { setImgs(pr.imgs?.imgs || []); setFolha(0); bottonsCfg.set(pr.cfg); },
+  };
+
   return (
-    <div className="bt-raiz mx-auto max-w-7xl px-4 py-6">
+    <div className="bt-raiz mx-auto max-w-7xl px-4 pt-6 pb-28">
       <style>{`
         .bt-print { display: none; }
         @media print {
@@ -99,7 +112,8 @@ export default function BottonsPage() {
       `}</style>
 
       <div className="bt-tela grid gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
-        <div className="flex flex-col gap-4 min-w-0">
+        <BarraEditor tipo="bottons" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="🖼️ Imagens dos bottons">
             <button type="button" onClick={() => inp.current?.click()} className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#24344D] text-white text-sm font-semibold"><MdUploadFile size={18} /> Enviar imagens (várias)</button>
             <input ref={inp} type="file" accept="image/*" multiple hidden onChange={(e) => { enviar([...e.target.files]); e.target.value = ""; }} />
@@ -128,7 +142,7 @@ export default function BottonsPage() {
           </Painel>
         </div>
 
-        <div className="flex flex-col gap-4 min-w-0">
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="🖨️ Botton e folha">
             <BotaoPadrao onClick={() => { bottonsCfg.resetar(); setImgs((l) => l.map((i) => ({ ...i, ...AJ_PADRAO, bg: i.bgAuto || "" }))); toast.success("Medidas padrão restauradas"); }} />
             <div className="grid gap-3 sm:grid-cols-3">
@@ -154,7 +168,6 @@ export default function BottonsPage() {
                   {lista.length > 0 && lista.length % L.porFolha !== 0 && <> · a última folha tem {lista.length % L.porFolha} (faltam {L.porFolha - (lista.length % L.porFolha)} para completar). <button type="button" className="underline font-semibold" onClick={completar}>Completar a folha</button></>}.</>
               ) : <span className="text-red-700">O botton não cabe nessa folha com essas margens.</span>}
             </div>
-            <button type="button" onClick={imprimir} className="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B1D2C] text-white font-bold hover:opacity-90"><MdPrint size={20} /> Imprimir / salvar em PDF ({folhas} {folhas === 1 ? "página" : "páginas"})</button>
             <p className="text-[11px] text-[#8B6A1F]">Imprima em escala 100% (sem “ajustar à página”). Recorte no círculo de corte; o tracejado mostra o que ficará visível no botton.</p>
           </Painel>
 

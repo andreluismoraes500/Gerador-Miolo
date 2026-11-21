@@ -1,8 +1,8 @@
 // Barra fixa no rodapé das telas de edição: Editar/Ver (celular), desfazer/refazer, projetos e imprimir.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { MdCopyAll, MdDeleteOutline, MdEdit, MdFolderOpen, MdPrint, MdRedo, MdSave, MdUndo, MdVisibility } from "react-icons/md";
-import { abrirProjeto, duplicarProjeto, excluirProjeto, listarProjetos, renomearProjeto, restaurarRascunho, salvarProjeto, salvarRascunho, TIPOS } from "../../lib/projetos";
+import { assinatura, abrirProjeto, duplicarProjeto, excluirProjeto, listarProjetos, renomearProjeto, restaurarRascunho, salvarProjeto, salvarRascunho, TIPOS } from "../../lib/projetos";
 
 // Aba ativa em telas estreitas: "editar" | "ver"
 export function useAbaMobile() {
@@ -14,24 +14,16 @@ export function useAbaMobile() {
   };
 }
 
-// Guarda as imagens em um rascunho (sobrevive ao recarregar) e as restaura ao abrir a tela.
-function useRascunho(tipo, aoRestaurar) {
+// Guarda as imagens (e o que não fica no localStorage) em um rascunho e restaura ao abrir a tela.
+function useRascunho(tipo, adRef, aoRestaurar) {
   useEffect(() => {
     let vivo = true;
-    const vazio = () => {
-      const im = TIPOS[tipo].imgs();
-      return tipo === "encarte" ? !im.logo && Object.keys(im.fotos).length === 0 : Object.keys(im).length === 0;
-    };
-    if (vazio()) restaurarRascunho(tipo).then((ok) => { if (ok && vivo) aoRestaurar(); }).catch(() => {});
-    let ultima = "";
-    const assinatura = () => {
-      const im = TIPOS[tipo].imgs();
-      const planos = tipo === "encarte" ? { ...im.fotos, logo: im.logo } : im;
-      return Object.entries(planos).map(([k, v]) => `${k}:${v ? v.length : 0}`).join("|");
-    };
+    const ad = () => adRef.current;
+    if (ad().vazio ? ad().vazio() : true) restaurarRascunho(tipo, ad()).then((ok) => { if (ok && vivo) aoRestaurar(); }).catch(() => {});
+    let ultima = assinatura(ad().imgs());
     const t = setInterval(() => {
-      const a = assinatura();
-      if (a !== ultima) { ultima = a; salvarRascunho(tipo).catch(() => {}); }
+      const a = assinatura(ad().imgs());
+      if (a !== ultima) { ultima = a; salvarRascunho(tipo, ad()).catch(() => {}); }
     }, 2500);
     return () => { vivo = false; clearInterval(t); };
   }, [tipo]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -40,18 +32,18 @@ function useRascunho(tipo, aoRestaurar) {
 const idAtual = (tipo) => { try { return localStorage.getItem(`projeto-atual:${tipo}`) || ""; } catch { return ""; } };
 const gravaAtual = (tipo, id) => { try { localStorage.setItem(`projeto-atual:${tipo}`, id || ""); } catch { /* ok */ } };
 
-function ModalProjetos({ tipo, fechar, aoAbrir }) {
+function ModalProjetos({ tipo, fechar, aoAbrir, adRef, nomeTipo }) {
   const [lista, setLista] = useState(null);
   const [nome, setNome] = useState("");
   const [atual, setAtual] = useState(idAtual(tipo));
   const recarregar = () => listarProjetos(tipo).then(setLista).catch(() => setLista([]));
   useEffect(() => { recarregar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const salvarNovo = async () => {
-    try { const p = await salvarProjeto(tipo, nome.trim() || `Projeto ${(lista?.length || 0) + 1}`); gravaAtual(tipo, p.id); setAtual(p.id); setNome(""); toast.success(`Projeto “${p.nome}” salvo.`); recarregar(); }
+    try { const p = await salvarProjeto(tipo, nome.trim() || `Projeto ${(lista?.length || 0) + 1}`, undefined, adRef.current); gravaAtual(tipo, p.id); setAtual(p.id); setNome(""); toast.success(`Projeto “${p.nome}” salvo.`); recarregar(); }
     catch { toast.error("Não consegui salvar (armazenamento do navegador indisponível)."); }
   };
-  const atualizar = async (p) => { try { await salvarProjeto(tipo, p.nome, p.id); toast.success(`“${p.nome}” atualizado.`); recarregar(); } catch { toast.error("Não consegui salvar."); } };
-  const abrir = async (p) => { const r = await abrirProjeto(p.id, tipo); if (r) { gravaAtual(tipo, p.id); setAtual(p.id); aoAbrir(); toast.success(`Projeto “${p.nome}” aberto.`); fechar(); } };
+  const atualizar = async (p) => { try { await salvarProjeto(tipo, p.nome, p.id, adRef.current); toast.success(`“${p.nome}” atualizado.`); recarregar(); } catch { toast.error("Não consegui salvar."); } };
+  const abrir = async (p) => { const r = await abrirProjeto(p.id, tipo, adRef.current); if (r) { gravaAtual(tipo, p.id); setAtual(p.id); aoAbrir(); toast.success(`Projeto “${p.nome}” aberto.`); fechar(); } };
   const dup = async (p) => { await duplicarProjeto(p.id); toast.success("Projeto duplicado."); recarregar(); };
   const ren = async (p) => { const n = window.prompt("Novo nome do projeto:", p.nome); if (n && n.trim()) { await renomearProjeto(p.id, n.trim()); recarregar(); } };
   const del = async (p) => { if (!window.confirm(`Excluir o projeto “${p.nome}”?`)) return; await excluirProjeto(p.id); if (atual === p.id) { gravaAtual(tipo, ""); setAtual(""); } toast.success("Projeto excluído."); recarregar(); };
@@ -60,7 +52,7 @@ function ModalProjetos({ tipo, fechar, aoAbrir }) {
     <div className="fixed inset-0 z-[60] bg-black/40 flex items-end sm:items-center justify-center p-3 print:hidden" onClick={fechar} role="dialog" aria-modal="true" aria-label="Meus projetos">
       <div className="bg-[#FBF8F1] rounded-2xl border border-[#D8CBA8] shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#D8CBA8]">
-          <h2 className="font-bold text-[#24344D]">📁 Meus projetos — {TIPOS[tipo].nome}</h2>
+          <h2 className="font-bold text-[#24344D]">📁 Meus projetos — {nomeTipo}</h2>
           <button type="button" onClick={fechar} className="text-xl leading-none px-2 text-[#6B6458]" aria-label="Fechar">×</button>
         </div>
         <div className="p-4 flex flex-col gap-3 overflow-y-auto">
@@ -91,10 +83,12 @@ function ModalProjetos({ tipo, fechar, aoAbrir }) {
   );
 }
 
-export default function BarraEditor({ tipo, abas, historico, onImprimir, rotuloImprimir = "Imprimir", aoRestaurar }) {
+export default function BarraEditor({ tipo, abas, historico, onImprimir, rotuloImprimir = "Imprimir", aoRestaurar = () => {}, adaptador }) {
   const [modal, setModal] = useState(false);
   const [imprimindo, setImprimindo] = useState(false);
-  useRascunho(tipo, aoRestaurar);
+  const adRef = useRef(adaptador || TIPOS[tipo]);
+  useEffect(() => { adRef.current = adaptador || TIPOS[tipo]; });
+  useRascunho(tipo, adRef, aoRestaurar);
   const imprimir = async () => {
     setImprimindo(true);
     try { await onImprimir(); } finally { setImprimindo(false); }
@@ -114,13 +108,13 @@ export default function BarraEditor({ tipo, abas, historico, onImprimir, rotuloI
               <button type="button" className={ib} onClick={historico.refazer} disabled={!historico.podeRefazer} title="Refazer (Ctrl+Y)" aria-label="Refazer"><MdRedo /></button>
             </div>)}
           <button type="button" onClick={() => setModal(true)} aria-label="Meus projetos" className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-[#D8CBA8] bg-white text-xs font-bold text-[#24344D] shrink-0"><MdFolderOpen /> <span className="hidden sm:inline">Meus projetos</span></button>
-          <button type="button" onClick={imprimir} disabled={imprimindo} className="ml-auto inline-flex items-center justify-center gap-2 px-3 sm:px-6 h-10 rounded-xl bg-[#8B1D2C] text-white text-sm font-bold hover:bg-[#741626] disabled:opacity-70 min-w-0">
+          {onImprimir && <button type="button" onClick={imprimir} disabled={imprimindo} className="ml-auto inline-flex items-center justify-center gap-2 px-3 sm:px-6 h-10 rounded-xl bg-[#8B1D2C] text-white text-sm font-bold hover:bg-[#741626] disabled:opacity-70 min-w-0">
             {imprimindo ? <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin shrink-0" /> : <MdPrint className="shrink-0" />}
             <span className="truncate text-xs sm:text-sm">{imprimindo ? "Preparando…" : <>{rotuloImprimir.split(" · ")[0]}<span className="hidden sm:inline">{rotuloImprimir.includes(" · ") ? ` · ${rotuloImprimir.split(" · ").slice(1).join(" · ")}` : ""}</span></>}</span>
-          </button>
+          </button>}
         </div>
       </div>
-      {modal && <ModalProjetos tipo={tipo} fechar={() => setModal(false)} aoAbrir={aoRestaurar} />}
+      {modal && <ModalProjetos tipo={tipo} fechar={() => setModal(false)} aoAbrir={aoRestaurar} adRef={adRef} nomeTipo={adaptador?.nome || TIPOS[tipo]?.nome || tipo} />}
     </>
   );
 }
