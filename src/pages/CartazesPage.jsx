@@ -13,6 +13,7 @@ import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import { temImagem } from "../lib/projetos";
+import OpcoesFonte from "../components/ui/OpcoesFonte";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
@@ -160,8 +161,8 @@ export default function CartazesPage() {
             <div className="grid grid-cols-2 gap-3">
               <Campo rotulo="Layout"><select className={entrada} value={cfg.layout} onChange={(e) => set({ layout: e.target.value })}>{Object.entries(LAYOUTS_CZ).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Campo>
               <Campo rotulo="Fundo"><select className={entrada} value={cfg.padrao} onChange={(e) => set({ padrao: e.target.value })}>{Object.entries(PADROES_CZ).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Campo>
-              <Campo rotulo="Fonte do nome"><select className={entrada} value={cfg.fonteNome} onChange={(e) => set({ fonteNome: e.target.value })}>{FONTES_CZ.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
-              <Campo rotulo="Fonte do preço"><select className={entrada} value={cfg.fontePreco} onChange={(e) => set({ fontePreco: e.target.value })}>{FONTES_CZ.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
+              <Campo rotulo="Fonte do nome"><select className={entrada} value={cfg.fonteNome} onChange={(e) => set({ fonteNome: e.target.value })}><OpcoesFonte lista={FONTES_CZ} /></select></Campo>
+              <Campo rotulo="Fonte do preço"><select className={entrada} value={cfg.fontePreco} onChange={(e) => set({ fontePreco: e.target.value })}><OpcoesFonte lista={FONTES_CZ} /></select></Campo>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <Cor rotulo="Fundo" valor={cfg.fundo} onChange={(v) => set({ fundo: v })} />

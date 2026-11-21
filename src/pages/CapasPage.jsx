@@ -15,6 +15,7 @@ import Painel from "../components/ui/Painel";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
+import OpcoesFonte from "../components/ui/OpcoesFonte";
 
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
 const Campo = ({ rotulo, children }) => (
@@ -189,7 +190,7 @@ export default function CapasPage() {
                 <Campo rotulo="Texto (Enter = nova linha)"><textarea ref={txtRef} rows={3} className={entrada} value={item.texto} onChange={(e) => setItem({ texto: e.target.value })} /></Campo>
                 <Campo rotulo="Fonte">
                   <select className={entrada} value={item.fonte} style={{ fontFamily: item.fonte }} onChange={(e) => setItem({ fonte: e.target.value })}>
-                    {FONTES_CAPA2.map(([v, n]) => <option key={v} value={v} style={{ fontFamily: v }}>{n}</option>)}
+                    <OpcoesFonte lista={FONTES_CAPA2} />
                   </select>
                 </Campo>
                 <Faixa rotulo="Tamanho da letra" valor={item.tam} min={6} max={300} un=" pt" onChange={(v) => setItem({ tam: v })} />

@@ -14,6 +14,7 @@ import Painel from "../components/ui/Painel";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
+import OpcoesFonte from "../components/ui/OpcoesFonte";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
@@ -211,7 +212,7 @@ export default function EmbalagensPage() {
                 <div className="flex flex-col gap-3">
                   <Campo rotulo="Texto (Enter = nova linha)"><textarea rows={2} className={entrada} value={texto.texto} onChange={(e) => setTexto({ texto: e.target.value })} /></Campo>
                   <Campo rotulo="Fonte">
-                    <select className={entrada} value={texto.fonte} style={{ fontFamily: texto.fonte }} onChange={(e) => setTexto({ fonte: e.target.value })}>{FONTES_EMB.map(([v, n]) => <option key={v} value={v} style={{ fontFamily: v }}>{n}</option>)}</select>
+                    <select className={entrada} value={texto.fonte} style={{ fontFamily: texto.fonte }} onChange={(e) => setTexto({ fonte: e.target.value })}><OpcoesFonte lista={FONTES_EMB} /></select>
                   </Campo>
                   <Faixa rotulo="Tamanho da letra" valor={texto.tam} min={6} max={200} un=" pt" onChange={(v) => setTexto({ tam: v })} />
                   <div className="flex flex-wrap items-center gap-1.5">

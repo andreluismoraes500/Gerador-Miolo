@@ -42,7 +42,7 @@ export function MiniForma({ forma }) {
   else if (forma === "arredondado") corpo = <rect x="6" y="20" width="88" height="40" rx="12" fill={cor} />;
   else if (forma === "pilula") corpo = <rect x="6" y="22" width="88" height="36" rx="18" fill={cor} />;
   else if (forma === "oval") corpo = <ellipse cx="50" cy="40" rx="44" ry="22" fill={cor} />;
-  else if (c?.d) corpo = <path d={c.d} fill={cor} transform="translate(0 -4) scale(1 .9)" />;
+  else if (c?.d) corpo = <path d={c.d} fillRule={c.vazado ? "evenodd" : "nonzero"} fill={cor} transform="translate(0 -4) scale(1 .9)" />;
   else if (c?.pol) corpo = <polygon points={c.pol} fill={cor} transform="translate(0 -4) scale(1 .9)" />;
   return <svg viewBox="0 0 100 80" className="w-full h-full p-1" aria-hidden>{corpo}<rect x="26" y="37" width="48" height="5" rx="2.5" fill="#fff" opacity={forma === "nenhum" ? 0 : 0.9} /></svg>;
 }

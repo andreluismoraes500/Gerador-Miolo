@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { MdImage, MdCasino, MdRestartAlt, MdPalette } from "react-icons/md";
 import { TAL_COLOR_PRESETS } from "../../hooks/useTalonarioBuilder";
+import Faixa from "../ui/Faixa";
 
 export function SectionTitle({ children }) {
   return (
@@ -1123,34 +1124,8 @@ export function WatermarkPanel({ watermark, setField, activeTab, hasLogo }) {
               onChange={(e) => setField("text", e.target.value)}
             />
           )}
-          <Label>Opacidade</Label>
-          <div className="flex items-center gap-2.5">
-            <input
-              type="range"
-              min={4}
-              max={35}
-              value={watermark.opacity}
-              onChange={(e) => setField("opacity", Number(e.target.value))}
-              className="flex-1 accent-(--tal-accent)"
-            />
-            <span className="text-xs text-(--tal-ink-soft) w-9 text-right">
-              {watermark.opacity}%
-            </span>
-          </div>
-          <Label>Tamanho</Label>
-          <div className="flex items-center gap-2.5">
-            <input
-              type="range"
-              min={120}
-              max={420}
-              value={watermark.size}
-              onChange={(e) => setField("size", Number(e.target.value))}
-              className="flex-1 accent-(--tal-accent)"
-            />
-            <span className="text-xs text-(--tal-ink-soft) w-9 text-right">
-              {watermark.size}
-            </span>
-          </div>
+          <Faixa rotulo="Opacidade" valor={watermark.opacity} min={4} max={35} un="%" onChange={(v) => setField("opacity", v)} />
+          <Faixa rotulo="Tamanho" valor={watermark.size} min={120} max={420} onChange={(v) => setField("size", v)} />
         </div>
       )}
     </div>

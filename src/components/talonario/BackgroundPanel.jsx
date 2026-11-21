@@ -4,6 +4,7 @@
 // ajuste (cobrir / repetir). Usa as mesmas variáveis CSS --tal-* do restante.
 
 import { SectionTitle, Label, UploadBox } from "./TalonarioPanels";
+import Faixa from "../ui/Faixa";
 
 export default function BackgroundPanel({
   activeTab,
@@ -32,20 +33,7 @@ export default function BackgroundPanel({
           >
             remover fundo
           </button>
-          <Label>Opacidade</Label>
-          <div className="flex items-center gap-2.5">
-            <input
-              type="range"
-              min={5}
-              max={60}
-              value={background.opacity}
-              onChange={(e) => setField("opacity", Number(e.target.value))}
-              className="flex-1 accent-(--tal-accent)"
-            />
-            <span className="text-xs text-(--tal-ink-soft) w-9 text-right">
-              {background.opacity}%
-            </span>
-          </div>
+          <Faixa rotulo="Opacidade" valor={background.opacity} min={5} max={60} un="%" onChange={(v) => setField("opacity", v)} />
           <Label>Ajuste</Label>
           <div className="flex bg-[#f0f2f1] rounded-lg p-1 gap-1">
             {[

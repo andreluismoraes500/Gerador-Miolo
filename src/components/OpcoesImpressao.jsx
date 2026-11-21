@@ -3,6 +3,7 @@ import { devocionalCfg, montarPaginas, PALETAS, FONTES_TITULO } from "../lib/con
 import { horarioCfg } from "../lib/configHorario";
 import { FORMATOS, LADOS, DICAS_LADOS, impressao } from "../lib/configImpressao";
 import { TIPOS_PAUTA, partiturasCfg } from "../lib/configPartituras";
+import OpcoesFonte from "./ui/OpcoesFonte";
 
 // Escolha de quais lados imprimir (para quem não tem impressora frente e verso).
 export function LadosImpressao({ compacto = false }) {
@@ -154,7 +155,7 @@ export function DevocionalOpcoes() {
         </label>
         <label className="flex flex-col gap-1">Fonte dos títulos
           <select value={c.fonteTitulo} onChange={(e) => devocionalCfg.set({ fonteTitulo: e.target.value })} className="border rounded px-2 py-1 bg-white">
-            {FONTES_TITULO.map((f) => <option key={f.v} value={f.v}>{f.n}</option>)}
+            <OpcoesFonte lista={FONTES_TITULO.map((f) => [f.v, f.n])} />
           </select>
         </label>
         <label className="flex flex-col gap-1">Bíblia
@@ -216,7 +217,7 @@ export function AgendaAnualOpcoes() {
         </label>
         <label className="flex flex-col gap-1">Fonte dos títulos
           <select value={c.fonteTitulo} onChange={(e) => agendaAnualCfg.set({ fonteTitulo: e.target.value })} className={sel}>
-            {FONTES_TITULO.map((f) => <option key={f.v} value={f.v}>{f.n}</option>)}
+            <OpcoesFonte lista={FONTES_TITULO.map((f) => [f.v, f.n])} />
           </select>
         </label>
         <label className="flex flex-col gap-1">Semana começa

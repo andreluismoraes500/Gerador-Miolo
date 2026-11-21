@@ -22,6 +22,7 @@ import { capaCfg, CAPA_PADRAO, FONTES_CAPA } from "../lib/capaCfg";
 import { rodapeCfg } from "../lib/rodapeCfg";
 import { fundoCfg, FUNDO_PADRAO, estiloFundo } from "../lib/fundoCfg";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
+import OpcoesFonte from "../components/ui/OpcoesFonte";
 
 const FONT_OPTIONS = [
   { value: "sans-serif", label: "Sans-serif (padrão)" },
@@ -201,7 +202,7 @@ function CapaAjuste({ settings }) {
         <label className="flex flex-col gap-1 text-[11px] font-semibold text-[#6B6458]">
           Fonte das letras
           <select className="rounded-lg border border-[#D8CBA8] bg-[#FBF8F1] px-2 py-1.5 text-sm" value={c.fonte} onChange={(e) => set({ fonte: e.target.value })} style={{ fontFamily: c.fonte || undefined }}>
-            {FONTES_CAPA.map(([v, n]) => <option key={n} value={v} style={{ fontFamily: v || undefined }}>{n}</option>)}
+            <OpcoesFonte lista={FONTES_CAPA} />
           </select>
         </label>
         <div className="grid grid-cols-3 gap-3">

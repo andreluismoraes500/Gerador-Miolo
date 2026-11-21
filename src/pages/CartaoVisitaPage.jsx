@@ -13,6 +13,7 @@ import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import { temImagem } from "../lib/projetos";
+import OpcoesFonte from "../components/ui/OpcoesFonte";
 
 const MM = 3.7795; // px por mm
 
@@ -113,8 +114,8 @@ export default function CartaoVisitaPage() {
             <div className="grid grid-cols-3 gap-2">
               {[["fundo", "Fundo"], ["texto", "Texto"], ["acento", "Destaque"]].map(([k, r]) => <Campo key={k} rotulo={r}><input type="color" value={c[k]} onChange={(e) => set({ [k]: e.target.value })} className="w-full h-8 rounded" /></Campo>)}
             </div>
-            <Campo rotulo="Fonte do nome"><select className={entrada} value={c.fonte} onChange={(e) => set({ fonte: e.target.value })}>{FONTES.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
-            <Campo rotulo="Fonte do texto"><select className={entrada} value={c.fonteTexto} onChange={(e) => set({ fonteTexto: e.target.value })}>{FONTES.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
+            <Campo rotulo="Fonte do nome"><select className={entrada} value={c.fonte} onChange={(e) => set({ fonte: e.target.value })}><OpcoesFonte lista={FONTES} /></select></Campo>
+            <Campo rotulo="Fonte do texto"><select className={entrada} value={c.fonteTexto} onChange={(e) => set({ fonteTexto: e.target.value })}><OpcoesFonte lista={FONTES} /></select></Campo>
             <Campo rotulo="Layout da frente"><Seg valor={c.layoutF} onChange={(v) => set({ layoutF: v })} opcoes={[["classico", "Clássico"], ["moderno", "Moderno"], ["minimal", "Minimal"], ["elegante", "Elegante"]]} /></Campo>
             <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={c.verso} onChange={(e) => set({ verso: e.target.checked })} /> Imprimir também o verso</label>
             {c.verso && (

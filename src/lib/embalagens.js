@@ -1,6 +1,7 @@
 // Embalagens: planificações (moldes) paramétricas em mm. Cada modelo devolve peças (polígonos);
 // arestas compartilhadas viram linhas de DOBRA (tracejadas) e as demais, linhas de CORTE.
 import { criarStore } from "./storeSimples";
+import { FONTES_PAR } from "./fontes";
 
 export const PT = 0.3528;
 export const idNovo = () => Math.random().toString(36).slice(2, 9);
@@ -218,11 +219,7 @@ export function geometria(id, params) {
 }
 
 // ---------- estado ----------
-export const FONTES_EMB = [
-  ["'DM Serif Display', serif", "DM Serif Display"], ["'Playfair Display', serif", "Playfair Display"], ["'Montserrat', sans-serif", "Montserrat"],
-  ["'Oswald', sans-serif", "Oswald"], ["'Bebas Neue', sans-serif", "Bebas Neue"], ["'Anton', sans-serif", "Anton"], ["'Fredoka', sans-serif", "Fredoka (arredondada)"],
-  ["'Great Vibes', cursive", "Great Vibes (cursiva)"], ["'Dancing Script', cursive", "Dancing Script"], ["'Pacifico', cursive", "Pacifico"], ["Georgia, serif", "Georgia"], ["Arial, sans-serif", "Arial"],
-];
+export const FONTES_EMB = FONTES_PAR;
 export const TEMAS_EMB = ["#d6567a", "#2f6fd0", "#5f8f6b", "#e0a526", "#24344D", "#7b5cc4", "#c0643a", "#3a3f48", "#ffffff"];
 
 export const itemTextoEmb = (p = {}) => ({ id: idNovo(), texto: "Seu texto", fonte: "'DM Serif Display', serif", tam: 22, cor: "#ffffff", x: 50, y: 50, alinh: "center", negrito: false, italico: false, caixaAlta: false, esp: 0, ...p });

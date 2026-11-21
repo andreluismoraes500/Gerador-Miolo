@@ -2,6 +2,7 @@
 // de páginas (ordem + quantidade) que o template monta.
 import { criarStore } from "./storeSimples";
 import { getFeriado } from "../utils/agendaUtils";
+import { FONTES_TODAS } from "./fontes";
 
 export const PALETAS = {
   rosa: { nome: "Rosa", banda: "#fde1e1", linha: "#4b4b4b", destaque: "#e0703a", flor: ["#f4a9a8", "#e9858b", "#f7cdb8"], folha: "#b7c7a3", titulo: "#5a4a4a" },
@@ -11,14 +12,7 @@ export const PALETAS = {
   dourado: { nome: "Bege & dourado", banda: "#f6ecd7", linha: "#4f4638", destaque: "#b8862d", flor: ["#e6c27a", "#d4a24e", "#f2dfb4"], folha: "#b5bd96", titulo: "#4f4638" },
 };
 
-export const FONTES_TITULO = [
-  { v: "'DM Serif Display', serif", n: "DM Serif" },
-  { v: "'Great Vibes', cursive", n: "Great Vibes" },
-  { v: "'Satisfy', cursive", n: "Satisfy" },
-  { v: "'Pacifico', cursive", n: "Pacifico" },
-  { v: "'Amatic SC', cursive", n: "Amatic" },
-  { v: "'Cormorant Garamond', serif", n: "Cormorant" },
-];
+export const FONTES_TITULO = FONTES_TODAS.map(([v, n]) => ({ v, n }));
 
 const ANO_ATUAL = new Date().getFullYear();
 
