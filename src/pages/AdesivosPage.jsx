@@ -16,6 +16,7 @@ import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import { temImagem } from "../lib/projetos";
+import OpcoesFonte from "../components/ui/OpcoesFonte";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
@@ -176,9 +177,9 @@ export default function AdesivosPage() {
             {comTexto && (
               <div className="grid grid-cols-2 gap-3 border-t border-[#E8DFC8] pt-3">
                 <Campo rotulo={ehLacre(cfg.forma) ? "Texto do medalhão" : "Texto principal"}><input className={entrada} value={item.t1} onChange={(e) => setItem({ t1: e.target.value })} /></Campo>
-                <Campo rotulo="Fonte principal"><select className={entrada} value={item.fonte1} onChange={(e) => setFonte({ fonte1: e.target.value })}>{FONTES_AD.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
+                <Campo rotulo="Fonte principal"><select className={entrada} value={item.fonte1} onChange={(e) => setFonte({ fonte1: e.target.value })}><OpcoesFonte lista={FONTES_AD} /></select></Campo>
                 <Campo rotulo={ehLacre(cfg.forma) ? "Texto da tira" : "Texto 2"}><input className={entrada} value={item.t2} onChange={(e) => setItem({ t2: e.target.value })} /></Campo>
-                <Campo rotulo={ehLacre(cfg.forma) ? "Fonte da tira e do texto pequeno" : "Fonte do texto 2 e 3"}><select className={entrada} value={item.fonte2} onChange={(e) => setFonte({ fonte2: e.target.value })}>{FONTES_AD.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
+                <Campo rotulo={ehLacre(cfg.forma) ? "Fonte da tira e do texto pequeno" : "Fonte do texto 2 e 3"}><select className={entrada} value={item.fonte2} onChange={(e) => setFonte({ fonte2: e.target.value })}><OpcoesFonte lista={FONTES_AD} /></select></Campo>
                 <Campo rotulo={ehLacre(cfg.forma) ? "Texto pequeno do medalhão (ex.: EBA!)" : "Texto 3 (pequeno)"}><input className={entrada} value={item.t3} onChange={(e) => setItem({ t3: e.target.value })} /></Campo>
                 <label className="flex items-center gap-2 text-xs col-span-2"><input type="checkbox" checked={cfg.fontesTodos} onChange={(e) => set({ fontesTodos: e.target.checked })} /> Usar as mesmas fontes em todos os adesivos da folha</label>
                 <div className="grid grid-cols-2 gap-2"><Cor rotulo="Cor texto 1" valor={item.corT1} onChange={(v) => setItem({ corT1: v })} /><Cor rotulo="Cor texto 2" valor={item.corT2} onChange={(v) => setItem({ corT2: v })} /></div>

@@ -2,6 +2,7 @@
 import { criarStore } from "./storeSimples";
 import { emLargura } from "./cartaz";
 import { encaixar } from "./calendario";
+import { FONTES_TODAS } from "./fontes";
 
 export const FORMAS = {
   circulo: { nome: "Redondo", tam: [[20, 20], [25, 25], [30, 30], [38, 38], [40, 40], [50, 50], [60, 60], [76, 76]], quadradas: true },
@@ -17,12 +18,7 @@ export const FORMAS = {
 };
 export const ehLacre = (f) => f === "lacreMedalhao" || f === "lacrePonta";
 
-export const FONTES_AD = [
-  ["'Anton', sans-serif", "Anton (impacto)", 400], ["'Bebas Neue', sans-serif", "Bebas Neue", 400], ["'Archivo Black', sans-serif", "Archivo Black", 400],
-  ["'Montserrat', sans-serif", "Montserrat", 800], ["'Oswald', sans-serif", "Oswald", 600], ["'Fredoka', sans-serif", "Fredoka (arredondada)", 700],
-  ["'DM Serif Display', serif", "DM Serif Display", 400], ["'Playfair Display', serif", "Playfair Display", 700],
-  ["'Great Vibes', cursive", "Great Vibes (cursiva)", 400], ["'Dancing Script', cursive", "Dancing Script", 700], ["'Pacifico', cursive", "Pacifico", 400], ["'Caveat', cursive", "Caveat (manuscrita)", 700],
-];
+export const FONTES_AD = FONTES_TODAS.map(([v, n, peso]) => [v, n, peso]);
 export const pesoFonte = (f) => (FONTES_AD.find((x) => x[0] === f) || [0, 0, 700])[2];
 
 export const LAYOUTS_AD = { texto: "Só texto", imagem: "Só imagem (como botton)", imagemTexto: "Imagem + texto embaixo" };

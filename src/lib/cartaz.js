@@ -1,12 +1,9 @@
 // Cartazes de supermercado: modelos prontos, formatos e utilitários de texto/preço.
 import { criarStore } from "./storeSimples";
+import { FONTES_PAR } from "./fontes";
 
 export const FORMATOS_CZ = { a3: ["A3 · 297 × 420", 297, 420], a4: ["A4 · 210 × 297", 210, 297], a5: ["A5 · 148 × 210", 148, 210], a6: ["A6 · 105 × 148", 105, 148] };
-export const FONTES_CZ = [
-  ["'Anton', sans-serif", "Anton (impacto)"], ["'Bebas Neue', sans-serif", "Bebas Neue"], ["'Archivo Black', sans-serif", "Archivo Black"],
-  ["'Oswald', sans-serif", "Oswald"], ["'Montserrat', sans-serif", "Montserrat"], ["'Fredoka', sans-serif", "Fredoka (arredondada)"],
-  ["'DM Serif Display', serif", "DM Serif Display"], ["'Poppins', sans-serif", "Poppins"],
-];
+export const FONTES_CZ = FONTES_PAR;
 
 export const LAYOUTS_CZ = { empilhado: "Clássico (cartão de preço)", faixa: "Faixa de preço", destaque: "Estrela de preço", limpo: "Limpo moderno" };
 export const PADROES_CZ = { liso: "Liso", raios: "Raios", bolinhas: "Bolinhas", listras: "Listras", degrade: "Degradê" };

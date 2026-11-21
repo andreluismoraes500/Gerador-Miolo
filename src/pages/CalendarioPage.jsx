@@ -14,6 +14,7 @@ import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import { temImagem } from "../lib/projetos";
 import GradeModelos, { MiniCalendario } from "../components/ui/GradeModelos";
+import OpcoesFonte from "../components/ui/OpcoesFonte";
 
 const MM = 3.7795;
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
@@ -161,7 +162,7 @@ export default function CalendarioPage() {
                 <Campo rotulo="Nome do negócio"><input className={entrada} value={cfg.cabNome} onChange={(e) => set({ cabNome: e.target.value })} /></Campo>
                 <Campo rotulo="Linha (ex.: DELIVERY)"><input className={entrada} value={cfg.cabLinha} onChange={(e) => set({ cabLinha: e.target.value })} /></Campo>
                 <Campo rotulo="Telefone / WhatsApp"><input className={entrada} value={cfg.cabFone} onChange={(e) => set({ cabFone: e.target.value })} /></Campo>
-                <Campo rotulo="Fonte do nome"><select className={entrada} value={cfg.fonteTitulo} onChange={(e) => set({ fonteTitulo: e.target.value })}>{FONTES.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
+                <Campo rotulo="Fonte do nome"><select className={entrada} value={cfg.fonteTitulo} onChange={(e) => set({ fonteTitulo: e.target.value })}><OpcoesFonte lista={FONTES} /></select></Campo>
                 <Faixa rotulo="Altura do cabeçalho" valor={cfg.cabAltPct} min={30} max={90} un="%" onChange={(v) => set({ cabAltPct: v })} />
                 <label className="flex gap-2 items-center text-xs mt-5"><input type="checkbox" checked={cfg.cabZap} onChange={(e) => set({ cabZap: e.target.checked })} />Ícone de WhatsApp</label>
               </div>
@@ -195,7 +196,7 @@ export default function CalendarioPage() {
               <input type="color" value={cfg.cor} onChange={(e) => set({ cor: e.target.value })} className="w-8 h-8 rounded-full" aria-label="Cor personalizada" /></div>
             <div className="grid grid-cols-2 gap-3">
               <Campo rotulo="Grade"><select className={entrada} value={cfg.estilo} onChange={(e) => set({ estilo: e.target.value })}>{Object.entries(ESTILOS_GRADE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Campo>
-              <Campo rotulo="Fonte do título"><select className={entrada} value={cfg.fonteTitulo} onChange={(e) => set({ fonteTitulo: e.target.value })}>{FONTES.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
+              <Campo rotulo="Fonte do título"><select className={entrada} value={cfg.fonteTitulo} onChange={(e) => set({ fonteTitulo: e.target.value })}><OpcoesFonte lista={FONTES} /></select></Campo>
               <Campo rotulo="Título"><input className={entrada} value={cfg.titulo} onChange={(e) => set({ titulo: e.target.value })} /></Campo>
               <Campo rotulo="Subtítulo (capa)"><input className={entrada} value={cfg.subtitulo} onChange={(e) => set({ subtitulo: e.target.value })} /></Campo>
               <Faixa rotulo="Tamanho do texto" valor={Math.round((cfg.escala ?? 1) * 100)} min={60} max={140} un="%" onChange={(v) => set({ escala: v / 100 })} />

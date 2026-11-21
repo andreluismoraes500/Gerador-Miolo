@@ -1,19 +1,14 @@
 // Capas A5 (placa de papelão + dobra): molde de corte, textos arrastáveis e mala direta (CSV).
 import { criarStore } from "./storeSimples";
 import { emLargura } from "./cartaz";
+import { FONTES_PAR } from "./fontes";
 
 export const A4 = { w: 210, h: 297 };
 export const folhaDe = (c) => (c.orient === "paisagem" ? { w: 297, h: 210 } : A4);
 export const PT = 0.3528; // 1 pt em mm
 export const COR_MOLDE = "#231f20";
 
-export const FONTES_CAPA2 = [
-  ["'DM Serif Display', serif", "DM Serif Display"], ["'Playfair Display', serif", "Playfair Display"],
-  ["'Cormorant Garamond', serif", "Cormorant Garamond"], ["'Montserrat', sans-serif", "Montserrat"],
-  ["'Oswald', sans-serif", "Oswald"], ["'Bebas Neue', sans-serif", "Bebas Neue"], ["'Anton', sans-serif", "Anton"],
-  ["'Fredoka', sans-serif", "Fredoka (arredondada)"], ["'Great Vibes', cursive", "Great Vibes (cursiva)"],
-  ["'Dancing Script', cursive", "Dancing Script"], ["'Pacifico', cursive", "Pacifico"], ["Georgia, serif", "Georgia"], ["Arial, sans-serif", "Arial"],
-];
+export const FONTES_CAPA2 = FONTES_PAR;
 
 export const idNovo = () => Math.random().toString(36).slice(2, 9);
 export const itemTexto = (p = {}) => ({
@@ -91,6 +86,10 @@ export function tamanhoCaber(txt, it, larguraMm) {
 export const FORMAS_TEXTO = [
   ["nenhum", "Sem fundo"], ["retangulo", "Retângulo"], ["arredondado", "Arredondado"], ["pilula", "Pílula"], ["oval", "Oval"],
   ["nuvem", "Nuvem"], ["balao", "Balão de fala"], ["estrela", "Explosão"], ["onda", "Faixa ondulada"], ["fita", "Fita"],
+  ["coracao", "Coração"], ["losango", "Losango"], ["hexagono", "Hexágono"], ["octogono", "Octógono"], ["selo", "Selo"],
+  ["flor", "Flor"], ["estrela5", "Estrela"], ["etiqueta", "Etiqueta"], ["seta", "Seta"], ["bandeira", "Bandeira"],
+  ["cupom", "Cupom"], ["arco", "Arco"], ["pergaminho", "Pergaminho"], ["cartela", "Cartela"], ["folha", "Folha"],
+  ["gota", "Gota"], ["circulo", "Círculo"], ["bolhas", "Bolhas"], ["recorte", "Cantos cortados"], ["moldura", "Moldura vazada"],
 ];
 function scallop(nx, ny) {
   const x0 = 9, x1 = 91, y0 = 14, y1 = 86; let d = `M${x0} ${y0}`;
@@ -106,11 +105,50 @@ function explosao(n) {
   for (let i = 0; i < n * 2; i += 1) { const a = (Math.PI * i) / n, r = i % 2 ? 40 : 50; p.push(`${(50 + r * Math.cos(a)).toFixed(1)},${(50 + r * 0.98 * Math.sin(a)).toFixed(1)}`); }
   return p.join(" ");
 }
+
+function serrilha(n, r1, r2, rot = 0) {
+  const p = [];
+  for (let i = 0; i < n * 2; i += 1) { const a = (Math.PI * i) / n + rot, r = i % 2 ? r1 : r2; p.push(`${(50 + r * Math.cos(a)).toFixed(1)},${(50 + r * Math.sin(a)).toFixed(1)}`); }
+  return p.join(" ");
+}
+function petalas(n) {
+  let d = ""; const R0 = 30, R1 = 68;
+  for (let i = 0; i < n; i += 1) {
+    const a0 = (2 * Math.PI * i) / n, a1 = (2 * Math.PI * (i + 1)) / n, am = (a0 + a1) / 2;
+    const P = (r, a) => `${(50 + r * Math.cos(a)).toFixed(1)} ${(50 + r * Math.sin(a)).toFixed(1)}`;
+    d += `${i ? "" : `M${P(R0, a0)}`}Q${P(R1, am)} ${P(R0, a1)}`;
+  }
+  return `${d}Z`;
+}
+function bolhas() {
+  const c = [[50, 50, 26], [16, 50, 16], [34, 34, 20], [54, 28, 22], [74, 36, 19], [86, 54, 14], [72, 68, 18], [50, 72, 20], [28, 66, 17]];
+  return c.map(([x, y, r]) => `M${x - r} ${y}a${r} ${r} 0 1 0 ${r * 2} 0a${r} ${r} 0 1 0 ${-r * 2} 0Z`).join("");
+}
 export const CAMINHO_FORMA = {
   nuvem: { d: scallop(6, 3), pad: 3.2 },
   balao: { d: "M8 0H92Q100 0 100 8V72Q100 80 92 80H38L20 100L27 80H8Q0 80 0 72V8Q0 0 8 0Z", pad: 1, extra: 6 },
   estrela: { pol: explosao(14), pad: 3.8 },
   onda: { d: "M0 10Q12.5 0 25 10T50 10T75 10T100 10V90Q87.5 100 75 90T50 90T25 90T0 90Z", pad: 2 },
   fita: { pol: "0,8 100,8 93,50 100,92 0,92 7,50", pad: 1.7 },
+  coracao: { d: "M50 94C20 70 3 52 3 31C3 16 14 6 27 6C37 6 46 12 50 22C54 12 63 6 73 6C86 6 97 16 97 31C97 52 80 70 50 94Z", pad: 2.6, prop: 1, ocupa: 0.64 },
+  losango: { pol: "50,2 98,50 50,98 2,50", pad: 2.8, prop: 1, ocupa: 0.52 },
+  hexagono: { pol: "25,4 75,4 99,50 75,96 25,96 1,50", pad: 1.7, prop: 1, ocupa: 0.8 },
+  octogono: { pol: "30,2 70,2 98,30 98,70 70,98 30,98 2,70 2,30", pad: 1.6, prop: 1, ocupa: 0.82 },
+  selo: { pol: serrilha(20, 44, 50), pad: 3.4, prop: 1, ocupa: 0.76 },
+  flor: { d: petalas(8), pad: 3.6, prop: 1, ocupa: 0.58 },
+  estrela5: { pol: serrilha(5, 21, 50, -Math.PI / 2), pad: 5, prop: 1, ocupa: 0.42 },
+  etiqueta: { pol: "0,12 80,12 100,50 80,88 0,88", pad: 1.5 },
+  seta: { pol: "0,12 82,12 82,0 100,50 82,100 82,88 0,88", pad: 1.5 },
+  bandeira: { pol: "0,0 100,0 100,100 50,80 0,100", pad: 1.4 },
+  cupom: { d: "M0 0H100V38A10 10 0 0 0 100 62V100H0V62A10 10 0 0 0 0 38Z", pad: 1.4 },
+  arco: { d: "M0 100V48Q0 0 50 0Q100 0 100 48V100Z", pad: 1.5 },
+  pergaminho: { d: "M12 8H88Q100 8 100 20Q92 26 100 32V80Q100 92 88 92H12Q0 92 0 80Q8 74 0 68V20Q0 8 12 8Z", pad: 1.6 },
+  cartela: { d: "M10 0H90Q100 0 100 10V90Q100 100 90 100H10Q0 100 0 90V10Q0 0 10 0ZM18 12H82Q88 12 88 18V82Q88 88 82 88H18Q12 88 12 82V18Q12 12 18 12Z", pad: 1.5, vazado: true },
+  folha: { d: "M0 100Q0 20 60 4Q100 0 100 0Q100 70 48 96Q20 106 0 100Z", pad: 2.6 },
+  gota: { d: "M50 2C50 2 92 46 92 66C92 86 74 98 50 98C26 98 8 86 8 66C8 46 50 2 50 2Z", pad: 3.2, prop: 1, ocupa: 0.52 },
+  circulo: { d: "M50 2A48 48 0 1 1 50 98A48 48 0 1 1 50 2Z", pad: 1, prop: 1, ocupa: 0.76 },
+  bolhas: { d: bolhas(), pad: 2.6, prop: 1, ocupa: 0.72 },
+  recorte: { pol: "12,0 88,0 100,12 100,88 88,100 12,100 0,88 0,12", pad: 1.3 },
+  moldura: { d: "M0 0H100V100H0ZM9 9V91H91V9Z", pad: 1.5, vazado: true },
 };
 export const CORES_FUNDO_TEXTO = ["#ffffff", "#fff4d6", "#ffd6e0", "#d6ecff", "#d9f2d9", "#ffe08a", "#24344D", "#000000"];

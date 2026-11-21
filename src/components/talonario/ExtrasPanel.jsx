@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { cssTalonario, talonarioExtras } from "../../lib/configTalonario";
+import Faixa from "../ui/Faixa";
 
 // Painel "Extras": mais linhas, só pautado e letras maiores — valem para todos os modelos.
 export default function ExtrasPanel() {
@@ -45,10 +46,7 @@ export default function ExtrasPanel() {
         </label>
       )}
 
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="flex justify-between">Tamanho das letras <b>{c.escala}%</b></span>
-        <input type="range" min="100" max="170" step="5" value={c.escala} onChange={(e) => talonarioExtras.set({ escala: Number(e.target.value) })} />
-      </label>
+      <Faixa rotulo="Tamanho das letras" valor={c.escala} min={100} max={170} step={5} un="%" onChange={(v) => talonarioExtras.set({ escala: v })} />
     </div>
   );
 }

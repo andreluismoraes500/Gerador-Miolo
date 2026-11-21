@@ -1,5 +1,6 @@
 // Encarte de ofertas: várias ofertas em grade (foto, nome e preço), título, validade e rodapé.
 import { criarStore } from "./storeSimples";
+import { FONTES_PAR } from "./fontes";
 
 export const PALETAS_ENC = [
   { id: "verao", nome: "Verão", fundo: "#fff6df", titulo: "#2e9b4f", faixa: "#ffcf1a", faixaTxt: "#7a4a00", pill: "#1559b7", preco: "#e30613", rodape: "#e30613", rodapeTxt: "#ffffff" },
@@ -11,10 +12,7 @@ export const PALETAS_ENC = [
   { id: "black", nome: "Black Friday", fundo: "#0c0c0c", titulo: "#f4ff3a", faixa: "#f4ff3a", faixaTxt: "#0c0c0c", pill: "#2a2a2a", preco: "#ff2e63", rodape: "#ff2e63", rodapeTxt: "#ffffff" },
   { id: "clean", nome: "Clean", fundo: "#ffffff", titulo: "#111111", faixa: "#e30613", faixaTxt: "#ffffff", pill: "#111111", preco: "#e30613", rodape: "#111111", rodapeTxt: "#ffffff" },
 ];
-export const FONTES_ENC = [
-  ["'Anton', sans-serif", "Anton (impacto)"], ["'Bebas Neue', sans-serif", "Bebas Neue"], ["'Archivo Black', sans-serif", "Archivo Black"],
-  ["'Fredoka', sans-serif", "Fredoka (arredondada)"], ["'Pacifico', cursive", "Pacifico (cursiva)"], ["'Oswald', sans-serif", "Oswald"], ["'Montserrat', sans-serif", "Montserrat"],
-];
+export const FONTES_ENC = FONTES_PAR;
 export const novoItemEnc = (o = {}) => ({ id: Math.random().toString(36).slice(2, 9), nome: "PRODUTO", preco: "9,99", unid: "kg", de: "", emoji: "", ...o });
 const exemplo = [["BANANA PRATA", "3,99", "kg", "🍌"], ["LARANJA PERA", "3,79", "kg", "🍊"], ["LIMÃO TAHITI", "3,49", "kg", "🍋"], ["MELÃO AMARELO", "6,99", "kg", "🍈"], ["ABACATE", "2,99", "un", "🥑"], ["CENOURA", "3,49", "kg", "🥕"], ["ABÓBORA", "2,99", "kg", "🎃"], ["CEBOLA", "1,99", "kg", "🧅"], ["MANGA PALMER", "4,59", "kg", "🥭"], ["TOMATE", "5,99", "kg", "🍅"]];
 export const encarteCfg = criarStore("encarte-cfg", {

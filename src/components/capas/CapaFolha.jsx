@@ -77,32 +77,37 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
             }
             const txt = aplicar(it.texto, dados);
             const larg = (A.w * it.larg) / 100;
-            const pt = it.caber ? tamanhoCaber(it.caixaAlta ? txt.toUpperCase() : txt, it, larg) : it.tam;
             const forma = it.fundoForma || "nenhum";
             const cam = CAMINHO_FORMA[forma];
+            const figura = !!(forma !== "nenhum" && cam?.prop);
+            const lTxt = figura ? larg * cam.ocupa : larg; // nas formas de figura, "largura" = largura da figura
+            const pt = it.caber ? tamanhoCaber(it.caixaAlta ? txt.toUpperCase() : txt, it, lTxt) : it.tam;
             const pad = it.fundoPad ?? 4, op = (it.fundoOp ?? 100) / 100, bEsp = it.fundoBorda || 0, bCor = it.fundoBordaCor || "#24344D", fCor = it.fundoCor || "#ffffff";
             const comFundo = forma !== "nenhum";
             const cssForma = { retangulo: 0, arredondado: `${Math.max(2, pad)}mm`, pilula: "999px", oval: "50%" }[forma];
             const extra = comFundo ? (cam ? pad * (cam.pad || 1) : pad) : 0;
-            const padBx = comFundo ? `${extra}mm ${extra}mm ${extra + (cam?.extra || 0)}mm` : 0;
+            // formas "de figura" mantêm a proporção; o texto fica centralizado, em uma largura menor
+            const wFig = figura ? larg : 0;
+            const padBx = figura ? `0 ${(larg - lTxt) / 2}mm` : comFundo ? `${extra}mm ${extra}mm ${extra + (cam?.extra || 0)}mm` : 0;
             return (
               <div
                 key={it.id}
                 onPointerDown={(e) => iniciar(e, i)}
                 onDoubleClick={() => onEditar && onEditar(i)}
                 style={{
-                  ...base, ...marca, boxSizing: "content-box", width: `${larg}mm`, padding: padBx,
+                  ...base, ...marca, boxSizing: figura ? "border-box" : "content-box", width: `${figura ? wFig : larg}mm`, padding: padBx,
+                  ...(figura ? { minHeight: `${wFig / cam.prop}mm`, display: "flex", alignItems: "center", justifyContent: "center" } : {}),
                   ...(comFundo && cssForma !== undefined ? { background: rgba(fCor, op), borderRadius: cssForma, border: bEsp ? `${bEsp}mm solid ${bCor}` : "none" } : {}),
                 }}
               >
                 {comFundo && cam && (
-                  <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible", pointerEvents: "none" }}>
-                    {cam.d ? <path d={cam.d} fill={fCor} fillOpacity={op} stroke={bEsp ? bCor : "none"} strokeWidth={bEsp * 3.78} vectorEffect="non-scaling-stroke" />
+                  <svg viewBox="0 0 100 100" preserveAspectRatio={figura ? "xMidYMid meet" : "none"} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible", pointerEvents: "none" }}>
+                    {cam.d ? <path d={cam.d} fillRule={cam.vazado ? "evenodd" : "nonzero"} fill={fCor} fillOpacity={op} stroke={bEsp ? bCor : "none"} strokeWidth={bEsp * 3.78} vectorEffect="non-scaling-stroke" />
                       : <polygon points={cam.pol} fill={fCor} fillOpacity={op} stroke={bEsp ? bCor : "none"} strokeWidth={bEsp * 3.78} vectorEffect="non-scaling-stroke" strokeLinejoin="round" />}
                   </svg>
                 )}
                 <div style={{
-                  position: "relative", textAlign: it.alinh, fontFamily: it.fonte, fontSize: `${pt * PT}mm`, lineHeight: 1.12,
+                  position: "relative", width: figura ? "100%" : undefined, textAlign: it.alinh, fontFamily: it.fonte, fontSize: `${pt * PT}mm`, lineHeight: 1.12,
                   color: it.cor, fontWeight: it.negrito ? 800 : 400, fontStyle: it.italico ? "italic" : "normal", textTransform: it.caixaAlta ? "uppercase" : "none",
                   letterSpacing: `${it.esp * PT}mm`, whiteSpace: it.caber || it.quebra === false ? "pre" : "pre-wrap", wordBreak: "break-word", userSelect: "none",
                 }}>

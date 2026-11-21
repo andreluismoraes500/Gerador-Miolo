@@ -12,6 +12,7 @@ import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import { temImagem } from "../lib/projetos";
+import OpcoesFonte from "../components/ui/OpcoesFonte";
 
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
 const Campo = ({ rotulo, children }) => (<div className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}</div>);
@@ -136,7 +137,7 @@ export default function MockupAgendaPage() {
               <Campo rotulo="Cor do título sobre a arte"><input type="color" className="h-8 w-full" value={cfg.corTitulo} onChange={(e) => set({ corTitulo: e.target.value })} /></Campo>
             </div>
             <Campo rotulo="Estilo da fonte"><select className={entrada} value={cfg.tituloFonte} onChange={(e) => set({ tituloFonte: e.target.value })}>
-              {FONTES.map(([v, n]) => <option key={v} value={v}>{n}</option>)}
+              <OpcoesFonte lista={FONTES} />
             </select></Campo>
             <Faixa rotulo="Cantos" valor={cfg.cantos} min={0} max={8} un="mm" onChange={(v) => set({ cantos: v })} />
             <label className="flex gap-2 items-center text-xs"><input type="checkbox" checked={cfg.brilho} onChange={(e) => set({ brilho: e.target.checked })} /> Brilho na capa</label>

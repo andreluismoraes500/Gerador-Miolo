@@ -65,7 +65,7 @@ function MenuGrupos() {
   const on = "bg-[#24344D] text-[#F6F1E7] shadow-sm";
   const off = "text-[#6B6458] hover:bg-[#EFE4C8] hover:text-[#24344D]";
   return (
-    <nav ref={raiz} aria-label="Navegação principal" className="order-last lg:order-none w-full lg:w-auto lg:min-w-[720px] flex items-center gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner relative">
+    <nav ref={raiz} aria-label="Navegação principal" className="order-last xl:order-none w-full max-w-3xl xl:max-w-none xl:w-auto xl:min-w-[720px] mx-auto xl:mx-0 flex items-center gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner relative">
       {GRUPOS.map((g) => {
         const Icon = g.icon;
         const ativoGrupo = g.itens.includes(location.pathname);
@@ -183,9 +183,9 @@ export default function AppLayout() {
         ref={headerRef}
         className="sticky top-0 z-40 bg-[#FBF8F1]/90 backdrop-blur-md border-b border-[#D8CBA8] print:hidden"
       >
-        <div className="max-w-7xl 2xl:max-w-[2100px] mx-auto px-4 sm:px-6 py-2 md:py-3 flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-3 gap-y-2">
+        <div className="max-w-7xl 2xl:max-w-[2100px] mx-auto px-4 sm:px-6 py-2 md:py-3 flex flex-wrap xl:flex-nowrap items-center justify-center gap-x-6 gap-y-2">
           {/* Marca */}
-          <div className="flex items-center gap-3 shrink-0 mr-auto md:mr-0">
+          <div className="flex items-center justify-center gap-3 shrink-0">
             <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-[#24344D] shadow-[2px_2px_0_0_#B8933D]">
               <span
                 className="text-[#F6F1E7] text-base leading-none"

@@ -10,6 +10,7 @@ import Painel from "../components/ui/Painel";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
+import OpcoesFonte from "../components/ui/OpcoesFonte";
 
 const MM = 3.7795;
 const PAPEL = { a4: [210, 297], a3: [297, 420], a5: [148, 210] };
@@ -83,7 +84,7 @@ export default function EncartePage() {
           </Painel>
           <Painel titulo="🏷️ Cabeçalho e rodapé" aberto={false}>
             <Campo rotulo="Título"><input className={entrada} value={cfg.titulo} onChange={(e) => set({ titulo: e.target.value })} /></Campo>
-            <Campo rotulo="Fonte do título"><select className={entrada} value={cfg.fonteTitulo} onChange={(e) => set({ fonteTitulo: e.target.value })}>{FONTES_ENC.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
+            <Campo rotulo="Fonte do título"><select className={entrada} value={cfg.fonteTitulo} onChange={(e) => set({ fonteTitulo: e.target.value })}><OpcoesFonte lista={FONTES_ENC} /></select></Campo>
             <Campo rotulo="Validade (faixa colorida)"><input className={entrada} value={cfg.validade} onChange={(e) => set({ validade: e.target.value })} /></Campo>
             <Campo rotulo="Nome do mercado (canto)"><input className={entrada} value={cfg.mercado} onChange={(e) => set({ mercado: e.target.value })} /></Campo>
             <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#D8CBA8] bg-white text-xs font-semibold cursor-pointer text-[#24344D] self-start"><MdUploadFile /> {encarteLogo.url ? "Trocar logo" : "Logo do mercado"}

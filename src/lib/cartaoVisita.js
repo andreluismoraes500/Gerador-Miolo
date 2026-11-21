@@ -1,5 +1,6 @@
 // Cartão de visita: configuração e cálculo do encaixe na folha (frente/verso alinhados).
 import { criarStore } from "./storeSimples";
+import { FONTES_PAR } from "./fontes";
 
 export const PAPEIS = {
   a4: { nome: "A4 (210 × 297 mm)", w: 210, h: 297 },
@@ -13,12 +14,7 @@ export const TAMANHOS = {
   "50x90": { nome: "50 × 90 mm (vertical)", w: 50, h: 90 },
   "55x55": { nome: "55 × 55 mm (quadrado)", w: 55, h: 55 },
 };
-export const FONTES = [
-  ["'DM Serif Display', serif", "DM Serif Display"], ["'Playfair Display', serif", "Playfair Display"],
-  ["'Cormorant Garamond', serif", "Cormorant Garamond"], ["'Lora', serif", "Lora"], ["'Montserrat', sans-serif", "Montserrat"],
-  ["'Poppins', sans-serif", "Poppins"], ["'Inter', sans-serif", "Inter"], ["'Raleway', sans-serif", "Raleway"],
-  ["'Oswald', sans-serif", "Oswald"], ["'Great Vibes', cursive", "Great Vibes"],
-];
+export const FONTES = FONTES_PAR;
 export const PALETAS = [
   { nome: "Marinho e dourado", fundo: "#14213d", texto: "#ffffff", acento: "#d4a63c" },
   { nome: "Branco clássico", fundo: "#ffffff", texto: "#1f2937", acento: "#b8860b" },
