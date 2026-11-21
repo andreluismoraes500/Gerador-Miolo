@@ -1,13 +1,13 @@
 import { agendaAnualCfg, montarPaginasAnual, ESTILOS } from "../lib/configAgendaAnual";
 import { devocionalCfg, montarPaginas, PALETAS, FONTES_TITULO } from "../lib/configDevocional";
 import { horarioCfg } from "../lib/configHorario";
-import { FORMATOS, LADOS, DICAS_LADOS, impressao } from "../lib/configImpressao";
+import { FORMATOS, LADOS, LADOS_WIRE, DICAS_LADOS, impressao } from "../lib/configImpressao";
 import { TIPOS_PAUTA, partiturasCfg } from "../lib/configPartituras";
 import OpcoesFonte from "./ui/OpcoesFonte";
 
 // Escolha de quais lados imprimir (para quem não tem impressora frente e verso).
 export function LadosImpressao({ compacto = false }) {
-  const { lados, formato, compensar } = impressao.useStore();
+  const { lados, formato, compensar, wire, wireMm, wireLado, wireEspelhar } = impressao.useStore();
   const f = FORMATOS.find((x) => x.id === formato) || FORMATOS[0];
   const sel = "border border-[#D8CBA8] rounded-lg px-2.5 py-2 text-xs bg-[#FBF8F1] font-medium text-[#24344D] focus:outline-none focus:ring-2 focus:ring-[#B8933D]/40";
   return (
@@ -36,6 +36,31 @@ export function LadosImpressao({ compacto = false }) {
           Aumentar as letras ao reduzir a página (recomendado para leitura)
         </label>
       )}
+      {!f.livro && (
+        <div className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 ${compacto ? "" : "rounded-lg border border-[#D8CBA8] bg-[#FBF8F1] px-3 py-2"}`}>
+          <label className="flex items-center gap-1.5 text-[11px] font-semibold text-[#24344D]">
+            <input type="checkbox" checked={!!wire} onChange={(e) => impressao.set({ wire: e.target.checked })} />
+            Margem para wire-o (espiral)
+          </label>
+          {wire && (
+            <>
+              <label className="flex items-center gap-1 text-[11px] text-[#24344D]">
+                <input type="number" min={4} max={40} step={1} value={wireMm} onChange={(e) => impressao.set({ wireMm: Math.min(40, Math.max(0, Number(e.target.value) || 0)) })} aria-label="Largura da margem do wire-o em mm" className="w-14 rounded-md border border-[#D8CBA8] bg-white px-1.5 py-0.5 text-right text-xs font-semibold" /> mm
+              </label>
+              <select value={wireLado} onChange={(e) => impressao.set({ wireLado: e.target.value })} aria-label="Lado do wire-o" className={sel}>
+                {LADOS_WIRE.map((l) => <option key={l.id} value={l.id}>{l.nome}</option>)}
+              </select>
+              {wireLado !== "topo" && (
+                <label className="flex items-center gap-1.5 text-[11px] text-[#24344D]">
+                  <input type="checkbox" checked={wireEspelhar !== false} onChange={(e) => impressao.set({ wireEspelhar: e.target.checked })} />
+                  Inverter o lado no verso (frente e verso)
+                </label>
+              )}
+            </>
+          )}
+        </div>
+      )}
+      {!compacto && wire && !f.livro && <p className="text-[11px] text-[#8B6A1F] max-w-md">Wire-o: a página é reduzida um pouco para deixar a faixa de {wireMm} mm livre para os furos. {wireLado === "topo" ? "Em cima: vire a folha pela borda de cima (como calendário)." : "Com “inverter o lado no verso”, a faixa fica no mesmo lado físico da folha nos dois lados (use virar pela borda LONGA)."}</p>}
       {!compacto && <p className="text-[11px] text-[#8B6A1F] max-w-md">{[f.dica, DICAS_LADOS[lados]].filter(Boolean).join(" ")}</p>}
     </div>
   );

@@ -1,12 +1,14 @@
 // PDF leve: monta as folhas direto com pdf-lib, embutindo cada JPEG UMA vez (sem recodificar).
 // Evita os arquivos gigantes que o navegador gera ao "imprimir" páginas de imagem.
 import { PDFDocument, degrees, popGraphicsState, pushGraphicsState, clip, endPath, moveTo, lineTo, closePath } from "pdf-lib";
-import { FORMATOS, montarFolhas } from "./configImpressao";
+import { FORMATOS, impressao, margemWire, montarFolhas } from "./configImpressao";
 
 const PT = 72 / 25.4;
 
-export async function gerarPdfLeve({ paginas, formato = "a4", lados = "ambos", ajuste = "caber", girar = true, inv = {}, paisagem = false, indices, aoProgresso }) {
+export async function gerarPdfLeve({ paginas, formato = "a4", lados = "ambos", ajuste = "caber", girar = true, inv = {}, paisagem = false, indices, aoProgresso, imp: imp0 }) {
   const f0 = FORMATOS.find((x) => x.id === formato) || FORMATOS[0];
+  const imp = { ...impressao.get(), ...(imp0 || {}) };
+  if (f0.livro) imp.wire = false;
   const f = paisagem ? { ...f0, folha: [f0.folha[1], f0.folha[0]], cols: f0.rows, rows: f0.cols } : f0;
   const lista = indices.filter((i) => paginas[i]);
   let folhas = montarFolhas(lista.length, f0);
@@ -35,15 +37,18 @@ export async function gerarPdfLeve({ paginas, formato = "a4", lados = "ambos", a
       const pg = paginas[lista[k]];
       const img = await embutir(k);
       const col = c % f.cols, row = Math.floor(c / f.cols);
-      const cx = col * cw, cy = H - (row + 1) * ch;
+      const mg = margemWire(imp, cw / PT, ch / PT, fl.lado);
+      const [ml, mr, mt, mb] = [mg.l * PT, mg.r * PT, mg.t * PT, mg.b * PT];
+      const cx = col * cw + ml, cy = H - (row + 1) * ch + mb;
+      const cw2 = cw - ml - mr, ch2 = ch - mt - mb; // área útil da célula, sem a margem do wire-o
       const gira = (pg.larg > pg.alt && girar && !paisagem) !== !!inv[lista[k]];
       const iw = pg.larg, ih = pg.alt;
       const vw = gira ? ih : iw, vh = gira ? iw : ih; // dimensões visuais
-      const s = ajuste === "preencher" ? Math.max(cw / vw, ch / vh) : Math.min(cw / vw, ch / vh);
+      const s = ajuste === "preencher" ? Math.max(cw2 / vw, ch2 / vh) : Math.min(cw2 / vw, ch2 / vh);
       const dw = iw * s, dh = ih * s;
-      page.pushOperators(pushGraphicsState(), moveTo(cx, cy), lineTo(cx + cw, cy), lineTo(cx + cw, cy + ch), lineTo(cx, cy + ch), closePath(), clip(), endPath());
-      if (gira) page.drawImage(img, { x: cx + (cw - dh) / 2, y: cy + (ch + dw) / 2, width: dw, height: dh, rotate: degrees(-90) });
-      else page.drawImage(img, { x: cx + (cw - dw) / 2, y: cy + (ch - dh) / 2, width: dw, height: dh });
+      page.pushOperators(pushGraphicsState(), moveTo(cx, cy), lineTo(cx + cw2, cy), lineTo(cx + cw2, cy + ch2), lineTo(cx, cy + ch2), closePath(), clip(), endPath());
+      if (gira) page.drawImage(img, { x: cx + (cw2 - dh) / 2, y: cy + (ch2 + dw) / 2, width: dw, height: dh, rotate: degrees(-90) });
+      else page.drawImage(img, { x: cx + (cw2 - dw) / 2, y: cy + (ch2 - dh) / 2, width: dw, height: dh });
       page.pushOperators(popGraphicsState());
     }
     feitas += 1;
