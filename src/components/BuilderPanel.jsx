@@ -33,6 +33,7 @@ const MULTI_PAGE_TEMPLATES = new Set([
   "mensalComercialDuplo",
   "calendarios",
   "cadernoUniversitario",
+  "pautado",
   "caligrafia",
   "noivas",
   "partituras",

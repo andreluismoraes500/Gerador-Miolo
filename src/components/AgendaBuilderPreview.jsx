@@ -9,6 +9,7 @@
 //   do início ao fim — sem precisar de html2canvas ou libs de PDF.
 
 import { partiturasCfg } from "../lib/configPartituras";
+import { pautadoCfg } from "../lib/configPautado";
 import { devocionalCfg } from "../lib/configDevocional";
 import { agendaAnualCfg } from "../lib/configAgendaAnual";
 import { paginasAmostra } from "../lib/amostraPaginas";
@@ -70,6 +71,7 @@ const AgendaBuilderPreview = React.memo(function AgendaBuilderPreview({
     setCapaFrase,
   } = useAgendaConfig();
   partiturasCfg.useStore(); // re-renderiza ao mudar os tipos de pauta
+  pautadoCfg.useStore();
   devocionalCfg.useStore();
   agendaAnualCfg.useStore();
 

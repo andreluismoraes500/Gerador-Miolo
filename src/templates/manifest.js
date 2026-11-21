@@ -57,6 +57,7 @@ export const TEMPLATE_MANIFEST = {
   sonhos: { nome: "Diário de Sonhos", categoria: "bemestar" },
   wishlist: { nome: "Wishlist de Metas", categoria: "organizacao" },
   cadernoUniversitario: { nome: "Caderno Universitário", categoria: "escolar" },
+  pautado: { nome: "Caderno Pautado (só linhas)", categoria: "escolar" },
   cadernoReceitas: { nome: "Caderno de Receitas Culinárias", categoria: "criativos" },
   bulletJournal: { nome: "Bullet Journal / Caderno Pontilhado", categoria: "criativos" },
   babyBook: { nome: "Diário de Bebê", categoria: "bemestar" },

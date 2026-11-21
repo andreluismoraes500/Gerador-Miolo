@@ -4,6 +4,7 @@
 // aparência (cores, logo, fonte, etc.) ao contexto AgendaConfig.
 
 import { partiturasCfg } from "../lib/configPartituras";
+import { pautadoCfg } from "../lib/configPautado";
 import { devocionalCfg } from "../lib/configDevocional";
 import { agendaAnualCfg } from "../lib/configAgendaAnual";
 import React, { useEffect, useState, useRef } from "react";
@@ -38,6 +39,7 @@ const AgendaPreview = React.memo(function AgendaPreview({
     setCapaFrase,
   } = useAgendaConfig();
   partiturasCfg.useStore(); // re-renderiza ao mudar os tipos de pauta
+  pautadoCfg.useStore();
   devocionalCfg.useStore();
   agendaAnualCfg.useStore();
 
