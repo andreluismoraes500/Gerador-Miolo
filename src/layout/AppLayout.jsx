@@ -7,9 +7,9 @@
 // nada se perde ao trocar de rota.
 
 import { cssFonte, fonteCfg } from "../lib/configFonte";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdPictureAsPdf, MdBadge, MdRadioButtonChecked, MdCalendarMonth, MdAutoStories, MdLocalOffer, MdSell, MdMenuBook, MdInventory2, MdViewModule } from "react-icons/md";
+import { MdPrint, MdGridView, MdTune, MdVisibility, MdReceiptLong, MdFavorite, MdPictureAsPdf, MdBadge, MdRadioButtonChecked, MdCalendarMonth, MdAutoStories, MdLocalOffer, MdSell, MdMenuBook, MdInventory2, MdViewModule, MdExpandMore } from "react-icons/md";
 import { Toaster } from "react-hot-toast";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -38,6 +38,70 @@ const NAV_ITEMS = [
   { to: "/embalagens", label: "Embalagens", icon: MdInventory2 },
   { to: "/sobre", label: "Sobre", icon: MdFavorite },
 ];
+
+// Menu agrupado por assunto: cada grupo abre uma lista com as ferramentas dele.
+const GRUPOS = [
+  { id: "agenda", nome: "Agenda", icon: MdAutoStories, itens: ["/templates", "/config", "/preview", "/calendarios", "/mockup-agenda"] },
+  { id: "papelaria", nome: "Papelaria", icon: MdMenuBook, itens: ["/capas", "/cartao-de-visita", "/bottons", "/adesivos", "/embalagens"] },
+  { id: "comercio", nome: "Comércio", icon: MdLocalOffer, itens: ["/talonario", "/cartazes", "/encarte"] },
+  { id: "imprimir", nome: "Imprimir PDF", curto: "PDF", icon: MdPictureAsPdf, itens: ["/imprimir-pdf"] },
+  { id: "sobre", nome: "Sobre", icon: MdFavorite, itens: ["/sobre"] },
+];
+const ITEM = Object.fromEntries(NAV_ITEMS.map((n) => [n.to, n]));
+
+function MenuGrupos() {
+  const location = useLocation();
+  const [aberto, setAberto] = useState(null);
+  const raiz = useRef(null);
+  useEffect(() => { setAberto(null); }, [location.pathname]);
+  useEffect(() => {
+    const fora = (e) => { if (raiz.current && !raiz.current.contains(e.target)) setAberto(null); };
+    const esc = (e) => { if (e.key === "Escape") setAberto(null); };
+    document.addEventListener("pointerdown", fora);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("pointerdown", fora); document.removeEventListener("keydown", esc); };
+  }, []);
+  const base = "flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 flex-1 min-w-0 px-1 sm:px-4 py-1.5 sm:py-2.5 rounded-lg text-[10px] sm:text-xs leading-tight font-semibold transition-all";
+  const on = "bg-[#24344D] text-[#F6F1E7] shadow-sm";
+  const off = "text-[#6B6458] hover:bg-[#EFE4C8] hover:text-[#24344D]";
+  return (
+    <nav ref={raiz} aria-label="Navegação principal" className="order-last md:order-none w-full md:w-auto md:min-w-[560px] flex items-center gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner relative">
+      {GRUPOS.map((g) => {
+        const Icon = g.icon;
+        const ativoGrupo = g.itens.includes(location.pathname);
+        const atual = ativoGrupo && g.itens.length > 1 ? ITEM[location.pathname]?.label : null;
+        if (g.itens.length === 1) {
+          return (
+            <NavLink key={g.id} to={g.itens[0]} title={g.nome} className={({ isActive }) => `${base} ${isActive ? on : off}`}>
+              <Icon className="w-4 h-4 shrink-0" /><span className="truncate max-w-full">{g.curto || g.nome}</span>
+            </NavLink>
+          );
+        }
+        const open = aberto === g.id;
+        return (
+          <div key={g.id} className="relative flex-1 min-w-0 flex">
+            <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setAberto(open ? null : g.id)} className={`${base} w-full ${ativoGrupo ? on : off} ${open && !ativoGrupo ? "bg-[#EFE4C8]" : ""}`} title={g.nome}>
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="flex items-center gap-0.5 max-w-full"><span className="truncate">{atual || g.nome}</span><MdExpandMore className={`w-3.5 h-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} /></span>
+            </button>
+            {open && (
+              <div role="menu" className="absolute left-0 top-full mt-2 z-50 min-w-[210px] bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl shadow-lg p-1.5 flex flex-col gap-0.5">
+                {g.itens.map((to) => {
+                  const { label, icon: I } = ITEM[to];
+                  return (
+                    <NavLink key={to} to={to} role="menuitem" className={({ isActive }) => `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-semibold ${isActive ? "bg-[#24344D] text-[#F6F1E7]" : "text-[#24344D] hover:bg-[#EFE4C8]"}`}>
+                      <I className="w-4 h-4 shrink-0" />{label}
+                    </NavLink>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
 
 export default function AppLayout() {
   const settings = useAgendaSettings();
@@ -119,7 +183,7 @@ export default function AppLayout() {
         ref={headerRef}
         className="sticky top-0 z-40 bg-[#FBF8F1]/90 backdrop-blur-md border-b border-[#D8CBA8] print:hidden"
       >
-        <div className="max-w-7xl 2xl:max-w-[2100px] mx-auto px-4 sm:px-6 py-2 md:py-3 flex flex-wrap min-[2300px]:flex-nowrap items-center justify-between gap-x-3 gap-y-2">
+        <div className="max-w-7xl 2xl:max-w-[2100px] mx-auto px-4 sm:px-6 py-2 md:py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-3 gap-y-2">
           {/* Marca */}
           <div className="flex items-center gap-3 shrink-0 mr-auto md:mr-0">
             <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-[#24344D] shadow-[2px_2px_0_0_#B8933D]">
@@ -143,31 +207,8 @@ export default function AppLayout() {
             </div>
           </div>
 
-          {/* Navegação entre páginas */}
-          <nav aria-label="Navegação principal" className="order-last min-[2300px]:order-none w-full min-[2300px]:w-auto flex items-center justify-between gap-0.5 sm:gap-1 bg-[#F1EADB] border border-[#D8CBA8] rounded-xl p-1 shadow-inner overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                title={label}
-                aria-label={label}
-                className={({ isActive }) =>
-                  `flex items-center justify-center gap-1.5 flex-1 min-[2300px]:flex-none min-w-0 px-1.5 sm:px-3 py-2.5 min-[2300px]:py-2 rounded-lg text-xs font-semibold transition-all ${
-                    isActive
-                      ? "bg-[#24344D] text-[#F6F1E7] shadow-sm"
-                      : "text-[#6B6458] hover:bg-[#EFE4C8] hover:text-[#24344D]"
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span className={`${isActive ? "hidden sm:inline" : "hidden xl:inline"} truncate`}>{label}</span>
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
+          {/* Navegação entre páginas (agrupada) */}
+          <MenuGrupos />
 
           {/* Ação principal — o Talonário tem seu próprio botão de impressão
               em lote (numeração/marca d'água), então o botão global de PDF

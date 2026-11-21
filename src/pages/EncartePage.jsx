@@ -5,16 +5,22 @@ import { MdAdd, MdDeleteOutline, MdPrint, MdUploadFile } from "react-icons/md";
 import Encarte from "../components/encarte/Encarte";
 import { encarteCfg, encarteFotos, encarteLogo, FONTES_ENC, novoItemEnc, PALETAS_ENC } from "../lib/encarte";
 import { lerImagem } from "../lib/lerImagem";
+import GradeModelos, { MiniPaleta } from "../components/ui/GradeModelos";
+import Painel from "../components/ui/Painel";
+import Faixa from "../components/ui/Faixa";
+import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
+import { useHistorico } from "../lib/historico";
 
 const MM = 3.7795;
 const PAPEL = { a4: [210, 297], a3: [297, 420], a5: [148, 210] };
 const entrada = "w-full rounded-lg border border-[#D8CBA8] bg-white px-2 py-1.5 text-sm";
-const Painel = ({ titulo, children }) => (<section className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl p-4 flex flex-col gap-3"><h2 className="font-bold text-[#24344D]">{titulo}</h2>{children}</section>);
 const Campo = ({ rotulo, children }) => (<label className="flex flex-col gap-1 text-xs text-[#24344D]"><span className="font-semibold">{rotulo}</span>{children}</label>);
 
 export default function EncartePage() {
   const cfg = encarteCfg.useStore();
   const set = (o) => encarteCfg.set(o);
+  const abas = useAbaMobile();
+  const hist = useHistorico(encarteCfg);
   const [, forca] = useState(0);
   const [pg, setPg] = useState(0);
   const [larg, setLarg] = useState(520);
@@ -41,7 +47,7 @@ export default function EncartePage() {
   const z = Math.min(1, larg / (W * MM), altDisp / (H * MM));
 
   const setItem = (id, o) => set({ itens: cfg.itens.map((i) => (i.id === id ? { ...i, ...o } : i)) });
-  const foto = async (id, f) => { try { encarteFotos[id] = await lerImagem(f, 900); forca((n) => n + 1); } catch { toast.error("Imagem inválida."); } };
+  const foto = async (id, f) => { try { encarteFotos[id] = await lerImagem(f, 900); toast.success("Foto carregada."); forca((n) => n + 1); } catch { toast.error("Imagem inválida."); } };
   const lote = async (files) => {
     const novos = [];
     for (const f of files) {
@@ -51,10 +57,10 @@ export default function EncartePage() {
     }
     if (novos.length) { set({ itens: [...cfg.itens, ...novos] }); toast.success(`${novos.length} produto(s) criado(s) pelas fotos. Ajuste nome e preço.`); }
   };
-  const logo = async (f) => { try { encarteLogo.url = await lerImagem(f, 700); forca((n) => n + 1); } catch { toast.error("Imagem inválida."); } };
+  const logo = async (f) => { try { encarteLogo.url = await lerImagem(f, 700); toast.success("Logo carregado."); forca((n) => n + 1); } catch { toast.error("Imagem inválida."); } };
 
   return (
-    <div className="enc-raiz mx-auto max-w-7xl px-4 py-6">
+    <div className="enc-raiz mx-auto max-w-7xl px-4 pt-6 pb-28">
       <style>{`
         .enc-print { display: none; }
         @media print {
@@ -69,17 +75,13 @@ export default function EncartePage() {
         }
       `}</style>
       <div className="enc-tela grid gap-5 lg:grid-cols-[420px_minmax(0,1fr)]">
-        <div className="flex flex-col gap-4 min-w-0">
+        <BarraEditor tipo="encarte" abas={abas} historico={hist} onImprimir={() => window.print()} rotuloImprimir={`Imprimir · ${paginas.length} folha${paginas.length === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
+        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="🛒 Encarte de ofertas">
             <p className="text-[11px] text-[#8B6A1F]">Monte a folha de ofertas da semana: título, validade, produtos com foto e preço, e rodapé com WhatsApp e endereço.</p>
-            <div className="flex flex-wrap gap-2">
-              {PALETAS_ENC.map((p) => (
-                <button key={p.id} type="button" onClick={() => set({ paleta: p.id })} className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded-full border ${cfg.paleta === p.id ? "ring-2 ring-[#24344D] bg-white" : "bg-white border-[#D8CBA8]"}`}>
-                  <span className="w-4 h-4 rounded-full border" style={{ background: p.fundo }} /><span className="w-4 h-4 rounded-full border" style={{ background: p.faixa }} />{p.nome}
-                </button>))}
-            </div>
+            <GradeModelos itens={PALETAS_ENC.map((p) => ({ id: p.id, rotulo: p.nome, miniatura: <MiniPaleta p={p} /> }))} valor={cfg.paleta} colunas={4} aspecto="aspect-[4/3]" onChange={(id) => set({ paleta: id })} />
           </Painel>
-          <Painel titulo="🏷️ Cabeçalho e rodapé">
+          <Painel titulo="🏷️ Cabeçalho e rodapé" aberto={false}>
             <Campo rotulo="Título"><input className={entrada} value={cfg.titulo} onChange={(e) => set({ titulo: e.target.value })} /></Campo>
             <Campo rotulo="Fonte do título"><select className={entrada} value={cfg.fonteTitulo} onChange={(e) => set({ fonteTitulo: e.target.value })}>{FONTES_ENC.map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></Campo>
             <Campo rotulo="Validade (faixa colorida)"><input className={entrada} value={cfg.validade} onChange={(e) => set({ validade: e.target.value })} /></Campo>
@@ -90,12 +92,12 @@ export default function EncartePage() {
             <Campo rotulo="Rodapé (linha grande — WhatsApp, redes)"><input className={entrada} value={cfg.rodape1} onChange={(e) => set({ rodape1: e.target.value })} /></Campo>
             <Campo rotulo="Rodapé (linha pequena — endereço)"><input className={entrada} value={cfg.rodape2} onChange={(e) => set({ rodape2: e.target.value })} /></Campo>
           </Painel>
-          <Painel titulo="📐 Folha e grade">
+          <Painel titulo="📐 Folha e grade" aberto={false}>
             <div className="grid grid-cols-2 gap-3">
               <Campo rotulo="Papel"><select className={entrada} value={cfg.papel} onChange={(e) => set({ papel: e.target.value })}><option value="a4">A4</option><option value="a3">A3</option><option value="a5">A5</option></select></Campo>
               <Campo rotulo="Posição"><select className={entrada} value={cfg.orient} onChange={(e) => set({ orient: e.target.value })}><option value="retrato">Em pé</option><option value="paisagem">Deitada</option></select></Campo>
-              <Campo rotulo={`Colunas: ${cfg.cols}`}><input type="range" min={2} max={7} value={cfg.cols} onChange={(e) => set({ cols: Number(e.target.value) })} /></Campo>
-              <Campo rotulo={`Linhas por folha: ${cfg.maxLinhas}`}><input type="range" min={1} max={8} value={cfg.maxLinhas} onChange={(e) => set({ maxLinhas: Number(e.target.value) })} /></Campo>
+              <Faixa rotulo="Colunas" valor={cfg.cols} min={2} max={7} onChange={(v) => set({ cols: v })} />
+              <Faixa rotulo="Linhas por folha" valor={cfg.maxLinhas} min={1} max={8} onChange={(v) => set({ maxLinhas: v })} />
             </div>
             <p className="text-[11px] text-[#6B6458]">{porPagina} ofertas por folha. Com {cfg.itens.length} produto(s), saem {paginas.length} folha(s).</p>
           </Painel>
@@ -119,9 +121,8 @@ export default function EncartePage() {
             </div>
             <p className="text-[11px] text-[#6B6458]">Dica: use “Criar por fotos” para subir várias imagens de uma vez; o nome do arquivo vira o nome do produto.</p>
           </Painel>
-          <button type="button" onClick={() => window.print()} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#8B1D2C] text-white font-bold hover:bg-[#741626]"><MdPrint /> Imprimir / salvar em PDF ({paginas.length} folha{paginas.length > 1 ? "s" : ""})</button>
         </div>
-        <div ref={col} className="pre-fixa flex flex-col gap-3 min-w-0">
+        <div ref={col} className={`pre-fixa flex flex-col gap-3 min-w-0 ${abas.clsVer}`}>
           {paginas.length > 1 && <select className="self-start rounded-lg border border-[#D8CBA8] bg-white px-2 py-1 text-xs" value={pgs} onChange={(e) => setPg(Number(e.target.value))}>{paginas.map((_, i) => <option key={i} value={i}>Folha {i + 1} de {paginas.length}</option>)}</select>}
           <div className="shadow-[0_6px_24px_rgba(36,52,77,0.2)] overflow-hidden bg-white" style={{ width: W * MM * z, height: H * MM * z }}>
             <div style={{ transform: `scale(${z})`, transformOrigin: "top left", width: `${W}mm` }}>
