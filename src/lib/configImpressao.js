@@ -52,7 +52,26 @@ export const DICAS_TAL = {
 };
 export const talImpressao = criarStore("talonario-impressao", { formato: "a4" });
 
-export const impressao = criarStore("impressao-lados", { lados: "ambos", formato: "a4", compensar: true });
+export const impressao = criarStore("impressao-lados", { lados: "ambos", formato: "a4", compensar: true, wire: false, wireMm: 12, wireLado: "auto", wireEspelhar: true });
+
+export const LADOS_WIRE = [
+  { id: "auto", nome: "Automático (lado maior da página)" },
+  { id: "esquerda", nome: "Lado esquerdo (como caderno)" },
+  { id: "topo", nome: "Em cima (como calendário)" },
+];
+
+// Margem extra para encadernação wire-o (espiral), em mm, para uma página/célula de cw × ch mm.
+// "Esquerda" é espelhada no verso (a lombada fica do mesmo lado físico); "em cima" vale para os dois lados.
+export function margemWire(imp, cw, ch, lado = "frente") {
+  const zero = { l: 0, r: 0, t: 0, b: 0 };
+  if (!imp?.wire) return zero;
+  const m = Math.max(0, Math.min(40, Number(imp.wireMm) || 0));
+  if (!m) return zero;
+  let ld = imp.wireLado || "auto";
+  if (ld === "auto") ld = cw > ch ? "topo" : "esquerda";
+  if (ld === "topo") return { ...zero, t: m };
+  return lado === "verso" && imp.wireEspelhar !== false ? { ...zero, r: m } : { ...zero, l: m };
+}
 
 // Posição de cada página nas folhas. Cada folha é { lado, cells: [indicePágina|null] }.
 // Nas folhas múltiplas, frente e verso são montados para que, depois de virar
@@ -97,7 +116,7 @@ export function montarFolhas(n, f) {
 
 // Prepara o DOM para a impressão (A4/A5/A6, N por folha, só frente/verso).
 // Devolve uma função que desfaz tudo.
-export function prepararImpressao({ lados = "ambos", formato = "a4", compensar = true, paisagem = false } = {}) {
+export function prepararImpressao({ lados = "ambos", formato = "a4", compensar = true, paisagem = false, ...imp } = {}) {
   const cont = document.querySelector(".print-container");
   const limpar = () => delete document.body.dataset.ladosImpressao;
   document.body.dataset.ladosImpressao = lados;
@@ -109,7 +128,8 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
   });
 
   const f = FORMATOS.find((x) => x.id === formato) || FORMATOS[0];
-  const simples = f.id === "a4" && lados === "ambos" && !paisagem;
+  if (f.livro) imp.wire = false; // na brochura a dobra já é a lombada
+  const simples = f.id === "a4" && lados === "ambos" && !paisagem && !imp.wire;
   if (simples) {
     return () => {
       paginas.forEach((el) => delete el.dataset.lado);
@@ -140,7 +160,8 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
 
   // Ao reduzir a página (A5/A6/várias por folha) o texto encolhe junto. Para manter
   // a leitura confortável, compensamos o tamanho das letras (A5 ≈ +25%, A6 ≈ +42%).
-  const z = Math.min(sx, sy);
+  const m0 = margemWire(imp, cw, ch, "frente");
+  const z = Math.min((cw - m0.l - m0.r) / pw, (ch - m0.t - m0.b) / ph);
   const reforco = compensar && z < 1 ? 1 + (1 - z) * 0.85 : 1;
   const fonteExtra = reforco > 1 ? cssFonte(Math.round((fonteCfg.get().escala / 100) * reforco * 100), ".folha .printable-page") : "";
   const pagina = document.createElement("style");
@@ -160,10 +181,11 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
     fo.cells.forEach((idx, c) => {
       const cel = document.createElement("div");
       cel.className = "celula";
-      cel.style.cssText = `left:${(c % cols) * cw}mm;top:${Math.floor(c / cols) * ch}mm;width:${cw}mm;height:${ch}mm;`;
+      const mg = margemWire(imp, cw, ch, fo.lado);
+      cel.style.cssText = `left:${(c % cols) * cw}mm;top:${Math.floor(c / cols) * ch}mm;width:${cw}mm;height:${ch}mm;${imp.wire ? `box-sizing:border-box;padding:${mg.t}mm ${mg.r}mm ${mg.b}mm ${mg.l}mm;` : ""}`;
       if (idx !== null) {
         const pg = paginas[idx];
-        pg.style.zoom = String(Math.min(sx, sy));
+        pg.style.zoom = String(Math.min((cw - mg.l - mg.r) / pw, (ch - mg.t - mg.b) / ph));
         cel.appendChild(f.dup && c > 0 ? pg.cloneNode(true) : pg);
       }
       el.appendChild(cel);
