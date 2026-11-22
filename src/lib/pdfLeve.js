@@ -1,7 +1,7 @@
 // PDF leve: monta as folhas direto com pdf-lib, embutindo cada JPEG UMA vez (sem recodificar).
 // Evita os arquivos gigantes que o navegador gera ao "imprimir" páginas de imagem.
 import { PDFDocument, degrees, popGraphicsState, pushGraphicsState, clip, endPath, moveTo, lineTo, closePath } from "pdf-lib";
-import { FORMATOS, impressao, margemWire, montarFolhas } from "./configImpressao";
+import { FORMATOS, impressao, margemWire, folhasDoLado } from "./configImpressao";
 
 const PT = 72 / 25.4;
 
@@ -11,9 +11,7 @@ export async function gerarPdfLeve({ paginas, formato = "a4", lados = "ambos", a
   if (f0.livro) imp.wire = false;
   const f = paisagem ? { ...f0, folha: [f0.folha[1], f0.folha[0]], cols: f0.rows, rows: f0.cols } : f0;
   const lista = indices.filter((i) => paginas[i]);
-  let folhas = montarFolhas(lista.length, f0);
-  if (lados === "frente") folhas = folhas.filter((x) => x.lado === "frente");
-  if (lados === "verso") folhas = folhas.filter((x) => x.lado === "verso");
+  const folhas = folhasDoLado(lista.length, f0, lados);
 
   const doc = await PDFDocument.create();
   doc.setTitle("Miolo para impressão");
