@@ -13,10 +13,21 @@ import Logo from "../Logo";
 import Watermark from "../Watermark";
 import Background from "../Background";
 import EditableField from "../EditableField";
-import { TIPOS_PAUTA } from "../../lib/configPartituras";
+import { TIPOS_PAUTA, partiturasCfg } from "../../lib/configPartituras";
 
 const FONTE_TITULO = "'Cormorant Garamond', serif";
 const FONTE_MUSICAL = "'Noto Music', serif";
+
+const NOTAS_CAPA = [
+  { c: "♪", x: "12%", y: "26%", s: "14mm", r: -12 },
+  { c: "♫", x: "78%", y: "18%", s: "16mm", r: 10 },
+  { c: "♩", x: "20%", y: "68%", s: "15mm", r: 8 },
+  { c: "♬", x: "74%", y: "62%", s: "17mm", r: -8 },
+  { c: "♪", x: "46%", y: "8%", s: "11mm", r: 14 },
+  { c: "♫", x: "40%", y: "86%", s: "13mm", r: -6 },
+  { c: "♩", x: "86%", y: "40%", s: "10mm", r: 12 },
+  { c: "♬", x: "6%", y: "48%", s: "11mm", r: -14 },
+];
 
 function useVisual(customColors = {}) {
   return {
@@ -110,6 +121,16 @@ export function PartiturasCapaPage(rest) {
         >
           𝄢
         </span>
+
+        {partiturasCfg.get().notasDeco && NOTAS_CAPA.map((n, i) => (
+          <span
+            key={i}
+            className="absolute select-none pointer-events-none"
+            style={{ left: n.x, top: n.y, fontFamily: FONTE_MUSICAL, fontSize: n.s, color: primaryColor, opacity: 0.1, transform: `rotate(${n.r}deg)` }}
+          >
+            {n.c}
+          </span>
+        ))}
 
         <div className="relative z-10">
           {rest.logo && <Logo src={rest.logo} className="h-14 mb-6 mx-auto" />}
@@ -210,8 +231,18 @@ function Simbolo({ children, size, left = "1mm", top = "50%", dy = "-56%", cor }
 }
 
 // Um "sistema" de cada tipo de pauta.
-function Sistema({ tipo, cor, altura }) {
+function Sistema({ tipo, cor, altura, so = false }) {
   const h = `${altura}mm`;
+  if (so) {
+    const duplo = tipo === "piano";
+    return (
+      <div className="relative w-full shrink-0" style={{ height: h }}>
+        {duplo ? (<><Linhas n={5} h="8mm" cor={cor} top="22%" /><Linhas n={5} h="8mm" cor={cor} top="78%" /></>) : (
+          <Linhas n={tipo === "violao" ? 6 : 5} h={tipo === "violao" ? "11mm" : "9mm"} cor={cor} />
+        )}
+      </div>
+    );
+  }
   if (tipo === "piano") {
     return (
       <div className="relative w-full shrink-0" style={{ height: h }}>
@@ -276,20 +307,23 @@ export function PartiturasPautaPage({
   const { primaryColor } = useVisual(rest.customColors);
   const cfg = TIPOS_PAUTA.find((t) => t.id === tipo) || TIPOS_PAUTA[0];
   const numSistemas = cfg.sistemas - (comCampos ? 1 : 0);
+  const { soLinhas, semCabecalho, notasDeco } = partiturasCfg.get();
 
   return (
     <PageShell {...rest}>
-      <div className="flex items-center justify-between mb-3 shrink-0">
+      {!semCabecalho && <div className="flex items-center justify-between mb-3 shrink-0">
         <div className="flex items-center gap-2">
           <Logo src={rest.logo} />
           <span className="text-[10px] uppercase tracking-widest text-gray-400">
+            {notasDeco && <span style={{ fontFamily: FONTE_MUSICAL, color: primaryColor }} className="mr-1 text-xs">♪♫</span>}
             Caderno de Partituras · {cfg.nome}
           </span>
         </div>
         <span className="text-[10px] text-gray-400">
+          {notasDeco && <span style={{ fontFamily: FONTE_MUSICAL, color: primaryColor }} className="mr-1">♬</span>}
           {pageIndex + 1}/{totalPaginas}
         </span>
-      </div>
+      </div>}
 
       {comCampos && (
         <div className="grid grid-cols-4 gap-4 mb-4 shrink-0">
@@ -301,7 +335,7 @@ export function PartiturasPautaPage({
 
       <div className="flex-1 flex flex-col justify-between min-h-0">
         {Array.from({ length: numSistemas }).map((_, i) => (
-          <Sistema key={i} tipo={tipo} cor={primaryColor} altura={cfg.altura} />
+          <Sistema key={i} tipo={tipo} cor={primaryColor} altura={cfg.altura} so={soLinhas} />
         ))}
       </div>
     </PageShell>
