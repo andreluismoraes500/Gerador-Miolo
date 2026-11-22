@@ -148,6 +148,10 @@
   body[data-lados-impressao="verso-inverso"] .page-break[data-lado="frente"] {
     display: none !important;
   }
+  /* Só na brochura: cada folha leva uma página "par" e outra "ímpar"; quem escolhe o lado é a montagem, não a paridade */
+  body[data-lados-impressao][data-formato-impressao="livro"] .celula .page-break {
+    display: block !important;
+  }
 
   body[data-lados-impressao] .page-break[data-lado="frente"] .printable-page {
     padding-left: 22mm !important;

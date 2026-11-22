@@ -114,14 +114,8 @@ export function montarFolhas(n, f) {
   return folhas;
 }
 
-// Folhas conforme o lado escolhido. Na brochura, "só frente"/"só verso" significa imprimir
-// de um lado só: as páginas saem em ordem, duas por folha, sem filtrar metade delas.
+// Folhas conforme o lado escolhido (frente/verso são filtrados pela montagem de cada formato).
 export function folhasDoLado(n, f, lados) {
-  if (f.livro && (lados === "frente" || lados === "verso")) {
-    const out = [];
-    for (let i = 0; i < n; i += 2) out.push({ lado: lados, cells: [i, i + 1 < n ? i + 1 : null] });
-    return out;
-  }
   let folhas = montarFolhas(n, f);
   if (lados === "frente") folhas = folhas.filter((x) => x.lado === "frente");
   else if (lados === "verso") folhas = folhas.filter((x) => x.lado === "verso");
@@ -133,8 +127,9 @@ export function folhasDoLado(n, f, lados) {
 // Devolve uma função que desfaz tudo.
 export function prepararImpressao({ lados = "ambos", formato = "a4", compensar = true, paisagem = false, ...imp } = {}) {
   const cont = document.querySelector(".print-container");
-  const limpar = () => delete document.body.dataset.ladosImpressao;
+  const limpar = () => { delete document.body.dataset.ladosImpressao; delete document.body.dataset.formatoImpressao; };
   document.body.dataset.ladosImpressao = lados;
+  document.body.dataset.formatoImpressao = formato;
   if (!cont) return limpar;
 
   const paginas = [...cont.children].filter((el) => el.classList.contains("page-break"));
