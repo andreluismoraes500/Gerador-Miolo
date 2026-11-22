@@ -1,5 +1,8 @@
 import { criarStore } from "./storeSimples";
 
+// A imagem (data URL grande) fica só na memória, para não estourar o localStorage.
+export const pautadoImg = criarStore("pautado-img", { src: "" }, false);
+
 export const ESTILOS_PAUTA = [
   { id: "linha", nome: "Linha contínua" },
   { id: "pontilhada", nome: "Pontilhada" },
@@ -19,4 +22,9 @@ export const pautadoCfg = criarStore("pautado-cfg", {
   margemX: 22, // mm da borda esquerda
   cabecalho: false, // uma linha para nome e data no topo
   numerar: false,
+  imgOpac: 0.9, // opacidade da imagem de fundo
+  painel: true, // área de escrita translúcida por cima da imagem (efeito moldura)
+  painelOpac: 0.78, // opacidade do painel branco
+  moldura: 6, // mm entre a borda da folha e o painel
+  painelRaio: 3, // mm de arredondamento do painel
 });

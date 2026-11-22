@@ -5,7 +5,8 @@ import { FORMATOS, LADOS, LADOS_WIRE, DICAS_LADOS, impressao } from "../lib/conf
 import { TIPOS_PAUTA, partiturasCfg } from "../lib/configPartituras";
 import OpcoesFonte from "./ui/OpcoesFonte";
 import Faixa from "./ui/Faixa";
-import { pautadoCfg, ESTILOS_PAUTA, CORES_PAUTA } from "../lib/configPautado";
+import { pautadoCfg, pautadoImg, ESTILOS_PAUTA, CORES_PAUTA } from "../lib/configPautado";
+import { lerImagem } from "../lib/lerImagem";
 
 // Escolha de quais lados imprimir (para quem não tem impressora frente e verso).
 export function LadosImpressao({ compacto = false }) {
@@ -72,6 +73,8 @@ export function LadosImpressao({ compacto = false }) {
 export function PautadoOpcoes() {
   const c = pautadoCfg.useStore();
   const set = (o) => pautadoCfg.set(o);
+  const img = pautadoImg.useStore().src;
+  const enviar = async (f) => { if (f) { try { pautadoImg.set({ src: await lerImagem(f, 1800) }); } catch { /* ignora */ } } };
   const sel = "border border-[#D8CBA8] rounded-lg px-2.5 py-2 text-xs bg-[#FBF8F1] font-medium text-[#24344D]";
   const chk = "flex items-center gap-2 text-xs text-[#24344D]";
   return (
@@ -106,6 +109,28 @@ export function PautadoOpcoes() {
         <label className={chk}><input type="checkbox" checked={c.margemLinha} onChange={(e) => set({ margemLinha: e.target.checked })} />Linha de margem vertical</label>
         <label className={chk}><input type="checkbox" checked={c.cabecalho} onChange={(e) => set({ cabecalho: e.target.checked })} />Linhas de nome e data no topo</label>
         <label className={chk}><input type="checkbox" checked={c.numerar} onChange={(e) => set({ numerar: e.target.checked })} />Numerar as folhas</label>
+      </div>
+      <div className="border-t border-[#D8CBA8] pt-3 flex flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-[#24344D]">🖼️ Imagem de fundo (efeito moldura)</span>
+          <label className="px-3 py-1.5 rounded-full border border-[#D8CBA8] bg-white text-[11px] font-semibold text-[#24344D] cursor-pointer">
+            {img ? "Trocar imagem" : "Escolher imagem"}
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => { enviar(e.target.files?.[0]); e.target.value = ""; }} />
+          </label>
+          {img && <button type="button" onClick={() => pautadoImg.set({ src: "" })} className="px-3 py-1.5 rounded-full border border-[#D8CBA8] bg-white text-[11px] font-semibold text-[#8B1D2C]">Remover</button>}
+        </div>
+        {img && (
+          <>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Faixa rotulo="Opacidade da imagem" valor={Math.round(c.imgOpac * 100)} min={5} max={100} un="%" onChange={(v) => set({ imgOpac: v / 100 })} />
+              <Faixa rotulo="Opacidade do painel de escrita" valor={Math.round(c.painelOpac * 100)} min={0} max={100} un="%" onChange={(v) => set({ painelOpac: v / 100 })} />
+              <Faixa rotulo="Largura da moldura (borda da imagem)" valor={c.moldura} min={0} max={50} un="mm" onChange={(v) => set({ moldura: v })} />
+              <Faixa rotulo="Arredondamento do painel" valor={c.painelRaio} min={0} max={15} un="mm" onChange={(v) => set({ painelRaio: v })} />
+            </div>
+            <label className={chk}><input type="checkbox" checked={c.painel} onChange={(e) => set({ painel: e.target.checked })} />Painel claro sob as linhas (a imagem aparece só ao redor)</label>
+            <p className="text-[11px] text-[#8B6A1F]">A imagem fica salva só enquanto a página estiver aberta. O enquadramento segue o ajuste de “imagem de fundo” da configuração.</p>
+          </>
+        )}
       </div>
       {c.margemLinha && <Faixa rotulo="Posição da margem (da borda esquerda)" valor={c.margemX} min={8} max={60} un="mm" onChange={(v) => set({ margemX: v })} />}
     </div>
