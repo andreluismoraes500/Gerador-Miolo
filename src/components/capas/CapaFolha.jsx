@@ -27,7 +27,8 @@ function Molde({ c, g }) {
 export default function CapaFolha({ c, dados, lado = "frente", interativo = false, sel = -1, onSel, onMover, versao = 0, onEditar }) {
   const g = geom(c);
   const comArte = lado === "frente" || c.verso === "fundo";
-  const comItens = lado === "frente";
+  const comItens = comArte; // frente sempre; verso quando a arte do verso está ligada
+  const itens = lado === "verso" ? (c.itensVerso || []) : c.itens;
   const molde = lado === "frente" ? c.moldeFrente : c.verso !== "nenhum";
   const fundoImg = c.fundoImg && capasImgs.fundo;
   const cobrir = !!c.cobrirFolha;
@@ -39,7 +40,7 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
     onSel && onSel(i);
     const art = e.currentTarget.closest("[data-arte]");
     const r = art.getBoundingClientRect();
-    const it = c.itens[i];
+    const it = itens[i];
     const x0 = e.clientX, y0 = e.clientY, ix = it.x, iy = it.y;
     const mover = (ev) => {
       const nx = Math.max(0, Math.min(100, ix + ((ev.clientX - x0) / r.width) * 100));
@@ -67,7 +68,7 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
               <img src={capasImgs.fundo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: c.fundoModo === "inteira" ? "contain" : "cover", objectPosition: `${c.fundoX ?? 50}% ${c.fundoY ?? 50}%`, transformOrigin: `${c.fundoX ?? 50}% ${c.fundoY ?? 50}%`, transform: `scale(${(c.fundoZoom ?? 100) / 100})`, opacity: (c.fundoOpac ?? 100) / 100 }} />
             </div>
           )}
-          {comItens && c.itens.map((it, i) => {
+          {comItens && itens.map((it, i) => {
             const base = { position: "absolute", left: `${it.x}%`, top: `${it.y}%`, transform: "translate(-50%,-50%)", cursor: interativo ? "move" : "default", touchAction: "none" };
             const marca = interativo && sel === i ? { outline: "0.5mm dashed #2f6fd0", outlineOffset: "1mm" } : {};
             if (it.tipo === "imagem") {
@@ -116,7 +117,7 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
               </div>
             );
           })}
-          {comItens && <StickerLayer pagina="capa" />}
+          {comItens && lado === "frente" && <StickerLayer pagina="capa" />}
         </div>
       )}
       {molde && (

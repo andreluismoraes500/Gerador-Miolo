@@ -1,7 +1,7 @@
 // Capas: edição direta (arrastar textos), mala direta por CSV e molde de corte (frente e verso).
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
-import { MdAdd, MdContentCopy, MdDeleteOutline, MdPrint, MdUploadFile, MdChevronLeft, MdChevronRight, MdRestartAlt } from "react-icons/md";
+import { MdAdd, MdContentCopy, MdDeleteOutline, MdUploadFile, MdChevronLeft, MdChevronRight, MdRestartAlt } from "react-icons/md";
 import { PainelStickers } from "../components/StickersEditor";
 import CapaFolha from "../components/capas/CapaFolha";
 import { stickersDados } from "../lib/stickers";
@@ -48,9 +48,16 @@ export default function CapasPage() {
   const csv = useMemo(() => lerCsv(c.csv), [c.csv]);
   const nomes = c.usarCsv && csv.rows.length ? csv.rows : [{ nome: "Nome Completo" }];
   const dados = nomes[Math.min(idx, nomes.length - 1)] || {};
-  const sel = Math.min(c.sel, c.itens.length - 1);
-  const item = c.itens[sel];
-  const setItem = (o) => set({ itens: c.itens.map((x, i) => (i === sel ? { ...x, ...o } : x)) });
+  const livro = c.saida === "livro";
+  const ladoEf = lado === "folha" && !livro ? "frente" : lado;
+  const ehVerso = ladoEf === "verso";
+  const kI = ehVerso ? "itensVerso" : "itens";
+  const kS = ehVerso ? "selVerso" : "sel";
+  const itens = c[kI] || [];
+  const sel = Math.max(0, Math.min(c[kS] ?? 0, itens.length - 1));
+  const item = itens[sel];
+  const setItem = (o) => set({ [kI]: itens.map((x, i) => (i === sel ? { ...x, ...o } : x)) });
+  const setSel = (i) => set({ [kS]: i });
   const F = geom(c).F;
   const zoom = largPre / (F.w * 3.7795);
   const girar = (o) => { if (c.orient === o) return; const [mw, mh] = [Math.min(c.placaW, c.placaH), Math.max(c.placaW, c.placaH)]; set(o === "paisagem" ? { orient: o, placaW: mh, placaH: mw } : { orient: o, placaW: mw, placaH: mh }); };
@@ -70,10 +77,10 @@ export default function CapasPage() {
     if (!item || item.tipo !== "texto") { toast("Selecione um texto da capa para inserir o campo."); return; }
     setItem({ texto: `${item.texto}{${k}}` });
   };
-  const novoTexto = () => { set({ itens: [...c.itens, itemTexto({ texto: "Novo texto", y: 85, tam: 20 })], sel: c.itens.length }); };
-  const novaImagem = () => { set({ itens: [...c.itens, itemImagem()], sel: c.itens.length }); };
-  const duplicar = () => { if (item) set({ itens: [...c.itens, { ...item, id: Math.random().toString(36).slice(2, 9), y: Math.min(95, item.y + 6) }], sel: c.itens.length }); };
-  const remover = () => { if (!item) return; set({ itens: c.itens.filter((_, i) => i !== sel), sel: 0 }); };
+  const novoTexto = () => { set({ [kI]: [...itens, itemTexto({ texto: "Novo texto", y: 85, tam: 20 })], [kS]: itens.length }); };
+  const novaImagem = () => { set({ [kI]: [...itens, itemImagem()], [kS]: itens.length }); };
+  const duplicar = () => { if (item) set({ [kI]: [...itens, { ...item, id: Math.random().toString(36).slice(2, 9), y: Math.min(95, item.y + 6) }], [kS]: itens.length }); };
+  const remover = () => { if (!item) return; set({ [kI]: itens.filter((_, i) => i !== sel), [kS]: 0 }); };
   const restaurarItem = () => {
     if (!item) return;
     const base = item.tipo === "imagem" ? itemImagem() : itemTexto();
@@ -83,7 +90,7 @@ export default function CapasPage() {
     if (!window.confirm("Restaurar a capa ao padrão? Textos, fundo e stickers da capa voltam ao início (os nomes são mantidos).")) return;
     Object.keys(capasImgs).forEach((k) => { delete capasImgs[k]; });
     stickersDados.set({ itens: stickersDados.get().itens.filter((i) => i.pagina !== "capa") });
-    set({ itens: ITENS_PADRAO(), sel: 0, fundo: "#ffffff", fundoImg: false, fundoModo: "cobrir", fundoOpac: 100, fundoZoom: 100, fundoX: 50, fundoY: 50 });
+    set({ itens: ITENS_PADRAO(), sel: 0, itensVerso: [], selVerso: 0, fundo: "#ffffff", fundoImg: false, fundoModo: "cobrir", fundoOpac: 100, fundoZoom: 100, fundoX: 50, fundoY: 50 });
     forca((n) => n + 1);
     toast.success("Capa restaurada ao padrão.");
   };
@@ -95,13 +102,14 @@ export default function CapasPage() {
     if (c.verso !== "nenhum" && c.imprimir !== "frentes") paginas.push({ n, d, lado: "verso" });
   });
   // Saída A5 ×2: cada capa vira meia folha A4 (70,7%), duas por folha, sem borda; o verso casa pela borda escolhida.
-  const a5 = c.saida === "a5x2";
+  const a5 = c.saida === "a5x2" || livro;
   const S = a5 ? (F.w > F.h ? { w: 210, h: 297 } : { w: 297, h: 210 }) : F;
   const metade = F.w > F.h ? { w: 210, h: 148.5 } : { w: 148.5, h: 210 };
   const folhasA5 = [];
   if (a5) {
     const troca = c.virar === "curta";
-    for (let i = 0; i < nomes.length; i += 2) {
+    if (livro) nomes.forEach((d) => folhasA5.push([{ d, lado: "verso" }, { d, lado: "frente" }])); // verso à esquerda, frente à direita
+    else for (let i = 0; i < nomes.length; i += 2) {
       const par = [nomes[i], nomes[i + 1]];
       if (c.imprimir !== "versos") folhasA5.push([0, 1].map((k) => (par[k] ? { d: par[k], lado: "frente" } : null)));
       if (c.verso !== "nenhum" && c.imprimir !== "frentes") {
@@ -111,7 +119,7 @@ export default function CapasPage() {
     }
   }
   const nFolhas = a5 ? folhasA5.length : paginas.length;
-  const FolhaA5 = ({ cel }) => (
+  const folhaA5 = (cel) => (
     <div style={{ position: "relative", width: `${S.w}mm`, height: `${S.h}mm`, background: "#fff", overflow: "hidden" }}>
       {cel.map((x, k) => (
         <div key={k} style={{ position: "absolute", left: F.w > F.h ? 0 : `${k * metade.w}mm`, top: F.w > F.h ? `${k * metade.h}mm` : 0, width: `${metade.w}mm`, height: `${metade.h}mm`, overflow: "hidden", background: "#fff" }}>
@@ -173,11 +181,25 @@ export default function CapasPage() {
             )}
           </Painel>
 
-          <Painel titulo="🧩 Elementos da capa">
+          <Painel titulo={ehVerso ? "🧩 Elementos do verso (contracapa)" : "🧩 Elementos da capa (frente)"}>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-semibold text-[#24344D] mr-1">Editando</span>
+              <Chip ativo={!ehVerso} onClick={() => setLado("frente")}>Frente</Chip>
+              <Chip ativo={ehVerso} onClick={() => setLado("verso")}>Verso</Chip>
+            </div>
+            {ehVerso && c.verso !== "fundo" && (
+              <div className="rounded-lg bg-[#FBF1D9] border border-[#E7DCC0] p-2.5 flex flex-col gap-2 text-[11px] text-[#6B6458]">
+                <span>Hoje o verso sai só com o molde. Ligue a arte do verso para colocar textos, imagens e o fundo nele.</span>
+                <button type="button" onClick={() => set({ verso: "fundo" })} className="self-start px-3 py-1.5 rounded-lg bg-[#24344D] text-white text-xs font-semibold">Ligar arte no verso</button>
+              </div>
+            )}
+            {ehVerso && c.verso === "fundo" && !c.itens.length ? null : ehVerso && c.verso === "fundo" && (
+              <button type="button" onClick={() => set({ itensVerso: c.itens.map((x) => ({ ...x, id: Math.random().toString(36).slice(2, 9) })), selVerso: 0 })} className="self-start text-xs underline text-[#8B6A1F]">Copiar os elementos da frente para o verso</button>
+            )}
             <p className="text-[11px] text-[#6B6458]">Arraste os textos direto na prévia (clique duas vezes para editar). Use <b>{"{nome}"}</b> onde o nome deve aparecer.</p>
             <div className="flex flex-wrap gap-1.5">
-              {c.itens.map((it, i) => (
-                <Chip key={it.id} ativo={i === sel} onClick={() => set({ sel: i })}>{it.tipo === "imagem" ? "🖼 Imagem" : (it.texto.replace(/\s+/g, " ").slice(0, 14) || "Texto")}</Chip>
+              {itens.map((it, i) => (
+                <Chip key={it.id} ativo={i === sel} onClick={() => setSel(i)}>{it.tipo === "imagem" ? "🖼 Imagem" : (it.texto.replace(/\s+/g, " ").slice(0, 14) || "Texto")}</Chip>
               ))}
             </div>
             <div className="flex flex-wrap gap-2 items-center">
@@ -305,17 +327,19 @@ export default function CapasPage() {
             <Campo rotulo="Verso da folha">
               <select className={entrada} value={c.verso} onChange={(e) => set({ verso: e.target.value })}>
                 <option value="molde">Só o molde (para cortar pelo verso)</option>
-                <option value="fundo">Fundo da capa + molde</option>
+                <option value="fundo">Arte no verso (fundo + textos/imagens editáveis) + molde</option>
                 <option value="nenhum">Sem verso (só frente)</option>
               </select>
             </Campo>
             <Campo rotulo="Saída da impressão">
-              <select className={entrada} value={c.saida || "a4"} onChange={(e) => set({ saida: e.target.value })}>
+              <select className={entrada} value={c.saida || "a4"} onChange={(e) => { const v = e.target.value; set(v === "livro" ? { saida: v, verso: c.verso === "nenhum" || c.verso === "molde" ? "fundo" : c.verso } : { saida: v }); setLado(v === "livro" ? "folha" : "frente"); }}>
                 <option value="a4">1 capa por folha A4 (como está)</option>
                 <option value="a5x2">2 capas por folha A4, cada uma em tamanho A5 (impressora sem borda → corte ao meio)</option>
+                <option value="livro">Brochura: verso e frente lado a lado na mesma folha (A5 + A5)</option>
               </select>
             </Campo>
-            {a5 && (
+            {livro && <p className="text-[11px] text-[#6B6458]">Cada nome gera <b>1 folha A4</b> com o <b>verso (contracapa) à esquerda</b> e a <b>frente à direita</b>, cada um em A5 (70,7%). Imprima em A4 sem borda, só de um lado, e corte ao meio. Edite a frente e o verso em “Elementos”.</p>}
+            {a5 && !livro && (
               <div className="flex flex-col gap-2">
                 <Campo rotulo="Impressão frente e verso: virar a folha pela">
                   <select className={entrada} value={c.virar || "longa"} onChange={(e) => set({ virar: e.target.value })}>
@@ -326,13 +350,13 @@ export default function CapasPage() {
                 <p className="text-[11px] text-[#6B6458]">Cada capa é reduzida a 70,7% (A4 → A5) e as duas ocupam a folha inteira, sem sobra branca: imprima em A4 sem borda e corte ao meio. Nomes seguidos ficam lado a lado (1º e 2º, 3º e 4º…) e o verso já sai alinhado.</p>
               </div>
             )}
-            <Campo rotulo="Imprimir">
+            {!livro && <Campo rotulo="Imprimir">
               <select className={entrada} value={c.imprimir || "tudo"} onChange={(e) => set({ imprimir: e.target.value })}>
                 <option value="tudo">Frente e verso (impressora duplex; molde é simétrico, qualquer borda serve)</option>
                 <option value="frentes">Só as frentes</option>
                 <option value="versos">Só os versos</option>
               </select>
-            </Campo>
+            </Campo>}
             <div className="grid grid-cols-3 gap-2">
               <Campo rotulo="Placa largura (mm)"><input type="number" className={entrada} value={c.placaW} onChange={(e) => set({ placaW: Math.max(40, Number(e.target.value) || 0) })} /></Campo>
               <Campo rotulo="Placa altura (mm)"><input type="number" className={entrada} value={c.placaH} onChange={(e) => set({ placaH: Math.max(40, Number(e.target.value) || 0) })} /></Campo>
@@ -355,20 +379,27 @@ export default function CapasPage() {
             </select>
             <button type="button" className="p-1.5 rounded-lg border border-[#D8CBA8] bg-white" onClick={() => setIdx((i) => Math.min(nomes.length - 1, i + 1))}><MdChevronRight /></button>
             <Chip ativo={lado === "frente"} onClick={() => setLado("frente")}>Frente</Chip>
-            <Chip ativo={lado === "verso"} onClick={() => setLado("verso")}>Verso</Chip>
+            <Chip ativo={ladoEf === "verso"} onClick={() => setLado("verso")}>Verso</Chip>
+            {livro && <Chip ativo={ladoEf === "folha"} onClick={() => setLado("folha")}>Folha (verso + frente)</Chip>}
           </div>
+          {ladoEf === "folha" ? (
+            <div className="shadow-[0_6px_24px_rgba(36,52,77,0.2)] bg-white overflow-hidden" style={{ width: largPre, height: largPre * (S.h / S.w) }}>
+              <div style={{ zoom: largPre / (S.w * 3.7795) }}>{folhaA5(folhasA5[Math.min(idx, folhasA5.length - 1)] || [])}</div>
+            </div>
+          ) : (
           <div className="shadow-[0_6px_24px_rgba(36,52,77,0.2)] bg-white" style={{ width: largPre, height: largPre * (F.h / F.w) }}>
             <div style={{ zoom }}>
-              <CapaFolha c={c} dados={dados} lado={lado} interativo={lado === "frente"} sel={sel} onSel={(i) => set({ sel: i })} onMover={(i, x, y) => set({ itens: capasCfg.get().itens.map((it, k) => (k === i ? { ...it, x, y } : it)) })} versao={0} onEditar={(i) => { set({ sel: i }); setTimeout(() => { txtRef.current?.focus(); txtRef.current?.select(); }, 50); }} />
+              <CapaFolha c={c} dados={dados} lado={ladoEf} interativo={ladoEf === "frente" || (ehVerso && c.verso === "fundo")} sel={sel} onSel={setSel} onMover={(i, x, y) => set({ [kI]: (capasCfg.get()[kI] || []).map((it, k) => (k === i ? { ...it, x, y } : it)) })} versao={0} onEditar={(i) => { setSel(i); setTimeout(() => { txtRef.current?.focus(); txtRef.current?.select(); }, 50); }} />
             </div>
           </div>
+          )}
           <p className="text-[11px] text-[#6B6458] text-center">Arraste os textos na prévia para posicionar. A linha preta é a placa; a cinza, o recorte do papel.</p>
         </div>
       </div>
 
       <div className="cp-print">
         {a5
-          ? folhasA5.slice(0, 300).map((cel, k) => <div key={k} className="cp-pag"><FolhaA5 cel={cel} /></div>)
+          ? folhasA5.slice(0, 300).map((cel, k) => <div key={k} className="cp-pag">{folhaA5(cel)}</div>)
           : paginas.slice(0, 600).map((p, k) => (
             <div key={k} className="cp-pag"><CapaFolha c={c} dados={p.d} lado={p.lado} /></div>
           ))}
