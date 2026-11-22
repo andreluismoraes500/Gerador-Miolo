@@ -114,6 +114,21 @@ export function montarFolhas(n, f) {
   return folhas;
 }
 
+// Folhas conforme o lado escolhido. Na brochura, "só frente"/"só verso" significa imprimir
+// de um lado só: as páginas saem em ordem, duas por folha, sem filtrar metade delas.
+export function folhasDoLado(n, f, lados) {
+  if (f.livro && (lados === "frente" || lados === "verso")) {
+    const out = [];
+    for (let i = 0; i < n; i += 2) out.push({ lado: lados, cells: [i, i + 1 < n ? i + 1 : null] });
+    return out;
+  }
+  let folhas = montarFolhas(n, f);
+  if (lados === "frente") folhas = folhas.filter((x) => x.lado === "frente");
+  else if (lados === "verso") folhas = folhas.filter((x) => x.lado === "verso");
+  else if (lados === "verso-inverso") folhas = folhas.filter((x) => x.lado === "verso").reverse();
+  return folhas;
+}
+
 // Prepara o DOM para a impressão (A4/A5/A6, N por folha, só frente/verso).
 // Devolve uma função que desfaz tudo.
 export function prepararImpressao({ lados = "ambos", formato = "a4", compensar = true, paisagem = false, ...imp } = {}) {
@@ -150,10 +165,7 @@ export function prepararImpressao({ lados = "ambos", formato = "a4", compensar =
   const internos = paisagem ? paginas.map((el) => [el.querySelector(".pdf-pagina"), el.querySelector(".pdf-pagina")?.getAttribute("style")]) : [];
   internos.forEach(([el]) => { if (el) { el.style.width = "297mm"; el.style.height = "210mm"; } });
 
-  let folhas = montarFolhas(paginas.length, f);
-  if (lados === "frente") folhas = folhas.filter((x) => x.lado === "frente");
-  else if (lados === "verso") folhas = folhas.filter((x) => x.lado === "verso");
-  else if (lados === "verso-inverso") folhas = folhas.filter((x) => x.lado === "verso").reverse();
+  const folhas = folhasDoLado(paginas.length, f, lados);
 
   const originais = [...cont.children];
   const estilosOrig = new Map(paginas.map((el) => [el, el.getAttribute("style")]));
