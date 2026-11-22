@@ -168,6 +168,11 @@ export function PartiturasOpcoes() {
           />
         </label>
       </div>
+      <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-[#24344D]">
+        <label className="flex items-center gap-2"><input type="checkbox" checked={cfg.soLinhas} onChange={(e) => partiturasCfg.set({ soLinhas: e.target.checked })} />Só as linhas (sem claves, barras e notas)</label>
+        <label className="flex items-center gap-2"><input type="checkbox" checked={cfg.semCabecalho} onChange={(e) => partiturasCfg.set({ semCabecalho: e.target.checked })} />Sem cabeçalho</label>
+        <label className="flex items-center gap-2"><input type="checkbox" checked={cfg.notasDeco} onChange={(e) => partiturasCfg.set({ notasDeco: e.target.checked })} />Notas musicais decorativas</label>
+      </div>
     </div>
   );
 }

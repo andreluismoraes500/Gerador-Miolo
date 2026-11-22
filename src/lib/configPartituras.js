@@ -14,6 +14,9 @@ export const partiturasCfg = criarStore("partituras-cfg", {
   tipos: ["sol"],
   modo: "alternar", // alternar | blocos
   paginas: 16,
+  soLinhas: false, // só as cinco linhas: sem claves, chaves, barras, TAB nem rótulos
+  semCabecalho: false, // tira o cabeçalho (nome do caderno e n/total)
+  notasDeco: true, // notas musicais decorativas (capa e cabeçalho)
 });
 
 // Qual tipo de pauta cada página usa (0..paginas-1).
