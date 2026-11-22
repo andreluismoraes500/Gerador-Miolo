@@ -58,12 +58,16 @@ export default function CapasPage() {
   const item = itens[sel];
   const setItem = (o) => set({ [kI]: itens.map((x, i) => (i === sel ? { ...x, ...o } : x)) });
   const setSel = (i) => set({ [kS]: i });
+  const pf = ehVerso && c.fundoVProprio ? "fundoV" : "fundo"; // fundo que o painel está editando
+  const fv = (n, d) => c[pf + n] ?? d;
+  const setF = (n, v) => set({ [pf + n]: v });
+  const ligarFundoVerso = (on) => set(on ? { fundoVProprio: true, fundoVCor: c.fundo, fundoVImg: false } : { fundoVProprio: false });
   const F = geom(c).F;
   const zoom = largPre / (F.w * 3.7795);
   const girar = (o) => { if (c.orient === o) return; const [mw, mh] = [Math.min(c.placaW, c.placaH), Math.max(c.placaW, c.placaH)]; set(o === "paisagem" ? { orient: o, placaW: mh, placaH: mw } : { orient: o, placaW: mw, placaH: mh }); };
 
   const imgPara = async (file, id) => {
-    try { capasImgs[id] = await lerImagem(file); toast.success("Imagem carregada."); forca((n) => n + 1); if (id === "fundo") set({ fundoImg: true }); }
+    try { capasImgs[id] = await lerImagem(file); toast.success("Imagem carregada."); forca((n) => n + 1); if (id === "fundo") set({ fundoImg: true }); if (id === "fundoV") set({ fundoVImg: true }); }
     catch { toast.error("Não foi possível ler a imagem."); }
   };
   const lerArquivoCsv = async (file) => {
@@ -90,7 +94,7 @@ export default function CapasPage() {
     if (!window.confirm("Restaurar a capa ao padrão? Textos, fundo e stickers da capa voltam ao início (os nomes são mantidos).")) return;
     Object.keys(capasImgs).forEach((k) => { delete capasImgs[k]; });
     stickersDados.set({ itens: stickersDados.get().itens.filter((i) => i.pagina !== "capa") });
-    set({ itens: ITENS_PADRAO(), sel: 0, itensVerso: [], selVerso: 0, fundo: "#ffffff", fundoImg: false, fundoModo: "cobrir", fundoOpac: 100, fundoZoom: 100, fundoX: 50, fundoY: 50 });
+    set({ itens: ITENS_PADRAO(), sel: 0, itensVerso: [], selVerso: 0, fundoVProprio: false, fundoVImg: false, fundoVCor: "#ffffff", fundo: "#ffffff", fundoImg: false, fundoModo: "cobrir", fundoOpac: 100, fundoZoom: 100, fundoX: 50, fundoY: 50 });
     forca((n) => n + 1);
     toast.success("Capa restaurada ao padrão.");
   };
@@ -284,26 +288,40 @@ export default function CapasPage() {
           <PainelStickers prefixo="capa" />
 
           <Painel titulo="🎨 Fundo da capa" aberto={false}>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-semibold text-[#24344D] mr-1">Editando</span>
+              <Chip ativo={!ehVerso} onClick={() => setLado("frente")}>Frente</Chip>
+              <Chip ativo={ehVerso} onClick={() => setLado("verso")}>Verso</Chip>
+            </div>
+            {ehVerso && (
+              <label className="flex items-center gap-2 text-xs text-[#24344D]"><input type="checkbox" checked={!!c.fundoVProprio} onChange={(e) => ligarFundoVerso(e.target.checked)} /> Usar um fundo diferente no verso</label>
+            )}
+            {ehVerso && !c.fundoVProprio && <p className="text-[11px] text-[#6B6458]">Por enquanto o verso usa o mesmo fundo da frente. Marque a opção acima para escolher outra cor ou imagem só para o verso.</p>}
+            {ehVerso && c.fundoVProprio && c.verso !== "fundo" && <p className="text-[11px] text-[#8B2E3F]">O fundo do verso só aparece se “Verso da folha” estiver como “Arte no verso” (em Molde de corte).</p>}
+            {(!ehVerso || c.fundoVProprio) && (
+            <>
             <div className="flex flex-wrap items-center gap-3">
-              <Campo rotulo="Cor"><input type="color" className="h-8 w-14 rounded" value={c.fundo} onChange={(e) => set({ fundo: e.target.value })} /></Campo>
+              <Campo rotulo="Cor"><input type="color" className="h-8 w-14 rounded" value={(pf === "fundoV" ? c.fundoVCor : c.fundo) || "#ffffff"} onChange={(e) => set(pf === "fundoV" ? { fundoVCor: e.target.value } : { fundo: e.target.value })} /></Campo>
               <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#D8CBA8] bg-white text-xs font-semibold cursor-pointer text-[#24344D] mt-4">
                 <MdUploadFile /> Imagem de fundo
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files[0]) imgPara(e.target.files[0], "fundo"); e.target.value = ""; }} />
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files[0]) imgPara(e.target.files[0], pf); e.target.value = ""; }} />
               </label>
-              {c.fundoImg && <button type="button" className="text-xs text-[#8B2E3F] underline mt-4" onClick={() => { delete capasImgs.fundo; set({ fundoImg: false }); }}>Remover</button>}
+              {fv("Img") && <button type="button" className="text-xs text-[#8B2E3F] underline mt-4" onClick={() => { delete capasImgs[pf]; setF("Img", false); }}>Remover</button>}
             </div>
-            {c.fundoImg && <Faixa rotulo="Opacidade do fundo" valor={c.fundoOpac ?? 100} min={5} max={100} un="%" onChange={(v) => set({ fundoOpac: v })} />}
-            {c.fundoImg && <div className="flex gap-1.5"><Chip ativo={c.fundoModo === "cobrir"} onClick={() => set({ fundoModo: "cobrir" })}>Cobrir tudo</Chip><Chip ativo={c.fundoModo === "inteira"} onClick={() => set({ fundoModo: "inteira" })}>Caber inteira</Chip></div>}
-            {c.fundoImg && (
+            {fv("Img") && <Faixa rotulo="Opacidade do fundo" valor={fv("Opac", 100)} min={5} max={100} un="%" onChange={(v) => setF("Opac", v)} />}
+            {fv("Img") && <div className="flex gap-1.5"><Chip ativo={fv("Modo") === "cobrir"} onClick={() => setF("Modo", "cobrir")}>Cobrir tudo</Chip><Chip ativo={fv("Modo") === "inteira"} onClick={() => setF("Modo", "inteira")}>Caber inteira</Chip></div>}
+            {fv("Img") && (
               <div className="flex flex-col gap-2.5 rounded-xl border border-[#E7DCC0] bg-white/60 p-3">
                 <span className="text-xs font-bold text-[#24344D]">🖼️ Tamanho e posição da imagem de fundo</span>
-                <Faixa rotulo="Tamanho (zoom)" valor={c.fundoZoom ?? 100} min={50} max={400} un="%" onChange={(v) => set({ fundoZoom: v })} />
+                <Faixa rotulo="Tamanho (zoom)" valor={fv("Zoom", 100)} min={50} max={400} un="%" onChange={(v) => setF("Zoom", v)} />
                 <div className="grid grid-cols-2 gap-3">
-                  <Faixa rotulo="Posição ← →" valor={c.fundoX ?? 50} min={0} max={100} un="%" onChange={(v) => set({ fundoX: v })} />
-                  <Faixa rotulo="Posição ↑ ↓" valor={c.fundoY ?? 50} min={0} max={100} un="%" onChange={(v) => set({ fundoY: v })} />
+                  <Faixa rotulo="Posição ← →" valor={fv("X", 50)} min={0} max={100} un="%" onChange={(v) => setF("X", v)} />
+                  <Faixa rotulo="Posição ↑ ↓" valor={fv("Y", 50)} min={0} max={100} un="%" onChange={(v) => setF("Y", v)} />
                 </div>
-                <button type="button" className="self-start text-xs underline text-[#8B6A1F]" onClick={() => set({ fundoZoom: 100, fundoX: 50, fundoY: 50 })}>Centralizar e voltar a 100%</button>
+                <button type="button" className="self-start text-xs underline text-[#8B6A1F]" onClick={() => set({ [pf + "Zoom"]: 100, [pf + "X"]: 50, [pf + "Y"]: 50 })}>Centralizar e voltar a 100%</button>
               </div>
+            )}
+            </>
             )}
           </Painel>
 

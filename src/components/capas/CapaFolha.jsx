@@ -30,7 +30,10 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
   const comItens = comArte; // frente sempre; verso quando a arte do verso está ligada
   const itens = lado === "verso" ? (c.itensVerso || []) : c.itens;
   const molde = lado === "frente" ? c.moldeFrente : c.verso !== "nenhum";
-  const fundoImg = c.fundoImg && capasImgs.fundo;
+  const pv = lado === "verso" && c.fundoVProprio ? "fundoV" : "fundo"; // verso pode ter fundo próprio
+  const fCor = pv === "fundoV" ? c.fundoVCor : c.fundo;
+  const fundoImg = c[`${pv}Img`] && capasImgs[pv];
+  const fModo = c[`${pv}Modo`], fX = c[`${pv}X`] ?? 50, fY = c[`${pv}Y`] ?? 50, fZoom = c[`${pv}Zoom`] ?? 100, fOpac = c[`${pv}Opac`] ?? 100;
   const cobrir = !!c.cobrirFolha;
   const A = cobrir ? { x: 0, y: 0, w: g.F.w, h: g.F.h } : { x: g.ox, y: g.oy, w: g.W, h: g.H };
 
@@ -59,13 +62,13 @@ export default function CapaFolha({ c, dados, lado = "frente", interativo = fals
           data-arte
           style={{
             position: "absolute", left: `${A.x}mm`, top: `${A.y}mm`, width: `${A.w}mm`, height: `${A.h}mm`,
-            background: c.fundo,
+            background: fCor,
             clipPath: cobrir ? undefined : `polygon(${g.pts.map(([x, y]) => `${x}mm ${y}mm`).join(",")})`,
           }}
         >
           {fundoImg && (
             <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-              <img src={capasImgs.fundo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: c.fundoModo === "inteira" ? "contain" : "cover", objectPosition: `${c.fundoX ?? 50}% ${c.fundoY ?? 50}%`, transformOrigin: `${c.fundoX ?? 50}% ${c.fundoY ?? 50}%`, transform: `scale(${(c.fundoZoom ?? 100) / 100})`, opacity: (c.fundoOpac ?? 100) / 100 }} />
+              <img src={capasImgs[pv]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: fModo === "inteira" ? "contain" : "cover", objectPosition: `${fX}% ${fY}%`, transformOrigin: `${fX}% ${fY}%`, transform: `scale(${fZoom / 100})`, opacity: fOpac / 100 }} />
             </div>
           )}
           {comItens && itens.map((it, i) => {
