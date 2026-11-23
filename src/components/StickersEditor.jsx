@@ -16,7 +16,7 @@ function Visual({ s }) {
         }}
       />
     );
-  if (s.tipo === "img") return <img src={s.v} alt="" draggable={false} style={{ width: `${s.tam}mm`, display: "block" }} />;
+  if (s.tipo === "img") return <img src={s.v} alt="" draggable={false} style={{ width: `${s.tam}mm`, maxWidth: "none", flexShrink: 0, display: "block" }} />;
   return (
     <span style={{ fontSize: `${s.tam}mm`, lineHeight: 1, display: "block", fontFamily: "'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif" }}>
       {s.v}
@@ -103,6 +103,8 @@ export function StickerLayer({ pagina }) {
           onPointerDown={arrastar(s)}
           style={{
             position: "absolute",
+            width: "max-content",
+            maxWidth: "none",
             left: `${s.x}%`,
             top: `${s.y}%`,
             transform: `translate(-50%,-50%) rotate(${s.rot}deg)`,
