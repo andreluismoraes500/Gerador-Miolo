@@ -7,7 +7,7 @@ const ler = (id, padrao) => {
   try { const v = localStorage.getItem(chave(id)); return v === null ? padrao : v === "1"; } catch { return padrao; }
 };
 
-export default function Painel({ titulo, children, cls = "", aberto = true, id }) {
+export default function Painel({ titulo, children, cls = "", aberto = true, id, fixo = false, dica }) {
   const k = `${typeof window !== "undefined" ? window.location.pathname : ""}:${id || (typeof titulo === "string" ? titulo : "")}`;
   const [open, setOpen] = useState(() => (k ? ler(k, aberto) : aberto));
   const alternar = () => {
@@ -15,6 +15,17 @@ export default function Painel({ titulo, children, cls = "", aberto = true, id }
     setOpen(n);
     try { if (k) localStorage.setItem(chave(k), n ? "1" : "0"); } catch { /* sem storage */ }
   };
+  if (fixo) {
+    return (
+      <section className={`bg-[#FBF8F1] border-2 border-[#24344D] rounded-2xl px-4 py-4 flex flex-col gap-3 ${cls}`}>
+        <div>
+          <h2 className="font-bold text-lg text-[#24344D]">{titulo}</h2>
+          {dica && <p className="text-xs text-[#6B6458] mt-0.5">{dica}</p>}
+        </div>
+        {children}
+      </section>
+    );
+  }
   return (
     <section className={`bg-[#FBF8F1] border border-[#D8CBA8] rounded-2xl ${cls}`}>
       <button type="button" onClick={alternar} aria-expanded={open} className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left">

@@ -11,6 +11,7 @@ import ImgAjustada from "../components/ImgAjustada";
 import ControlesImagem from "../components/ControlesImagem";
 import BotaoPadrao from "../components/BotaoPadrao";
 import Painel from "../components/ui/Painel";
+import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
@@ -113,7 +114,7 @@ export default function BottonsPage() {
 
       <div className="bt-tela grid gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
         <BarraEditor tipo="bottons" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
+        <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="🖼️ Imagens dos bottons">
             <button type="button" onClick={() => inp.current?.click()} className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#24344D] text-white text-sm font-semibold"><MdUploadFile size={18} /> Enviar imagens (várias)</button>
             <input ref={inp} type="file" accept="image/*" multiple hidden onChange={(e) => { enviar([...e.target.files]); e.target.value = ""; }} />
@@ -140,7 +141,7 @@ export default function BottonsPage() {
               ))}
             </ul>
           </Painel>
-        </div>
+        </Fluxo>
 
         <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="🖨️ Botton e folha">

@@ -9,6 +9,7 @@ import { PAPEIS } from "../lib/cartaoVisita";
 import { lerImagem } from "../lib/lerImagem";
 import BotaoPadrao from "../components/BotaoPadrao";
 import Painel from "../components/ui/Painel";
+import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
@@ -100,7 +101,7 @@ export default function CartazesPage() {
 
       <div className="cz-tela grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
         <BarraEditor tipo="cartazes" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} adaptador={adaptador} aoRestaurar={() => {}} />
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
+        <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="🎨 Modelos prontos">
             <div className="grid grid-cols-3 gap-2">
               {MODELOS_CZ.map((m) => (
@@ -174,7 +175,7 @@ export default function CartazesPage() {
               <Cor rotulo="Texto do selo" valor={cfg.seloTxt} onChange={(v) => set({ seloTxt: v })} />
             </div>
           </Painel>
-        </div>
+        </Fluxo>
 
         <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="📄 Papel e impressão">

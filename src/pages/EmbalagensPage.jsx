@@ -11,6 +11,7 @@ import { stickersDados } from "../lib/stickers";
 import { lerImagem } from "../lib/lerImagem";
 import GradeModelos, { ITENS_EMB } from "../components/ui/GradeModelos";
 import Painel from "../components/ui/Painel";
+import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
@@ -151,7 +152,7 @@ export default function EmbalagensPage() {
 
       <div className="emb-tela grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
         <BarraEditor tipo="embalagens" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
+        <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="📦 Escolha a embalagem">
             <GradeModelos itens={ITENS_EMB(cfg.tema)} valor={modelo} colunas={3} onChange={(k) => { set({ modelo: k, sel: "" }); setFolhaSel(0); setSelT(0); }} />
             <p className="text-[11px] text-[#8B6A1F]">{mod.desc}</p>
@@ -276,7 +277,7 @@ export default function EmbalagensPage() {
           </Painel>
 
           <button type="button" onClick={restaurar} className="self-start inline-flex items-center gap-1 text-xs text-[#8B6A1F] underline"><MdRestartAlt /> Restaurar esta embalagem ao padrão</button>
-        </div>
+        </Fluxo>
 
         <div ref={colRef} className={`pre-fixa flex flex-col gap-3 min-w-0 ${abas.clsVer}`}>
           {folhas.length > 0 ? (
