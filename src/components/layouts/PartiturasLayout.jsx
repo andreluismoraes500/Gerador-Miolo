@@ -13,7 +13,7 @@ import Logo from "../Logo";
 import Watermark from "../Watermark";
 import Background from "../Background";
 import EditableField from "../EditableField";
-import { TIPOS_PAUTA, partiturasCfg } from "../../lib/configPartituras";
+import { TIPOS_PAUTA, partiturasCfg, alturaSistema, sistemasPorFolha } from "../../lib/configPartituras";
 
 const FONTE_TITULO = "'Cormorant Garamond', serif";
 const FONTE_MUSICAL = "'Noto Music', serif";
@@ -306,8 +306,9 @@ export function PartiturasPautaPage({
 }) {
   const { primaryColor } = useVisual(rest.customColors);
   const cfg = TIPOS_PAUTA.find((t) => t.id === tipo) || TIPOS_PAUTA[0];
-  const numSistemas = cfg.sistemas - (comCampos ? 1 : 0);
-  const { soLinhas, semCabecalho, notasDeco } = partiturasCfg.get();
+  const { soLinhas, semCabecalho, notasDeco, altSist } = partiturasCfg.get();
+  const alt = alturaSistema(cfg, altSist);
+  const numSistemas = sistemasPorFolha(cfg, altSist, comCampos, semCabecalho);
 
   return (
     <PageShell {...rest}>
@@ -335,7 +336,7 @@ export function PartiturasPautaPage({
 
       <div className="flex-1 flex flex-col justify-between min-h-0">
         {Array.from({ length: numSistemas }).map((_, i) => (
-          <Sistema key={i} tipo={tipo} cor={primaryColor} altura={cfg.altura} so={soLinhas} />
+          <Sistema key={i} tipo={tipo} cor={primaryColor} altura={alt} so={soLinhas} />
         ))}
       </div>
     </PageShell>

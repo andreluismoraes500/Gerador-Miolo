@@ -2,7 +2,7 @@ import { agendaAnualCfg, montarPaginasAnual, ESTILOS } from "../lib/configAgenda
 import { devocionalCfg, montarPaginas, PALETAS, FONTES_TITULO } from "../lib/configDevocional";
 import { horarioCfg } from "../lib/configHorario";
 import { FORMATOS, LADOS, LADOS_WIRE, DICAS_LADOS, impressao } from "../lib/configImpressao";
-import { TIPOS_PAUTA, partiturasCfg } from "../lib/configPartituras";
+import { TIPOS_PAUTA, partiturasCfg, alturaSistema } from "../lib/configPartituras";
 import OpcoesFonte from "./ui/OpcoesFonte";
 import Faixa from "./ui/Faixa";
 import { pautadoCfg, pautadoImg, ESTILOS_PAUTA, CORES_PAUTA } from "../lib/configPautado";
@@ -192,6 +192,13 @@ export function PartiturasOpcoes() {
             className="w-16 border border-[#D8CBA8] rounded-lg px-2 py-1 bg-white text-center"
           />
         </label>
+      </div>
+      <div className="flex flex-col gap-1">
+        <Faixa rotulo={cfg.altSist > 0 ? "Altura de cada pauta (com o espaço entre elas)" : "Altura de cada pauta (automática)"} valor={cfg.altSist > 0 ? cfg.altSist : alturaSistema(TIPOS_PAUTA.find((t) => t.id === (cfg.tipos[0] || "sol")) || TIPOS_PAUTA[0], 0)} min={14} max={50} un="mm" onChange={(v) => partiturasCfg.set({ altSist: v })} />
+        <div className="flex flex-wrap gap-1.5 items-center text-[11px] text-[#6B6458]">
+          <span>Menor = mais pautas na folha.</span>
+          <button type="button" className="underline" onClick={() => partiturasCfg.set({ altSist: 0 })}>Voltar ao automático</button>
+        </div>
       </div>
       <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-[#24344D]">
         <label className="flex items-center gap-2"><input type="checkbox" checked={cfg.soLinhas} onChange={(e) => partiturasCfg.set({ soLinhas: e.target.checked })} />Só as linhas (sem claves, barras e notas)</label>
