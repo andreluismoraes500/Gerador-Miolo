@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "react-hot-toast";
-import { EMOJIS, WASHI, adicionar, atualizar, limparTudo, remover, repetirEmTodas, stickersDados, stickersUi } from "../lib/stickers";
+import { EMOJIS, WASHI, adicionar, atualizar, limparTudo, remover, repetirEmTodas, copiarParaVerso, stickersDados, stickersUi } from "../lib/stickers";
 
 function Visual({ s }) {
   if (s.tipo === "washi")
@@ -302,6 +302,16 @@ export function PainelStickers({ talonario = false, prefixo = "", semRepetir = f
               <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => stickersUi.set({ sel: adicionar({ ...atual, id: undefined, x: Math.min(95, atual.x + 4), y: Math.min(95, atual.y + 4) }) })}>
                 Duplicar
               </button>
+              {!talonario && !prefixo && typeof atual.pagina === "number" && (
+                <>
+                  <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" title="Copia para a página do outro lado da folha, espelhado: a borda externa e a margem de encadernação continuam do mesmo jeito" onClick={() => { copiarParaVerso(atual.id, true); toast.success("Copiado no verso (espelhado)"); }}>
+                    Copiar no verso (espelhado)
+                  </button>
+                  <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => { copiarParaVerso(atual.id, false); toast.success("Copiado no verso (mesma posição)"); }}>
+                    Copiar no verso (igual)
+                  </button>
+                </>
+              )}
               {!talonario && !semRepetir && <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => { repetirEmTodas(atual.id, prefixo ? [...document.querySelectorAll(".print-container > .page-break")].map((el) => el.dataset.stkey) : total()); toast.success("Repetido em todas as páginas"); }}>
                 Repetir em todas as páginas
               </button>}
