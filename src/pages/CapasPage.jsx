@@ -11,7 +11,7 @@ import { CORES_FUNDO_TEXTO, FORMAS_TEXTO, capasCfg, capasImgs, CAPA_CFG_PADRAO, 
 import { limparCacheMedida } from "../lib/cartaz";
 import { lerImagem } from "../lib/lerImagem";
 import GradeModelos, { MiniForma } from "../components/ui/GradeModelos";
-import Painel from "../components/ui/Painel";
+import Etapa, { Passos, NavEtapas } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
@@ -25,6 +25,8 @@ const Chip = ({ ativo, children, ...p }) => (
   <button type="button" {...p} className={`text-xs px-3 py-1.5 rounded-full border ${ativo ? "bg-[#24344D] text-white border-[#24344D]" : "bg-white text-[#24344D] border-[#D8CBA8]"}`}>{children}</button>
 );
 
+const PASSOS_CAPA = ["Nomes", "Textos", "Fundo", "Molde", "Imprimir"];
+
 export default function CapasPage() {
   const c = capasCfg.useStore();
   const set = (o) => capasCfg.set(o);
@@ -33,6 +35,7 @@ export default function CapasPage() {
   const [, forca] = useState(0);
   const [idx, setIdx] = useState(0);
   const [lado, setLado] = useState("frente");
+  const [etapa, setEtapa] = useState(0);
   const [largPre, setLargPre] = useState(420);
   const colRef = useRef(null);
   const taRef = useRef(null);
@@ -165,7 +168,9 @@ export default function CapasPage() {
       <div className="cp-tela grid gap-5 lg:grid-cols-[420px_minmax(0,1fr)]">
         <BarraEditor tipo="capas" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${nFolhas} folha${nFolhas === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
         <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
-          <Painel titulo="👥 Nomes (mala direta)">
+          <Passos etapa={etapa} setEtapa={setEtapa} passos={PASSOS_CAPA} />
+
+          <Etapa n={0} atual={etapa} titulo={"👥 1. Nomes (opcional)"} dica="Para uma capa só, pule esta etapa. Para várias capas com nomes diferentes, marque a caixa e cole a lista.">
             <label className="flex items-center gap-2 text-sm text-[#24344D]"><input type="checkbox" checked={c.usarCsv} onChange={(e) => { set({ usarCsv: e.target.checked }); setIdx(0); }} /> Gerar uma capa para cada nome</label>
             {c.usarCsv && (
               <>
@@ -185,9 +190,8 @@ export default function CapasPage() {
                 <p className="text-xs font-bold text-[#24344D]">{csv.rows.length} capa(s)</p>
               </>
             )}
-          </Painel>
-
-          <Painel titulo={ehVerso ? "🧩 Elementos do verso (contracapa)" : "🧩 Elementos da capa (frente)"}>
+          </Etapa>
+          <Etapa n={1} atual={etapa} titulo={ehVerso ? "🧩 2. Textos e imagens do verso" : "🧩 2. Textos e imagens da frente"} dica="Escolha Frente ou Verso, adicione textos/imagens e arraste na prévia ao lado. Depois clique em Próximo.">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-xs font-semibold text-[#24344D] mr-1">Editando</span>
               <Chip ativo={!ehVerso} onClick={() => setLado("frente")}>Frente</Chip>
@@ -285,11 +289,10 @@ export default function CapasPage() {
                 <button type="button" onClick={remover} className="inline-flex items-center gap-1 text-[#8B2E3F]"><MdDeleteOutline /> Excluir</button>
               </div>
             )}
-          </Painel>
+            <PainelStickers prefixo="capa" />
+          </Etapa>
 
-          <PainelStickers prefixo="capa" />
-
-          <Painel titulo="🎨 Fundo da capa" aberto={false}>
+          <Etapa n={2} atual={etapa} titulo={"🎨 3. Fundo da capa"} dica="Escolha uma cor ou envie uma imagem de fundo e ajuste o zoom e a posição.">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-xs font-semibold text-[#24344D] mr-1">Editando</span>
               <Chip ativo={!ehVerso} onClick={() => setLado("frente")}>Frente</Chip>
@@ -325,9 +328,8 @@ export default function CapasPage() {
             )}
             </>
             )}
-          </Painel>
-
-          <Painel titulo="✂️ Molde de corte" aberto={false}>
+          </Etapa>
+          <Etapa n={3} atual={etapa} titulo={"✂️ 4. Molde de corte"} dica="Defina o formato (retrato/paisagem), as linhas de corte e as medidas da placa. O padrão já está certo para capa A5.">
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => set({ molde: "nenhum", moldeFrente: false, cobrirFolha: true })} className="px-3 py-1.5 rounded-lg bg-[#24344D] text-white text-xs font-semibold">Tirar todas as marcações e imprimir a imagem inteira</button>
               <button type="button" onClick={() => set({ molde: "linhas", moldeFrente: true, cobrirFolha: false })} className="px-3 py-1.5 rounded-lg border border-[#D8CBA8] bg-white text-xs font-semibold text-[#24344D]">Voltar ao molde</button>
@@ -344,6 +346,18 @@ export default function CapasPage() {
               <Chip ativo={c.molde === "nenhum"} onClick={() => set({ molde: "nenhum" })}>Sem molde</Chip>
             </div>
             <label className="flex items-center gap-2 text-xs text-[#24344D]"><input type="checkbox" checked={c.moldeFrente} onChange={(e) => set({ moldeFrente: e.target.checked })} /> Imprimir o molde também na frente (por cima da arte)</label>
+            <div className="grid grid-cols-3 gap-2">
+              <Campo rotulo="Placa largura (mm)"><input type="number" className={entrada} value={c.placaW} onChange={(e) => set({ placaW: Math.max(40, Number(e.target.value) || 0) })} /></Campo>
+              <Campo rotulo="Placa altura (mm)"><input type="number" className={entrada} value={c.placaH} onChange={(e) => set({ placaH: Math.max(40, Number(e.target.value) || 0) })} /></Campo>
+              <Campo rotulo="Dobra (mm)"><input type="number" step="0.5" className={entrada} value={c.dobra} onChange={(e) => set({ dobra: Math.max(5, Number(e.target.value) || 0) })} /></Campo>
+            </div>
+            <div className="flex items-center gap-3">
+              <Campo rotulo="Cor do molde"><input type="color" className="h-8 w-14 rounded" value={c.corMolde} onChange={(e) => set({ corMolde: e.target.value })} /></Campo>
+              <button type="button" onClick={restaurar} className="inline-flex items-center gap-1 text-xs text-[#8B6A1F] underline mt-4"><MdRestartAlt /> Restaurar medidas padrão</button>
+            </div>
+            <p className="text-[11px] text-[#6B6458]">Padrão: placa 160 × 220 mm (capa A5 em pé; deitada vira 220 × 160) com 17,5 mm de dobra, cantos cortados a 45°. Paisagem imprime em folha A4 deitada.</p>
+          </Etapa>
+          <Etapa n={4} atual={etapa} titulo="🖨️ 5. Impressão" dica="Escolha como sai no papel, confira o resumo e clique em Imprimir.">
             <Campo rotulo="Verso da folha">
               <select className={entrada} value={c.verso} onChange={(e) => set({ verso: e.target.value })}>
                 <option value="molde">Só o molde (para cortar pelo verso)</option>
@@ -377,17 +391,11 @@ export default function CapasPage() {
                 <option value="versos">Só os versos</option>
               </select>
             </Campo>}
-            <div className="grid grid-cols-3 gap-2">
-              <Campo rotulo="Placa largura (mm)"><input type="number" className={entrada} value={c.placaW} onChange={(e) => set({ placaW: Math.max(40, Number(e.target.value) || 0) })} /></Campo>
-              <Campo rotulo="Placa altura (mm)"><input type="number" className={entrada} value={c.placaH} onChange={(e) => set({ placaH: Math.max(40, Number(e.target.value) || 0) })} /></Campo>
-              <Campo rotulo="Dobra (mm)"><input type="number" step="0.5" className={entrada} value={c.dobra} onChange={(e) => set({ dobra: Math.max(5, Number(e.target.value) || 0) })} /></Campo>
-            </div>
-            <div className="flex items-center gap-3">
-              <Campo rotulo="Cor do molde"><input type="color" className="h-8 w-14 rounded" value={c.corMolde} onChange={(e) => set({ corMolde: e.target.value })} /></Campo>
-              <button type="button" onClick={restaurar} className="inline-flex items-center gap-1 text-xs text-[#8B6A1F] underline mt-4"><MdRestartAlt /> Restaurar medidas padrão</button>
-            </div>
-            <p className="text-[11px] text-[#6B6458]">Padrão: placa 160 × 220 mm (capa A5 em pé; deitada vira 220 × 160) com 17,5 mm de dobra, cantos cortados a 45°. Paisagem imprime em folha A4 deitada.</p>
-          </Painel>
+            <div className="rounded-xl bg-[#FBF1D9] border border-[#E7DCC0] p-3 text-xs text-[#24344D]"><b>Resumo:</b> {c.saida === "livro" ? "Brochura (verso + frente na mesma folha)" : c.saida === "a5x2" ? "2 capas por folha A4 (A5)" : "1 capa por folha A4"} · {livro ? "frente e verso" : c.imprimir === "frentes" ? "só frentes" : c.imprimir === "versos" ? "só versos" : "frente e verso"} · <b>{nFolhas} folha{nFolhas === 1 ? "" : "s"}</b></div>
+            <button type="button" onClick={imprimir} className="w-full px-4 py-3 rounded-xl bg-[#8B1E2D] text-white font-bold text-sm">🖨️ Imprimir · {nFolhas} folha{nFolhas === 1 ? "" : "s"}</button>
+          </Etapa>
+
+          <NavEtapas etapa={etapa} setEtapa={setEtapa} total={PASSOS_CAPA.length} />
 
         </div>
 
