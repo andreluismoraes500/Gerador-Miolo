@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "react-hot-toast";
-import { EMOJIS, WASHI, adicionar, atualizar, limparTudo, remover, repetirEmTodas, copiarParaVerso, stickersDados, stickersUi } from "../lib/stickers";
+import { EMOJIS, WASHI, adicionar, atualizar, limparTudo, remover, repetirEmTodas, copiarParaVerso, paginaPar, stickersDados, stickersUi } from "../lib/stickers";
 
 function Visual({ s }) {
   if (s.tipo === "washi")
@@ -270,6 +270,20 @@ export function PainelStickers({ talonario = false, prefixo = "", semRepetir = f
           🖼️ Enviar imagem
         </button>
         <input ref={arquivo} type="file" accept="image/*" className="hidden" onChange={enviar} />
+        {!talonario && itens.length > 0 && (
+          <button
+            type="button"
+            className="text-xs border border-[#D8CBA8] bg-white rounded-lg px-3 py-1.5 hover:border-[#B8933D]"
+            title="Copia os stickers da página selecionada (ou da 1ª) para o verso, espelhados"
+            onClick={() => {
+              const pg = atual ? atual.pagina : itens[0].pagina;
+              const n = copiarParaVerso(itens.filter((i) => i.pagina === pg).map((i) => i.id), true);
+              n ? toast.success(`${n} sticker(s) copiados no verso (espelhados)`) : toast.error("Nada para copiar");
+            }}
+          >
+            ↔ Copiar stickers para o verso
+          </button>
+        )}
         {armado && (
           <button type="button" onClick={() => stickersUi.set({ armado: null })} className="text-xs text-[#8B2E3F] underline">
             parar de colocar
@@ -302,13 +316,16 @@ export function PainelStickers({ talonario = false, prefixo = "", semRepetir = f
               <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => stickersUi.set({ sel: adicionar({ ...atual, id: undefined, x: Math.min(95, atual.x + 4), y: Math.min(95, atual.y + 4) }) })}>
                 Duplicar
               </button>
-              {!talonario && !prefixo && typeof atual.pagina === "number" && (
+              {!talonario && paginaPar(atual.pagina) !== null && (
                 <>
                   <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" title="Copia para a página do outro lado da folha, espelhado: a borda externa e a margem de encadernação continuam do mesmo jeito" onClick={() => { copiarParaVerso(atual.id, true); toast.success("Copiado no verso (espelhado)"); }}>
                     Copiar no verso (espelhado)
                   </button>
                   <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" onClick={() => { copiarParaVerso(atual.id, false); toast.success("Copiado no verso (mesma posição)"); }}>
                     Copiar no verso (igual)
+                  </button>
+                  <button type="button" className="border border-[#D8CBA8] rounded-lg px-2.5 py-1 bg-white" title="Copia todos os stickers desta página para o verso, espelhados" onClick={() => { const n = copiarParaVerso(itens.filter((i) => i.pagina === atual.pagina).map((i) => i.id), true); toast.success(`${n} sticker(s) copiados no verso`); }}>
+                    Copiar todos desta página no verso
                   </button>
                 </>
               )}
