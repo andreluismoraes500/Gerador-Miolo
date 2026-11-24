@@ -16,8 +16,19 @@ export const partiturasCfg = criarStore("partituras-cfg", {
   paginas: 16,
   soLinhas: false, // só as cinco linhas: sem claves, chaves, barras, TAB nem rótulos
   semCabecalho: false, // tira o cabeçalho (nome do caderno e n/total)
+  altSist: 0, // mm de cada pauta com seu espaço (0 = automático, um pouco menor que o padrão antigo)
   notasDeco: true, // notas musicais decorativas (capa e cabeçalho)
 });
+
+// Altura (mm) de cada sistema e quantos cabem na folha.
+export const ALT_UTIL = 246; // área útil aproximada da folha A4 para as pautas
+export function alturaSistema(cfgTipo, altSist) {
+  return altSist > 0 ? altSist : Math.round(cfgTipo.altura * 0.9);
+}
+export function sistemasPorFolha(cfgTipo, altSist, comCampos, semCabecalho) {
+  const util = ALT_UTIL - (semCabecalho ? 0 : 0) - (comCampos ? 18 : 0);
+  return Math.max(1, Math.floor(util / alturaSistema(cfgTipo, altSist)));
+}
 
 // Qual tipo de pauta cada página usa (0..paginas-1).
 export function tipoDaPagina(i, { tipos, modo, paginas }) {
