@@ -48,3 +48,14 @@ export function repetirEmTodas(id, totalPaginas, prefixo = "") {
   }
   stickersDados.set({ itens: [...stickersDados.get().itens, ...extras] });
 }
+
+// Copia o sticker para a página do outro lado da folha (frente ↔ verso).
+// espelhar: inverte a posição horizontal, assim a margem de encadernação e a borda externa continuam coerentes.
+export function copiarParaVerso(id, espelhar = true) {
+  const base = stickersDados.get().itens.find((i) => i.id === id);
+  if (!base || typeof base.pagina !== "number") return false;
+  const par = base.pagina % 2 === 0 ? base.pagina + 1 : base.pagina - 1;
+  const novo = { ...base, id: novoId(), pagina: par, x: espelhar ? 100 - base.x : base.x };
+  stickersDados.set({ itens: [...stickersDados.get().itens, novo] });
+  return true;
+}
