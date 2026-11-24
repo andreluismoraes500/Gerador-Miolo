@@ -94,8 +94,9 @@ export function montarPaginasAnual(cfg) {
     if (cfg.extrasPlanner) {
       ["roda", "desejos", "objetivos1", "objetivos2", "objetivos3", "logins1", "logins2", "livros", "filmes", "viagens1", "viagens2", "consultas", "registros"].forEach((t) => p.push({ tipo: t }));
     }
+    if (cfg.ref) p.splice(p.findIndex((x) => x.tipo === "dados"), 1, { tipo: "dadosRef" }); // modelo "Planner Datado"
     for (let m = 0; m < 12; m += 1) {
-      p.push({ tipo: "mesObjetivos", mes: m });
+      p.push({ tipo: cfg.ref ? "mesObjetivosRef" : "mesObjetivos", mes: m });
       p.push({ tipo: "mesPlanejamento", mes: m });
       p.push({ tipo: "mesFinanceiro", mes: m });
       p.push({ tipo: "mesBalanco", mes: m });
@@ -114,7 +115,7 @@ export function montarPaginasAnual(cfg) {
         seg = new Date(seg); seg.setDate(seg.getDate() + 7);
         if (qui.getFullYear() > ano || (qui.getFullYear() === ano && qui.getMonth() > m)) break;
       }
-      p.push({ tipo: "mesReflexao", mes: m });
+      p.push({ tipo: cfg.ref ? "mesReflexaoRef" : "mesReflexao", mes: m });
       p.push({ tipo: "anotacoes", estilo: "pontilhado" });
     }
   } else {

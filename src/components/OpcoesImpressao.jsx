@@ -294,8 +294,9 @@ export function DevocionalOpcoes() {
   );
 }
 
-export function AgendaAnualOpcoes() {
-  const c = agendaAnualCfg.useStore();
+export function AgendaAnualOpcoes({ fixo = false }) {
+  const base = agendaAnualCfg.useStore();
+  const c = fixo ? { ...base, estilo: "planner", ref: true, cor: base.corRef || ESTILOS.planner.cor } : base;
   const total = montarPaginasAnual(c).length;
   const sel = "border rounded px-2 py-1 bg-white";
   const num = (k, min, max, rotulo) => (
@@ -310,18 +311,18 @@ export function AgendaAnualOpcoes() {
   return (
     <div className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-col gap-3 print:hidden text-xs text-[#24344D]">
       <div>
-        <h3 className="text-sm font-bold">📅 Agenda Anual Completa — {c.ano}</h3>
+        <h3 className="text-sm font-bold">📅 {fixo ? "Planner Datado" : "Agenda Anual Completa"} — {c.ano}</h3>
         <p className="text-[11px] text-[#8B6A1F]">{total} páginas. Dias da semana, semanas e feriados seguem o ano escolhido. Para A5, escolha o formato A5 acima.</p>
       </div>
       <div className="flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1">Estilo
+        {!fixo && <label className="flex flex-col gap-1">Estilo
           <select value={c.estilo} className={sel} onChange={(e) => { const k = e.target.value; agendaAnualCfg.set({ estilo: k, cor: ESTILOS[k].cor, semanaComeca: ESTILOS[k].semana }); }}>
             {Object.entries(ESTILOS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}
           </select>
-        </label>
+        </label>}
         {num("ano", 2000, 2100, "Ano")}
         <label className="flex flex-col gap-1">Cor
-          <input type="color" value={c.cor} onChange={(e) => agendaAnualCfg.set({ cor: e.target.value })} className="h-7 w-10 border rounded" />
+          <input type="color" value={c.cor} onChange={(e) => agendaAnualCfg.set(fixo ? { corRef: e.target.value } : { cor: e.target.value })} className="h-7 w-10 border rounded" />
         </label>
         <label className="flex flex-col gap-1">Fonte dos títulos
           <select value={c.fonteTitulo} onChange={(e) => agendaAnualCfg.set({ fonteTitulo: e.target.value })} className={sel}>

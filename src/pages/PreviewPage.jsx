@@ -105,6 +105,7 @@ export default function PreviewPage() {
         {((builderMode && modules.some((m) => m.templateKey === "diarioHorario")) || (!builderMode && template === "diarioHorario")) && <HorarioOpcoes />}
         {((builderMode && modules.some((m) => m.templateKey === "devocional")) || (!builderMode && template === "devocional")) && <DevocionalOpcoes />}
         {((builderMode && modules.some((m) => m.templateKey === "agendaAnual")) || (!builderMode && template === "agendaAnual")) && <AgendaAnualOpcoes />}
+        {((builderMode && modules.some((m) => m.templateKey === "plannerDatado")) || (!builderMode && template === "plannerDatado")) && <AgendaAnualOpcoes fixo />}
       </div>
 
       <StickerPortais ativo={printing && (editando || stickersItens.length > 0)} />
