@@ -8,6 +8,7 @@ import { lerImagem } from "../lib/lerImagem";
 import { abrirPdf, renderPagina } from "../lib/pdfPagina";
 import BotaoPadrao from "../components/BotaoPadrao";
 import Painel from "../components/ui/Painel";
+import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
@@ -97,7 +98,7 @@ export default function MockupAgendaPage() {
     <div className="mx-auto max-w-7xl px-4 pt-6 pb-28">
       <div className="grid gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
         <BarraEditor tipo="mockup" abas={abas} historico={hist} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
+        <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <BotaoPadrao onClick={() => { mockCfg.resetar(["formato", "espessura", "yaw", "pitch", "passo", "posElastico", "larguraElastico", "tituloX", "tituloY", "tituloTam", "cantos", "capaModo", "capaZoom", "capaX", "capaY", "ajuste", "folhaZoom", "folhaX", "folhaY"]); toast.success("Medidas padrão restauradas"); }} />
           <Painel titulo="📐 Agenda">
             <div className="grid grid-cols-2 gap-3">
@@ -181,7 +182,7 @@ export default function MockupAgendaPage() {
               <Campo rotulo="Cor do fundo"><input type="color" className="h-8 w-full" value={cfg.corFundo} onChange={(e) => set({ corFundo: e.target.value })} /></Campo>
             </div>
           </Painel>
-        </div>
+        </Fluxo>
 
         <div className={`flex flex-col gap-4 min-w-0 pre-fixa ${abas.clsVer}`}>
           <Painel titulo="📕 Capa fechada">

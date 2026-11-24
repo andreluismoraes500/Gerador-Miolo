@@ -9,6 +9,7 @@ import { lerImagem } from "../lib/lerImagem";
 import BotaoPadrao from "../components/BotaoPadrao";
 import { CabecalhoIma, Capa, Foto, MesParede, MiniCartao, PainelMesa, PlannerMes, Poster } from "../components/calendario/CalPaginas";
 import Painel from "../components/ui/Painel";
+import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
@@ -142,7 +143,7 @@ export default function CalendarioPage() {
 
       <div className="cal-tela grid gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
         <BarraEditor tipo="calendario" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} adaptador={adaptador} aoRestaurar={() => {}} />
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
+        <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <BotaoPadrao onClick={() => { calendarioCfg.resetar(["persW", "persH", "fotoPct", "escala", "margemInt", "deslocX", "deslocY", "anoPos", "papel", "margem", "espaco", "marcas", "orientacao", "cabAltPct"]); set({ tam: mod.tam }); setAj({}); toast.success("Medidas padrão restauradas"); }} />
           <Painel titulo="📅 Modelo de calendário">
             <GradeModelos itens={Object.entries(MODELOS_CAL).map(([k, m]) => ({ id: k, rotulo: m.nome.split(" — ")[0], miniatura: <MiniCalendario id={k} /> }))} valor={cfg.modelo} colunas={3} onChange={(k) => { set({ modelo: k, tam: MODELOS_CAL[k].tam }); setSel(0); }} />
@@ -249,7 +250,7 @@ export default function CalendarioPage() {
             })()}
             <p className="text-[11px] text-[#8B6A1F]">{cfg.modelo === "cabecalho" ? "Envie o logo: ele aparece inteiro na faixa do meio do cabeçalho (use zoom para ajustar)." : "Sem imagem, a arte usa degradê com a cor escolhida. Os meses seguem a ordem dos arquivos selecionados (janeiro → dezembro)."}</p>
           </Painel>
-        </div>
+        </Fluxo>
 
         <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           {agrupa && (

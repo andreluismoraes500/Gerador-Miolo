@@ -9,6 +9,7 @@ import { lerImagem } from "../lib/lerImagem";
 import BotaoPadrao from "../components/BotaoPadrao";
 import { AJUSTE_ARTE, calcularLayout, cartaoCfg, FONTES, PALETAS, PAPEIS, TAMANHOS } from "../lib/cartaoVisita";
 import Painel from "../components/ui/Painel";
+import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
@@ -89,7 +90,7 @@ export default function CartaoVisitaPage() {
 
       <div className="cv-tela grid gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
         <BarraEditor tipo="cartao" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
-        <div className={`flex flex-col gap-4 ${abas.clsEditar}`}>
+        <Fluxo cls={`flex flex-col gap-4 ${abas.clsEditar}`}>
           <Painel titulo="🪪 Seus dados">
             {campo("nome", "Nome")}{campo("cargo", "Cargo / profissão")}{campo("empresa", "Empresa")}{campo("slogan", "Frase (verso)")}
             {campo("telefone", "Telefone / WhatsApp")}{campo("email", "E-mail")}{campo("site", "Site")}{campo("instagram", "Instagram")}{campo("endereco", "Endereço")}
@@ -171,7 +172,7 @@ export default function CartaoVisitaPage() {
               return img && retrato && c.ajusteF?.modo !== "cobrir" ? <p className="text-[11px] text-[#8B6A1F]">Dica: se a imagem é vertical (em pé), o cartão <b>50 × 90 mm (vertical)</b> aproveita quase toda a arte. <button type="button" className="underline font-semibold" onClick={() => set({ tamanho: "50x90" })}>Usar cartão vertical</button></p> : null;
             })()}
           </Painel>
-        </div>
+        </Fluxo>
 
         <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="🖨️ Impressão automática">

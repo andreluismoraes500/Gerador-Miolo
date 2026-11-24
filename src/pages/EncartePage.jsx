@@ -7,6 +7,7 @@ import { encarteCfg, encarteFotos, encarteLogo, FONTES_ENC, novoItemEnc, PALETAS
 import { lerImagem } from "../lib/lerImagem";
 import GradeModelos, { MiniPaleta } from "../components/ui/GradeModelos";
 import Painel from "../components/ui/Painel";
+import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
@@ -77,7 +78,7 @@ export default function EncartePage() {
       `}</style>
       <div className="enc-tela grid gap-5 lg:grid-cols-[420px_minmax(0,1fr)]">
         <BarraEditor tipo="encarte" abas={abas} historico={hist} onImprimir={() => window.print()} rotuloImprimir={`Imprimir · ${paginas.length} folha${paginas.length === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
+        <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="🛒 Encarte de ofertas">
             <p className="text-[11px] text-[#8B6A1F]">Monte a folha de ofertas da semana: título, validade, produtos com foto e preço, e rodapé com WhatsApp e endereço.</p>
             <GradeModelos itens={PALETAS_ENC.map((p) => ({ id: p.id, rotulo: p.nome, miniatura: <MiniPaleta p={p} /> }))} valor={cfg.paleta} colunas={4} aspecto="aspect-[4/3]" onChange={(id) => set({ paleta: id })} />
@@ -122,7 +123,7 @@ export default function EncartePage() {
             </div>
             <p className="text-[11px] text-[#6B6458]">Dica: use “Criar por fotos” para subir várias imagens de uma vez; o nome do arquivo vira o nome do produto.</p>
           </Painel>
-        </div>
+        </Fluxo>
         <div ref={col} className={`pre-fixa flex flex-col gap-3 min-w-0 ${abas.clsVer}`}>
           {paginas.length > 1 && <select className="self-start rounded-lg border border-[#D8CBA8] bg-white px-2 py-1 text-xs" value={pgs} onChange={(e) => setPg(Number(e.target.value))}>{paginas.map((_, i) => <option key={i} value={i}>Folha {i + 1} de {paginas.length}</option>)}</select>}
           <div className="shadow-[0_6px_24px_rgba(36,52,77,0.2)] overflow-hidden bg-white" style={{ width: W * MM * z, height: H * MM * z }}>
