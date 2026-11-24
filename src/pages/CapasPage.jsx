@@ -122,6 +122,8 @@ export default function CapasPage() {
       }
     }
   }
+  const girarFolha = a5 && S.w > S.h; // folha deitada: sai numa A4 em pé com o conteúdo girado (não depende do "Layout" do diálogo de impressão)
+  const P = girarFolha ? { w: S.h, h: S.w } : S;
   const nFolhas = a5 ? folhasA5.length : paginas.length;
   const folhaA5 = (cel) => (
     <div style={{ position: "relative", width: `${S.w}mm`, height: `${S.h}mm`, background: "#fff", overflow: "hidden" }}>
@@ -148,13 +150,13 @@ export default function CapasPage() {
       <style>{`
         .cp-print { display: none; }
         @media print {
-          @page { size: ${S.w}mm ${S.h}mm; margin: 0; }
-          html, body { width: ${S.w}mm !important; height: auto !important; }
+          @page { size: ${P.w}mm ${P.h}mm; margin: 0; }
+          html, body { width: ${P.w}mm !important; height: auto !important; }
           .cp-raiz { padding: 0 !important; margin: 0 !important; max-width: none !important; }
           html, body { background: #fff !important; }
           .cp-tela { display: none !important; }
           .cp-print { display: block !important; }
-          .cp-print .cp-pag { page-break-after: always; break-after: page; height: ${S.h}mm; overflow: hidden; }
+          .cp-print .cp-pag { page-break-after: always; break-after: page; height: ${P.h}mm; width: ${P.w}mm; position: relative; overflow: hidden; }
           .cp-print .cp-pag:last-child { page-break-after: auto; break-after: auto; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
@@ -356,7 +358,7 @@ export default function CapasPage() {
                 <option value="livro">Brochura: verso e frente lado a lado na mesma folha (A5 + A5)</option>
               </select>
             </Campo>
-            {livro && <p className="text-[11px] text-[#6B6458]">Cada nome gera <b>1 folha A4</b> com o <b>verso (contracapa) à esquerda</b> e a <b>frente à direita</b>, cada um em A5 (70,7%). Imprima em A4 sem borda, só de um lado, e corte ao meio. Edite a frente e o verso em “Elementos”.</p>}
+            {livro && <p className="text-[11px] text-[#6B6458]">Cada nome gera <b>1 folha A4</b> com o <b>verso (contracapa) à esquerda</b> e a <b>frente à direita</b>, cada um em A5 (70,7%). A folha sai numa A4 em pé (o desenho vai girado, então não depende de escolher “paisagem” na impressão). Imprima sem borda, só de um lado, e corte ao meio. Edite a frente e o verso em “Elementos”.</p>}
             {a5 && !livro && (
               <div className="flex flex-col gap-2">
                 <Campo rotulo="Impressão frente e verso: virar a folha pela">
@@ -417,7 +419,7 @@ export default function CapasPage() {
 
       <div className="cp-print">
         {a5
-          ? folhasA5.slice(0, 300).map((cel, k) => <div key={k} className="cp-pag">{folhaA5(cel)}</div>)
+          ? folhasA5.slice(0, 300).map((cel, k) => <div key={k} className="cp-pag">{girarFolha ? <div style={{ position: "absolute", left: 0, top: 0, transformOrigin: "0 0", transform: `translateX(${P.w}mm) rotate(90deg)` }}>{folhaA5(cel)}</div> : folhaA5(cel)}</div>)
           : paginas.slice(0, 600).map((p, k) => (
             <div key={k} className="cp-pag"><CapaFolha c={c} dados={p.d} lado={p.lado} /></div>
           ))}

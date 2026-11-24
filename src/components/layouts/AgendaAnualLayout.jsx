@@ -215,7 +215,7 @@ function DiaBloco({ ms, cfg, compacto }) {
       <div className="shrink-0" style={{ display: "flex", alignItems: "center", gap: "3mm", background: cab, borderRadius: pop ? "3mm" : 0, padding: pop ? "1.5mm 3mm" : "0 0 1.5mm", borderBottom: pop ? "none" : `0.5mm solid ${cfg.cor}` }}>
         <div style={{ fontFamily: cfg.fonteTitulo, fontSize: fs(compacto ? "11mm" : "16mm"), lineHeight: 1, color: dom ? "#d6455d" : cfg.cor }}>{dois(d.getDate())}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: fs(compacto ? "4mm" : "5mm"), color: TXT }}>{DIAS_PT[dow]}{dow > 0 && dow < 6 ? "-feira" : ""}</div>
+          <div style={{ fontWeight: 700, fontSize: fs(compacto ? "4.6mm" : "5mm"), color: TXT }}>{DIAS_PT[dow]}{dow > 0 && dow < 6 ? "-feira" : ""}</div>
           <div style={{ fontSize: fs("2.5mm"), color: "#888" }}>{DIAS_EN[dow]} · {DIAS_ES[dow]}</div>
           {fer && <div style={{ fontSize: fs("2.8mm"), color: "#d6455d", fontWeight: 700 }}>★ {typeof fer === "string" ? fer : fer.nome}</div>}
         </div>
@@ -229,14 +229,14 @@ function DiaBloco({ ms, cfg, compacto }) {
         <div className="flex flex-col" style={{ flex: "1 1 64%", minWidth: 0 }}>
           {horas.map((h) => (
             <div key={h} style={{ flex: 1, display: "flex", alignItems: "flex-end", borderBottom: `0.25mm solid ${mix(cfg.cor, 0.55)}`, minHeight: 0 }}>
-              <span style={{ fontSize: fs("2.8mm"), color: cfg.cor, fontWeight: 700, width: "9mm" }}>{dois(h)}h</span>
+              <span style={{ fontSize: fs(compacto ? "3.8mm" : "2.8mm"), color: cfg.cor, fontWeight: 700, width: compacto ? "11mm" : "9mm" }}>{dois(h)}h</span>
             </div>
           ))}
         </div>
         <div className="flex flex-col" style={{ flex: "1 1 36%", gap: "2mm", minWidth: 0 }}>
-          <MiniMes ano={d.getFullYear()} mes={d.getMonth()} cfg={cfg} destaque={d.getDate()} tam={compacto ? "2.2mm" : "2.6mm"} feriados={mapaFeriados(d.getFullYear())} />
-          {["Prioridades", "Tarefas", ...(compacto ? [] : ["Gratidão"]), "Notas"].map((t) => (
-            <Caixa key={t} cfg={cfg} titulo={t} flex style={{ borderRadius: pop ? "3mm" : "1mm" }}><Linhas n={4} flex alt="5mm" /></Caixa>
+          <MiniMes ano={d.getFullYear()} mes={d.getMonth()} cfg={cfg} destaque={d.getDate()} tam={compacto ? "2.9mm" : "2.6mm"} feriados={mapaFeriados(d.getFullYear())} />
+          {(compacto ? ["Anotações"] : ["Prioridades", "Tarefas", "Gratidão", "Notas"]).map((t) => (
+            <Caixa key={t} cfg={cfg} titulo={t} flex style={{ borderRadius: pop ? "3mm" : "1mm" }}><Linhas n={compacto ? 8 : 4} flex alt={compacto ? "7mm" : "5mm"} /></Caixa>
           ))}
         </div>
       </div>
