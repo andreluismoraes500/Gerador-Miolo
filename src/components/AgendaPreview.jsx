@@ -11,6 +11,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { loadTemplate, getCachedTemplate } from "../templates";
 import { useAgendaConfig } from "../context/AgendaConfigContext";
 import { paginasAmostra } from "../lib/amostraPaginas";
+import { StickerLayer } from "./StickersEditor";
+import { stickersDados } from "../lib/stickers";
 import { usePdfReadySignal } from "../hooks/usePdfReadySignal";
 
 const AgendaPreview = React.memo(function AgendaPreview({
@@ -40,6 +42,7 @@ const AgendaPreview = React.memo(function AgendaPreview({
   } = useAgendaConfig();
   partiturasCfg.useStore(); // re-renderiza ao mudar os tipos de pauta
   pautadoCfg.useStore();
+  const stickersItens = stickersDados.useStore().itens;
   devocionalCfg.useStore();
   agendaAnualCfg.useStore();
 
@@ -126,6 +129,7 @@ const AgendaPreview = React.memo(function AgendaPreview({
   };
 
   if (!printing) {
+    const temStickers = stickersItens.length > 0;
     const amostra = paginasAmostra(currentTemplate, layoutProps);
     if (amostra.length > 0) {
       return (
@@ -133,7 +137,8 @@ const AgendaPreview = React.memo(function AgendaPreview({
           <p className="text-xs text-[#6B6458] text-center">Prévia das primeiras páginas — é como sairá na impressão.</p>
           <div className="amostra-pg">
           {amostra.map((pg, i) => (
-            React.cloneElement(pg, { key: i })
+            // stickers também aparecem na prévia (mesmo índice de página da impressão)
+            React.cloneElement(pg, { key: i }, ...React.Children.toArray(pg.props.children), temStickers && <StickerLayer key="stk" pagina={i} />)
           ))}
           </div>
         </div>
