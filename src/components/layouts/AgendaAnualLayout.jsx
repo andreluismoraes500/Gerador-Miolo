@@ -464,6 +464,65 @@ function MesReflexao({ item, cfg, props }) {
   );
 }
 
+/* ---------- Planner Datado (modelo wire-o) ---------- */
+function DadosRef({ cfg, props }) {
+  const L = (rot) => <Campo rotulo={rot} cfg={cfg} />;
+  return (
+    <Shell cfg={cfg} props={props}>
+      <Titulo cfg={cfg}>Meus dados</Titulo>
+      <div className="flex flex-col gap-3 flex-1 min-h-0" style={{ fontSize: fs("3.2mm") }}>
+        <Caixa cfg={cfg} titulo="Dados pessoais">
+          {L("Nome:")}{L("Endereço:")}
+          <div className="grid grid-cols-2 gap-x-4">{L("Cidade:")}{L("Estado:")}{L("Telefone:")}{L("E-mail:")}</div>
+        </Caixa>
+        <Caixa cfg={cfg} titulo="Redes sociais">
+          <div className="grid grid-cols-2 gap-x-4">{L("Instagram:")}{L("LinkedIn:")}{L("TikTok:")}{L("Facebook:")}{L("Twitter:")}</div>
+        </Caixa>
+        <Caixa cfg={cfg} titulo="Em caso de emergência, avisar">
+          <div className="grid grid-cols-2 gap-x-4">{L("Nome:")}{L("Telefone:")}{L("Nome:")}{L("Telefone:")}</div>
+        </Caixa>
+        <Caixa cfg={cfg} titulo="Telefones úteis">
+          <p style={{ fontSize: fs("3mm"), lineHeight: 1.7 }}>181 – Disque-denúncia · 190 – Polícia Militar · 192 – SAMU<br />193 – Bombeiros · 199 – Defesa Civil · 100 – Direitos Humanos</p>
+        </Caixa>
+        <Caixa cfg={cfg} titulo="Anotações" flex><Linhas n={6} flex /></Caixa>
+      </div>
+    </Shell>
+  );
+}
+
+function MesObjetivosRef({ item, cfg, props }) {
+  return (
+    <Shell cfg={cfg} props={props}>
+      <Titulo cfg={cfg} sub="Objetivos" tam="11mm">{`Meu ${MESES_PT[item.mes].toLowerCase()}`}</Titulo>
+      <p style={{ fontSize: fs("3.4mm"), color: mix(cfg.cor, 0.1), fontWeight: 700, marginBottom: "2mm" }}>Este mês eu vou…</p>
+      <div className="grid grid-cols-2 gap-3 flex-1 min-h-0" style={{ marginBottom: "6mm" }}>
+        {["Começar", "Parar", "Continuar", "Melhorar", "Finalizar"].map((t, i) => (
+          <div key={t} className={i === 2 ? "col-span-2 flex flex-col" : "flex flex-col"} style={{ minHeight: 0 }}>
+            <Caixa cfg={cfg} titulo={t} flex><Linhas n={i === 2 ? 4 : 7} flex /></Caixa>
+          </div>
+        ))}
+      </div>
+    </Shell>
+  );
+}
+
+function MesReflexaoRef({ item, cfg, props }) {
+  return (
+    <Shell cfg={cfg} props={props}>
+      <Titulo cfg={cfg} sub={`${MESES_PT[item.mes]} ${cfg.ano}`} tam="11mm">{`${MESES_PT[item.mes]} foi…`}</Titulo>
+      <div className="grid grid-cols-2 gap-3" style={{ marginBottom: "3mm" }}>
+        <Caixa cfg={cfg} titulo="Errei"><Linhas n={5} /></Caixa>
+        <Caixa cfg={cfg} titulo="Acertei"><Linhas n={5} /></Caixa>
+      </div>
+      <div className="flex flex-col gap-3 flex-1 min-h-0" style={{ marginBottom: "6mm" }}>
+        <Caixa cfg={cfg} titulo="Realizações" flex><Linhas n={4} flex /></Caixa>
+        <Caixa cfg={cfg} titulo="Top 3 do mês" flex><Linhas n={3} flex /></Caixa>
+        <Caixa cfg={cfg} titulo="Agradecer" flex><Linhas n={4} flex /></Caixa>
+      </div>
+    </Shell>
+  );
+}
+
 /* ---------- Despachante ---------- */
 export function PaginaAnual({ item, cfg, ...props }) {
   const c = { cfg, props };
@@ -495,6 +554,9 @@ export function PaginaAnual({ item, cfg, ...props }) {
     case "semanaA": return <SemanaA item={item} {...c} />;
     case "semanaB": return <SemanaB item={item} {...c} />;
     case "mesReflexao": return <MesReflexao item={item} {...c} />;
+    case "dadosRef": return <DadosRef {...c} />;
+    case "mesObjetivosRef": return <MesObjetivosRef item={item} {...c} />;
+    case "mesReflexaoRef": return <MesReflexaoRef item={item} {...c} />;
     default: return null;
   }
 }

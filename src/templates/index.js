@@ -71,6 +71,7 @@ const LOADERS = {
   partituras: () => import("./partituras.jsx"),
   devocional: () => import("./devocional.jsx"),
   agendaAnual: () => import("./agendaAnual.jsx"),
+  plannerDatado: () => import("./plannerDatado.jsx"),
 };
 
 // Cache em memória: { [key]: { nome, layout } }. Vive só durante a sessão
