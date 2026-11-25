@@ -1,10 +1,11 @@
 // src/pages/PreviewPage.jsx
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
-import { MdArrowBack, MdPrint } from "react-icons/md";
+import { MdArrowBack, MdDownload, MdPrint } from "react-icons/md";
 import { LadosImpressao, PartiturasOpcoes, PautadoOpcoes, HorarioOpcoes, DevocionalOpcoes, AgendaAnualOpcoes } from "../components/OpcoesImpressao";
 import { PainelStickers, StickerPortais } from "../components/StickersEditor";
 import { stickersDados, stickersUi } from "../lib/stickers";
+import { baixarPdfLeveMiolo, comAviso } from "../lib/pdfDaTela";
 import AgendaPreview from "../components/AgendaPreview";
 import AgendaBuilderPreview from "../components/AgendaBuilderPreview";
 
@@ -41,6 +42,7 @@ export default function PreviewPage() {
     businessProfile,
     businessProfileId,
     handlePrint,
+    setPrinting,
   } = settings;
   const { builderMode, modules } = builder;
 
@@ -50,6 +52,14 @@ export default function PreviewPage() {
   const { editando } = stickersUi.useStore();
   const { itens: stickersItens } = stickersDados.useStore();
   const printing = forcePrint || printingFromSettings || editando;
+
+  const [leve, setLeve] = useState("");
+  const baixarLeve = comAviso(async () => {
+    setLeve("0%");
+    setPrinting(true);
+    await new Promise((r) => setTimeout(r, 900));
+    try { await baixarPdfLeveMiolo({ nome: "miolo-agenda", aoProgresso: (a, t) => setLeve(`${Math.round((a / t) * 100)}%`) }); } finally { setPrinting(false); setLeve(""); }
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -81,6 +91,15 @@ export default function PreviewPage() {
             >
               <MdArrowBack className="w-4 h-4" />
               Configurações
+            </button>
+
+            <button
+              onClick={baixarLeve}
+              disabled={!!leve}
+              className="border-2 border-[#24344D] text-[#24344D] bg-white text-sm font-semibold py-2.5 px-5 rounded-xl flex items-center gap-2 disabled:opacity-60"
+            >
+              <MdDownload className="w-4 h-4" />
+              {leve ? `Gerando PDF leve… ${leve}` : "PDF leve (recomendado)"}
             </button>
 
             <button

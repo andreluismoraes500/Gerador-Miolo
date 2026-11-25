@@ -14,6 +14,7 @@ import { AJ_PADRAO, corDoCanto } from "../lib/imagemAjuste";
 import Painel from "../components/ui/Painel";
 import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
+import { baixarPdfLeveFolhas, comAviso } from "../lib/pdfDaTela";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import { temImagem } from "../lib/projetos";
@@ -130,7 +131,7 @@ export default function AdesivosPage() {
       `}</style>
 
       <div className="ad-tela grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
-        <BarraEditor tipo="adesivos" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
+        <BarraEditor tipo="adesivos" abas={abas} historico={hist} onImprimir={imprimir} onPdfLeve={comAviso((prog) => baixarPdfLeveFolhas({ raiz: ".ad-print", folhas: ".ad-folha", nome: "adesivos", aoProgresso: prog }))} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
         <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="✨ Modelos prontos">
             <div className="grid grid-cols-3 gap-2">

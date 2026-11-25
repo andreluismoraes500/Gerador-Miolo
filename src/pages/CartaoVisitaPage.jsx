@@ -11,6 +11,7 @@ import { AJUSTE_ARTE, calcularLayout, cartaoCfg, FONTES, PALETAS, PAPEIS, TAMANH
 import Painel from "../components/ui/Painel";
 import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
+import { baixarPdfLeveFolhas, comAviso } from "../lib/pdfDaTela";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import { temImagem } from "../lib/projetos";
@@ -89,7 +90,7 @@ export default function CartaoVisitaPage() {
       `}</style>
 
       <div className="cv-tela grid gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
-        <BarraEditor tipo="cartao" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
+        <BarraEditor tipo="cartao" abas={abas} historico={hist} onImprimir={imprimir} onPdfLeve={comAviso((prog) => baixarPdfLeveFolhas({ raiz: ".cv-print", folhas: ".cv-folha", nome: "cartao-de-visita", aoProgresso: prog }))} rotuloImprimir={"Imprimir"} adaptador={adaptador} aoRestaurar={() => {}} />
         <Fluxo cls={`flex flex-col gap-4 ${abas.clsEditar}`}>
           <Painel titulo="🪪 Seus dados">
             {campo("nome", "Nome")}{campo("cargo", "Cargo / profissão")}{campo("empresa", "Empresa")}{campo("slogan", "Frase (verso)")}

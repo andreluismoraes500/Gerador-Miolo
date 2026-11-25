@@ -13,6 +13,7 @@ import GradeModelos, { ITENS_EMB } from "../components/ui/GradeModelos";
 import Painel from "../components/ui/Painel";
 import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
+import { baixarPdfLeveFolhas, comAviso } from "../lib/pdfDaTela";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import OpcoesFonte from "../components/ui/OpcoesFonte";
@@ -151,7 +152,7 @@ export default function EmbalagensPage() {
       `}</style>
 
       <div className="emb-tela grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
-        <BarraEditor tipo="embalagens" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
+        <BarraEditor tipo="embalagens" abas={abas} historico={hist} onImprimir={imprimir} onPdfLeve={comAviso((prog) => baixarPdfLeveFolhas({ raiz: ".emb-print", folhas: ".emb-folha", nome: "embalagens", aoProgresso: prog }))} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
         <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="📦 Escolha a embalagem">
             <GradeModelos itens={ITENS_EMB(cfg.tema)} valor={modelo} colunas={3} onChange={(k) => { set({ modelo: k, sel: "" }); setFolhaSel(0); setSelT(0); }} />

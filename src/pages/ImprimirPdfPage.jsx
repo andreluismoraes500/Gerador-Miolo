@@ -92,6 +92,7 @@ export default function ImprimirPdfPage() {
       const bytes = await gerarPdfLeve({
         paginas, indices: escolhidas, formato, lados: impressao.get().lados, ajuste, girar, inv,
         paisagem: !girar && !!primeira && primeira.larg > primeira.alt,
+        extras: { cfg, bgImg, marcaImg, stickers: stickersDados.get().itens },
         aoProgresso: (a, t) => setGerando(`${Math.round((a / t) * 100)}%`),
       });
       const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
@@ -196,7 +197,7 @@ export default function ImprimirPdfPage() {
             <button type="button" onClick={baixarLeve} disabled={lendo || !!gerando} className="self-start bg-[#8B1D2C] disabled:opacity-50 text-white font-semibold text-sm py-2.5 px-6 rounded-xl">
               {gerando ? `Gerando PDF leve… ${gerando}` : "⬇️ Baixar PDF leve (recomendado para imprimir)"}
             </button>
-            <p className="text-[11px] text-[#6B6458] -mt-1">Gera um PDF pequeno e já organizado (frente/verso, 2 por folha, brochura…) para abrir e mandar para a impressora. Não leva fundo, marca d'água nem stickers.</p>
+            <p className="text-[11px] text-[#6B6458] -mt-1">Gera um PDF pequeno e já organizado (frente/verso, 2 por folha, brochura…) para abrir e mandar para a impressora. Leva também o fundo, a marca d'água e os stickers.</p>
             <button type="button" onClick={imprimir} disabled={lendo} className="self-start bg-[#24344D] disabled:opacity-50 text-[#F6F1E7] font-semibold text-sm py-2.5 px-6 rounded-xl">
               🖨️ Imprimir / salvar PDF
             </button>

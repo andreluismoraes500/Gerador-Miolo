@@ -592,6 +592,7 @@ export function useTalonarioBuilder() {
   // ---------------- impressão ----------------
   const [printBatch, setPrintBatch] = useState(null); // { tab, items } | null
   const printTimeoutRef = useRef(null);
+  const leveRef = useRef(false);
 
   const handlePrint = useCallback(() => {
     if (activeTab === "pedido") {
@@ -771,6 +772,7 @@ export function useTalonarioBuilder() {
     // conteúdo precisa continuar no DOM até o Puppeteer terminar de gerar
     // o PDF (ver usePdfReadySignal em TalonarioPage.jsx).
     if (typeof window !== "undefined" && window.__PDF_HEADLESS__) return;
+    if (leveRef.current) return; // PDF leve: só monta o lote, a página fotografa e depois limpa
     printTimeoutRef.current = setTimeout(async () => {
       const raiz = document.querySelector(".tal-folha, .tal-print-page")?.parentElement || document;
       await aguardarImagens(raiz);
@@ -779,6 +781,9 @@ export function useTalonarioBuilder() {
     }, 80);
     return () => clearTimeout(printTimeoutRef.current);
   }, [printBatch]);
+
+  const prepararLeve = () => { leveRef.current = true; handlePrint(); };
+  const encerrarLeve = () => { leveRef.current = false; setPrintBatch(null); };
 
   // Foto do estado de todas as abas (para "Meus projetos" e rascunho automático) e o caminho inverso.
   const snapshot = () => ({ pedido, receituario, receita, ordemServico, recibo, comanda, entrega, reserva, valePresente, bingo, bingoCards, logos, watermark, accentColors: accentColorsRaw, backgrounds });
@@ -868,5 +873,7 @@ export function useTalonarioBuilder() {
 
     printBatch,
     handlePrint,
+    prepararLeve,
+    encerrarLeve,
   };
 }

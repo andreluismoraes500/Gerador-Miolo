@@ -50,7 +50,7 @@ export const DICAS_TAL = {
   "2dup": "Folha A4 deitada com o MESMO talão 2 vezes (via do cliente e via da loja, com a mesma numeração). Corte ao meio.",
   "4up": "Folha A4 em pé com 4 talões diferentes (A6). Corte em cruz.",
 };
-export const talImpressao = criarStore("talonario-impressao", { formato: "a4" });
+export const talImpressao = criarStore("talonario-impressao", { formato: "a4", copias: 1 });
 
 export const impressao = criarStore("impressao-lados", { lados: "ambos", formato: "a4", compensar: true, wire: false, wireMm: 12, wireLado: "auto", wireEspelhar: true });
 
