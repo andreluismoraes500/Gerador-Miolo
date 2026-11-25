@@ -6,7 +6,8 @@
 // destaque de cada aba. A numeração automática e a marca d'água são
 // geradas em lote na hora de imprimir.
 
-import { Children, useRef } from "react";
+import { Children, cloneElement, isValidElement, useRef } from "react";
+import { baixarPdfLeveFolhas, comAviso } from "../lib/pdfDaTela";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { FORMATOS, FORMATOS_TAL, DICAS_TAL, talImpressao } from "../lib/configImpressao";
 import {
@@ -72,8 +73,9 @@ function chunk(arr, size) {
 
 // Distribui os talões (cada um é uma página A4 .tal-print-page) nas folhas do formato escolhido.
 function FolhasTal({ children }) {
-  const { formato } = talImpressao.useStore();
-  const itens = Children.toArray(children);
+  const { formato, copias = 1 } = talImpressao.useStore();
+  // Vias com o MESMO número (carbono): 1,1,2,2…
+  const itens = Children.toArray(children).flatMap((el) => (copias > 1 && isValidElement(el) ? Array.from({ length: copias }, (_, c) => cloneElement(el, { key: `${el.key}~${c}` })) : [el]));
   const f = FORMATOS.find((x) => x.id === formato && !x.livro) || FORMATOS[0];
   if (f.id === "a4") return itens;
   const [fw, fh] = f.folha;
@@ -125,6 +127,16 @@ export default function TalonarioPage() {
   const accent = t.accents;
 
   const printBatchRef = useRef(null);
+  const pdfLeve = async (prog) => {
+    t.prepararLeve();
+    try {
+      for (let i = 0; i < 60 && !document.querySelector(".tal-lote .tal-print-page"); i += 1) await new Promise((r) => setTimeout(r, 100));
+      if (!document.querySelector(".tal-lote .tal-print-page")) throw new Error("lote vazio");
+      await new Promise((r) => setTimeout(r, 500));
+      const a4 = !document.querySelector(".tal-lote .tal-folha");
+      await baixarPdfLeveFolhas({ raiz: ".tal-lote", folhas: a4 ? ".tal-print-page" : ".tal-folha", nome: "talonario", mm: a4 ? { w: 210, h: 297 } : undefined, regras: /\.tal-|\.doc-card/, aoProgresso: prog });
+    } finally { t.encerrarLeve(); }
+  };
   const stItens = stickersDados.useStore().itens;
   const stEditando = stickersUi.useStore().editando;
 
@@ -147,6 +159,7 @@ export default function TalonarioPage() {
   };
 
   const fmtTal = talImpressao.useStore().formato;
+  const copiasTal = talImpressao.useStore().copias || 1;
   const uploadKey = t.activeTab; // logos.pedido / receituario / receita
 
   return (
@@ -196,7 +209,7 @@ export default function TalonarioPage() {
 
       {/* ---------- corpo: sidebar + stage ---------- */}
       <div className="print:hidden max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[380px_1fr] pb-24">
-        <BarraEditor tipo="talonario" abas={abas} onImprimir={t.handlePrint} rotuloImprimir="Gerar e imprimir" adaptador={adaptador} />
+        <BarraEditor tipo="talonario" abas={abas} onImprimir={t.handlePrint} onPdfLeve={comAviso(pdfLeve)} rotuloImprimir="Gerar e imprimir" adaptador={adaptador} />
         <div className={`bg-[#FFFEFB] border-r border-[#E4DDC9] px-5.5 pt-6 pb-8 ${abas.clsEditar}`}>
           {t.activeTab === "pedido" && (
             <>
@@ -497,6 +510,22 @@ export default function TalonarioPage() {
               ))}
             </select>
             <p className="text-[11px] text-[#8B6A1F] mb-3">{DICAS_TAL[fmtTal]}</p>
+            {t.activeTab !== "bingo" && (
+              <>
+                <label className="block text-[11.5px] font-semibold text-[#24344D] mb-1">Vias com o mesmo número (carbono)</label>
+                <select
+                  value={copiasTal}
+                  onChange={(e) => talImpressao.set({ copias: Number(e.target.value) })}
+                  className="w-full border border-[#D8CBA8] rounded-lg px-2.5 py-2 text-xs bg-[#FBF8F1] font-medium text-[#24344D] mb-1"
+                >
+                  <option value={1}>1 — cada número uma vez (1, 2, 3…)</option>
+                  <option value={2}>2 vias — 1, 1, 2, 2, 3, 3…</option>
+                  <option value={3}>3 vias — 1, 1, 1, 2, 2, 2…</option>
+                  <option value={4}>4 vias — 1, 1, 1, 1, 2, 2, 2, 2…</option>
+                </select>
+                <p className="text-[11px] text-[#8B6A1F] mb-3">Para talões com papel carbono: as vias de cada número saem seguidas, com o mesmo número.</p>
+              </>
+            )}
             <p className="text-[11px] text-[#8a9694] text-center mt-2 leading-relaxed">
               Na janela de impressão, escolha <b>"Salvar como PDF"</b> para
               baixar o arquivo pronto.
@@ -675,7 +704,7 @@ export default function TalonarioPage() {
 
       {/* ---------- lote de impressão (só aparece no @media print) ---------- */}
       {t.printBatch && (
-        <div className="hidden print:block" ref={printBatchRef}>
+        <div className="hidden print:block tal-lote" ref={printBatchRef}>
           <FolhasTal>
           {t.printBatch.tab === "pedido" &&
             t.printBatch.items.map((n) => (

@@ -1,7 +1,7 @@
 // Barra fixa no rodapé das telas de edição: Editar/Ver (celular), desfazer/refazer, projetos e imprimir.
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
-import { MdCopyAll, MdDeleteOutline, MdEdit, MdFolderOpen, MdPrint, MdRedo, MdSave, MdUndo, MdVisibility } from "react-icons/md";
+import { MdCopyAll, MdDeleteOutline, MdDownload, MdEdit, MdFolderOpen, MdPrint, MdRedo, MdSave, MdUndo, MdVisibility } from "react-icons/md";
 import { assinatura, abrirProjeto, duplicarProjeto, excluirProjeto, listarProjetos, renomearProjeto, restaurarRascunho, salvarProjeto, salvarRascunho, TIPOS } from "../../lib/projetos";
 
 // Aba ativa em telas estreitas: "editar" | "ver"
@@ -83,7 +83,7 @@ function ModalProjetos({ tipo, fechar, aoAbrir, adRef, nomeTipo }) {
   );
 }
 
-export default function BarraEditor({ tipo, abas, historico, onImprimir, rotuloImprimir = "Imprimir", aoRestaurar = () => {}, adaptador }) {
+export default function BarraEditor({ tipo, abas, historico, onImprimir, onPdfLeve, rotuloImprimir = "Imprimir", aoRestaurar = () => {}, adaptador }) {
   const [modal, setModal] = useState(false);
   const [imprimindo, setImprimindo] = useState(false);
   const adRef = useRef(adaptador || TIPOS[tipo]);
@@ -92,6 +92,11 @@ export default function BarraEditor({ tipo, abas, historico, onImprimir, rotuloI
   const imprimir = async () => {
     setImprimindo(true);
     try { await onImprimir(); } finally { setImprimindo(false); }
+  };
+  const [gerandoPdf, setGerandoPdf] = useState("");
+  const pdfLeve = async () => {
+    setGerandoPdf("…");
+    try { await onPdfLeve((a, t) => setGerandoPdf(`${Math.round((a / t) * 100)}%`)); } finally { setGerandoPdf(""); }
   };
   const ib = "w-8 sm:w-9 h-9 grid place-items-center rounded-lg border border-[#D8CBA8] bg-white text-[#24344D] disabled:opacity-40";
   return (
@@ -108,7 +113,8 @@ export default function BarraEditor({ tipo, abas, historico, onImprimir, rotuloI
               <button type="button" className={ib} onClick={historico.refazer} disabled={!historico.podeRefazer} title="Refazer (Ctrl+Y)" aria-label="Refazer"><MdRedo /></button>
             </div>)}
           <button type="button" onClick={() => setModal(true)} aria-label="Meus projetos" className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 h-9 rounded-lg border border-[#D8CBA8] bg-white text-xs font-bold text-[#24344D] shrink-0"><MdFolderOpen /> <span className="hidden sm:inline">Meus projetos</span></button>
-          {onImprimir && <button type="button" onClick={imprimir} disabled={imprimindo} className="ml-auto inline-flex items-center justify-center gap-2 px-3 sm:px-6 h-10 rounded-xl bg-[#8B1D2C] text-white text-sm font-bold hover:bg-[#741626] disabled:opacity-70 min-w-0">
+          {onPdfLeve && <button type="button" onClick={pdfLeve} disabled={!!gerandoPdf || imprimindo} title="Gera um PDF pequeno, pronto para a impressora" className="ml-auto inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 h-10 rounded-xl border-2 border-[#24344D] bg-white text-[#24344D] text-xs sm:text-sm font-bold disabled:opacity-60 min-w-0"><MdDownload className="shrink-0" /><span className="truncate">{gerandoPdf ? `Gerando ${gerandoPdf}` : <>PDF leve</>}</span></button>}
+          {onImprimir && <button type="button" onClick={imprimir} disabled={imprimindo} className={`${onPdfLeve ? "" : "ml-auto "}inline-flex items-center justify-center gap-2 px-3 sm:px-6 h-10 rounded-xl bg-[#8B1D2C] text-white text-sm font-bold hover:bg-[#741626] disabled:opacity-70 min-w-0`}>
             {imprimindo ? <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin shrink-0" /> : <MdPrint className="shrink-0" />}
             <span className="truncate text-xs sm:text-sm">{imprimindo ? "Preparando…" : <>{rotuloImprimir.split(" · ")[0]}<span className="hidden sm:inline">{rotuloImprimir.includes(" · ") ? ` · ${rotuloImprimir.split(" · ").slice(1).join(" · ")}` : ""}</span></>}</span>
           </button>}

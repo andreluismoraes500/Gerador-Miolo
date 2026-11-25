@@ -13,6 +13,7 @@ import { lerImagem } from "../lib/lerImagem";
 import GradeModelos, { MiniForma } from "../components/ui/GradeModelos";
 import Etapa, { Passos, NavEtapas } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
+import { baixarPdfLeveFolhas, comAviso } from "../lib/pdfDaTela";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import OpcoesFonte from "../components/ui/OpcoesFonte";
@@ -166,7 +167,7 @@ export default function CapasPage() {
       `}</style>
 
       <div className="cp-tela grid gap-5 lg:grid-cols-[420px_minmax(0,1fr)]">
-        <BarraEditor tipo="capas" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${nFolhas} folha${nFolhas === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
+        <BarraEditor tipo="capas" abas={abas} historico={hist} onImprimir={imprimir} onPdfLeve={comAviso((prog) => baixarPdfLeveFolhas({ raiz: ".cp-print", folhas: ".cp-pag", nome: "capas", mm: { w: P.w, h: P.h }, aoProgresso: prog }))} rotuloImprimir={`Imprimir · ${nFolhas} folha${nFolhas === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
         <div className={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Passos etapa={etapa} setEtapa={setEtapa} passos={PASSOS_CAPA} />
 

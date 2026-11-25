@@ -11,6 +11,7 @@ import BotaoPadrao from "../components/BotaoPadrao";
 import Painel from "../components/ui/Painel";
 import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
+import { baixarPdfLeveFolhas, comAviso } from "../lib/pdfDaTela";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import { temImagem } from "../lib/projetos";
@@ -100,7 +101,7 @@ export default function CartazesPage() {
       <input ref={logoInp} type="file" accept="image/*" hidden onChange={(e) => { enviarLogo(e.target.files[0]); e.target.value = ""; }} />
 
       <div className="cz-tela grid gap-5 lg:grid-cols-[400px_minmax(0,1fr)]">
-        <BarraEditor tipo="cartazes" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} adaptador={adaptador} aoRestaurar={() => {}} />
+        <BarraEditor tipo="cartazes" abas={abas} historico={hist} onImprimir={imprimir} onPdfLeve={comAviso((prog) => baixarPdfLeveFolhas({ raiz: ".cz-print", folhas: ".cz-folha", nome: "cartazes", aoProgresso: prog }))} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} adaptador={adaptador} aoRestaurar={() => {}} />
         <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="🎨 Modelos prontos">
             <div className="grid grid-cols-3 gap-2">

@@ -11,6 +11,7 @@ import { CabecalhoIma, Capa, Foto, MesParede, MiniCartao, PainelMesa, PlannerMes
 import Painel from "../components/ui/Painel";
 import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
+import { baixarPdfLeveFolhas, comAviso } from "../lib/pdfDaTela";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import { temImagem } from "../lib/projetos";
@@ -142,7 +143,7 @@ export default function CalendarioPage() {
       <input ref={inp} type="file" accept="image/*" multiple={multi} hidden onChange={(e) => { enviar([...e.target.files], alvo.current); e.target.value = ""; }} />
 
       <div className="cal-tela grid gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
-        <BarraEditor tipo="calendario" abas={abas} historico={hist} onImprimir={imprimir} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} adaptador={adaptador} aoRestaurar={() => {}} />
+        <BarraEditor tipo="calendario" abas={abas} historico={hist} onImprimir={imprimir} onPdfLeve={comAviso((prog) => baixarPdfLeveFolhas({ raiz: ".cal-print", folhas: ".cal-folha", nome: "calendario", aoProgresso: prog }))} rotuloImprimir={`Imprimir · ${folhas.length} folha${folhas.length === 1 ? "" : "s"}`} adaptador={adaptador} aoRestaurar={() => {}} />
         <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <BotaoPadrao onClick={() => { calendarioCfg.resetar(["persW", "persH", "fotoPct", "escala", "margemInt", "deslocX", "deslocY", "anoPos", "papel", "margem", "espaco", "marcas", "orientacao", "cabAltPct"]); set({ tam: mod.tam }); setAj({}); toast.success("Medidas padrão restauradas"); }} />
           <Painel titulo="📅 Modelo de calendário">

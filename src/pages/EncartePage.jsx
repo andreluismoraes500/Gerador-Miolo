@@ -9,6 +9,7 @@ import GradeModelos, { MiniPaleta } from "../components/ui/GradeModelos";
 import Painel from "../components/ui/Painel";
 import { Fluxo } from "../components/ui/Etapa";
 import Faixa from "../components/ui/Faixa";
+import { baixarPdfLeveFolhas, comAviso } from "../lib/pdfDaTela";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { useHistorico } from "../lib/historico";
 import OpcoesFonte from "../components/ui/OpcoesFonte";
@@ -77,7 +78,7 @@ export default function EncartePage() {
         }
       `}</style>
       <div className="enc-tela grid gap-5 lg:grid-cols-[420px_minmax(0,1fr)]">
-        <BarraEditor tipo="encarte" abas={abas} historico={hist} onImprimir={() => window.print()} rotuloImprimir={`Imprimir · ${paginas.length} folha${paginas.length === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
+        <BarraEditor tipo="encarte" abas={abas} historico={hist} onImprimir={() => window.print()} onPdfLeve={comAviso((prog) => baixarPdfLeveFolhas({ raiz: ".enc-print", folhas: ":scope > div", nome: "encarte", aoProgresso: prog }))} rotuloImprimir={`Imprimir · ${paginas.length} folha${paginas.length === 1 ? "" : "s"}`} aoRestaurar={() => forca((n) => n + 1)} />
         <Fluxo cls={`flex flex-col gap-4 min-w-0 ${abas.clsEditar}`}>
           <Painel titulo="🛒 Encarte de ofertas">
             <p className="text-[11px] text-[#8B6A1F]">Monte a folha de ofertas da semana: título, validade, produtos com foto e preço, e rodapé com WhatsApp e endereço.</p>
