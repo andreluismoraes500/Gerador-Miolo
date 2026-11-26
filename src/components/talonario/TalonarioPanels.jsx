@@ -338,7 +338,7 @@ export function OrdemServicoPanel({ ordemServico, setField, range }) {
         type="number"
         min={1}
         max={30}
-        value={ordemServico.linhas}
+        value={ordemServico.linhas ?? 10}
         onChange={(e) => setField("linhas", Math.min(30, Math.max(1, Number(e.target.value) || 10)))}
       />
       <Label>Garantia do serviço (opcional)</Label>

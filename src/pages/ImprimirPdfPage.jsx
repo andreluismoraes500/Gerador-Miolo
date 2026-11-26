@@ -1,5 +1,6 @@
 // Imprimir PDF próprio com as mesmas opções de impressão do gerador:
 // A4/A5/A6, 2 ou 4 por folha, só frente / só verso.
+import Faixa from "../components/ui/Faixa";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { LadosImpressao } from "../components/OpcoesImpressao";
@@ -164,7 +165,7 @@ export default function ImprimirPdfPage() {
                 <button type="button" onClick={() => pdfCfg.set({ bgCor: "" })} className={`px-2.5 py-1 rounded-lg border bg-white ${!cfg.bgCor ? "border-[#24344D]" : "border-[#D8CBA8]"}`}>Sem fundo</button>
                 {TONS.map((c) => <button key={c} type="button" aria-label={c} onClick={() => pdfCfg.set({ bgCor: c })} className={`w-7 h-7 rounded-full border-2 ${cfg.bgCor === c ? "border-[#24344D]" : "border-white shadow"}`} style={{ background: c }} />)}
                 <input type="color" value={cfg.bgCor || "#ffffff"} onChange={(e) => pdfCfg.set({ bgCor: e.target.value })} className="w-8 h-8 rounded cursor-pointer" aria-label="Outra cor" />
-                <label className="flex items-center gap-1 ml-2">Intensidade <input type="range" min="5" max="100" value={cfg.bgOp} onChange={(e) => pdfCfg.set({ bgOp: Number(e.target.value) })} /></label>
+                <div className="w-full sm:w-64"><Faixa rotulo="Intensidade" valor={cfg.bgOp} min={5} max={100} un="%" onChange={(v) => pdfCfg.set({ bgOp: v })} /></div>
                 <label className="px-2.5 py-1 rounded-lg border border-[#D8CBA8] bg-white cursor-pointer">🖼️ Imagem de fundo<input type="file" accept="image/*" className="hidden" onChange={lerImg(setBgImg)} /></label>
                 {bgImg && <button type="button" onClick={() => setBgImg(null)} className="text-[#8B2E3F] underline">remover imagem</button>}
               </div>
@@ -183,9 +184,9 @@ export default function ImprimirPdfPage() {
                   <label className="px-2.5 py-2 rounded-lg border border-[#D8CBA8] bg-white cursor-pointer">{marcaImg ? "Trocar imagem" : "Escolher imagem"}<input type="file" accept="image/*" className="hidden" onChange={lerImg(setMarcaImg)} /></label>
                 )}
                 {cfg.marcaTipo !== "nenhuma" && <>
-                  <label className="flex flex-col gap-1">Transparência<input type="range" min="3" max="80" value={cfg.marcaOp} onChange={(e) => pdfCfg.set({ marcaOp: Number(e.target.value) })} /></label>
-                  <label className="flex flex-col gap-1">Tamanho<input type="range" min="8" max="80" value={cfg.marcaTam} onChange={(e) => pdfCfg.set({ marcaTam: Number(e.target.value) })} /></label>
-                  <label className="flex flex-col gap-1">Giro<input type="range" min="-90" max="90" value={cfg.marcaGiro} onChange={(e) => pdfCfg.set({ marcaGiro: Number(e.target.value) })} /></label>
+                  <Faixa rotulo="Transparência" valor={cfg.marcaOp} min={3} max={80} un="%" onChange={(v) => pdfCfg.set({ marcaOp: v })} />
+                  <Faixa rotulo="Tamanho" valor={cfg.marcaTam} min={8} max={80} un=" mm" onChange={(v) => pdfCfg.set({ marcaTam: v })} />
+                  <Faixa rotulo="Giro" valor={cfg.marcaGiro} min={-90} max={90} un="°" onChange={(v) => pdfCfg.set({ marcaGiro: v })} />
                 </>}
               </div>
               <PainelStickers prefixo="pdf-" />
