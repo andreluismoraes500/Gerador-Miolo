@@ -45,9 +45,9 @@ function LogoTexto({ logo, children, limitH }) {
   const c = talCab.useStore();
   const col = c.logoPos === "centro";
   return (
-    <div className="min-w-0 flex-1" style={{ display: "flex", flexDirection: col ? "column" : c.logoPos === "dir" ? "row-reverse" : "row", alignItems: "center", gap: 10 }}>
+    <div className="min-w-0 flex-1" style={{ display: "flex", flexDirection: col ? "column" : c.logoPos === "dir" ? "row-reverse" : "row", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
       <LogoImg logo={logo} limitH={limitH} />
-      <div className="min-w-0" style={{ flex: col ? "none" : 1, width: col ? "100%" : undefined, textAlign: c.textoAlin === "centro" ? "center" : c.textoAlin === "dir" ? "right" : "left" }}>
+      <div className="min-w-0" style={{ flex: col ? "none" : "1 1 40%", minWidth: col ? undefined : "40%", width: col ? "100%" : undefined, textAlign: c.textoAlin === "centro" ? "center" : c.textoAlin === "dir" ? "right" : "left" }}>
         {children}
       </div>
     </div>
@@ -371,7 +371,7 @@ export function OrdemServicoCard({
       <div className="relative z-2 px-6 pt-5 pb-4 flex flex-col flex-1" style={{ gap: 8 }}>
         {/* Cabeçalho no estilo do Pedido de Venda, voltado à Ordem de Serviço */}
         <div className="flex items-start justify-between gap-3.5 pb-3" style={{ borderBottom: "2px solid var(--tal-accent)" }}>
-          <LogoTexto logo={logo} limitH={86}>
+          <LogoTexto logo={logo} limitH={230}>
             {empresa && <h2 className="text-[21px] leading-tight m-0" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "var(--tal-accent-dark)" }}>{empresa}</h2>}
             {slogan && <p className="m-0 mt-0.5 text-[11px] text-(--tal-ink-soft) whitespace-pre-line">{slogan}</p>}
             {contato && <p className="m-0 mt-1 text-[11px] font-semibold whitespace-pre-line" style={{ color: "var(--tal-ink)" }}>{contato}</p>}
