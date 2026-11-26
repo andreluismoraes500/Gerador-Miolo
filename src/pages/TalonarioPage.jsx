@@ -8,6 +8,8 @@
 
 import { Children, cloneElement, isValidElement, useRef } from "react";
 import { baixarPdfLeveFolhas, comAviso } from "../lib/pdfDaTela";
+import Faixa from "../components/ui/Faixa";
+import { talCab, CAB_PADRAO } from "../lib/talCabecalho";
 import BarraEditor, { useAbaMobile } from "../components/ui/BarraEditor";
 import { FORMATOS, FORMATOS_TAL, DICAS_TAL, talImpressao } from "../lib/configImpressao";
 import {
@@ -97,6 +99,33 @@ function FolhasTal({ children }) {
         </div>
       ))}
     </>
+  );
+}
+
+// Cabeçalho: posição do logo, alinhamento do texto, tamanho e deslocamento do logo (vale para todos os documentos).
+function CabecalhoOpcoes() {
+  const c = talCab.useStore();
+  const grupo = (rotulo, chave, ops) => (
+    <div>
+      <div className="block text-[11.5px] font-semibold text-[#24344D] mb-1">{rotulo}</div>
+      <div className="grid grid-cols-3 gap-1.5">
+        {ops.map(([v, n]) => (
+          <button key={v} type="button" onClick={() => talCab.set({ [chave]: v })}
+            className={`px-2 py-2 rounded-lg border text-[11px] font-bold ${c[chave] === v ? "bg-[#24344D] text-white border-[#24344D]" : "bg-[#FBF8F1] text-[#24344D] border-[#D8CBA8]"}`}>{n}</button>
+        ))}
+      </div>
+    </div>
+  );
+  return (
+    <div className="bg-[#FFFEFB] pt-4 pb-2 mt-4 border-t border-[#eee] flex flex-col gap-3">
+      <h3 className="text-[12px] font-bold text-[#24344D] uppercase tracking-wide">Cabeçalho (logo e texto)</h3>
+      {grupo("Posição do logo", "logoPos", [["esq", "◧ Esquerda"], ["centro", "▣ Em cima"], ["dir", "◨ Direita"]])}
+      {grupo("Alinhamento do texto", "textoAlin", [["esq", "≡ Esquerda"], ["centro", "☰ Centro"], ["dir", "≣ Direita"]])}
+      <Faixa rotulo="Tamanho do logo" valor={c.logoTam} min={30} max={300} step={5} un="%" onChange={(v) => talCab.set({ logoTam: v })} />
+      <Faixa rotulo="Mover o logo ← →" valor={c.logoX} min={-120} max={120} step={1} un="px" onChange={(v) => talCab.set({ logoX: v })} />
+      <Faixa rotulo="Mover o logo ↑ ↓" valor={c.logoY} min={-60} max={60} step={1} un="px" onChange={(v) => talCab.set({ logoY: v })} />
+      <button type="button" onClick={() => talCab.set(CAB_PADRAO)} className="self-start text-[11px] underline text-[#8B6A1F]">↺ Restaurar cabeçalho</button>
+    </div>
   );
 }
 
@@ -496,6 +525,7 @@ export default function TalonarioPage() {
             setField={t.setBackgroundField}
           />
         <ExtrasPanel />
+          <CabecalhoOpcoes />
           <PainelStickers talonario />
 
           <div className="bg-[#FFFEFB] pt-4 pb-1 mt-6 border-t border-[#eee]">
