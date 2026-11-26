@@ -209,7 +209,7 @@ export default function AdesivosPage() {
           </Painel>
         </Fluxo>
 
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
+        <div className={`pre-fixa flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="📐 Forma e folha">
             <BotaoPadrao onClick={() => { adesivoCfg.resetar(["forma", "w", "h", "sangria", "papel", "margem", "espaco", "guias", "corGuia", "orientacao"]); toast.success("Medidas padrão restauradas"); }} />
             <div className="flex flex-wrap gap-2">

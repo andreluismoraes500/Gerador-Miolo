@@ -253,7 +253,7 @@ export default function CalendarioPage() {
           </Painel>
         </Fluxo>
 
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
+        <div className={`pre-fixa flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           {agrupa && (
             <Painel titulo="🧩 Folha de impressão">
               <div className="grid gap-3 sm:grid-cols-3">

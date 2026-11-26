@@ -325,13 +325,23 @@ export function OrdemServicoPanel({ ordemServico, setField, range }) {
       )}
 
       <SectionTitle>Condições</SectionTitle>
-      <Label first>Prazo de entrega sugerido</Label>
-      <TextInput
-        placeholder="Ex: 5 dias úteis"
-        value={ordemServico.prazo}
-        onChange={(e) => setField("prazo", e.target.value)}
+      <Label first>Contato (lado direito do cabeçalho — uma linha por linha)</Label>
+      <textarea
+        rows={3}
+        placeholder={"Ex: Jaime Castro - Responsável\nFone: (12) 3456-7890\nAceitamos todos os cartões"}
+        value={ordemServico.contato}
+        onChange={(e) => setField("contato", e.target.value)}
+        className="w-full border border-[#D8CBA8] rounded-lg px-2.5 py-2 text-xs bg-[#FBF8F1] text-[#24344D]"
       />
-      <Label>Garantia do serviço</Label>
+      <Label>Linhas da tabela (produtos/serviços)</Label>
+      <TextInput
+        type="number"
+        min={1}
+        max={30}
+        value={ordemServico.linhas}
+        onChange={(e) => setField("linhas", Math.min(30, Math.max(1, Number(e.target.value) || 10)))}
+      />
+      <Label>Garantia do serviço (opcional)</Label>
       <TextInput
         placeholder="Ex: 90 dias"
         value={ordemServico.garantia}

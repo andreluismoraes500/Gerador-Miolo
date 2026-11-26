@@ -245,8 +245,9 @@ export function useTalonarioBuilder() {
       numEnd: 50,
       prefix: "OS-",
       digits: 4,
-      prazo: "",
-      garantia: "90 dias",
+      contato: "",
+      linhas: 10,
+      garantia: "",
       rodape: "",
       numerar: true, // <-- NOVO
     }),

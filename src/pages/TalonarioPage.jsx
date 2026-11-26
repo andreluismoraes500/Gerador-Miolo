@@ -564,7 +564,7 @@ export default function TalonarioPage() {
         </div>
 
         {/* ---------- stage de pré-visualização ---------- */}
-        <div className={`p-4 sm:p-9 flex flex-col items-center gap-5.5 bg-[#F3F0E7] ${abas.clsVer}`}>
+        <div className={`pre-fixa p-4 sm:p-9 flex flex-col items-center gap-5.5 bg-[#F3F0E7] ${abas.clsVer}`}>
           {t.activeTab === "pedido" && (
             <PedidoCard
               empresa={t.pedido.empresa}
@@ -600,7 +600,8 @@ export default function TalonarioPage() {
               empresa={t.ordemServico.empresa}
               slogan={t.ordemServico.slogan}
               logo={t.logos.ordemServico}
-              prazo={t.ordemServico.prazo}
+              contato={t.ordemServico.contato}
+              linhas={t.ordemServico.linhas}
               garantia={t.ordemServico.garantia}
               rodape={t.ordemServico.rodape}
               numero={t.ordemServicoRange.start}
@@ -859,7 +860,8 @@ export default function TalonarioPage() {
                   empresa={t.ordemServico.empresa}
                   slogan={t.ordemServico.slogan}
                   logo={t.logos.ordemServico}
-                  prazo={t.ordemServico.prazo}
+                  contato={t.ordemServico.contato}
+              linhas={t.ordemServico.linhas}
                   garantia={t.ordemServico.garantia}
                   rodape={t.ordemServico.rodape}
                   numero={n}

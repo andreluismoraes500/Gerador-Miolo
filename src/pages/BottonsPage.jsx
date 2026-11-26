@@ -144,7 +144,7 @@ export default function BottonsPage() {
           </Painel>
         </Fluxo>
 
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
+        <div className={`pre-fixa flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="🖨️ Botton e folha">
             <BotaoPadrao onClick={() => { bottonsCfg.resetar(); setImgs((l) => l.map((i) => ({ ...i, ...AJ_PADRAO, bg: i.bgAuto || "" }))); toast.success("Medidas padrão restauradas"); }} />
             <div className="grid gap-3 sm:grid-cols-3">
