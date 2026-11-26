@@ -7,6 +7,7 @@ export const ESTILOS = {
   classica: { nome: "Clássica (hora a hora)", cor: "#e0a800", semana: 0 },
   pop: { nome: "Pop Color", cor: "#ff5d8f", semana: 0 },
   planner: { nome: "Planner semanal e mensal", cor: "#6f86b5", semana: 1 },
+  linhas: { nome: "Dia com linhas (A5) — sáb. e dom. juntos", cor: "#4a4a55", semana: 1 },
 };
 
 const ANO = new Date().getFullYear();
@@ -18,6 +19,8 @@ export const agendaAnualCfg = criarStore("agenda-anual-cfg", {
   fonteTitulo: "'DM Serif Display', serif",
   semanaComeca: 0, // 0 = domingo, 1 = segunda
   diasPorPagina: 1, // 1 ou 2 (clássica / pop)
+  fimSemanaJunto: true, // estilo "linhas": sábado e domingo dividem a página
+  gradeMensal: true, // estilo "linhas": página de planejamento do mês
   horaIni: 7,
   horaFim: 19,
   escalaTexto: 100,
@@ -117,6 +120,17 @@ export function montarPaginasAnual(cfg) {
       }
       p.push({ tipo: cfg.ref ? "mesReflexaoRef" : "mesReflexao", mes: m });
       p.push({ tipo: "anotacoes", estilo: "pontilhado" });
+    }
+  } else if (estilo === "linhas") {
+    for (let m = 0; m < 12; m += 1) {
+      if (cfg.gradeMensal) p.push({ tipo: "mesGrade", mes: m });
+      const n = diasDoMes(ano, m);
+      for (let d = 1; d <= n; d += 1) {
+        const dt = new Date(ano, m, d);
+        if (cfg.fimSemanaJunto && dt.getDay() === 6 && d < n) { p.push({ tipo: "diaLinhas", dias: [dt.getTime(), new Date(ano, m, d + 1).getTime()] }); d += 1; }
+        else p.push({ tipo: "diaLinhas", dias: [dt.getTime()] });
+      }
+      if (cfg.anotacoesMes && m < 11) p.push({ tipo: "anotacoes" });
     }
   } else {
     const porPag = cfg.diasPorPagina === 2 ? 2 : 1;

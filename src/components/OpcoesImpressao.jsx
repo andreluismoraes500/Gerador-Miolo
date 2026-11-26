@@ -307,7 +307,8 @@ export function AgendaAnualOpcoes({ fixo = false }) {
   const chk = (k, rotulo) => (
     <label className="flex items-center gap-1"><input type="checkbox" checked={c[k]} onChange={(e) => agendaAnualCfg.set({ [k]: e.target.checked })} />{rotulo}</label>
   );
-  const dia = c.estilo !== "planner";
+  const dia = c.estilo === "classica" || c.estilo === "pop";
+  const linhas = c.estilo === "linhas";
   return (
     <div className="bg-[#FBF8F1] border border-[#D8CBA8] rounded-xl p-4 flex flex-col gap-3 print:hidden text-xs text-[#24344D]">
       <div>
@@ -357,7 +358,7 @@ export function AgendaAnualOpcoes({ fixo = false }) {
       </div>
       <div className="flex flex-wrap items-center gap-4">
         {dia && chk("mesesContinuos", "Meses contínuos")}
-        {dia && chk("anotacoesMes", "Anotações a cada mês")}
+        {(dia || linhas) && chk("anotacoesMes", "Anotações a cada mês")}
         {chk("dados", "Página de dados")}
         {chk("planejamentoAnual", "Planejamento anual")}
         {!dia && chk("extrasPlanner", "Páginas extras (roda da vida, logins…)")}
@@ -371,6 +372,8 @@ export function AgendaAnualOpcoes({ fixo = false }) {
         {num("anotacoesIni", 0, 10, "Anotações (início)")}
         {num("anotacoesFim", 0, 10, "Anotações (fim)")}
         {c.estilo === "pop" && num("contatos", 0, 10, "Contatos")}
+        {linhas && chk("fimSemanaJunto", "Sábado e domingo na mesma página")}
+        {linhas && chk("gradeMensal", "Página de planejamento do mês")}
       </div>
     </div>
   );
