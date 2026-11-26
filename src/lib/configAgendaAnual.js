@@ -125,9 +125,11 @@ export function montarPaginasAnual(cfg) {
     for (let m = 0; m < 12; m += 1) {
       if (cfg.gradeMensal) p.push({ tipo: "mesGrade", mes: m });
       const n = diasDoMes(ano, m);
+      const dois2 = cfg.diasPorPagina === 2;
       for (let d = 1; d <= n; d += 1) {
         const dt = new Date(ano, m, d);
-        if (cfg.fimSemanaJunto && dt.getDay() === 6 && d < n) { p.push({ tipo: "diaLinhas", dias: [dt.getTime(), new Date(ano, m, d + 1).getTime()] }); d += 1; }
+        if (dois2 && d < n) { p.push({ tipo: "diaLinhas", dias: [dt.getTime(), new Date(ano, m, d + 1).getTime()] }); d += 1; }
+        else if (!dois2 && cfg.fimSemanaJunto && dt.getDay() === 6 && d < n) { p.push({ tipo: "diaLinhas", dias: [dt.getTime(), new Date(ano, m, d + 1).getTime()] }); d += 1; }
         else p.push({ tipo: "diaLinhas", dias: [dt.getTime()] });
       }
       if (cfg.anotacoesMes && m < 11) p.push({ tipo: "anotacoes" });

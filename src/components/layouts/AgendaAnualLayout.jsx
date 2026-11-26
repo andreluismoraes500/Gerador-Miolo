@@ -263,7 +263,7 @@ function Dia({ item, cfg, props }) {
 }
 
 /* ---------- Dia com linhas (modelo A5: cabeçalho com filetes, linhas, 2 mini calendários e caixa de anotações) ---------- */
-const Filete = ({ cfg }) => <div style={{ flex: 1, height: "1.3mm", borderTop: `0.5mm solid ${mix(cfg.cor, 0.35)}`, borderBottom: `0.25mm solid ${mix(cfg.cor, 0.35)}` }} />;
+const Filete = ({ cfg }) => <div style={{ flex: 1, height: "1.3mm", borderTop: `0.5mm solid ${cfg.cor}`, borderBottom: `0.25mm solid ${cfg.cor}` }} />;
 function BlocoLinhas({ ms, cfg, n }) {
   const d = new Date(ms);
   const dow = d.getDay();
@@ -274,29 +274,27 @@ function BlocoLinhas({ ms, cfg, n }) {
       <div className="shrink-0" style={{ marginBottom: "1mm" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "3mm" }}>
           <Filete cfg={cfg} />
-          <span style={{ fontSize: fs("4.2mm"), letterSpacing: "0.3mm", fontWeight: 700, color: vermelho ? "#d6455d" : TXT, whiteSpace: "nowrap", textTransform: "uppercase" }}>{dois(d.getDate())} de {MESES_PT[d.getMonth()]}</span>
+          <span style={{ fontSize: fs("4.2mm"), letterSpacing: "0.3mm", fontWeight: 700, color: vermelho ? "#d6455d" : cfg.cor, whiteSpace: "nowrap", textTransform: "uppercase" }}>{dois(d.getDate())} de {MESES_PT[d.getMonth()]}</span>
           <Filete cfg={cfg} />
         </div>
         <div style={{ textAlign: "center", fontSize: fs("3mm"), color: fer ? "#d6455d" : "#888", marginTop: "0.8mm" }}>
           {DIAS_PT[dow]}{dow > 0 && dow < 6 ? "-feira" : ""}{fer ? ` · ★ ${typeof fer === "string" ? fer : fer.nome}` : ""}
         </div>
       </div>
-      <Linhas n={n} flex cor={mix(cfg.cor, 0.6)} />
+      <Linhas n={n} flex cor={mix(cfg.cor, 0.45)} />
     </div>
   );
 }
 function DiaLinhas({ item, cfg, props }) {
   const ref = new Date(item.dias[0]);
-  const prox = new Date(ref.getFullYear(), ref.getMonth() + 1, 1);
   const feriados = mapaFeriados(ref.getFullYear());
   return (
     <Shell cfg={cfg} props={props} pad="9mm">
       <div className="flex flex-col flex-1 min-h-0" style={{ gap: "4mm", paddingBottom: "3mm" }}>
         {item.dias.map((ms, i) => <BlocoLinhas key={i} ms={ms} cfg={cfg} n={item.dias.length === 2 ? 9 : 20} />)}
-        <div className="shrink-0" style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr 1fr", gap: "3mm", height: "36mm", alignItems: "stretch" }}>
-          <MiniMes ano={ref.getFullYear()} mes={ref.getMonth()} cfg={cfg} destaque={item.dias.length === 1 ? ref.getDate() : 0} tam="2.7mm" feriados={feriados} />
-          <div style={{ border: `0.35mm solid ${mix(cfg.cor, 0.45)}`, borderRadius: "1.5mm", padding: "1.5mm 2.5mm", fontSize: fs("2.8mm"), color: "#888", fontWeight: 700 }}>Anotações</div>
-          <MiniMes ano={prox.getFullYear()} mes={prox.getMonth()} cfg={cfg} tam="2.7mm" feriados={mapaFeriados(prox.getFullYear())} />
+        <div className="shrink-0" style={{ display: "grid", gridTemplateColumns: "1fr 2.3fr", gap: "4mm", height: item.dias.length === 2 ? "30mm" : "36mm", alignItems: "stretch" }}>
+          <MiniMes ano={ref.getFullYear()} mes={ref.getMonth()} cfg={cfg} destaque={item.dias.length === 1 ? ref.getDate() : 0} tam="2.8mm" feriados={feriados} />
+          <div style={{ border: `0.4mm solid ${cfg.cor}`, borderRadius: "1.5mm", padding: "1.5mm 2.5mm", fontSize: fs("3mm"), color: cfg.cor, fontWeight: 700 }}>Anotações</div>
         </div>
       </div>
     </Shell>
