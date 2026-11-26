@@ -343,7 +343,8 @@ export function OrdemServicoCard({
   empresa,
   slogan,
   logo,
-  prazo,
+  contato,
+  linhas = 10,
   garantia,
   rodape,
   numero,
@@ -353,10 +354,11 @@ export function OrdemServicoCard({
   watermarkStyle,
 }) {
   const numStr = numerar ? `${prefix || ""}${pad(numero, digits)}` : "";
+  const bd = "1.5px solid var(--tal-accent)";
 
   return (
     <div
-      className="doc-card relative w-full max-w-160 rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
+      className="doc-card relative w-full max-w-160 min-h-230 flex flex-col rounded-2xl overflow-hidden bg-(--tal-paper) shadow-[0_14px_34px_-12px_rgba(0,0,0,0.19),0_2px_6px_rgba(0,0,0,0.07)]"
       style={{
         border: "2.5px solid var(--tal-accent)",
         outline: "2px solid var(--tal-accent)",
@@ -365,186 +367,74 @@ export function OrdemServicoCard({
       }}
     >
       <WatermarkLayer style={watermarkStyle} />
-      <div className="relative z-2 px-7 pt-6 pb-5">
-        <div
-          className="flex items-start justify-between gap-3.5 pb-3 mb-2.5"
-          style={{ borderBottom: "2px solid var(--tal-accent)" }}
-        >
+      <div className="relative z-2 px-6 pt-5 pb-4 flex flex-col flex-1" style={{ gap: 8 }}>
+        {/* Cabeçalho: empresa à esquerda, contato à direita */}
+        <div className="flex items-stretch" style={{ border: bd, borderRadius: 14, padding: "8px 12px", gap: 12 }}>
           <LogoTexto logo={logo}>
-            <div className="min-w-0">
-              <h2
-                className="text-[19px] leading-tight m-0 truncate"
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontWeight: 700,
-                  color: "var(--tal-accent-dark)",
-                }}
-              >
-                {empresa}
-              </h2>
-              {slogan && (
-                <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
-                  {slogan}
-                </p>
-              )}
-            </div>
+            {empresa && <div className="font-bold text-[20px] leading-tight" style={{ color: "var(--tal-accent-dark)" }}>{empresa}</div>}
+            {slogan && <div className="text-[9.5px] leading-tight whitespace-pre-line mt-0.5 text-(--tal-ink-soft)">{slogan}</div>}
           </LogoTexto>
-          <div className="text-right shrink-0">
-            <div
-              className="text-[11px] uppercase tracking-[1.5px]"
-              style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                color: "var(--tal-ink-soft)",
-              }}
-            >
-              Ordem de Serviço
+          {contato && (
+            <div className="flex items-center justify-center text-center text-[12.5px] font-semibold whitespace-pre-line px-3 min-w-0" style={{ borderLeft: bd, maxWidth: "46%", color: "var(--tal-ink)" }}>
+              {contato}
             </div>
-            {numerar && (
-              <div
-                className="inline-block font-bold text-2xl rounded-lg px-3 py-1 mt-0.5"
-                style={{
-                  fontFamily: "'Space Mono', monospace",
-                  color: "var(--tal-stamp)",
-                  border: "2px solid var(--tal-stamp)",
-                  transform: "rotate(-2deg)",
-                }}
-              >
-                Nº {numStr}
-              </div>
-            )}
-            <div className="text-[11.5px] text-(--tal-ink-soft) mt-1.5">
-              Data ____ / ____ / ______
-            </div>
-          </div>
+          )}
+        </div>
+
+        {/* Tipo + número + data */}
+        <div className="flex items-center justify-between gap-3 text-[13px] font-bold" style={{ border: bd, borderRadius: 12, padding: "5px 12px", color: "var(--tal-accent-dark)" }}>
+          <span className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5"><span style={{ width: 13, height: 13, border: bd, display: "inline-block", borderRadius: 2 }} />ORDEM DE SERVIÇO</span>
+            <span className="flex items-center gap-1.5"><span style={{ width: 13, height: 13, border: bd, display: "inline-block", borderRadius: 2 }} />ORÇAMENTO</span>
+          </span>
+          {numerar && (
+            <span className="font-bold text-[15px] rounded-md px-2" style={{ fontFamily: "'Space Mono', monospace", color: "var(--tal-stamp)", border: "2px solid var(--tal-stamp)", transform: "rotate(-2deg)" }}>Nº {numStr}</span>
+          )}
+          <span className="flex items-end gap-1">Data: <span style={{ display: "inline-block", width: 90, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} /></span>
         </div>
 
         {/* Cliente */}
-        <div
-          className="flex border-t-[1.3px]"
-          style={{ borderColor: "var(--tal-accent)" }}
-        >
-          <Campo label="Cliente" flex={2} />
-          <Campo label="Telefone" flex={1} />
-        </div>
-        <div
-          className="flex border-t-[1.3px]"
-          style={{ borderColor: "var(--tal-accent)" }}
-        >
-          <Campo label="Equipamento / Modelo" flex={1.6} />
-          <Campo label="Nº de série" flex={1} />
-        </div>
-        <div
-          className="flex border-t-[1.3px] border-b-[1.3px]"
-          style={{ borderColor: "var(--tal-accent)" }}
-        >
-          <Campo label="Defeito relatado pelo cliente" flex={1} />
+        <div style={{ border: bd, borderRadius: 14, padding: "8px 12px" }}>
+          {[["Nome:", "Fone:", 62], ["End.:", null, 0], ["Cidade:", "CPF/CNPJ:", 48]].map(([a, b, w], i) => (
+            <div key={i} className="flex items-end gap-2 text-[12.5px] font-bold" style={{ height: 26, color: "var(--tal-accent-dark)" }}>
+              <span>{a}</span><span style={{ flex: w || 1, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} />
+              {b && <><span>{b}</span><span style={{ flex: 100 - w, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} /></>}
+            </div>
+          ))}
         </div>
 
-        {/* Diagnóstico / serviço executado */}
-        <div className="mt-3">
-          <span
-            className="block text-[9.5px] font-bold uppercase tracking-wide mb-1"
-            style={{ color: "var(--tal-accent-dark)" }}
-          >
-            Diagnóstico / Serviço executado
-          </span>
-          <div
-            className="w-full"
-            style={{
-              minHeight: 56,
-              border: "1.3px solid var(--tal-accent)",
-              backgroundImage:
-                "repeating-linear-gradient(transparent, transparent 17px, #e4e4e4 18px)",
-            }}
-          />
-        </div>
-
-        <table className="w-full border-collapse mt-3.5 text-xs">
-          <thead>
-            <tr>
-              {["Peças / Materiais", "Qtd.", "Valor"].map((h) => (
-                <th
-                  key={h}
-                  className="text-white font-semibold text-[11px] uppercase tracking-wide py-1.5 px-1.5"
-                  style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    background: "var(--tal-accent)",
-                  }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <tr key={i}>
-                {[0, 1, 2].map((c) => (
-                  <td
-                    key={c}
-                    className="h-5.75 px-1.5"
-                    style={{
-                      border: "1px solid var(--tal-accent)",
-                      width: c === 1 || c === 2 ? "16%" : undefined,
-                      textAlign: c === 1 ? "center" : undefined,
-                    }}
-                  />
-                ))}
-              </tr>
+        {/* Tabela */}
+        <div style={{ border: bd, borderRadius: 14, overflow: "hidden" }}>
+          <div className="grid text-[12px] font-bold" style={{ gridTemplateColumns: "11% 1fr 18% 18%", color: "var(--tal-accent-dark)", borderBottom: bd }}>
+            {["Qnt.", "Descrição do Produto/Serviço", "Valor Unit.", "TOTAL"].map((h, i) => (
+              <div key={h} style={{ padding: "4px 6px", borderLeft: i ? bd : "none", textAlign: i > 1 ? "center" : "left" }}>{h}</div>
             ))}
-          </tbody>
-        </table>
-
-        <div
-          className="grid grid-cols-3"
-          style={{ border: "1.3px solid var(--tal-accent)", borderTop: "none" }}
-        >
-          <Campo label="Mão de obra" flex={1} />
-          <Campo label="Prazo de entrega" flex={1} />
-          <div
-            className="py-1.5 px-2.5 pt-1"
-            style={{
-              background: "var(--tal-accent-light)",
-              color: "var(--tal-accent-dark)",
-            }}
-          >
-            <span className="block text-[9.5px] font-bold uppercase tracking-wide">
-              Total
-            </span>
-            {prazo && <span className="text-[10px]">sugestão: {prazo}</span>}
           </div>
+          {Array.from({ length: Math.max(1, Number(linhas) || 10) }).map((_, r) => (
+            <div key={r} className="grid" style={{ gridTemplateColumns: "11% 1fr 18% 18%", height: 27, borderTop: r ? bd : "none" }}>
+              {[0, 1, 2, 3].map((c) => <div key={c} style={{ borderLeft: c ? bd : "none" }} />)}
+            </div>
+          ))}
         </div>
 
-        <div
-          className="flex justify-between items-center mt-2"
-          style={{ border: "1.3px solid var(--tal-accent)" }}
-        >
-          <div className="flex-1 py-2 px-2.5 text-[11px] text-(--tal-ink-soft)">
-            {rodape ? (
-              rodape
-            ) : (
-              <span className="italic text-[#c3cac8]">
-                assinatura do cliente / técnico responsável
-              </span>
-            )}
-          </div>
-          <div
-            className="py-2 px-2.5 text-[11px] text-right shrink-0"
-            style={{
-              borderLeft: "1.3px solid var(--tal-accent)",
-              color: "var(--tal-ink-soft)",
-            }}
-          >
-            Garantia: {garantia || "—"}
-          </div>
+        {/* Pagamento */}
+        <div className="flex items-end gap-2 text-[12px] font-bold" style={{ border: bd, borderRadius: 10, padding: "5px 12px", color: "var(--tal-accent-dark)" }}>
+          {["ENTRADA:", "RESTANTE:", "À VISTA:"].map((x) => (
+            <span key={x} className="flex items-end gap-1 flex-1">{x}<span style={{ flex: 1, borderBottom: "1.3px solid var(--tal-ink)", height: 13 }} /></span>
+          ))}
+        </div>
+        <div className="flex justify-end items-center gap-2 font-bold text-[17px]" style={{ color: "var(--tal-accent-dark)" }}>
+          TOTAL:<span style={{ width: 130, height: 28, border: bd, borderRadius: 8, display: "inline-block" }} />
         </div>
 
-        <div
-          className="text-center mt-3.5 pt-2.5 text-[10.5px] text-[#9aa5a3] tracking-wide"
-          style={{ borderTop: "2px dashed #c7cdcb" }}
-        >
-          ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-          - - - - - -
+        {garantia && <div className="text-[10.5px] text-(--tal-ink-soft)">Garantia: {garantia}</div>}
+        {rodape && <div className="text-[10px] italic text-(--tal-ink-soft)">{rodape}</div>}
+
+        {/* Assinaturas */}
+        <div className="flex gap-8 mt-auto pt-6 text-[12px] font-bold text-center" style={{ color: "var(--tal-accent-dark)" }}>
+          {["Assinatura Comprador", "Assinatura Vendedor"].map((x) => (
+            <div key={x} className="flex-1 pt-1" style={{ borderTop: "1.3px solid var(--tal-ink)" }}>{x}</div>
+          ))}
         </div>
         <ExtrasTalonario />
       </div>

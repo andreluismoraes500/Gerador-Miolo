@@ -178,7 +178,7 @@ export default function CartazesPage() {
           </Painel>
         </Fluxo>
 
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
+        <div className={`pre-fixa flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="📄 Papel e impressão">
             <BotaoPadrao onClick={() => { cartazCfg.resetar(["formato", "orient", "papel", "margem", "espaco", "guias"]); setItem({ fotoModo: "caber", fotoZoom: 1, fotoX: 0, fotoY: 0 }); toast.success("Medidas padrão restauradas"); }} />
             <div className="grid gap-3 sm:grid-cols-3">

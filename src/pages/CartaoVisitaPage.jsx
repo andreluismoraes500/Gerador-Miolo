@@ -175,7 +175,7 @@ export default function CartaoVisitaPage() {
           </Painel>
         </Fluxo>
 
-        <div className={`flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
+        <div className={`pre-fixa flex flex-col gap-4 min-w-0 ${abas.clsVer}`}>
           <Painel titulo="🖨️ Impressão automática">
             <BotaoPadrao onClick={() => { cartaoCfg.resetar(["tamanho", "sangria", "quantidade", "papel", "margem", "espaco", "marcas", "ajusteX", "ajusteY", "orientacao", "ajusteF", "ajusteV"]); toast.success("Medidas padrão restauradas"); }} />
             <div className="grid gap-3 sm:grid-cols-3">
