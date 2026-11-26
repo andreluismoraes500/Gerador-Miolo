@@ -369,45 +369,50 @@ export function OrdemServicoCard({
     >
       <WatermarkLayer style={watermarkStyle} />
       <div className="relative z-2 px-6 pt-5 pb-4 flex flex-col flex-1" style={{ gap: 8 }}>
-        {/* Cabeçalho: empresa à esquerda, contato à direita */}
-        <div className="flex items-stretch" style={{ border: bd, borderRadius: 14, padding: "8px 12px", gap: 12 }}>
+        {/* Cabeçalho no estilo do Pedido de Venda, voltado à Ordem de Serviço */}
+        <div className="flex items-start justify-between gap-3.5 pb-3" style={{ borderBottom: "2px solid var(--tal-accent)" }}>
           <LogoTexto logo={logo} limitH={86}>
-            {empresa && <div className="font-bold text-[21px] leading-tight" style={{ color: "var(--tal-accent-dark)" }}>{empresa}</div>}
-            {slogan && <div className="text-[9.5px] leading-tight whitespace-pre-line mt-0.5 text-(--tal-ink-soft)">{slogan}</div>}
+            {empresa && <h2 className="text-[21px] leading-tight m-0" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "var(--tal-accent-dark)" }}>{empresa}</h2>}
+            {slogan && <p className="m-0 mt-0.5 text-[11px] text-(--tal-ink-soft) whitespace-pre-line">{slogan}</p>}
+            {contato && <p className="m-0 mt-1 text-[11px] font-semibold whitespace-pre-line" style={{ color: "var(--tal-ink)" }}>{contato}</p>}
           </LogoTexto>
-          {contato && (
-            <div className="flex items-center justify-center text-center text-[12.5px] font-semibold whitespace-pre-line px-3 min-w-0" style={{ borderLeft: bd, maxWidth: "42%", color: "var(--tal-ink)" }}>
-              {contato}
-            </div>
-          )}
-        </div>
-
-        {/* Tipo + número + data */}
-        <div className="flex items-center justify-between gap-3 text-[12.5px] font-bold" style={{ background: tint, borderRadius: 12, padding: "6px 12px", color: "var(--tal-accent-dark)" }}>
-          <span className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5"><span style={{ width: 13, height: 13, border: bd, background: "#fff", display: "inline-block", borderRadius: 3 }} />ORDEM DE SERVIÇO</span>
-            <span className="flex items-center gap-1.5"><span style={{ width: 13, height: 13, border: bd, background: "#fff", display: "inline-block", borderRadius: 3 }} />ORÇAMENTO</span>
-          </span>
-          {numerar && (
-            <span className="font-bold text-[15px] rounded-md px-2" style={{ fontFamily: "'Space Mono', monospace", color: "var(--tal-stamp)", border: "2px solid var(--tal-stamp)", transform: "rotate(-2deg)" }}>Nº {numStr}</span>
-          )}
-          <span className="flex items-end gap-1">Data: <span style={{ display: "inline-block", width: 90, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} /></span>
+          <div className="text-right shrink-0">
+            <div className="text-[11px] uppercase tracking-[1.5px]" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "var(--tal-ink-soft)" }}>Ordem de Serviço</div>
+            {numerar && (
+              <div className="inline-block font-bold text-2xl rounded-lg px-3 py-1 mt-0.5" style={{ fontFamily: "'Space Mono', monospace", color: "var(--tal-stamp)", border: "2px solid var(--tal-stamp)", transform: "rotate(-2deg)" }}>Nº {numStr}</div>
+            )}
+            <div className="text-[11.5px] text-(--tal-ink-soft) mt-1.5">Data ____ / ____ / ______</div>
+          </div>
         </div>
 
         {/* Cliente */}
-        <div style={{ border: bd, borderRadius: 14, padding: "6px 12px" }}>
-          {[["Nome:", "Fone:", 62], ["End.:", null, 0], ["Cidade:", "CPF/CNPJ:", 48]].map(([a, b, w], i) => (
-            <div key={i} className="flex items-end gap-2 text-[12px] font-bold" style={{ height: 26, color: "var(--tal-accent-dark)" }}>
+        <div style={{ border: bd, borderRadius: 12, padding: "4px 12px" }}>
+          {[["Cliente:", "Fone:", 62], ["Endereço:", null, 0], ["Cidade:", "CPF/CNPJ:", 48]].map(([a, b, w], i) => (
+            <div key={i} className="flex items-end gap-2 text-[12px] font-bold" style={{ height: 25, color: "var(--tal-accent-dark)" }}>
               <span>{a}</span><span style={{ flex: w || 1, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} />
               {b && <><span>{b}</span><span style={{ flex: 100 - w, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} /></>}
             </div>
           ))}
         </div>
 
+        {/* Equipamento / veículo e defeito relatado */}
+        <div style={{ border: bd, borderRadius: 12, padding: "4px 12px", background: tint }}>
+          <div className="flex items-end gap-2 text-[12px] font-bold" style={{ height: 25, color: "var(--tal-accent-dark)" }}>
+            <span>Equipamento / Veículo:</span><span style={{ flex: 50, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} />
+            <span>Marca / Modelo:</span><span style={{ flex: 50, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} />
+          </div>
+          <div className="flex items-end gap-2 text-[12px] font-bold" style={{ height: 25, color: "var(--tal-accent-dark)" }}>
+            <span>Série / Placa:</span><span style={{ flex: 40, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} />
+            <span>Previsão de entrega:</span><span style={{ flex: 40, borderBottom: "1.3px solid var(--tal-ink)", height: 14 }} />
+          </div>
+          <div className="text-[12px] font-bold" style={{ color: "var(--tal-accent-dark)", paddingTop: 5 }}>Defeito relatado / serviço solicitado:</div>
+          {[0, 1].map((i) => <div key={i} style={{ height: 22, borderBottom: "1.3px solid var(--tal-ink)" }} />)}
+        </div>
+
         {/* Tabela */}
         <div style={{ border: bd, borderRadius: 14, overflow: "hidden" }}>
           <div className="grid text-[11.5px] font-bold uppercase tracking-wide" style={{ gridTemplateColumns: "11% 1fr 18% 18%", background: "var(--tal-accent)", color: "#fff" }}>
-            {["Qnt.", "Descrição do produto / serviço", "Valor unit.", "Total"].map((h, i) => (
+            {["Qnt.", "Peças / serviços executados", "Valor unit.", "Total"].map((h, i) => (
               <div key={h} style={{ padding: "5px 6px", textAlign: i === 0 || i > 1 ? "center" : "left" }}>{h}</div>
             ))}
           </div>
