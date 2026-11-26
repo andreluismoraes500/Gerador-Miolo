@@ -335,7 +335,7 @@ export function AgendaAnualOpcoes({ fixo = false }) {
             <option value={0}>Domingo</option><option value={1}>Segunda</option>
           </select>
         </label>
-        {dia && (
+        {(dia || linhas) && (
           <label className="flex flex-col gap-1">Dias por página
             <select value={c.diasPorPagina} onChange={(e) => agendaAnualCfg.set({ diasPorPagina: Number(e.target.value) })} className={sel}>
               <option value={1}>1 dia (1dpp)</option><option value={2}>2 dias (2dpp)</option>
