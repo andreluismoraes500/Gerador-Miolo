@@ -6,6 +6,7 @@
 // de impressão.
 
 import { talonarioExtras } from "../../lib/configTalonario";
+import { talCab } from "../../lib/talCabecalho";
 import { BINGO_LETTERS } from "../../hooks/useTalonarioBuilder";
 
 // Linhas para escrever à mão (e modo "só pautado"), controlados no painel
@@ -24,6 +25,31 @@ function ExtrasTalonario() {
       {Array.from({ length: n }).map((_, i) => (
         <div key={i} style={{ height: "8mm", borderBottom: "1px solid var(--tal-accent)", opacity: 0.55 }} />
       ))}
+    </div>
+  );
+}
+
+// Logo com tamanho e deslocamento controlados no painel "Cabeçalho".
+function LogoImg({ logo, base = 64, className = "" }) {
+  const c = talCab.useStore();
+  if (!logo) return null;
+  const w = (base * (Number(c.logoTam) || 100)) / 100;
+  return (
+    <img src={logo} alt="Logo" className={`object-contain rounded-md shrink-0 ${className}`}
+      style={{ width: w, height: "auto", maxWidth: "none", maxHeight: "none", transform: `translate(${Number(c.logoX) || 0}px, ${Number(c.logoY) || 0}px)` }} />
+  );
+}
+
+// Logo + bloco de texto do cabeçalho: logo à esquerda/centro (em cima)/direita e texto alinhado à esquerda/centro/direita.
+function LogoTexto({ logo, children }) {
+  const c = talCab.useStore();
+  const col = c.logoPos === "centro";
+  return (
+    <div className="min-w-0 flex-1" style={{ display: "flex", flexDirection: col ? "column" : c.logoPos === "dir" ? "row-reverse" : "row", alignItems: "center", gap: 10 }}>
+      <LogoImg logo={logo} />
+      <div className="min-w-0" style={{ flex: col ? "none" : 1, width: col ? "100%" : undefined, textAlign: c.textoAlin === "centro" ? "center" : c.textoAlin === "dir" ? "right" : "left" }}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -181,14 +207,7 @@ export function PedidoCard({
           className="flex items-start justify-between gap-3.5 pb-3 mb-2.5"
           style={{ borderBottom: "2px solid var(--tal-accent)" }}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            {logo && (
-              <img
-                src={logo}
-                alt="Logo"
-                className="max-w-16 max-h-16 object-contain rounded-md shrink-0"
-              />
-            )}
+          <LogoTexto logo={logo}>
             <div className="min-w-0">
               <h2
                 className="text-[19px] leading-tight m-0 truncate"
@@ -198,7 +217,7 @@ export function PedidoCard({
                   color: "var(--tal-accent-dark)",
                 }}
               >
-                {empresa || "Sua Empresa"}
+                {empresa}
               </h2>
               {slogan && (
                 <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
@@ -206,7 +225,7 @@ export function PedidoCard({
                 </p>
               )}
             </div>
-          </div>
+          </LogoTexto>
           <div className="text-right shrink-0">
             <div
               className="text-[11px] uppercase tracking-[1.5px]"
@@ -351,14 +370,7 @@ export function OrdemServicoCard({
           className="flex items-start justify-between gap-3.5 pb-3 mb-2.5"
           style={{ borderBottom: "2px solid var(--tal-accent)" }}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            {logo && (
-              <img
-                src={logo}
-                alt="Logo"
-                className="max-w-16 max-h-16 object-contain rounded-md shrink-0"
-              />
-            )}
+          <LogoTexto logo={logo}>
             <div className="min-w-0">
               <h2
                 className="text-[19px] leading-tight m-0 truncate"
@@ -368,7 +380,7 @@ export function OrdemServicoCard({
                   color: "var(--tal-accent-dark)",
                 }}
               >
-                {empresa || "Sua Oficina / Assistência"}
+                {empresa}
               </h2>
               {slogan && (
                 <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
@@ -376,7 +388,7 @@ export function OrdemServicoCard({
                 </p>
               )}
             </div>
-          </div>
+          </LogoTexto>
           <div className="text-right shrink-0">
             <div
               className="text-[11px] uppercase tracking-[1.5px]"
@@ -571,14 +583,7 @@ export function ReciboCard({
           className="flex items-start justify-between gap-3.5 pb-3 mb-4"
           style={{ borderBottom: "2px solid var(--tal-accent)" }}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            {logo && (
-              <img
-                src={logo}
-                alt="Logo"
-                className="max-w-16 max-h-16 object-contain rounded-md shrink-0"
-              />
-            )}
+          <LogoTexto logo={logo}>
             <div className="min-w-0">
               <h2
                 className="text-[19px] leading-tight m-0 truncate"
@@ -588,7 +593,7 @@ export function ReciboCard({
                   color: "var(--tal-accent-dark)",
                 }}
               >
-                {empresa || "Recibo de Pagamento"}
+                {empresa}
               </h2>
               {slogan && (
                 <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
@@ -596,7 +601,7 @@ export function ReciboCard({
                 </p>
               )}
             </div>
-          </div>
+          </LogoTexto>
           <div className="text-right shrink-0">
             <div
               className="text-[11px] uppercase tracking-[1.5px]"
@@ -711,14 +716,7 @@ export function ComandaCard({
           className="flex items-start justify-between gap-3.5 pb-3 mb-2.5"
           style={{ borderBottom: "2px solid var(--tal-accent)" }}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            {logo && (
-              <img
-                src={logo}
-                alt="Logo"
-                className="max-w-16 max-h-16 object-contain rounded-md shrink-0"
-              />
-            )}
+          <LogoTexto logo={logo}>
             <h2
               className="text-[19px] leading-tight m-0 truncate"
               style={{
@@ -727,9 +725,9 @@ export function ComandaCard({
                 color: "var(--tal-accent-dark)",
               }}
             >
-              {empresa || "Comanda"}
+              {empresa}
             </h2>
-          </div>
+          </LogoTexto>
           {numerar && (
             <div
               className="inline-block font-bold text-2xl rounded-lg px-3 py-1 shrink-0"
@@ -837,14 +835,7 @@ export function ReservaCard({
           className="flex items-start justify-between gap-3.5 pb-3 mb-2.5"
           style={{ borderBottom: "2px solid var(--tal-accent)" }}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            {logo && (
-              <img
-                src={logo}
-                alt="Logo"
-                className="max-w-16 max-h-16 object-contain rounded-md shrink-0"
-              />
-            )}
+          <LogoTexto logo={logo}>
             <div className="min-w-0">
               <h2
                 className="text-[19px] leading-tight m-0 truncate"
@@ -854,7 +845,7 @@ export function ReservaCard({
                   color: "var(--tal-accent-dark)",
                 }}
               >
-                {empresa || "Ficha de Reserva"}
+                {empresa}
               </h2>
               {slogan && (
                 <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
@@ -862,7 +853,7 @@ export function ReservaCard({
                 </p>
               )}
             </div>
-          </div>
+          </LogoTexto>
           {numerar && (
             <div
               className="inline-block font-bold text-2xl rounded-lg px-3 py-1 shrink-0"
@@ -966,11 +957,7 @@ export function ValePresenteCard({
       <WatermarkLayer style={watermarkStyle} />
       <div className="relative z-2 px-8 pt-7 pb-6 text-center">
         {logo && (
-          <img
-            src={logo}
-            alt="Logo"
-            className="max-w-16 max-h-16 object-contain rounded-md mx-auto mb-2"
-          />
+          <div className="flex justify-center mb-2"><LogoImg logo={logo} /></div>
         )}
         <h2
           className="text-[22px] m-0"
@@ -980,7 +967,7 @@ export function ValePresenteCard({
             color: "var(--tal-accent-dark)",
           }}
         >
-          {empresa || "Vale-Presente"}
+          {empresa}
         </h2>
         {slogan && (
           <p className="m-0 mt-0.5 text-[11.5px] text-(--tal-ink-soft)">
@@ -1025,7 +1012,7 @@ export function ValePresenteCard({
         </div>
 
         <p className="mt-4 text-[11.5px] text-(--tal-ink-soft) max-w-100 mx-auto min-h-[6mm]">
-          {mensagemPadrao || "mensagem"}
+          {mensagemPadrao}
         </p>
 
         <p className="mt-4 text-[10.5px] text-(--tal-ink-soft)">
@@ -1081,14 +1068,7 @@ export function ReceituarioCard({
           className="flex justify-between items-start pb-3.5 mb-4"
           style={{ borderBottom: "2px solid var(--tal-accent)" }}
         >
-          <div className="flex items-center gap-2.5">
-            {logo && (
-              <img
-                src={logo}
-                alt="Logo"
-                className="max-w-14.5 max-h-14.5 object-contain rounded-md"
-              />
-            )}
+          <LogoTexto logo={logo}>
             <div>
               <h2
                 className="text-[19px] m-0 mb-0.5"
@@ -1098,10 +1078,10 @@ export function ReceituarioCard({
                   color: "var(--tal-accent-dark)",
                 }}
               >
-                {clinica || "Nome da Clínica / Consultório"}
+                {clinica}
               </h2>
               <p className="m-0 text-[11px] text-(--tal-ink-soft)">
-                {profissional || "Nome do Profissional"}
+                {profissional}
                 {registro ? ` · ${registro}` : ""}
                 {especialidade ? ` · ${especialidade}` : ""}
               </p>
@@ -1116,7 +1096,7 @@ export function ReceituarioCard({
                 {email || ""}
               </p>
             </div>
-          </div>
+          </LogoTexto>
           <div
             className="text-[44px] leading-none opacity-85 font-bold"
             style={{
@@ -1158,7 +1138,7 @@ export function ReceituarioCard({
             className="w-65 mx-auto mb-1.5 pt-1.5 text-[11.5px] text-(--tal-ink-soft)"
             style={{ borderTop: "1.3px solid var(--tal-ink)" }}
           >
-            {profissional || "Nome do Profissional"}
+            {profissional}
             {registro ? ` — ${registro}` : ""}
           </div>
         </div>
@@ -1232,20 +1212,13 @@ export function ReceitaCard({
           className="flex justify-between items-start gap-3.5 pb-3.5 mb-4"
           style={{ borderBottom: "2px solid var(--tal-accent)" }}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            {logo && (
-              <img
-                src={logo}
-                alt="Logo"
-                className="max-w-13 max-h-13 object-contain rounded-md shrink-0"
-              />
-            )}
+          <LogoTexto logo={logo}>
             <div className="min-w-0">
               <div
                 className="text-[10.5px] uppercase tracking-[1.5px] font-bold"
                 style={{ color: "var(--tal-accent-dark)" }}
               >
-                {categoria || "Receita"}
+                {categoria}
               </div>
               <h2
                 className="text-[22px] leading-tight m-0 truncate"
@@ -1258,7 +1231,7 @@ export function ReceitaCard({
                 {titulo || ""}
               </h2>
             </div>
-          </div>
+          </LogoTexto>
           <div className="flex gap-3.5 shrink-0 text-right">
             {meta.map((m, i) => (
               <div key={i} className="text-[10px] text-(--tal-ink-soft)">
@@ -1361,6 +1334,7 @@ const BINGO_DENSITY = {
     headPad: "pb-3 mb-4",
     headBorder: 2,
     logo: "max-w-11 max-h-11",
+    logoPx: 44,
     title: 18,
     sub: 11,
     badgeFont: 13,
@@ -1383,6 +1357,7 @@ const BINGO_DENSITY = {
     headPad: "pb-4 mb-5",
     headBorder: 2,
     logo: "max-w-12 max-h-12",
+    logoPx: 48,
     title: 23,
     sub: 12.5,
     badgeFont: 15,
@@ -1405,6 +1380,7 @@ const BINGO_DENSITY = {
     headPad: "pb-2.5 mb-3",
     headBorder: 1.6,
     logo: "max-w-9 max-h-9",
+    logoPx: 36,
     title: 16.5,
     sub: 10,
     badgeFont: 12.5,
@@ -1427,6 +1403,7 @@ const BINGO_DENSITY = {
     headPad: "pb-1.5 mb-2",
     headBorder: 1.3,
     logo: "max-w-6 max-h-6",
+    logoPx: 24,
     title: 13.5,
     sub: 8.5,
     badgeFont: 10.5,
@@ -1449,6 +1426,7 @@ const BINGO_DENSITY = {
     headPad: "pb-1 mb-1.5",
     headBorder: 1,
     logo: "max-w-5 max-h-5",
+    logoPx: 20,
     title: 10.5,
     sub: 7,
     badgeFont: 8.5,
@@ -1499,13 +1477,7 @@ export function BingoCard({
           style={{ borderBottom: `${d.headBorder}px solid var(--tal-accent)` }}
         >
           <div className="flex items-center gap-1.5 min-w-0">
-            {logo && (
-              <img
-                src={logo}
-                alt="Logo"
-                className={`object-contain rounded-md shrink-0 ${d.logo}`}
-              />
-            )}
+            <LogoImg logo={logo} base={d.logoPx} />
             <div className="min-w-0">
               <h2
                 className="leading-tight m-0 truncate"
@@ -1516,7 +1488,7 @@ export function BingoCard({
                   color: "var(--tal-accent-dark)",
                 }}
               >
-                {titulo || "Noite de Bingo"}
+                {titulo}
               </h2>
               {subtitulo && (
                 <p
@@ -1631,7 +1603,7 @@ export function EntregaCard({ empresa, logo, rotuloTel, telefone, endereco, titu
       <div className="relative z-2 px-6 pt-5 pb-4">
         <div className="flex" style={{ border: bd, borderRadius: 10, overflow: "hidden" }}>
           <div className="flex items-center gap-3 flex-1 min-w-0 px-3 py-2.5">
-            {logo && <img src={logo} alt="Logo" className="max-w-18 max-h-16 object-contain shrink-0" />}
+            <LogoImg logo={logo} base={68} />
             <div className="min-w-0 flex-1 text-center">
               {empresa && <div className="truncate font-bold text-[15px]" style={{ fontFamily: "'Cormorant Garamond', serif", color: "var(--tal-accent-dark)" }}>{empresa}</div>}
               {rotuloTel && <div className="text-[9.5px] font-bold tracking-wider uppercase" style={{ color: "var(--tal-accent-dark)" }}>{rotuloTel}</div>}
@@ -1640,7 +1612,7 @@ export function EntregaCard({ empresa, logo, rotuloTel, telefone, endereco, titu
             </div>
           </div>
           <div className="flex flex-col items-center justify-center px-4 shrink-0 min-w-28" style={{ borderLeft: bd }}>
-            <span className="text-[13px] font-bold tracking-[0.3em]" style={{ color: "var(--tal-accent-dark)" }}>{titulo || "PEDIDO"}</span>
+            <span className="text-[13px] font-bold tracking-[0.3em]" style={{ color: "var(--tal-accent-dark)" }}>{titulo}</span>
             {numerar && <span className="mt-1 font-bold text-[17px]" style={{ fontFamily: "'Space Mono', monospace", color: "var(--tal-stamp)" }}>Nº {numStr}</span>}
           </div>
         </div>
