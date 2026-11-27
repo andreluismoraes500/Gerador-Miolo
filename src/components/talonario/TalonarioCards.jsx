@@ -6,6 +6,7 @@
 // de impressão.
 
 import { talonarioExtras } from "../../lib/configTalonario";
+import { useState } from "react";
 import { talCab } from "../../lib/talCabecalho";
 import { BINGO_LETTERS } from "../../hooks/useTalonarioBuilder";
 
@@ -30,18 +31,21 @@ function ExtrasTalonario() {
 }
 
 // Logo com tamanho e deslocamento controlados no painel "Cabeçalho".
-function LogoImg({ logo, base = 64, className = "", limitH }) {
+function LogoImg({ logo, base = 64, className = "", limitH = 180 }) {
   const c = talCab.useStore();
+  const [razao, setRazao] = useState(1); // altura / largura da imagem
   if (!logo) return null;
-  const w = (base * (Number(c.logoTam) || 100)) / 100;
+  let w = (base * (Number(c.logoTam) || 100)) / 100;
+  if (w * razao > limitH) w = limitH / razao; // respeita a altura máxima sem deixar "caixa" vazia
   return (
-    <img src={logo} alt="Logo" className={`object-contain rounded-md shrink-0 ${className}`}
-      style={{ width: w, height: limitH ? Math.min(limitH, w) : "auto", objectPosition: "left center", maxWidth: "none", maxHeight: "none", transform: `translate(${Number(c.logoX) || 0}px, ${Number(c.logoY) || 0}px)` }} />
+    <img src={logo} alt="Logo" className={`object-contain shrink-0 ${className}`}
+      onLoad={(e) => setRazao((e.currentTarget.naturalHeight || 1) / (e.currentTarget.naturalWidth || 1))}
+      style={{ width: w, height: "auto", maxWidth: "none", maxHeight: "none", marginLeft: Number(c.logoX) || 0, marginTop: Number(c.logoY) || 0 }} />
   );
 }
 
 // Logo + bloco de texto do cabeçalho: logo à esquerda/centro (em cima)/direita e texto alinhado à esquerda/centro/direita.
-function LogoTexto({ logo, children, limitH }) {
+function LogoTexto({ logo, children, limitH = 180 }) {
   const c = talCab.useStore();
   const col = c.logoPos === "centro";
   return (
@@ -210,7 +214,7 @@ export function PedidoCard({
           <LogoTexto logo={logo}>
             <div className="min-w-0">
               <h2
-                className="text-[19px] leading-tight m-0 truncate"
+                className="text-[19px] leading-tight m-0"
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
                   fontWeight: 700,
@@ -481,7 +485,7 @@ export function ReciboCard({
           <LogoTexto logo={logo}>
             <div className="min-w-0">
               <h2
-                className="text-[19px] leading-tight m-0 truncate"
+                className="text-[19px] leading-tight m-0"
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
                   fontWeight: 700,
@@ -613,7 +617,7 @@ export function ComandaCard({
         >
           <LogoTexto logo={logo}>
             <h2
-              className="text-[19px] leading-tight m-0 truncate"
+              className="text-[19px] leading-tight m-0"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 700,
@@ -733,7 +737,7 @@ export function ReservaCard({
           <LogoTexto logo={logo}>
             <div className="min-w-0">
               <h2
-                className="text-[19px] leading-tight m-0 truncate"
+                className="text-[19px] leading-tight m-0"
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
                   fontWeight: 700,
@@ -1116,7 +1120,7 @@ export function ReceitaCard({
                 {categoria}
               </div>
               <h2
-                className="text-[22px] leading-tight m-0 truncate"
+                className="text-[22px] leading-tight m-0"
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
                   fontWeight: 700,

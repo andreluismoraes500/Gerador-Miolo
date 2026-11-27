@@ -183,11 +183,11 @@ export default function ImprimirPdfPage() {
                 {cfg.marcaTipo === "imagem" && (
                   <label className="px-2.5 py-2 rounded-lg border border-[#D8CBA8] bg-white cursor-pointer">{marcaImg ? "Trocar imagem" : "Escolher imagem"}<input type="file" accept="image/*" className="hidden" onChange={lerImg(setMarcaImg)} /></label>
                 )}
-                {cfg.marcaTipo !== "nenhuma" && <>
+                {cfg.marcaTipo !== "nenhuma" && <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full pt-1">
                   <Faixa rotulo="Transparência" valor={cfg.marcaOp} min={3} max={80} un="%" onChange={(v) => pdfCfg.set({ marcaOp: v })} />
                   <Faixa rotulo="Tamanho" valor={cfg.marcaTam} min={8} max={80} un=" mm" onChange={(v) => pdfCfg.set({ marcaTam: v })} />
                   <Faixa rotulo="Giro" valor={cfg.marcaGiro} min={-90} max={90} un="°" onChange={(v) => pdfCfg.set({ marcaGiro: v })} />
-                </>}
+                </div>}
               </div>
               <PainelStickers prefixo="pdf-" />
             </div>
