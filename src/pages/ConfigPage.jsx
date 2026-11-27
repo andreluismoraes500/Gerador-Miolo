@@ -12,6 +12,8 @@ import {
   MdVisibilityOff,
   MdVisibility,
 } from "react-icons/md";
+import { createContext, useContext, useState } from "react";
+import { MdTextFields, MdMenuBook } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import { TEMAS } from "../themes";
 import { getCapaEstiloOptions } from "../config/capaStyles.jsx";
@@ -151,9 +153,19 @@ const PALETAS_DIAS = [
   },
 ];
 
-function SectionCard({ title, description, icon: Icon, children }) {
+const AbaCtx = createContext("cores");
+
+const ABAS = [
+  { id: "cores", rotulo: "Cores", dica: "Tema e cores dos dias", icone: MdColorLens },
+  { id: "textos", rotulo: "Textos", dica: "Fonte, rodapé e colunas", icone: MdTextFields },
+  { id: "imagens", rotulo: "Imagens", dica: "Logo, marca d'água e fundo", icone: MdImage },
+  { id: "capa", rotulo: "Capa", dica: "Nome, frase e estilo", icone: MdMenuBook },
+];
+
+function SectionCard({ title, description, icon: Icon, grupo, children }) {
+  const aba = useContext(AbaCtx);
   return (
-    <section className="bg-[#FBF8F1]/80 border border-[#D8CBA8] rounded-2xl p-5 sm:p-6 shadow-sm">
+    <section className={`bg-[#FBF8F1]/80 border border-[#D8CBA8] rounded-2xl p-5 sm:p-6 shadow-sm ${grupo && grupo !== aba ? "hidden" : ""}`}>
       <div className="mb-4 flex items-start gap-2.5">
         {Icon && (
           <div className="w-8 h-8 rounded-lg bg-[#EFE4C8] text-[#8B6A1F] flex items-center justify-center shrink-0 mt-0.5">
@@ -401,6 +413,10 @@ export default function ConfigPage() {
     setColunaStatus,
   } = useAgendaConfig();
 
+  const [aba, setAba] = useState("cores");
+  const idxAba = ABAS.findIndex((x) => x.id === aba);
+  const irAba = (id) => { setAba(id); try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { /* sem scroll */ } };
+
   const opcoesDeTemas = Object.entries(TEMAS).map(([id, { nome }]) => ({
     id,
     nome,
@@ -421,23 +437,38 @@ export default function ConfigPage() {
   };
 
   return (
+    <AbaCtx.Provider value={aba}>
     <div className="max-w-6xl mx-auto px-5 sm:px-6 py-8 flex flex-col gap-6">
-      <div>
-        <h1
-          className="text-2xl sm:text-3xl font-semibold text-[#24344D] tracking-tight"
-          style={{ fontFamily: "'Cormorant Garamond', serif" }}
-        >
+      <div className="rounded-3xl border border-[#D8CBA8] bg-gradient-to-br from-[#FBF3DC] via-[#FBF8F1] to-[#F3E8CC] px-6 py-6 shadow-sm">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-[#24344D] tracking-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
           Deixe do seu jeito
         </h1>
-        <p className="text-sm text-[#6B6458] mt-1">
-          Ajuste cores, fonte, rodapé, logo, marca d'água, fundo e a capa da
-          agenda.
+        <p className="text-sm text-[#6B6458] mt-1 max-w-2xl">
+          Siga as 4 etapas abaixo: escolha as cores, ajuste os textos, coloque suas imagens e monte a capa. Tudo é salvo automaticamente — depois é só ver a visualização.
         </p>
       </div>
+
+      <nav aria-label="Etapas da personalização" className="sticky top-0 z-10 -mx-1 px-1 py-2 bg-[#F6F1E7]/90 backdrop-blur grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {ABAS.map((x, i) => {
+          const ativo = x.id === aba;
+          const Icone = x.icone;
+          return (
+            <button key={x.id} type="button" onClick={() => irAba(x.id)} aria-current={ativo ? "page" : undefined}
+              className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2.5 text-left transition-all ${ativo ? "bg-[#24344D] text-white border-[#24344D] shadow-md" : "bg-[#FBF8F1] text-[#24344D] border-[#D8CBA8] hover:border-[#B8933D]"}`}>
+              <span className={`w-8 h-8 rounded-xl grid place-items-center shrink-0 text-lg ${ativo ? "bg-[#E0A800] text-[#24344D]" : "bg-[#EFE4C8] text-[#8B6A1F]"}`}><Icone /></span>
+              <span className="min-w-0">
+                <span className="block text-sm font-bold leading-tight">{i + 1}. {x.rotulo}</span>
+                <span className={`block text-[11px] leading-tight truncate ${ativo ? "text-white/75" : "text-[#8B6A1F]"}`}>{x.dica}</span>
+              </span>
+            </button>
+          );
+        })}
+      </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Tema / Layout de cores */}
         <SectionCard
+          grupo="cores"
           title="Tema de cores"
           description="Aplica uma combinação pronta de primária, secundária e fundo."
           icon={MdColorLens}
@@ -461,6 +492,7 @@ export default function ConfigPage() {
 
         {/* Cores personalizadas */}
         <SectionCard
+          grupo="cores"
           title="Cores personalizadas"
           description="Ajuste fino, sobrepõe o tema escolhido acima."
           icon={MdColorLens}
@@ -517,6 +549,7 @@ export default function ConfigPage() {
 
         {/* Tabela de Horários - Rótulos */}
         <SectionCard
+          grupo="textos"
           title="Rótulos das colunas"
           description="Personalize os nomes das colunas da tabela de horários."
           icon={MdColorLens}
@@ -582,6 +615,7 @@ export default function ConfigPage() {
 
         {/* Cores dos dias do calendário com paletas pré-definidas */}
         <SectionCard
+          grupo="cores"
           title="Cores dos dias do calendário"
           description="Escolha uma paleta pronta ou personalize cada cor individualmente."
           icon={MdColorLens}
@@ -681,6 +715,7 @@ export default function ConfigPage() {
 
         {/* Fonte */}
         <SectionCard
+          grupo="textos"
           title="Tipografia"
           description="Fonte usada nos textos da agenda."
           icon={MdFontDownload}
@@ -732,6 +767,7 @@ export default function ConfigPage() {
 
         {/* Rodapé - Personalização do Nome */}
         <SectionCard
+          grupo="textos"
           title="Rodapé Personalizado"
           description="Defina o nome que aparecerá no rodapé de todas as páginas."
           icon={MdPerson}
@@ -847,6 +883,7 @@ export default function ConfigPage() {
 
         {/* Logo */}
         <SectionCard
+          grupo="imagens"
           title="Logo"
           description="Aparece no cabeçalho das páginas."
           icon={MdImage}
@@ -883,6 +920,7 @@ export default function ConfigPage() {
 
         {/* Marca d'água */}
         <SectionCard
+          grupo="imagens"
           title="Marca d'água"
           description="Imagem sutil no fundo das páginas."
           icon={MdImage}
@@ -929,6 +967,7 @@ export default function ConfigPage() {
 
         {/* Fundo da página */}
         <SectionCard
+          grupo="imagens"
           title="Fundo da página"
           description="Imagem que preenche a página inteira, atrás do conteúdo."
           icon={MdImage}
@@ -982,7 +1021,8 @@ export default function ConfigPage() {
 
       {/* Capa */}
       <SectionCard
-        title="Capa"
+        grupo="capa"
+          title="Capa"
         description="Nome, frase e estilo exibidos na página de capa."
       >
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1030,23 +1070,32 @@ export default function ConfigPage() {
         <CapaAjuste settings={{ ...settings, ...cfgCtx }} />
       </SectionCard>
 
-      {/* Navegação */}
-      <div className="flex justify-between pt-2">
-        <button
-          onClick={() => navigate("/templates")}
-          className="text-[#6B6458] hover:text-[#24344D] font-medium text-sm py-3 px-4 rounded-xl flex items-center gap-2 transition-all hover:bg-[#EFE4C8]"
-        >
-          <MdArrowBack className="w-4 h-4" />
-          Voltar aos Modelos
-        </button>
-        <button
-          onClick={() => navigate("/preview")}
-          className="bg-[#24344D] hover:bg-[#1B2740] text-[#F6F1E7] font-semibold text-sm py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#111B2B] hover:shadow-[0_1px_0_0_#111B2B] hover:translate-y-px active:translate-y-0.5 active:shadow-none"
-        >
-          Ver Visualização
-          <MdArrowForward className="w-4 h-4" />
-        </button>
+      {/* Navegação entre as etapas */}
+      <div className="flex justify-between gap-3 pt-2">
+        {idxAba === 0 ? (
+          <button onClick={() => navigate("/templates")} className="text-[#6B6458] hover:text-[#24344D] font-medium text-sm py-3 px-4 rounded-xl flex items-center gap-2 transition-all hover:bg-[#EFE4C8]">
+            <MdArrowBack className="w-4 h-4" />
+            Voltar aos Modelos
+          </button>
+        ) : (
+          <button onClick={() => irAba(ABAS[idxAba - 1].id)} className="text-[#6B6458] hover:text-[#24344D] font-medium text-sm py-3 px-4 rounded-xl flex items-center gap-2 transition-all hover:bg-[#EFE4C8]">
+            <MdArrowBack className="w-4 h-4" />
+            {ABAS[idxAba - 1].rotulo}
+          </button>
+        )}
+        {idxAba < ABAS.length - 1 ? (
+          <button onClick={() => irAba(ABAS[idxAba + 1].id)} className="bg-[#24344D] hover:bg-[#1B2740] text-[#F6F1E7] font-semibold text-sm py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#111B2B]">
+            Próximo: {ABAS[idxAba + 1].rotulo}
+            <MdArrowForward className="w-4 h-4" />
+          </button>
+        ) : (
+          <button onClick={() => navigate("/preview")} className="bg-[#8B1D2C] hover:bg-[#751824] text-white font-semibold text-sm py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-[0_2px_0_0_#4a0f17]">
+            Ver Visualização
+            <MdArrowForward className="w-4 h-4" />
+          </button>
+        )}
       </div>
     </div>
+    </AbaCtx.Provider>
   );
 }
